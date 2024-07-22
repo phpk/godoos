@@ -1,0 +1,70 @@
+
+.screen {
+  --window-border: 1px solid #0078d7;
+  --window-border-radius: 4px;
+  --window-box-shadow: 0 0px 10px 1px rgb(0 0 0 / 40%);
+  --window-top-box-shadow: 0 0px 13px 1px rgb(0 0 0 / 60%);
+
+  --border-transparent: 1px solid transparent;
+  --border-gray: 1px solid #d0d0d0;
+
+  --ui-font-size: 12px;
+  --ui-list-item-height: 20px;
+  --ui-button-width: 80px;
+  --ui-button-height: 26px;
+
+  --theme-main-color: #ededed;
+  --theme-main-color-light: #e4e4e4;
+  --theme-main-color-opacity: #edededdc;
+
+  
+  --task-bar-height: 45px;
+  --menu-bar-height: 30px;
+  --menu-bar-button-size: 12px;
+  --startmenu-icon-size: 40px;
+  --startmenu-icon-size-hover: 200px;
+  --start-option-size: 50px;
+  --menulist-width: 160px;
+  --menulist-item-height: 30px;
+  --magnet-width: 360px;
+  --magnet-item-size: 80px;
+  --desk-item-size: 80px;
+  --contextmenu-width: 160px;
+  --notify-width: 240px;
+  --notify-height: 60px;
+  --message-width: 240px;
+  --message-inner-width: 220px;
+
+  --aniline:cubic-bezier(0, 0.83, 0.09, 1);
+// 通过option 控制的属性
+  --file-item-color: #111;
+
+  --color-notify: #333333e3;
+  --color-magnet: #e5e5e5ad;
+  --color-magnet-item: #f2f2f2bb;
+  --color-startmenu-opacity: #d0d0d0da;
+  --color-startmenu: #d0d0d0;
+  --color-dark-light: #33333322;
+  --color-dark:#333333e3;
+  --color-dark-hover: #33333360;
+  --color-gray: #ededed;
+  --color-gray-op6: #ededed92;
+
+  --color-gray-dark: #d0d0d0;
+  --color-gray-dark-op9: #d0d0d0e6;
+  --color-gray-op9: #ededede1;
+  --color-gray-hover-light: #e1e1e1e4;
+  --color-gray-hover: #f1f1f1;
+  --color-gray-hover-op: rgba(255, 255, 255, 0.519);
+  --color-gray-active: #ffffff;
+  --color-gray-active-op: rgba(255, 255, 255, 0.847);
+  --color-white: #fff;
+  --color-ui-gray: #f0f0f0;
+  --color-red: #ff0000;
+  --color-blue: #0078d7;
+  --color-light-blue: #e5f1fb;
+  --color-ui-desk-item-title: #000000;
+  --color-task-bar: #f0f0f0;
+
+  --light-border: 1px solid #00000028;
+}

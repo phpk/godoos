@@ -1,0 +1,317 @@
+:host {
+  position: relative;
+  display: inline-block;
+  color: #000000;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", system-ui, sans-serif;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: default;
+  z-index: 1;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+:host {
+  --safe-area-inset-left: env(safe-area-inset-left,0px);
+  --safe-area-inset-right: env(safe-area-inset-right,0px);
+  --safe-area-inset-top: env(safe-area-inset-top,0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom,0px);
+}
+:host {
+  --list-padding: max(0px,var(--list-padding-y)) max(0px,var(--list-padding-x));
+  --list-padding-x: 1px;
+  --list-padding-y: 5px;
+  --list-border-width: 1px;
+  --option-padding: max(0px,var(--option-padding-y)) max(0px,var(--option-padding-x));
+  --option-padding-x: 13px;
+  --option-padding-y: 3px;
+  --option-gap: 36px;
+  --option-icon-width: 16px;
+  --option-icon-height: 16px;
+  --option-icon-gap: 8px;
+  --option-selected-icon-gap: 6px;
+  --option-selected-icon-width: 1ch;
+}
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  touch-action: manipulation;
+  -webkit-app-region: no-drag;
+}
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.opener {
+  padding: var(--option-padding);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: inherit;
+  font: inherit;
+  background: #efefef;
+  border: 1px solid #000000a0;
+  border-radius: 0;
+  cursor: inherit;
+}
+:host([data-select]:not([data-select="no-appearance"])) .opener::after {
+  content: "";
+  margin-left: auto;
+  height: 6px;
+  border: 5px solid transparent;
+  border-top-width: 6px;
+  border-top-color: currentColor;
+  border-bottom: none;
+  opacity: 0.75;
+}
+.body {
+  position: fixed;
+  z-index: 1;
+}
+.list {
+  padding: var(--list-padding);
+  position: absolute;
+  top: var(--list-position-y);
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  background: #ffffff;
+  border: var(--list-border-width) solid #000000a0;
+  box-shadow: 0 4px 8px #00000040;
+  outline: none;
+}
+.list.left {
+  left: var(--list-position-x);
+}
+.list.right {
+  right: var(--list-position-x);
+}
+.list.main {
+  --list-position-x: 0px;
+  --list-position-y: 100%;
+}
+:host(:not([data-select=""]):not([data-open])) .list.main, .sub-list:not([data-open]) > .list {
+  padding: 0;
+  right: 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border: none;
+  visibility: hidden;
+  overflow: hidden;
+}
+:host([data-select]:not([data-select="no-appearance"]):not([data-open])) .list.main {
+  padding-top: 0;
+  padding-bottom: 0;
+  left: 0;
+  top: 0;
+  height: 0;
+  border-top: none;
+  border-bottom: none;
+  visibility: hidden;
+  overflow: hidden;
+}
+.option {
+  padding: var(--option-padding);
+  display: flex;
+  gap: var(--option-gap);
+  align-items: center;
+  color: inherit;
+  --option-color-interact: currentColor;
+  --option-background-color-interact: #00000020;
+  --sub-list-option-color-interact: var(--option-color-interact);
+  --sub-list-option-background-color-interact: var(--option-background-color-interact);
+  outline: none;
+}
+:host(:not([data-select])) .list[data-show-icons] > .option, :host(:not([data-select])) .list[data-show-icons] > li > .option, :host(:not([data-select])) .list[data-show-icons] > li > .sub-list > .option {
+  padding-left: calc(max(0px,var(--option-padding-x)) + max(0px,var(--option-icon-width)) + max(0px,var(--option-icon-gap)));
+}
+:host([data-select]) a.option {
+  display: none;
+}
+@supports not selector(:focus-visible) {
+  @media (hover: hover) and (pointer: fine) {
+    .option:where(:hover:focus,:active,:focus) {
+      color: var(--option-color-interact);
+      background-color: var(--option-background-color-interact);
+    }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .option:where(:hover,:active,:focus) {
+      color: var(--option-color-interact);
+      background-color: var(--option-background-color-interact);
+    }
+  }
+}
+@supports selector(:focus-visible) {
+  @media (hover: hover) and (pointer: fine) {
+    .option:where(:hover:focus,:active,:focus-visible) {
+      color: var(--option-color-interact);
+      background-color: var(--option-background-color-interact);
+    }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .option:where(:hover,:active,:focus-visible) {
+      color: var(--option-color-interact);
+      background-color: var(--option-background-color-interact);
+    }
+  }
+}
+:host([data-select]) .option::before {
+  content: "✓";
+  margin-right: calc(max(0px,var(--option-gap)) * -1 + max(0px,var(--option-selected-icon-gap)));
+  width: var(--option-selected-icon-width);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+:host([data-select]) .option:not([data-selected])::before {
+  visibility: hidden;
+}
+.option[data-disabled] {
+  opacity: 0.7;
+  pointer-events: none;
+}
+.icon {
+  margin-left: calc(max(0px,var(--option-icon-gap)) * -1 - max(0px,var(--option-icon-width)));
+  position: absolute;
+  width: var(--option-icon-width);
+  height: var(--option-icon-height);
+  pointer-events: none;
+}
+.list:not([data-show-icons]) > .option > .icon, .list:not([data-show-icons]) > li > .option > .icon, .list:not([data-show-icons]) > li > .sub-list > .option > .icon {
+  display: none;
+}
+:host([data-select]) .list[data-show-icons] > .option > .icon, :host([data-select]) .list[data-show-icons] > li > .option > .icon, :host([data-select]) .list[data-show-icons] > li > .sub-list > .option > .icon {
+  display: none;
+}
+.shortcut {
+  margin-left: auto;
+  opacity: var(--shortcut-opacity);
+  --shortcut-opacity: 0.7;
+  --shortcut-opacity-interact: 1;
+  pointer-events: none;
+}
+@supports not selector(:focus-visible) {
+  @media (hover: hover) and (pointer: fine) {
+    .option:is(:hover:focus,:active,:focus) > .shortcut {
+      opacity: var(--shortcut-opacity-interact);
+    }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .option:is(:hover,:active,:focus) > .shortcut {
+      opacity: var(--shortcut-opacity-interact);
+    }
+  }
+}
+@supports selector(:focus-visible) {
+  @media (hover: hover) and (pointer: fine) {
+    .option:is(:hover:focus,:active,:focus-visible) > .shortcut {
+      opacity: var(--shortcut-opacity-interact);
+    }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .option:is(:hover,:active,:focus-visible) > .shortcut {
+      opacity: var(--shortcut-opacity-interact);
+    }
+  }
+}
+.pass-through {
+  pointer-events: none;
+}
+.divider {
+  margin: calc(max(0px,var(--option-padding-y)) * 1.2) max(0px,var(--option-padding-x));
+  height: 1px;
+  color: inherit;
+  background: currentColor;
+  border: none;
+  opacity: 0.5;
+}
+:host(:not([data-select])) .list[data-show-icons] > li > .divider {
+  margin-left: calc(max(0px,var(--option-padding-x)) + max(0px,var(--option-icon-width)) + max(0px,var(--option-icon-gap)));
+}
+:host([data-select]) .divider {
+  margin-left: calc(max(0px,var(--option-padding-x)) + max(0px,var(--option-selected-icon-width)) + max(0px,var(--option-selected-icon-gap)));
+}
+.sub-list {
+  position: relative;
+  z-index: 1;
+}
+:host([data-select]) :is(.sub-list,.sub-list > .option) {
+  display: none;
+}
+@supports not selector(:focus-visible) {
+  @media (hover: hover) and (pointer: fine) {
+    .sub-list[data-open] > .option:not(:where(:hover:focus,:active,:focus)) {
+      color: var(--sub-list-option-color-interact);
+      background-color: var(--sub-list-option-background-color-interact);
+    }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .sub-list[data-open] > .option:not(:where(:hover,:active,:focus)) {
+      color: var(--sub-list-option-color-interact);
+      background-color: var(--sub-list-option-background-color-interact);
+    }
+  }
+}
+@supports selector(:focus-visible) {
+  @media (hover: hover) and (pointer: fine) {
+    .sub-list[data-open] > .option:not(:where(:hover:focus,:active,:focus-visible)) {
+      color: var(--sub-list-option-color-interact);
+      background-color: var(--sub-list-option-background-color-interact);
+    }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    .sub-list[data-open] > .option:not(:where(:hover,:active,:focus-visible)) {
+      color: var(--sub-list-option-color-interact);
+      background-color: var(--sub-list-option-background-color-interact);
+    }
+  }
+}
+.sub-list > .option::after {
+  content: "";
+  margin-left: auto;
+  width: 1.75ch;
+  height: 1.75ch;
+  background: currentColor;
+  -webkit-mask: var(--sub-list-icon-mask);
+  mask: var(--sub-list-icon-mask);
+  --sub-list-icon-mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20512%20512%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22m405%20256-265.5%20221.7v-443.41l265.5%20221.7z%22%2F%3E%0A%3C%2Fsvg%3E");
+  opacity: 0.5;
+  --sub-list-icon-opacity-interact: 1;
+}
+@supports not selector(:focus-visible) {
+  @media (hover: hover) and (pointer: fine) {
+    :is(.option:is(:hover:focus,:active,:focus), .sub-list[data-open] > .option)::after {
+      opacity: var(--sub-list-icon-opacity-interact);
+    }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    :is(.option:is(:hover,:active,:focus), .sub-list[data-open] > .option)::after {
+      opacity: var(--sub-list-icon-opacity-interact);
+    }
+  }
+}
+@supports selector(:focus-visible) {
+  @media (hover: hover) and (pointer: fine) {
+    :is(.option:is(:hover:focus,:active,:focus-visible), .sub-list[data-open] > .option)::after {
+      opacity: var(--sub-list-icon-opacity-interact);
+    }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    :is(.option:is(:hover,:active,:focus-visible), .sub-list[data-open] > .option)::after {
+      opacity: var(--sub-list-icon-opacity-interact);
+    }
+  }
+}
+.sub-list > .list {
+  --list-position-x: calc(100% - max(0px,var(--option-padding-x)) / 4);
+  --list-position-y: calc(max(0px,var(--list-padding-y)) * -1 - max(0px,var(--list-border-width)));
+}

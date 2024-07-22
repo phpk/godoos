@@ -1,0 +1,724 @@
+.tab {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: none;
+    border: var(--tab-border-width) solid transparent;
+    --tab-border-width: 1px;
+    border-radius: calc(6px + var(--tab-border-width));
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .tab .option {
+    margin: calc(var(--option-border-width) * -1);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    background: none;
+    background-clip: padding-box;
+    border: var(--option-border-width) solid transparent;
+    --option-border-width: 4px;
+    border-radius: calc(4px + var(--option-border-width));
+    outline: none;
+  }
+
+  .tab .option:hover, .tab .option:active {
+    color: #ffffff;
+    background-color: #ffffff24;
+  }
+  .tab .option:focus-visible {
+    color: #ffffff;
+    background-color: #ffffff24;
+  }
+/* -- Future Where --
+  .tab .option:where(:hover,:active,:focus-visible) {
+    color: #ffffff;
+    background-color: #ffffff24;
+  }
+*/
+
+  .tab .option svg {
+    width: 8px;height: 8px;
+    /*aspect-ratio: 1/1;*/
+    fill: currentColor;
+  }
+  menu-drop {
+    color: inherit;
+    font: inherit;
+    line-height: 16px;
+  }
+  menu-drop {
+    --list-padding-x: 0px;
+    --list-padding-y: 6px;
+    --list-border-width: 1px;
+    --option-padding-x: 11px;
+    --option-padding-y: 3px;
+    --option-icon-gap: 10px;
+    --option-selected-icon-width: 5px;
+  }
+  menu-drop::part(opener) {
+    border: none;
+    outline: none;
+  }
+  menu-drop::part(body) {
+    font-size: 13px;
+  }
+  menu-drop::part(list) {
+    --list-position-x: calc(100% + max(0px,var(--list-border-width)));
+    background: #2e2e2e;
+    border: var(--list-border-width) solid transparent;
+    border-radius: calc(var(--list-padding-y) + var(--list-border-width));
+    box-shadow: 0 5px 10px #00000060;
+    visibility: hidden;
+    opacity: 0.25;
+    transform: scale(0.5);
+    transition-property: opacity, transform;
+  }
+  menu-drop::part(list left) {
+    transform-origin: left calc(var(--list-position-y) * -1);
+  }
+  menu-drop::part(list right) {
+    transform-origin: right calc(var(--list-position-y) * -1);
+  }
+  menu-drop::part(list main) {
+    --list-position-x: 0;
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    transform: scaleY(0.5);
+    transform-origin: center top;
+  }
+  menu-drop::part(list open) {
+    visibility: visible;
+    opacity: 1;
+    transform: scale(1);
+    transition-duration: 130ms;
+  }
+  menu-drop::part(option) {
+    --option-color-interact: #ffffff;
+    text-decoration: none;
+    --option-background-color-interact: #0763d5bf;
+    --sub-list-option-color-interact: #ffffff;
+    --sub-list-option-background-color-interact: #ffffff1c;
+    border: 1px solid transparent;
+  }/* -- For some reason the :focus-visible styles are showing up by default when the page starts up, so I disabled the focus outline for now. --
+  menu-drop::part(option):focus-visible {
+    border-color: #c0c0c0;
+  }*/
+  menu-drop[data-select]::part(option)::before {
+    content: "";
+    height: var(--option-selected-icon-width);
+    background: currentColor;
+    -webkit-mask: var(--option-selected-icon-mask);
+    mask: var(--option-selected-icon-mask);
+    --option-selected-icon-mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20512%20512%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%3Cpath%20d%3D%22m63.346%20191.15%20192.72%20192.72-63.402%2063.402-192.72-192.72z%22%2F%3E%0A%20%20%3Cpath%20d%3D%22m129.5%20383.87%20319.15-319.15%2063.402%2063.402-319.15%20319.15z%22%2F%3E%0A%3C%2Fsvg%3E");
+    transform: translateX(-50%) scale(2);
+    transform-origin: center;
+  }
+  menu-drop::part(icon) {
+    width: 16px;height: 16px;
+    /*aspect-ratio: 1/1;*/
+  }
+  menu-drop::part(icon invert) {
+    filter: invert() hue-rotate(180deg);
+  }
+  menu-drop::part(icon rounded) {
+    border-radius: 3px;
+  }
+  menu-drop::part(shortcut) {
+    font-size: 12px;
+    --shortcut-opacity: 0.5;
+  }
+  menu-drop::part(divider) {
+    opacity: 0.6;
+  }
+  .select {
+    margin: calc(var(--select-padding) * -1);
+    padding: var(--select-padding);
+    --select-padding: 4px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+  }
+  .select label {
+    display: flex;
+    align-items: center;
+    transition: color var(--transition-fast);
+  }
+
+/* Temp Where */
+  .select:-webkit-any(:hover,:active,:focus-within) label, .select:-webkit-any(:hover,:active,:focus-within) menu-drop::part(opener) {
+    color: #ffffff;
+  }
+  .select:where(:hover,:active,:focus-within) label, .select:where(:hover,:active,:focus-within) menu-drop::part(opener) {
+    color: #ffffff;
+  }
+  
+  .select menu-drop::part(opener) {
+    padding: 2px 8px;
+    min-width: 74px;
+    background: #444444;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px #00000028;
+    transition: var(--transition-fast);
+    transition-property: color, background-color, border-color, border-radius;
+  }
+  .select:hover menu-drop::part(opener) {
+    background: #4f4f4f;
+  }
+
+/* Temp Where */
+  .select menu-drop::part(opener):-webkit-any(:hover,:active,:focus-visible), .select:focus-within menu-drop::part(opener), .select menu-drop[data-open]::part(opener) {
+    color: #ffffff;
+    background: #4f4f4f;
+  }
+  .select menu-drop::part(opener):where(:hover,:active,:focus-visible), .select:focus-within menu-drop::part(opener), .select menu-drop[data-open]::part(opener) {
+    color: #ffffff;
+    background: #4f4f4f;
+  }
+
+  .select menu-drop::part(opener):focus-visible {
+    border-color: #c0c0c0;
+  }
+  .select menu-drop[data-open]::part(opener) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .checkbox {
+    margin: calc(var(--checkbox-padding) * -1);
+    padding: calc(var(--checkbox-padding) - var(--checkbox-border-width));
+    --checkbox-padding: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: var(--checkbox-border-width) solid transparent;
+    --checkbox-border-width: 1px;
+    --checkbox-check-border-width: 2px;
+    border-radius: calc(var(--checkbox-padding) + var(--checkbox-border-width) + var(--checkbox-check-border-width));
+    outline: none;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transition: var(--transition-fast);
+    transition-property: color, border-color, opacity;
+  }
+
+/* Temp Where */
+  .checkbox:-webkit-any(:hover,:active,:focus-visible) {
+    color: #ffffff;
+  }
+  .checkbox:where(:hover,:active,:focus-visible) {
+    color: #ffffff;
+  }
+
+  .checkbox:active {
+    opacity: 0.85;
+  }
+  .checkbox:focus-visible {
+    border-color: #c0c0c0;
+  }
+  .checkbox input[type="checkbox"] {
+    display: none;
+  }
+  .checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    --check-padding: 2px;
+    --check-size: 12px;
+    pointer-events: none;
+  }
+  .checkbox label::before {
+    content: "";
+    padding: var(--check-padding);
+    width: calc(var(--check-size) + calc(calc(var(--check-padding) + var(--checkbox-check-border-width)) * 2));height: calc(var(--check-size) + calc(calc(var(--check-padding) + var(--checkbox-check-border-width)) * 2));
+    /*aspect-ratio: 1/1;*/
+    background: #ffffff0c;
+    border: var(--checkbox-check-border-width) solid currentColor;
+    border-radius: calc(var(--check-padding) + calc(var(--checkbox-check-border-width) * 2));
+    transition: background-color var(--transition-fast);
+  }
+
+/* Temp Where */
+  .checkbox:-webkit-any(:hover,:active,:focus-visible) label::before {
+    background: #ffffff1c;
+  }
+  .checkbox:where(:hover,:active,:focus-visible) label::before {
+    background: #ffffff1c;
+  }
+
+  .checkbox label .check {
+    padding: calc(var(--check-padding) + var(--checkbox-check-border-width));
+    position: absolute;
+    width: calc(var(--check-size) + calc(calc(var(--check-padding) + var(--checkbox-check-border-width)) * 2));height: calc(var(--check-size) + calc(calc(var(--check-padding) + var(--checkbox-check-border-width)) * 2));
+    /*aspect-ratio: 1/1;*/
+    fill: currentColor;
+    transform: rotate(-45deg) scale(0);
+    transform-origin: 45% 65%;
+    transition: transform 125ms ease-in;
+  }
+  .checkbox input[type="checkbox"]:checked + label .check {
+    transform: rotate(0deg) scale(1);
+    transition-timing-function: ease-out;
+  }
+  .card {
+    --card-header-padding-right: max(var(--safe-area-inset-right),8px);
+    display: flex;
+    flex-direction: column;
+    background: #212121;
+    border: var(--card-border-width) solid #ffffff24;
+    --card-border-width: 1px;
+    border-radius: var(--card-border-radius);
+    box-shadow: 0 8px 15px #00000050;
+    overflow: hidden;
+    z-index: var(--card-z-index);
+    --card-z-index: 1;
+    transition: var(--card-transition-duration);
+    --card-transition-duration: calc(var(--main-transition-duration) * 0.55);
+    transition-property: visibility, opacity, transform;
+  }
+  .card:not(.active) {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .card.active {
+    visibility: visible;
+    opacity: 1;
+    z-index: calc(var(--card-z-index) + 1);
+  }
+  .card:not(.dialog) {
+    margin: var(--margin) max(var(--safe-area-inset-right),var(--margin)) max(var(--safe-area-inset-bottom),var(--margin)) max(var(--safe-area-inset-left),var(--margin));
+  }
+  .card.alert {
+    --margin: 16px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    --card-border-radius: 10px;
+    pointer-events: none;
+    --card-z-index: 5;
+  }
+  .card.alert:not(.active) {
+    transform: translateX(calc(100% + var(--margin) * 2));
+  }
+  .card.widget {
+    --margin: 8px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    --card-border-radius: 12px;
+    transform-origin: center top;
+  }
+  .card.widget:not(.active) {
+    transform: scaleY(0.25);
+  }
+  .card.widget[data-minimize-change] {
+    transition-property: margin-right, margin-top, border-top-right-radius, border-bottom-right-radius, box-shadow, visibility, opacity, transform;
+  }
+  .card.widget.minimize {
+    margin-right: calc(var(--card-border-width) * -1);
+    margin-top: 3px;
+    --card-border-radius: 10px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: 0 4px 7px #00000050;
+  }
+  .card.dialog {
+    position: absolute;
+    --card-border-radius: 14px;
+    --card-z-index: 3;
+  }
+  .card.dialog:not(.active) {
+    transform: scale(0.5);
+  }
+  .card .header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff12;
+    border-bottom: var(--card-header-border-width) solid #000000;
+    --card-header-border-width: 1px;
+  }
+  .card.widget[data-minimize-change] .header {
+    background-clip: content-box;
+    transition: var(--card-transition-duration);
+    transition-property: margin-bottom, border-color;
+  }
+  .card.widget.minimize .header {
+    margin-bottom: calc(var(--card-header-border-width) * -1);
+    border-color: transparent;
+  }
+  .card .header .card-back {
+    margin-right: auto;
+    padding: 10px;
+    display: flex;
+    background: none;
+    border: none;
+    outline: none;
+  }
+  :root.macOS-device .card .header .card-back {
+    padding: 4px;
+    border-radius: 4px;
+  }
+  .card .header:not([data-card-parent]) .card-back {
+    display: none;
+  }
+
+  .card .header .card-back:hover, .card .header .card-back:active {
+    color: #ffffff;
+    background: #ffffff24;
+  }
+  .card .header .card-back:focus-visible {
+    color: #ffffff;
+    background: #ffffff24;
+  }
+/* -- Future Where --
+  .card .header .card-back:where(:hover,:active,:focus-visible) {
+    color: #ffffff;
+    background: #ffffff24;
+  }
+*/
+
+  .card .header .card-back svg {
+    width: 12px;height: 12px;
+    /*aspect-ratio: 1/1;*/
+    fill: currentColor;
+  }
+  .card .header .icon {
+    margin: 8px;
+    margin-left: 12px;
+    margin-right: 0;
+    width: 20px;height: 20px;
+    /*aspect-ratio: 1/1;*/
+  }
+  .card .header .heading {
+    white-space: pre;
+    z-index: -1;
+  }
+  .card:not(.alert) .header .heading {
+    position: absolute;
+  }
+  .card.alert .header .heading {
+    margin: 0 auto;
+  }
+  .card.widget[data-minimize-change] .header .heading {
+    transform-origin: calc(50% - calc(var(--card-minimize-width) + var(--card-header-padding-right)) * 0.5) center;
+    transition: var(--card-transition-duration);
+    transition-property: visibility, opacity, transform;
+  }
+  .card.widget.minimize .header .heading {
+    visibility: hidden;
+    opacity: 0;
+    transform: scale(0);
+  }
+  .card.dialog .header .heading {
+    font-size: 16px;
+  }
+  .card .header .card-controls {
+    margin-left: auto;
+    display: flex;
+  }
+  .card.alert .header .card-controls {
+    display: none;
+  }
+  :root.macOS-device .card .header .card-controls {
+    margin: 7px;
+    padding: 4px;
+    gap: 8px;
+    transition: margin var(--card-transition-duration);
+  }
+  :root.macOS-device .card .header:not([data-card-parent]) .card-controls {
+    margin-right: auto;
+  }
+  :root.macOS-device .card.minimize .header .card-controls {
+    margin: 1px;
+    margin-right: auto;
+  }
+  .card .header .card-controls .control {
+    padding: var(--control-padding,0px);
+    display: flex;
+    background: var(--control-background);
+    border: none;
+    outline: none;
+  }
+  :root:not(.macOS-device) .card .header .card-controls .control {
+    --control-padding: 10px;
+    --control-background: none;
+  }
+
+  :root:not(.macOS-device) .card .header .card-controls .control:hover, :root:not(.macOS-device) .card .header .card-controls .control:active {
+    color: #ffffff;
+    --control-background: #ffffff24;
+  }
+  :root:not(.macOS-device) .card .header .card-controls .control:focus-visible {
+    color: #ffffff;
+    --control-background: #ffffff24;
+  }
+/* -- Future Where
+  :root:not(.macOS-device) .card .header .card-controls .control:where(:hover,:active,:focus-visible) {
+    color: #ffffff;
+    --control-background: #ffffff24;
+  }
+*/
+
+  :root:not(.macOS-device) .card .header .card-controls .control[data-control="close"]:hover, :root:not(.macOS-device) .card .header .card-controls .control[data-control="close"]:active {
+    --control-background: #cc2a24;
+  }
+  :root:not(.macOS-device) .card .header .card-controls .control[data-control="close"]:focus-visible {
+    --control-background: #cc2a24;
+  }
+/* -- Future Where
+  :root:not(.macOS-device) .card .header .card-controls .control[data-control="close"]:where(:hover,:active,:focus-visible) {
+    --control-background: #cc2a24;
+  }
+*/
+
+  :root.macOS-device .card .header .card-controls .control {
+    --control-padding: 3px;
+    border-radius: 50%;
+  }
+  :root.macOS-device .card .header .card-controls .control[data-control="minimize"] {
+    --control-background: #fcbb40;
+  }
+  :root.macOS-device .card .header .card-controls .control[data-control="minimize"]:hover:active {
+    --control-background: #fee867;
+  }
+  :root.macOS-device .card .header .card-controls .control[data-control="close"] {
+    --control-background: #fc605c;
+  }
+  :root.macOS-device .card .header .card-controls .control[data-control="close"]:hover:active {
+    --control-background: #fd8e87;
+  }
+  .card:not(.widget) .header .card-controls .control[data-control="minimize"] {
+    display: none;
+  }
+  :root:not(.macOS-device) .card.widget.minimize .header .card-controls .control {
+    --control-padding: 6px;
+  }
+  :root:not(.macOS-device) .card.widget.minimize .header .card-controls .control[data-control="minimize"] {
+    border-radius: calc(var(--card-border-radius) - var(--card-border-width));
+  }
+  .card.widget.minimize .header .card-controls .control[data-control="close"] {
+    visibility: hidden;
+    opacity: 0;
+  }
+  :root:not(.macOS-device) .card.widget.minimize .header .card-controls .control[data-control="close"] {
+    margin-left: var(--card-header-padding-right);
+    margin-right: calc(var(--card-minimize-width) * -1);
+  }
+  :root.macOS-device .card.widget.minimize .header .card-controls .control[data-control="close"] {
+    margin-left: calc(var(--card-minimize-width) * -1 - 8px);
+  }
+  .card.widget[data-minimize-change] .header .card-controls .control {
+    transition: var(--card-transition-duration);
+    transition-property: padding;
+  }
+  .card.widget[data-minimize-change] .header .card-controls .control[data-control="minimize"] {
+    transition-property: padding, border-radius;
+  }
+  .card.widget[data-minimize-change] .header .card-controls .control[data-control="close"] {
+    transition-property: margin-left, margin-right, padding, visibility, opacity;
+  }
+  .card .header .card-controls .control svg {
+    fill: currentColor;
+  }
+  :root:not(.macOS-device) .card .header .card-controls .control svg {
+    width: 12px;height: 12px;
+    /*aspect-ratio: 1/1;*/
+  }
+  :root:not(.macOS-device) .card .header .card-controls .control[data-control="close"]:hover svg {
+    color: #ffffff;
+  }
+  :root.macOS-device .card .header .card-controls .control svg {
+    width: 6px;height: 6px;
+    /*aspect-ratio: 1/1;*/
+    color: transparent;
+    mix-blend-mode: luminosity;
+  }
+
+/* Temp Where */
+  :root.macOS-device .card .header .card-controls:-webkit-any(:hover,:active) .control svg, :root.macOS-device .card .header .card-controls:focus-within .control:focus-visible svg {
+    color: #202020bf;
+  }
+  :root.macOS-device .card .header .card-controls:where(:hover,:active) .control svg, :root.macOS-device .card .header .card-controls:focus-within .control:focus-visible svg {
+    color: #202020bf;
+  }
+
+  .card.widget.minimize .header .card-controls .control[data-control="minimize"] svg {
+    transform: rotateY(180deg);
+  }
+  .card.widget[data-minimize-change] .header .card-controls .control[data-control="close"] svg {
+    transition: transform var(--card-transition-duration);
+  }
+  .card.widget.minimize .header .card-controls .control[data-control="close"] svg {
+    transform: scale(0);
+  }
+  .card .main {
+    display: flex;
+    flex-direction: column;
+  }
+  .card:not(.widget) .main {
+    padding: 16px;
+    gap: 16px;
+  }
+  .card.widget .main {
+    padding: 14px;
+    gap: 14px;
+    transform-origin: calc(100% - calc(var(--card-minimize-width) + var(--card-header-padding-right)) * 0.5) top;
+  }
+  .card.widget[data-minimize-change] .main {
+    transition: var(--card-transition-duration);
+    transition-property: margin-left, margin-bottom, visibility, opacity, transform;
+  }
+  .card.widget.minimize .main {
+    margin-left: calc(calc(var(--card-main-width) - var(--card-header-padding-right)) * -1 + var(--card-minimize-width));
+    margin-bottom: calc(var(--card-main-height) * -1);
+    visibility: hidden;
+    opacity: 0;
+    transform: scale(0);
+  }
+  .card .main .content {
+    display: flex;
+    justify-content: space-around;
+  }
+  .card .main .content .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .card:not(.widget) .main .content .item {
+    gap: 16px;
+  }
+  .card.widget .main .content .item {
+    gap: 14px;
+  }
+  .card .main .content .item.start {
+    align-items: flex-start;
+  }
+  .card .options {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .card:not(.widget) .options {
+    gap: 16px;
+  }
+  .card.widget .options {
+    gap: 14px;
+  }
+  .card .main button {
+    padding: 2px 8px;
+    min-width: 74px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    background: #444444;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px #00000028;
+    outline: none;
+    transition: var(--transition-fast);
+    transition-property: color, background-color, border-color, border-radius;
+  }
+
+/* Temp Where */
+  .card .main button:-webkit-any(:hover,:active,:focus-visible) {
+    color: #ffffff;
+    background: #4f4f4f;
+  }
+  .card .main button:where(:hover,:active,:focus-visible) {
+    color: #ffffff;
+    background: #4f4f4f;
+  }
+
+  .card .main button:focus-visible {
+    border-color: #c0c0c0;
+  }
+
+/* Temp Where */
+  .card .main button.warning:-webkit-any(:hover,:active,:focus-visible) {
+    background: #b12f25;
+  }
+  .card .main button.warning:where(:hover,:active,:focus-visible) {
+    background: #b12f25;
+  }
+
+  .card .options button > img {
+    width: 16px;height: 16px;
+    /*aspect-ratio: 1/1;*/
+  }
+  .card .options button > svg {
+    width: 12px;height: 12px;
+    /*aspect-ratio: 1/1;*/
+    fill: currentColor;
+  }
+  .card num-text {
+    width: 32ch;
+    height: 12ch;
+    --background: #2d2d2d;
+    border-radius: 6px;
+  }
+  .card num-text.expand {
+    height: 20ch;
+  }
+  .card num-text::part(container)::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    box-shadow: 0 2px 3px #00000090 inset;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .card input:is([type="text"],[type="url"]) {
+    border-radius: 6px;
+    box-shadow: 0 2px 3px #00000090 inset;
+  }
+  .card-backdrop {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #1e1e1e60;
+    z-index: 3;
+    transition: calc(var(--main-transition-duration) * 0.5);
+    transition-property: visibility, opacity;
+  }
+  .card-backdrop:not(.active) {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .card-backdrop.active {
+    visibility: visible;
+    opacity: 1;
+  }
+  #symbol_definitions {
+    display: none;
+  }
+  :root.apple-home-screen #file_menu::part(create-window-option) {
+    display: none;
+  }
+  #install_button, #theme_button {
+    padding: 3px 8px;
+  }
+  :root:not(.install-prompt-available) #settings_menu::part(install-option), :root:not(.install-prompt-available) #install_option, :root:not(.install-prompt-available) #install_button {
+    display: none;
+  }
+  :root:not(.service-worker-activated) #settings_menu::part(clear-site-caches-option), :root:not(.service-worker-activated) #clear_site_caches_button {
+    display: none;
+  }
+  #preview_base_input {
+    box-sizing: content-box;
+    min-width: calc(var(--placeholder-count,0) * 1ch);
+    max-width: min(40ch,75vw);
+    width: calc(var(--input-count,0) * 1ch);
+  }
+  #generator_output {
+    width: 220px;
+    cursor: grab;
+  }

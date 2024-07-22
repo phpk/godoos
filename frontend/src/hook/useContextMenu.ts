@@ -1,0 +1,411 @@
+import * as fspath from '../system/core/Path';
+import { useSystem } from '../system';
+import { BrowserWindow } from '../system/window/BrowserWindow';
+import { OsFileWithoutContent } from '../system/core/FileSystem';
+import { i18n } from '../i18n';
+import { Dialog } from '../system/window/Dialog';
+// import { MenuItem } from '@/menu/MenuItem';
+import { Menu } from '../system/menu/Menu';
+import { uniqBy } from '../util/modash';
+import { UnwrapNestedRefs } from 'vue';
+
+export function createTaskbarIconContextMenu(e: MouseEvent, windowNode: UnwrapNestedRefs<BrowserWindow>) {
+  Menu.buildFromTemplate([
+    {
+      label: i18n('close'),
+      click: () => {
+        windowNode.close();
+      },
+    },
+    {
+      label: i18n('maximize'),
+      click: () => {
+        windowNode.maximize();
+      },
+    },
+    {
+      label: i18n('minimize'),
+      click: () => {
+        windowNode.minimize();
+      },
+    },
+  ]).popup(e);
+}
+function useContextMenu() {
+  function createDesktopContextMenu(
+    e: MouseEvent,
+    path = `${useSystem()._options.userLocation}Desktop`,
+    callback?: () => void
+  ) {
+    const system = useSystem();
+    if (!system) return;
+
+    const clickFunc = (ext: string, name: string) => {
+      createNewFile(path, '.' + ext, name).then(() => {
+        callback?.();
+      });
+    }
+    //console.log(path)
+    let menuArr = [
+      {
+        label: i18n('refresh'),
+        click: () => {
+          callback?.();
+        },
+      },
+      {
+        label: '新建文件',
+        submenu: [
+
+          {
+            label: 'MarkDown文件',
+            click: () => clickFunc('md', '未命名MD文件'),
+          },
+          {
+            label: 'word文档(Docx)',
+            click: () => clickFunc('docx', '未命名文档'),
+          },
+          {
+            label: '演示文稿(PPT)',
+            click: () => clickFunc('pptx', '未命名演示文稿'),
+          },
+          {
+            label: '数据表格(Excel)',
+            click: () => clickFunc('xlsx', '未命名数据表格'),
+          },
+          // {
+          //   label: '笔记(Note)',
+          //   click: () => clickFunc('note', '未命名笔记'),
+          // },
+          {
+            label: '文本文件(txt)',
+            click: () => clickFunc('txt', '未命名文本文件'),
+          },
+        ],
+      },
+      {
+        label: '新建工作图',
+        submenu: [
+          {
+            label: '思维导图(Mind)',
+            click: () => clickFunc('mind', '根节点'),
+          },
+          {
+            label: '看板(Kanban)',
+            click: () => clickFunc('kb', '未命名看板'),
+          },
+          {
+            label: '白板(Baiban)',
+            click: () => clickFunc('bb', '未命名白板'),
+          },
+          // {
+          //   label: '工作绘图(Flow)',
+          //   click: () => clickFunc('flow', '未命名工作绘图'),
+          // },
+          {
+            label: '甘特图(Gant)',
+            click: () => clickFunc('gant', '未命名项目'),
+          },
+          // {
+          //   label: '原型图(Proto)',
+          //   click: () => clickFunc('proto', '原型图'),
+          // },
+          // {
+          //   label: '流程图(Flow)',
+          //   click: () => clickFunc('mind', '流程图'),
+          // },
+          // {
+          //   label: '泳道图(Uml)',
+          //   click: () => clickFunc('uml', '泳道图'),
+          // },
+          // {
+          //   label: '用例图(Case)',
+          //   click: () => clickFunc('case', '泳道图'),
+          // },
+          // {
+          //   label: '顺序图(Seq)',
+          //   click: () => clickFunc('seq', '顺序图'),
+          // },
+        ],
+      },
+      // {
+      //   label: '新建报告',
+      //   submenu: [
+
+      //     {
+      //       label: '日报(Day)',
+      //       click : () => clickFunc('day', '日报'),
+      //     },
+      //     {
+      //       label: '周报(Week)',
+      //       click : () => clickFunc('week', '周报'),
+      //     },
+      //     {
+      //       label: '季报(Quarter)',
+      //       click : () => clickFunc('quarter', '季报'),
+      //     },
+      //     {
+      //       label: '年报(Year)',
+      //       click: () => clickFunc('year', '年报'),
+      //     },
+      //   ],
+      // },
+      {
+        label: i18n('paste'),
+        click: () => {
+          pasteFile(path).then(() => {
+            callback?.();
+          });
+        },
+      },
+      {
+        label: i18n('new.folder'),
+        click: () => {
+          createNewDir(path).then(() => {
+            callback?.();
+          });
+        },
+      },
+      ...(system._rootState.options.contextMenus || []),
+    ];
+
+    const menu = Menu.buildFromTemplate(
+      uniqBy(
+        menuArr,
+        (val) => val.label
+      )
+    );
+    menu.popup(e);
+  }
+  async function createNewFile(path: string, ext: string = '.txt', title: string = i18n('new.file')) {
+    const system = useSystem();
+    if (!system) return;
+    if (["/", "/B"].includes(path)) return;
+    let newFilePath = fspath.join(path, title + ext);
+    if (await system.fs.exists(newFilePath)) {
+      let i = 1;
+      while (await system.fs.exists(fspath.join(path, `${title}(${i})${ext}`))) {
+        i++;
+      }
+      newFilePath = fspath.join(path, `${title}(${i})${ext}`);
+    }
+    const content = '';
+    return await system.fs.writeFile(newFilePath, content);
+  }
+  async function createNewDir(path: string) {
+    const system = useSystem();
+    if (!system) return;
+    if (["/", "/B"].includes(path)) return;
+    let newFilePath = fspath.join(path, i18n('new.folder'));
+    if (await system.fs.exists(newFilePath)) {
+      let i = 1;
+      while (await system.fs.exists(fspath.join(path, `${i18n('new.folder')}(${i})`))) {
+        i++;
+      }
+      newFilePath = fspath.join(path, `${i18n('new.folder')}(${i})`);
+    }
+    return await system.fs.mkdir(newFilePath);
+  }
+
+  function openPropsWindow(path: string) {
+    new BrowserWindow({
+      title: i18n('props'),
+      content: "FileProps",
+      config: {
+        content: path,
+      },
+      width: 350,
+      height: 400,
+      resizable: false,
+    }).show();
+  }
+  async function backFile(file: OsFileWithoutContent) {
+    const system = useSystem();
+    if (!system) return;
+    const filePath = file.path;
+    if (filePath === "/") return;
+
+    const vol = filePath.charAt(1);
+    if (vol != "B") return;
+    let newPath: any = file.oldPath;
+    //console.log(newPath)
+    if (await system.fs.exists(newPath)) {
+
+      if (file.isDirectory) {
+        let i = 1;
+        while (await system.fs.exists(`${newPath}(${i})`)) {
+          i++;
+        }
+        newPath = `${newPath}(${i})`;
+
+      } else {
+        let i = 1;
+        let parentPath = '/B' + file.parentPath.substring(2)
+        while (await system.fs.exists(fspath.join(parentPath, `${file.title}(${i}).${file.ext}`))) {
+          i++;
+        }
+        newPath = fspath.join(parentPath, `${file.title}(${i}).${file.ext}`)
+      }
+    }
+    //console.log(newPath)
+    return system?.fs.rename(file.path, newPath)
+
+
+  }
+  async function deleteFile(file: OsFileWithoutContent) {
+    const system = useSystem();
+    if (!system) return;
+    if (!file) return;
+    const filePath = file.path;
+    if (filePath === "/") return;
+
+    if (file.isDirectory) {
+      if (["/", "/B", "/C", "/D", "/E"].includes(file.path)) return;
+    }
+    //console.log(file)
+    const vol = filePath.charAt(1);
+    //console.log(vol)
+    if (file && file.id && file.id < 1) {
+      if (["C", "D", "E"].includes(vol)) {
+        //console.log('/B' + filePath.substring(2))
+        let newPath = '/B' + filePath
+        // if (file.parentPath == "/C/Users/Desktop" && !file.isDirectory) {
+        //   newPath = '/B/' + file.title + "." + file.ext
+        // }
+        const fileDir = '/B' + (file.isDirectory ? file.path : file.path.replace(file.name, ""))
+        //console.log(fileDir)
+        if (!(await system.fs.exists(fileDir))) {
+          await system.fs.mkdir(fileDir)
+        }
+        if (await system.fs.exists(newPath)) {
+
+          if (file.isDirectory) {
+            let i = 1;
+            while (await system.fs.exists(`${newPath}(${i})`)) {
+              i++;
+            }
+            newPath = `${newPath}(${i})`;
+
+          } else {
+            let i = 1;
+            let parentPath = '/B' + file.parentPath
+            while (await system.fs.exists(fspath.join(parentPath, `${file.title}(${i}).${file.ext}`))) {
+              i++;
+            }
+            newPath = fspath.join(parentPath, `${file.title}(${i}).${file.ext}`)
+          }
+        }
+        return system?.fs.rename(file.path, newPath)
+      } else {
+        if (file.isDirectory) {
+          return system?.fs.rmdir(file.path);
+        } else {
+          return system?.fs.unlink(file.path);
+        }
+      }
+    } else {
+      if (file.isDirectory) {
+        return system?.fs.rmdir(file.path);
+      } else {
+        return system?.fs.unlink(file.path);
+      }
+    }
+
+
+
+  }
+  async function openWith(file: OsFileWithoutContent) {
+    const tempWin = new BrowserWindow({
+      title: i18n('open.with'),
+      content: "OpenWiteDialog",
+      config: {
+        content: file.path,
+      },
+      width: 400,
+      height: 400,
+      center: true,
+    });
+    tempWin.on('blur', () => {
+      tempWin.close();
+    });
+    tempWin.show();
+  }
+
+  async function copyFile(files: OsFileWithoutContent[]) {
+    const system = useSystem();
+    const rootState = system._rootState;
+    if (!system) return;
+    if (rootState.clipboard) {
+      rootState.clipboard = files.map((file) => file.path);
+    }
+  }
+  async function pasteFile(path: string) {
+    const system = useSystem();
+    if (!system) return;
+    if (["/", "/B"].includes(path)) return;
+    const rootState = system._rootState;
+    const clipLen = Object.keys(rootState.clipboard).length;
+    if (clipLen) {
+      const clipFiles = rootState.clipboard;
+
+      if (!clipFiles.forEach) {
+        return;
+      }
+      await clipFiles.forEach(async (clipFile: string) => {
+        let tempName = fspath.filename(clipFile);
+        const ext = fspath.extname(clipFile);
+
+        if (await system.fs.exists(fspath.join(path, tempName) + ext)) {
+          let i = 1;
+          while (await system.fs.exists(fspath.join(path, `${tempName}(${i})`) + ext)) {
+            i++;
+          }
+          tempName = `${tempName}(${i})`;
+        }
+        return system.fs.copyFile(clipFile, fspath.join(path, tempName) + ext);
+      });
+    } else {
+      system.emitError('no file in clipboard');
+    }
+  }
+  // 创建快捷方式
+  async function createLink(path: string) {
+    const system = useSystem();
+    if (!system) return;
+    if (["/", "/B"].includes(path)) return;
+    if (fspath.extname(path) === '.ln') {
+      Dialog.showMessageBox({
+        title: i18n('error'),
+        message: i18n('cannot.create.shortcut'),
+        type: 'error',
+      });
+      return;
+    }
+    const parentPath = fspath.dirname(path);
+    const baseName = fspath.basename(path);
+    const linkPath = fspath.join(parentPath, baseName + '.ln');
+    if (await system.fs.exists(linkPath)) {
+      Dialog.showMessageBox({
+        title: i18n('error'),
+        message: i18n('shortcut.has.been.created'),
+        type: 'error',
+      });
+      return;
+    }
+    return await system.fs.writeFile(linkPath, path);
+  }
+  return {
+    createDesktopContextMenu,
+    createNewFile,
+    openPropsWindow,
+    createNewDir,
+    deleteFile,
+    backFile,
+    openWith,
+    copyFile,
+    pasteFile,
+    createLink,
+  };
+}
+
+export { useContextMenu };

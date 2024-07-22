@@ -1,0 +1,107 @@
+{
+  "name": "文本编辑器",
+  "short_name": "文本编辑器",
+  "description": "文本编辑器",
+  "start_url": "./",
+  "scope": ".",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay"],
+  "theme_color": "#1e1e1e",
+  "background_color": "#1e1e1e",
+  "icons": [
+    {
+      "src": "resources/app-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "resources/app-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "resources/app-1024.png",
+      "type": "image/png",
+      "sizes": "1024x1024"
+    },
+    {
+      "platform": "macOS",
+      "src": "resources/app-macOS-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "platform": "macOS",
+      "src": "resources/app-macOS-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "platform": "macOS",
+      "src": "resources/app-macOS-1024.png",
+      "type": "image/png",
+      "sizes": "1024x1024"
+    },
+    {
+      "src": "resources/app-maskable-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    },
+    {
+      "src": "resources/app-maskable-1024.png",
+      "type": "image/png",
+      "sizes": "1024x1024",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "HTML Template",
+      "short_name": "HTML Template",
+      "description": "Create a new file with boilerplate HTML to start with",
+      "url": "./?template=true",
+      "icons": [
+        {
+          "src": "resources/template.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "short_name": "Settings",
+      "description": "Open settings for Smart Text Editor",
+      "url": "./?settings=true",
+      "icons": [
+        {
+          "src": "resources/settings.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "./",
+      "accept": {
+        "text/*": [".txt",".html",".css",".js",".php",".json",".webmanifest",".bbmodel",".xml",".yaml",".yml",".dist",".config",".ini",".md",".markdown",".mcmeta",".lang",".properties",".uidx",".material",".h",".fragment",".vertex",".fxh",".hlsl",".ihlsl"],
+        "image/svg+xml": [".svg"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "./",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "url": "share-target",
+      "files": [
+        {
+          "name": "file",
+          "accept": ["text/*",".txt",".html",".css",".js",".php",".json",".webmanifest",".bbmodel",".xml",".yaml",".yml",".dist",".config",".ini",".md",".markdown",".mcmeta",".lang",".properties",".uidx",".material",".h",".fragment",".vertex",".fxh",".hlsl",".ihlsl","image/svg+xml",".svg"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,36 @@
+[
+    {
+        "name": "在线工具",
+        "url": "https://tool.lu/",
+        "icon": "/image/store/tools.png"
+    },
+    {
+        "name": "石墨文档",
+        "url": "https://shimo.im/desktop",
+        "icon": "/image/store/shimo.png"
+    },
+    {
+        "name": "在线节拍器",
+        "url": "https://metronome.tooltool.net/?utm_source=xinquji",
+        "icon": "/image/store/jpq.png"
+    },
+    {
+        "name": "查看月食",
+        "url": "https://nadc.china-vo.org/eclipse/",
+        "icon": "/image/store/yueshi.png"
+    },
+    {
+        "name": "蒸 気 機",
+        "url": "https://magiconch.com/vaporwave/?from=home",
+        "icon": "/image/store/zqj.png"
+    },
+    {
+        "name": "vtb 大数据",
+        "url": "https://vtbs.moe/",
+        "icon": "/image/store/vtb.png"
+    },
+    {
+        "name": "更多应用",
+        "desc": "更多应用敬请期待，如果您有合适的应用，可以点击开始菜单，意见反馈取得联系"
+    }
+]

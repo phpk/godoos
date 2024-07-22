@@ -1,0 +1,75 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 40px);
+  user-select: none;
+}
+
+.nav {
+  width: 200px;
+  flex-shrink: 0;
+}
+.nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav li {
+  cursor: pointer;
+  padding: 10px 20px;
+  font-size: 14px;
+  position: relative;
+}
+
+.nav li.active {
+  background-color: #cccccc62;
+  transition: all 0.1s;
+}
+.nav li.active:hover {
+  background-color: var(--color-dark-light);
+}
+.nav li.active::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 60%;
+  background-color: var(--color-dark);
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.setting {
+  /* flex: 1; */
+  padding: 0 20px;
+  width: 100%;
+  background-color: white;
+  overflow-y: auto;
+}
+
+.setting-title {
+  font-size: 24px;
+  font-weight: 300;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.setting-item label {
+  display: block;
+  width: 100px;
+  flex-shrink: 0;
+  text-align: right;
+}

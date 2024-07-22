@@ -1,0 +1,102 @@
+$list-item-height: 42px;
+$primary-color: #0078D4; // 已定义的Windows 10主题蓝色
+$secondary-color: #444; // 已定义的辅助颜色
+$divider-color: #efeded; // 原有的分割线颜色，可考虑调整以匹配Win10风格
+$text-hover-color: #0078D4; // 文本悬停时的颜色，与主题色一致
+
+.list-item {
+    display: flex;
+    align-items: center;
+    height: $list-item-height;
+    padding: 0 12px; // 增加内边距以适应Win10的舒适感
+    border-bottom: 1px solid lighten($divider-color, 10%); // 调整分割线颜色使其更柔和
+    transition: background-color 0.1s ease-in-out; // 添加过渡效果
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05); // 给予微妙的鼠标悬停反馈
+        cursor: pointer;
+    }
+}
+
+
+
+.list-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; // 使用系统字体以贴近Win10风格
+    color: #333;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+        color: $text-hover-color; // 文本悬停颜色与主题色一致
+    }
+}
+
+.delete-btn {
+    margin-left: 10px;
+    padding: 0 5px;
+    cursor: pointer;
+    line-height: $list-item-height;
+    color: $secondary-color; // 使用辅助颜色作为默认按钮颜色
+    background-color: transparent;
+    border: none;
+    transition: color 0.1s ease-in-out;
+
+    &:hover {
+        color: darken($secondary-color, 10%); // 悬停时颜色变深
+    }
+}
+
+.list-time {
+    font-size: 12px;
+    color: #999;
+    margin-left: auto; // 将时间移到右边，以适应列表项的布局
+}
+
+.list-time:hover {
+    color: $text-hover-color; // 时间悬停颜色与标题一致
+}
+
+.list-column {
+    display: flex;
+    height: 60px;
+    padding: 0 12px;
+    border-bottom: 1px solid $divider-color; // 调整分割线颜色使其更柔和
+    transition: background-color 0.1s ease-in-out; // 添加过渡效果
+    flex-direction: column;
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05); // 给予微妙的鼠标悬停反馈
+        cursor: pointer;
+    } 
+}
+
+.list-column-title {
+    flex: 1;
+    display: flex; // 为标题添加Flexbox布局
+    align-items: center; // 实现上下居中
+    justify-content: flex-start; // 保持文本靠左
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; // 使用系统字体以贴近Win10风格
+    color: #333;
+    cursor: pointer;
+
+    &:hover {
+        color: $text-hover-color; // 文本悬停颜色与主题色一致
+    }
+}
+
+.list-footer {
+    display: flex;
+   
+    justify-content: space-between; // 使时间与按钮左右对齐
+    align-items: center; // 确保时间与按钮垂直居中
+    width: 100%; // 确保底部元素宽度适应容器
+    padding: 8px 12px; // 与上部对齐，保持内边距一致
+}

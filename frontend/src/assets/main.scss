@@ -1,0 +1,30 @@
+.scroll-bar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px; /* 调整滚动条大小以匹配Win10风格 */
+  background-color: rgba(255, 255, 255, 0.1); /* 增加背景色以更好地融入Win10界面 */
+  transition: all 0.1s;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(245, 245, 245, 0.2); /* 使用更接近Win10的背景颜色 */
+  border-radius: 3px; /* 添加圆角 */
+}
+
+::-webkit-scrollbar-track:hover {
+  background-color: rgba(245, 245, 245, 0.3); /* 鼠标悬停时加深背景色 */
+}
+
+.scroll-bar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.5); /* 更深的拇指颜色 */
+  border-radius: 3px; /* 与轨道相同的圆角 */
+  box-shadow: none; /* 移除内阴影，更符合Win10简洁的设计 */
+  transition: all 0.1s;
+}
+
+.scroll-bar:hover::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-bar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.7); /* 鼠标悬停时加深拇指颜色 */
+}

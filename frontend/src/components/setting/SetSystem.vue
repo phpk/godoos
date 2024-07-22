@@ -1,0 +1,380 @@
+<template>
+  <div class="container">
+    <div class="nav">
+      <ul>
+        <li
+          v-for="(item, index) in items"
+          :key="index"
+          @click="selectItem(index)"
+          :class="{ active: index === activeIndex }"
+        >
+          {{ item }}
+        </li>
+      </ul>
+    </div>
+    <div class="setting">
+      <div v-if="0 === activeIndex">
+        <div class="setting-item" style="margin-top: 60px">
+          <label>存储方式</label>
+          <el-select v-model="config.storeType">
+            <el-option
+              v-for="(item, key) in storeList"
+              :key="key"
+              :label="item.title"
+              :value="item.value"
+            />
+          </el-select>
+        </div>
+        <div class="setting-item" v-if="config.storeType === 'local'">
+          <label>存储地址</label>
+          <el-input v-model="config.storePath" @click="selectFile" />
+        </div>
+        <template v-if="config.storeType === 'net'">
+          <div class="setting-item">
+            <label>服务器地址</label>
+            <el-input v-model="config.storenet.url" />
+          </div>
+          <div class="setting-item">
+            <label>用户名</label>
+            <el-input v-model="config.storenet.username" />
+          </div>
+          <div class="setting-item">
+            <label>密码</label>
+            <el-input v-model="config.storenet.password" type="password" />
+          </div>
+        </template>
+
+        <div class="setting-item">
+          <label></label>
+          <el-button @click="submitOsInfo" type="primary">
+            {{ i18n("confirm") }}
+          </el-button>
+        </div>
+      </div>
+      <div v-if="1 === activeIndex">
+        <div class="setting-item" style="margin-top: 60px">
+          <label>用户角色</label>
+          <el-select v-model="config.userType">
+            <el-option
+              v-for="(item, key) in userTypeList"
+              :key="key"
+              :label="item.title"
+              :value="item.value"
+            />
+          </el-select>
+        </div>
+        <template v-if="config.userType === 'compony'">
+          <div class="setting-item">
+            <label>管理用户名</label>
+            <el-input v-model="config.userInfo.username" />
+          </div>
+          <div class="setting-item">
+            <label>管理密码</label>
+            <el-input v-model="config.userInfo.password" type="password" />
+          </div>
+        </template>
+        <template v-if="config.userType === 'member'">
+          <div class="setting-item">
+            <label>服务器地址</label>
+            <el-input v-model="config.userInfo.serverUrl" />
+          </div>
+          <div class="setting-item">
+            <label>登陆用户名</label>
+            <el-input v-model="config.userInfo.username" />
+          </div>
+          <div class="setting-item">
+            <label>登陆密码</label>
+            <el-input v-model="config.userInfo.password" type="password" />
+          </div>
+        </template>
+        <div class="setting-item">
+          <label></label>
+          <el-button @click="submitUserInfo" type="primary">
+            {{ i18n("confirm") }}
+          </el-button>
+        </div>
+      </div>
+      <div v-if="2 === activeIndex">
+        <div class="setting-item">
+          <h1 class="setting-title">备份</h1>
+        </div>
+        <div class="setting-item">
+          <label></label>
+          <el-button @click="exportBackup" type="primary"> 导出 </el-button>
+        </div>
+        <div class="setting-item">
+          <h1 class="setting-title">还原</h1>
+        </div>
+        <div class="setting-item">
+          <label></label>
+          <el-button @click="selectZipfile" type="primary"> 导入 </el-button>
+          <input type="file" accept=".zip" style="display: none" ref="zipFileInput" />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { inject, ref } from "vue";
+import { Dialog, join, System, i18n } from "@/system";
+import JSZip from "jszip";
+import FileSaver from "file-saver";
+import { getSystemConfig, setSystemConfig } from "@/system/config";
+import { OpenDirDialog } from "@/util/goutil";
+const config = ref(getSystemConfig());
+const sys = inject<System>("system")!;
+let zipFile: File | undefined = undefined;
+const zipFileInput = ref();
+const fileName: any = ref("");
+const storeList = [
+  {
+    title: "浏览器存储",
+    value: "browser",
+  },
+  {
+    title: "本地存储",
+    value: "local",
+  },
+  {
+    title: "远程存储",
+    value: "net",
+  },
+];
+const userTypeList = [
+  {
+    title: "个人用户",
+    value: "person",
+  },
+  {
+    title: "企业用户",
+    value: "member",
+  },
+  {
+    title: "企业管理员",
+    value: "compony",
+  },
+];
+
+const items = ["个人存储", "用户角色", "备份还原"];
+
+const activeIndex = ref(0);
+
+const selectItem = (index: number) => {
+  activeIndex.value = index;
+};
+function selectFile() {
+  OpenDirDialog().then((res: string) => {
+    config.value.storePath = res;
+  });
+}
+
+function submitOsInfo() {
+  const saveData = toRaw(config.value);
+  const postData: any = {
+    name: "osInfo",
+    type: saveData.storeType,
+  };
+  if (saveData.storeType === "local") {
+    if (saveData.storePath === "") {
+      Dialog.showMessageBox({
+        message: "存储地址不能为空",
+        type: "error",
+      });
+      return;
+    }
+    postData.value = saveData.storePath;
+  }
+  if (saveData.storeType === "net") {
+    if (saveData.storenet.url === "") {
+      Dialog.showMessageBox({
+        message: "服务器地址不能为空",
+        type: "error",
+      });
+      return;
+    }
+    if (saveData.storenet.username === "") {
+      Dialog.showMessageBox({
+        message: "用户名不能为空",
+        type: "error",
+      });
+      return;
+    }
+    if (saveData.storenet.password === "") {
+      Dialog.showMessageBox({
+        message: "密码不能为空",
+        type: "error",
+      });
+      return;
+    }
+  }
+  const postUrl = config.value.apiUrl + "/system/setting";
+  fetch(postUrl, {
+    method: "POST",
+    body: JSON.stringify(postData),
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      //console.log(res);
+      if (res.code === 0) {
+        setSystemConfig(saveData);
+        Dialog.showMessageBox({
+          message: i18n("save.success"),
+          title: i18n("language"),
+          type: "info",
+        }).then(() => {
+          location.reload();
+        });
+      } else {
+        Dialog.showMessageBox({
+          message: res.message,
+          type: "error",
+        });
+      }
+    });
+}
+function submitUserInfo() {
+  const saveData = toRaw(config.value);
+  if (saveData.userType === "member" && saveData.userInfo.serverUrl == "") {
+    Dialog.showMessageBox({
+      message: "服务器地址不能为空",
+      type: "error",
+    });
+    return;
+  }
+  if (saveData.userType !== "person") {
+    if (!saveData.userInfo.username && saveData.userInfo.username == "") {
+      Dialog.showMessageBox({
+        message: "用户名不能为空",
+        type: "error",
+      });
+      return;
+    }
+    if (!saveData.userInfo.password && saveData.userInfo.password == "") {
+      Dialog.showMessageBox({
+        message: "密码不能为空",
+        type: "error",
+      });
+      return;
+    }
+  }
+  setSystemConfig(saveData);
+  Dialog.showMessageBox({
+    message: i18n("save.success"),
+    title: i18n("language"),
+    type: "info",
+  });
+}
+async function exportBackup() {
+  const { setProgress } = Dialog.showProcessDialog({
+    message: `正在打包`,
+  });
+  try {
+    const zip = new JSZip();
+    await dfsPackage("/", zip, setProgress);
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+      FileSaver.saveAs(content, "backup.zip");
+      setProgress(100);
+    });
+  } catch (error) {
+    //console.log(error);
+    Dialog.showMessageBox({
+      message: "打包失败",
+      type: "error",
+    }).finally(() => {
+      zipFile = undefined;
+      fileName.value = "";
+      setProgress(100);
+    });
+  }
+}
+async function dfsPackage(path: string, zip: JSZip, setProgress: any) {
+  const dir = await sys.fs.readdir(path);
+
+  for (let i = 0; i < dir.length; i++) {
+    const item = dir[i];
+    const stat = await sys.fs.stat(item.path);
+    setProgress(Math.max((i / dir.length) * 100 - 0.1, 0.1));
+    if (stat) {
+      if (stat.isDirectory) {
+        await dfsPackage(item.path, zip, setProgress);
+      } else {
+        const content = await sys.fs.readFile(item.path);
+        try {
+          atob(content || "");
+          zip.file(item.path, content || "");
+        } catch (error) {
+          zip.file(item.path, content || "");
+        }
+      }
+    }
+  }
+}
+function selectZipfile() {
+  zipFileInput.value.click();
+  zipFileInput.value.onchange = (e: any) => {
+    const tar: any = e.target as HTMLInputElement;
+    if (tar.files?.[0]) {
+      zipFile = tar.files[0];
+      fileName.value = zipFile?.name;
+      importBackup();
+    } else {
+      zipFile = undefined;
+      fileName.value = "";
+    }
+  };
+}
+async function importBackup(path = "") {
+  if (!zipFile) {
+    return;
+  }
+  const { setProgress } = Dialog.showProcessDialog({
+    message: "正在恢复备份",
+  });
+  try {
+    const unziped = await JSZip.loadAsync(zipFile);
+    const unzipArray: Array<JSZip.JSZipObject> = [];
+    unziped.forEach((_, zipEntry) => {
+      unzipArray.push(zipEntry);
+    });
+    for (let i = 0; i < unzipArray.length; i++) {
+      const zipEntry = unzipArray[i];
+      setProgress((i / unzipArray.length) * 100);
+      if (zipEntry.dir) {
+        await sys.fs.mkdir(join(path, zipEntry.name));
+      } else {
+        let fileC: any = await zipEntry.async("string");
+        //console.log(fileC);
+        if (!fileC.startsWith("link::")) {
+          fileC = await zipEntry.async("arraybuffer");
+        }
+        sys.fs.writeFile(join(path, zipEntry.name), fileC);
+      }
+    }
+    setProgress(100);
+    selectItem(1);
+  } catch (e) {
+    //console.log(e);
+    setTimeout(() => {
+      Dialog.showMessageBox({
+        message: "恢复失败",
+        type: "error",
+      }).finally(() => {
+        zipFile = undefined;
+        fileName.value = "";
+        setProgress(100);
+      });
+    }, 100);
+  }
+}
+</script>
+<style scoped>
+@import "./setStyle.css";
+.ctrl {
+  width: 100px;
+}
+.setting-item {
+  display: flex;
+  align-items: center;
+}
+</style>
