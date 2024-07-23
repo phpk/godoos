@@ -34,10 +34,11 @@
     "baseUrl": "./",
     "outDir": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "~/*": ["./wailsjs/*"],
     } 
   },
-  "include": ["src/**/*.ts","src/**/**/*.ts", "src/**/*", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": ["src/**/*.ts","wailsjs/**/*.ts","wailsjs/**/*.js","src/**/**/*.ts", "src/**/*", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "exclude": [
     "dist",
     "node_modules"

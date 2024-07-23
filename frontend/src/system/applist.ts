@@ -181,20 +181,18 @@ export const appList = [
         ext: ['bb'],
         eventType: "exportBaiban"
     },
-    // {
-    //     name: 'localchat',
-    //     appIcon: "chat",
-    //     content: Chat,
-    //     view: Chat,
-    //     frame: true,
-    //     width: 800,
-    //     height: 600,
-    //     center: true,
-    //     resizable: true,
-    //     isDeskTop: true,
-    //     isMagnet: false,
-    //     ext: []
-    // },
+    {
+        name: 'localchat',
+        appIcon: "chat",
+        content: "Chat",
+        frame: true,
+        width: 800,
+        height: 600,
+        center: true,
+        resizable: true,
+        isDeskTop: true,
+        isMagnet: false,
+    },
 
     {
         name: 'piceditor',

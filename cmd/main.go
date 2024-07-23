@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"godoos/libs"
+	"godoos/localchat"
 	"godoos/progress"
 	"log"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const serverAddress = ":56710"
+const serverAddress = ":56780"
 
 var srv *http.Server
 
@@ -50,6 +51,9 @@ func OsStart() {
 	router.HandleFunc("/file/writefile", HandleWriteFile).Methods(http.MethodPost)
 	router.HandleFunc("/file/appendfile", HandleAppendFile).Methods(http.MethodPost)
 	router.HandleFunc("/file/watch", WatchHandler).Methods(http.MethodGet)
+	router.HandleFunc("/localchat/sse", localchat.SseHandler).Methods(http.MethodGet)
+	router.HandleFunc("/localchat/message", localchat.HandleMessage).Methods(http.MethodPost)
+	router.HandleFunc("/localchat/upload", localchat.MultiUploadHandler).Methods(http.MethodPost)
 
 	go progress.CheckActive(context.Background())
 	log.Printf("Listening on port: %v", serverAddress)

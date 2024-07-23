@@ -24,7 +24,7 @@ export const getSystemConfig = (ifset = false) => {
     }
     // 初始化API相关URL，若本地存储中已存在则不进行覆盖
     if (!config.apiUrl) {
-        config.apiUrl = 'http://localhost:56710';
+        config.apiUrl = 'http://localhost:56780';
     }
 
     // 初始化用户信息，若本地存储中已存在则不进行覆盖

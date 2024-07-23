@@ -11,6 +11,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "@liripeng/vue-audio-player": "^1.6.2",
+    "dexie": "^4.0.8",
     "element-plus": "^2.7.7",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
