@@ -3,21 +3,20 @@
 </p>
 
 <h1 align="center">GodoOS</h1>
-一款高效的内网办公平台，内含word/excel/ppt/pdf/内网聊天/白板/思维导图等多个办公系统工具，支持原生文件存储。平台界面精仿windows风格，操作简便，同时保持低资源消耗和高性能运行。无需注册即可自动连接内网用户，实现即时通讯和文件共享。
+An efficient intranet office platform that includes various tools such as Word, Excel, PPT, PDF, intranet chat, whiteboard, and mind mapping, and supports native file storage. The platform interface closely resembles the Windows style, featuring easy operation while maintaining low resource consumption and high performance. Automatically connects to intranet users without registration, enabling instant messaging and file sharing.
 
 <div align="center">
 
 [![license][license-image]][license-url] 
 
-[English](README.md) | 简体中文
+English | [简体中文](README.md)
 
-### 安装
+### Install
 
 [![Windows][Windows-image]][Windows-url]
 [![MacOS][MacOS-image]][MacOS-url]
 [![Linux][Linux-image]][Linux-url]
 
-[官方文档](./docs/Api.md) | [使用说明](./docs/Guide.md)
 
 [license-image]: ./docs/img/license_%20MIT.svg
 
@@ -26,126 +25,127 @@
 
 [Windows-image]: ./docs/img/Windows.svg
 
-[Windows-url]: https://
+[Windows-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-windows.exe
 
 [MacOS-image]: ./docs/img/MacOS.svg
 
-[MacOS-url]: https://
+[MacOS-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos.dmg
 
 [Linux-image]: ./docs/img/Linux.svg
 
-[Linux-url]: https://
+[Linux-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux
 
 </div>
 
-## 亮点
-- 零配置，无需注册，下载即用
-- 零污染，无插件依赖
-- 精小，打包后仅63M，确包含了所有的办公套件
-- 可无限扩展，支持自定义应用
-- golang开发后端，低资源消耗和高性能
+## Highlights
+- No need for internet connection, fully open source
+- Zero configuration, no registration required, download and use immediately
+- Zero pollution, no plugin dependency
+- Small in size, packaged for only 61M, it does include all the office suites
+- Unlimited scalability, supports custom applications
+- Golang develops backend with low resource consumption and high performance
 
-## 功能说明
+## Function Description
 
-### 一、系统桌面
-- 精仿windows风格
-- 桌面文件管理
-- 支持原生文件拖拽上传
+### 1、 System Desktop
+- Exquisite imitation of Windows style
+- Desktop file management
+- Support native file drag and drop upload
 <img src="./docs/img/home.png" width="600" />
 
-### 二、文件管理
-- 文件拖拽上传
-- 文件搜索
-- 原生文件存储
+### 2、 File management
+- Drag and drop file upload
+- File Search
+- Native file storage
 <img src="./docs/img/file.png" width="600" />
 
-### 三、内网聊天
-- 无需繁琐的注册流程，只需在同一局域网内，即可自动发现并列出所有可用的聊天对象，即刻开启即时通讯。支持基于局域网的即时消息传输、文件传输等功能，促进团队内部的无缝沟通与协作。
+### 3、 Internal chat
+- No need for complicated registration process, simply discover and list all available chat partners within the same local area network, and start instant messaging immediately. Support LAN based instant messaging, file transfer, and other functions to facilitate seamless communication and collaboration within the team.
 <img src="./docs/img/localchat.png" width="600" />
 
-### 四、文档
-- 简便的word编辑器，原生存储，支持二维码、手写签名，导入导出
+### 4、 Documents
+- Simple Word editor, native storage, supports QR codes, handwritten signatures, import and export
 <img src="./docs/img/doc.png" width="600" />
 
-### 五、表格
-- 原生存储，Excel编辑器，支持导入、导出，支持图片、公式
+### 5、 Table
+- Native storage, Excel editor, supports import and export, supports images and formulas
 <img src="./docs/img/excel.png" width="600" />
 
-### 六、markdown
-- 原生存储，采用vditor，支持导入、导出，支持大纲、实时预览
+### 6、 Markdown
+- Native storage, using VDitors, supporting import and export, outline and real-time preview
 <img src="./docs/img/markdown.png" width="600" />
 
-### 七、思维导图
-- 内置多种主题；支持快捷键；节点内容支持图片、图标、超链接、备注、标签。
+### 7、 Mind map
+- Built in multiple themes; Support shortcut keys; Node content supports images, icons, hyperlinks, notes, and tags.
 <img src="./docs/img/mind.png" width="600" />
 
-### 八、演示文稿
-- 原生存储，采用pptist，支持文字、图片、形状、线条、图表、表格、视频、公式等。
+### 8、 Presentation Presentation
+- Native storage, using pptist, supporting text, images, shapes, lines, charts, tables, videos, formulas, etc.
 <img src="./docs/img/ppt.png" width="600" />
 
-### 九、文件编辑器
-- 原生存储，支持打开text/html/css/js/svg/xml/md等，可以当作一个简单的在线editplus。
+### 9、 File Editor
+- Native storage, supports opening text/html/css/js/svg/xml/md, etc., can be used as a simple online editplus.
 <img src="./docs/img/fileeditor.png" width="600" />
 
-### 十、白板
-- 集自由布局、画笔、便签多种创意表达能力于一体，激发团队创造力，随时随地，围绕一块白板沟通。 
+### 10、 Whiteboard
+- Integrating various creative expression abilities such as free layout, paintbrushes, and notes, it inspires team creativity and enables communication around a whiteboard anytime, anywhere.
 <img src="./docs/img/baiban.png" width="600" />
 
-### 十一、图片编辑
-- 一个小型的photoshop，原生存储，支持搜索图片，支持图片裁剪、旋转、缩放、滤镜等功能
+### 11、 Image editing
+- A small Photoshop with native storage, supporting image search, cropping, rotation, scaling, filtering, and other functions
 <img src="./docs/img/pic.png" width="600" />
 
-### 十二、甘特图
-- 项目管理必备工具，支持自定义项目人员和角色，支持拖拽/管理分配（资源、角色、工作）等。
+### 12、 Gantt Chart
+- A must-have tool for project management, supporting custom project personnel and roles, and supporting drag and drop/management allocation (resources, roles, work), etc.
 <img src="./docs/img/gant.png" width="600" />
 
-### 十三、浏览器
-- 一款简单的内置浏览器
+### 13、 Browser
+- A simple built-in browser
 <img src="./docs/img/ie.png" width="600" />
 
 
-### 十四、系统设置
-- 可在这里切换存储方式，可切换系统背景。
+### 14、 System settings
+- You can switch storage methods and system backgrounds here.
 <img src="./docs/img/setting-store.png" width="600" />
 
-### 十五、应用商店
-- 应用商店管理，可添加外部应用。
+### 15、 App Store
+- App store management allows for the addition of external applications.
 
-### 十六、截图
-- 一个简单的截图工具。截图后文件存到本地。
+### 16、 Screenshot
+- A simple screenshot tool. Save the screenshot file locally.
 
-### 十七、录屏
-- 一个简单的录屏工具。录屏后录后文件存到本地。
+### 17、 Screen recording
+- A simple screen recording tool. After recording the screen, save the recorded file locally.
 
-### 十八、计算器
-- 一个仿windows10的计算器，支持历史记录。
+### 18、 Calculator
+- A calculator that mimics Windows 10 and supports historical records.
 <img src="./docs/img/cal.png" width="600" />
 
-### 十九、音乐库
-- 一个简单的声音存储库，支持播放音乐。
+### 19、 Music Library
+- A simple sound storage library that supports playing music.
 
-### 二十、图片库
-- 一个简单的图片存储库，支持查看图片
+### 20、 Picture Library
+- A simple image repository that supports viewing images
 
-### 二十一、看板
-- 支持标准看板，项目管理必备工具，可快速创建看板并放置到不同的文件夹
+### 21、 Kanban board
+- Support standard kanban, a must-have tool for project management, which can quickly create kanban and place it in different folders
 <img src="./docs/img/kanban.png" width="600" />
 
-## 开发
-### 构建
-- 前端构建
+## Development
+### Build
+- Front end construction
 ```bash
 cd frontend
 pnpm i
 pnpm build
 ```
-- 后端构建
+- Backend construction
 ```bash
 # go install github.com/wailsapp/wails/v2/cmd/wails@latest
 wails build
 # wails build -nsis -upx //you need install nsis and upx
 ```
-## 感谢
+## thank
 - [element-plus](http://element-plus.org/)
 - [vue3](https://v3.cn.vuejs.org/)
 - [wails](https://wails.io/)

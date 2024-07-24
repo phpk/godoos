@@ -9,7 +9,7 @@
 
 [![license][license-image]][license-url] 
 
-[English](README.md) | 简体中文
+[English](README.en.md) | 简体中文
 
 ### 安装
 
@@ -17,7 +17,6 @@
 [![MacOS][MacOS-image]][MacOS-url]
 [![Linux][Linux-image]][Linux-url]
 
-[官方文档](./docs/Api.md) | [使用说明](./docs/Guide.md)
 
 [license-image]: ./docs/img/license_%20MIT.svg
 
