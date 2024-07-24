@@ -201,32 +201,6 @@ export function initBuiltinFileOpener(system: System) {
   });
 
 
-
-  // system.registerFileOpener(
-  //   [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"],
-  //   {
-  //     name: "图片",
-  //     icon: 'image',
-  //     func: (path: string, content: any) => {
-  //       const imgwindow = new BrowserWindow({
-  //         width: 400,
-  //         height: 400,
-  //         icon: 'image',
-  //         center: true,
-  //         title: "图片预览",
-  //         content: "ImageViewer",
-  //         config: {
-  //           content: content,
-  //           path: path,
-  //         },
-  //       });
-  //       imgwindow.show();
-  //     },
-  //   }
-  // );
-
-
-
   const dateTimeT = new Tray({
     component: "DateTime",
   });

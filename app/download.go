@@ -104,10 +104,8 @@ func (a *App) AddToDownloadList(path string, url string) {
 			Url:         url,
 			Downloading: false,
 		})
-		a.ContinueDownload(url)
-	} else {
-		a.ContinueDownload(url)
 	}
+	a.ContinueDownload(url)
 }
 
 func (a *App) DownloadLoop() {

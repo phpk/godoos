@@ -241,8 +241,6 @@ export class System {
   }
 
   private async initFileSystem() {
-    // 如果传入了自定义fs，就使用传入的fs
-    //if (this._options.fs) {
     if (getSystemKey("storeType") == 'local'){
       //this.fs = this._options.fs;
       this.fs = useOsFile();
@@ -345,22 +343,6 @@ export class System {
     this._rootState.windowMap[loc].set(options.name, options);
   }
 
-  // async runPlugin(system: System) {
-  //   const pluginsFile = await this.fs.readdir(`${this._options.systemLocation}plugs`);
-  //   if (pluginsFile) {
-  //     await Promise.all(
-  //       pluginsFile.map(async (file) => {
-  //         const fileContent = await this.fs.readFile(file.path);
-  //         if (file.isFile) {
-  //           const content = fileContent;
-  //           if (content) {
-  //             //new Shell(system, '/', 'root').exec('node ' + file.path);
-  //           }
-  //         }
-  //       })
-  //     );
-  //   }
-  // }
   /**
    * @description: 添加应用
    * force 表示强制，在每次启动时都会添加
@@ -391,7 +373,6 @@ export class System {
     } else {
       this.isFirstRun = true;
       setSystemKey('isFirstRun', true)
-      // localStorage.setItem('godoOS_firstRun', 'true');
       this.emit('firstRun');
       return true;
     }

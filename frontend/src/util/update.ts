@@ -1,20 +1,23 @@
 //import { EventsOff, EventsOn } from '~/runtime';
-import manifest from '../../package.json';
+//import manifest from '../../package.json';
+import {isWindowsOS,getSystemConfig} from '@/system/config'
 export async function checkUpdate() {
     if(!(window as any).go) return;
+    const config = getSystemConfig();
     const updateGiteeUrl = `https://gitee.com/api/v5/repos/ruitao_admin/godoos/releases/`
     const releaseRes = await fetch(updateGiteeUrl)
     if(!releaseRes.ok) return;
     const releaseData = await releaseRes.json()
     const versionTag = releaseData.tag_name;
     if(!versionTag) return;
-    if (versionTag.replace('v', '') <= manifest.version) return;
+    if (versionTag.replace('v', '') <= config.version) return;
     const verifyUrl = `${updateGiteeUrl}tags/${versionTag}`;
     const verRes = await fetch(verifyUrl);
     if(!verRes.ok) return;
     const verData = await verRes.json()
     if(!verData.assets || verData.assets.length <= 0) return;
-    const updateUrl = `${updateGiteeUrl}download/${versionTag}/${asset.name}`;
+    const appName = "godoos"+ versionTag + (isWindowsOS() ? '.exe' : '');
+    const updateUrl = `${updateGiteeUrl}download/${versionTag}/${appName}`;
 
     fetch(`${updateGiteeUrl}latest`).then((r) => {
         if (r.ok) {

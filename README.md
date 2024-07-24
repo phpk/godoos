@@ -1,19 +1,56 @@
-# README
+<p align="center">
+    <img src="./build/appicon.png" width="120" height="120">
+</p>
 
-## About
+<h1 align="center">GodoOS</h1>
+<div align="center">
 
-This is the official Wails Vue-TS template.
+一款高效的内网办公平台，内含word/excel/ppt/pdf/内网聊天/白板/思维导图等多个办公系统工具，支持原生文件存储，满足多样化需求。平台界面精仿windows风格，操作简便，同时保持低资源消耗和高性能运行。无需注册即可自动连接内网用户，实现即时通讯和文件共享。
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+[![license][license-image]][license-url] 
 
-## Live Development
+[English](README.md) | 简体中文
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+### 安装
 
-## Building
+[![Windows][Windows-image]][Windows-url]
+[![MacOS][MacOS-image]][MacOS-url]
+[![Linux][Linux-image]][Linux-url]
 
-To build a redistributable, production mode package, use `wails build`.
+[官方文档](./docs/Api.md) | [使用说明](./docs/Guide.md)
+
+[license-image]: ./docs/img/license_%20MIT.svg
+
+[license-url]: https://spdx.org/licenses/MIT.html
+
+
+[Windows-image]: ./docs/img/Windows.svg
+
+[Windows-url]: https://github.com/josStorer/RWKV-Runner/blob/master/build/windows/Readme_Install.txt
+
+[MacOS-image]: ./docs/img/MacOS.svg
+
+[MacOS-url]: https://github.com/josStorer/RWKV-Runner/blob/master/build/darwin/Readme_Install.txt
+
+[Linux-image]: ./docs/img/Linux.svg
+
+[Linux-url]: https://github.com/josStorer/RWKV-Runner/blob/master/build/linux/Readme_Install.txt
+
+</div>
+
+## 功能说明
+
+一、系统桌面
+- 精仿windows风格
+- 桌面文件管理
+- 支持原生文件拖拽
+<img src="./docs/img/home.png" width="600" />
+
+二、文件管理
+- 文件上传下载
+- 文件搜索
+<img src="./docs/img/file.png" width="600" />
+
+三、内网聊天
+- 无需繁琐的注册流程，只需在同一局域网内，即可自动发现并列出所有可用的聊天对象，即刻开启即时通讯。支持基于局域网的即时消息传输、文件传输等功能，促进团队内部的无缝沟通与协作。
+<img src="./docs/img/localchat.png" width="600" />

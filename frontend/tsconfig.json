@@ -7,7 +7,6 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
     //"strict": true, // js/ts 混用时设为false
-    //"jsx": "preserve",
     "importHelpers": true,
     //"moduleResolution": "node",
     "experimentalDecorators": true,
@@ -15,7 +14,6 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "noImplicitThis": true, // js/ts 混用时设为false
-    //"baseUrl": ".",
     /* Bundler mode */
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,
@@ -23,8 +21,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-    
-    //"types": ["custom-types"],
 
     /* Linting */
     "strict": true,

@@ -97,7 +97,9 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
     <ChatFoot class="mt-20px"></ChatFoot>
   </div>
   <div class="no-message-container" v-else>
-    <Vue3Lottie animationLink="/bot/localchat.json" :height="300" :width="300" />
+    <el-icon :size="180" color="#0078d7">
+      <ChatDotRound   />
+    </el-icon>
   </div>
 </template>
 <style scoped lang="scss">
@@ -205,6 +207,8 @@ $win10-light-grey: #f2f2f2;
 .no-message-container {
     height: 100%;
     margin: 120px auto;
+    text-align: center;
+    justify-content: center;
 }
 .file-bubble {
   background-color: #f0f0f0; /* 背景色，可以根据需要调整 */

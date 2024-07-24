@@ -225,7 +225,7 @@ export const appList = [
     {
         name: 'calculator',
         appIcon: "calculator",
-        content: "/calculator/index.html",
+        url: "/calculator/index.html",
         frame: true,
         width: 366,
         height: 550,
