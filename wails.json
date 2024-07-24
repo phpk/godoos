@@ -7,7 +7,7 @@
   "frontend:dev:watcher": "pnpm dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "aiok",
+    "name": "ruitao",
     "email": "xpbb@qq.com"
   }
 }

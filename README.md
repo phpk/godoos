@@ -3,9 +3,9 @@
 </p>
 
 <h1 align="center">GodoOS</h1>
-<div align="center">
-
 一款高效的内网办公平台，内含word/excel/ppt/pdf/内网聊天/白板/思维导图等多个办公系统工具，支持原生文件存储。平台界面精仿windows风格，操作简便，同时保持低资源消耗和高性能运行。无需注册即可自动连接内网用户，实现即时通讯和文件共享。
+
+<div align="center">
 
 [![license][license-image]][license-url] 
 
@@ -26,17 +26,25 @@
 
 [Windows-image]: ./docs/img/Windows.svg
 
-[Windows-url]: https://
+[Windows-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-windows.exe
 
 [MacOS-image]: ./docs/img/MacOS.svg
 
-[MacOS-url]: https://
+[MacOS-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos.dmg
 
 [Linux-image]: ./docs/img/Linux.svg
 
-[Linux-url]: https://
+[Linux-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux
 
 </div>
+
+## 亮点
+- 无需联网使用，全开源
+- 零配置，无需注册，下载即用
+- 零污染，无插件依赖
+- 精小，打包后仅61M，确包含了所有的办公套件
+- 可无限扩展，支持自定义应用
+- golang开发后端，低资源消耗和高性能
 
 ## 功能说明
 
@@ -125,7 +133,19 @@
 <img src="./docs/img/kanban.png" width="600" />
 
 ## 开发
-
+### 构建
+- 前端构建
+```bash
+cd frontend
+pnpm i
+pnpm build
+```
+- 后端构建
+```bash
+# go install github.com/wailsapp/wails/v2/cmd/wails@latest
+wails build
+# wails build -nsis -upx //you need install nsis and upx
+```
 ## 感谢
 - [element-plus](http://element-plus.org/)
 - [vue3](https://v3.cn.vuejs.org/)
@@ -133,3 +153,4 @@
 - [pptist](https://github.com/pipipi-pikachu/PPTist)
 - [vditor](https://github.com/Vanessa219/vditor)
 - [mind-map](https://github.com/wanglin2/mind-map)
+- [canvas-editor](https://github.com/Hufe921/canvas-editor)

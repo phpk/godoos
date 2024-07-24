@@ -18,11 +18,11 @@ export async function checkUpdate() {
     if(!verData.assets || verData.assets.length <= 0) return;
     const appName = "godoos"+ versionTag + (isWindowsOS() ? '.exe' : '');
     const updateUrl = `${updateGiteeUrl}download/${versionTag}/${appName}`;
-
-    fetch(`${updateGiteeUrl}latest`).then((r) => {
-        if (r.ok) {
-          r.json().then((data) => {
-            if (data.tag_name) {
+    console.log(updateUrl)
+    // fetch(`${updateGiteeUrl}latest`).then((r) => {
+    //     if (r.ok) {
+    //       r.json().then((data) => {
+    //         if (data.tag_name) {
             //   const versionTag = data.tag_name;
             //   console.log(versionTag)
             //   if (versionTag.replace('v', '') > manifest.version) {
@@ -99,16 +99,16 @@ export async function checkUpdate() {
                 }
               }
                 */
-            } else {
-              throw new Error('Invalid response.');
-            }
-          });
-        } else {
-          throw new Error('Network response was not ok.');
-        }
-      }
-    ).catch((e) => {
-      //toast(t('Updates Check Error') + ' - ' + (e.message || e), { type: 'error', position: 'bottom-left' });
-    });
+    //         } else {
+    //           throw new Error('Invalid response.');
+    //         }
+    //       });
+    //     } else {
+    //       throw new Error('Network response was not ok.');
+    //     }
+    //   }
+    // ).catch((e) => {
+    //   //toast(t('Updates Check Error') + ' - ' + (e.message || e), { type: 'error', position: 'bottom-left' });
+    // });
   }
   
