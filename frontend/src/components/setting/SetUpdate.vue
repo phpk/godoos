@@ -16,39 +16,39 @@
       <!-- <div v-if="0 === activeIndex">
         <div class="setting-item">
           <h1 class="setting-title">
-            {{ i18n('system.backup.and.import') }}
+            {{ t('system.backup.and.import') }}
           </h1>
         </div>
         <div class="setting-item">
           <label>
-            {{ i18n('export.system.status') }}
+            {{ t('export.system.status') }}
           </label>
           <WinButton @click="handleClick(0)">
-            {{ i18n('export') }}
+            {{ t('export') }}
           </WinButton>
         </div>
         <div class="setting-item">
           <label>
-            {{ i18n('import.status.file') }}
+            {{ t('import.status.file') }}
           </label>
           <textarea v-model="inputConfig" type="text"></textarea>
         </div>
         <div class="setting-item">
           <label></label>
           <WinButton @click="handleClick(1)">
-            {{ i18n('import') }}
+            {{ t('import') }}
           </WinButton>
         </div>
       </div> -->
       <div v-if="0 === activeIndex">
         <div class="setting-item">
           <h1 class="setting-title">
-            {{ i18n("system.version") }}
+            {{ t("system.version") }}
           </h1>
         </div>
         <div class="setting-item">
           <label>
-            {{ i18n("version") }}
+            {{ t("version") }}
           </label>
           <span>{{ version }}</span>
         </div>
@@ -61,12 +61,12 @@
 import { ref } from "vue";
 // import { useSystem } from '@/system';
 // import { Dialog } from '@/dialog/Dialog';
-import { i18n } from "@/i18n";
+import { t } from "@/i18n";
 import { getSystemKey } from "@/system/config";
 // const system = useSystem();
 const items = [
-  // i18n('backup'), // '备份',
-  i18n("version"), // '版本',
+  // t('backup'), // '备份',
+  t("version"), // '版本',
 ];
 const version = getSystemKey("version");
 const activeIndex = ref(0);
@@ -82,28 +82,28 @@ const selectItem = (index: number) => {
 //     try {
 //       await navigator.clipboard.writeText(cfg!);
 //       Dialog.showMessageBox({
-//         title: i18n('export.config'),
-//         message: i18n('export.success.saved.to.clipboard'),
+//         title: t('export.config'),
+//         message: t('export.success.saved.to.clipboard'),
 //         type: 'info',
-//         buttons: [i18n('confirm')],
+//         buttons: [t('confirm')],
 //       });
 //     } catch (err) {
 //       Dialog.showMessageBox({
-//         title: i18n('export.config'),
-//         message: i18n('export.failed'),
+//         title: t('export.config'),
+//         message: t('export.failed'),
 //         type: 'error',
-//         buttons: [i18n('confirm')],
+//         buttons: [t('confirm')],
 //       });
 //     }
 //   } else if (num === 1) {
 //     // 导入配置
 //     try {
 //       const req = await Dialog.showMessageBox({
-//         title: i18n('import.config'),
+//         title: t('import.config'),
 //         // message: '导入会覆盖现有的文件,是否继续?',
-//         message: i18n('import.config.will.cover.existing.files.continue'),
+//         message: t('import.config.will.cover.existing.files.continue'),
 //         type: 'warning',
-//         buttons: [i18n('confirm'), i18n('cancel')],
+//         buttons: [t('confirm'), t('cancel')],
 //       });
 //       if (req.response === 1) return;
 //       await system?.deserializeState(inputConfig.value);
@@ -111,18 +111,18 @@ const selectItem = (index: number) => {
 //         system?.reboot();
 //       }, 10000);
 //       await Dialog.showMessageBox({
-//         title: i18n('import.success'),
-//         message: i18n('import.success.reboot.soon'),
+//         title: t('import.success'),
+//         message: t('import.success.reboot.soon'),
 //         type: 'warning',
-//         buttons: [i18n('confirm')],
+//         buttons: [t('confirm')],
 //       });
 //       system?.reboot();
 //     } catch (err) {
 //       Dialog.showMessageBox({
-//         title: i18n('import.config'),
-//         message: i18n('import.failed'),
+//         title: t('import.config'),
+//         message: t('import.failed'),
 //         type: 'error',
-//         buttons: [i18n('confirm')],
+//         buttons: [t('confirm')],
 //       });
 //     }
 //   }

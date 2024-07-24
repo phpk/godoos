@@ -114,38 +114,6 @@ func ExecuteScript(name string) error {
 
 	// 设置并启动脚本执行命令
 	var cmd *exec.Cmd
-	//threadNum := runtime.NumCPU()
-	// switch name {
-	// // case "llmcpu":
-	// // 	params := []string{
-	// // 		strconv.Itoa(threadNum),
-	// // 		"127.0.0.1",
-	// // 		"56715",
-	// // 	}
-	// // 	cmd = exec.Command(scriptPath, params...)
-	// // case "llmgpu":
-	// // 	params := []string{
-	// // 		strconv.Itoa(threadNum),
-	// // 		"127.0.0.1",
-	// // 		"56719",
-	// // 	}
-	// // 	cmd = exec.Command(scriptPath, params...)
-	// case "ollama":
-	// 	os.Setenv("OLLAMA_HOST", "localhost:56715")
-	// 	//os.Setenv("OLLAMA_PORT", "56715")
-	// 	os.Setenv("OLLAMA_MODELS", OllamaModelsDir())
-	// 	os.Setenv("OLLAMA_ORIGINS", "wails://*")
-	// 	//log.Printf("OllamaModelsDir: %s", OllamaModelsDir())
-	// 	if runtime.GOOS == "windows" {
-	// 		os.Setenv("OLLAMA_RUNNERS_DIR", filepath.Join(exeDir, name, "ollama_runners"))
-	// 	}
-	// 	params := []string{
-	// 		"serve",
-	// 	}
-	// 	cmd = exec.Command(scriptPath, params...)
-	// default:
-	// 	cmd = exec.Command(scriptPath)
-	// }
 	cmd = exec.Command(scriptPath)
 	if runtime.GOOS == "windows" {
 		// 在Windows上，通过设置CreationFlags来隐藏窗口

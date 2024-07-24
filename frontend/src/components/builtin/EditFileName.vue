@@ -1,7 +1,7 @@
 <template>
   <div class="outer">
     <input class="win-input" v-model="name" />
-    <WinButton @click="confirm">{{ i18n("confirm") }}</WinButton>
+    <WinButton @click="confirm">{{ t("confirm") }}</WinButton>
   </div>
 </template>
 <script setup lang="ts">
@@ -14,7 +14,7 @@ import { emitEvent } from "@/system/event";
 // import { basename } from '@/system/core/Path';
 import {
   Dialog,
-  i18n,
+  t,
   Notify,
   basename,
   join,

@@ -20,7 +20,7 @@ export const getSystemConfig = (ifset = false) => {
         config.isFirstRun = false;
     }
     if (!config.lang) {
-        config.lang = 'zh';
+        config.lang = '';
     }
     // 初始化API相关URL，若本地存储中已存在则不进行覆盖
     if (!config.apiUrl) {

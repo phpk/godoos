@@ -499,17 +499,3 @@ export function isChildPath(parent: string, dir: string) {
   return relativeRes && !relativeRes.startsWith('..') && !isAbsolute(relativeRes);
 }
 
-// export function dealI18nName(name: string) {
-//   const sysNames:any = {
-//     "C" : "系统",
-//     "D" : "文档",
-//     "E" : "办公",
-//     "B" : "回收站"
-//   }
-//   if(sysNames[name]) {
-//     return sysNames[name];
-//   }else{
-//     return name;
-//   }
-//   //return name;
-// }

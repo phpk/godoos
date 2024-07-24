@@ -22,7 +22,7 @@ import { emitEvent } from "@/system/event";
 import { basename } from "@/system/core/Path";
 import { OsFileWithoutContent } from "@/system/core/FileSystem";
 import { vGlowing } from "@/util/glowingBorder";
-import { i18n } from "@/i18n/index";
+import { t } from "@/i18n";
 
 const { openapp, appList } = useAppOpen("magnet");
 function handle(item: OsFileWithoutContent) {
@@ -32,7 +32,7 @@ function handle(item: OsFileWithoutContent) {
 function getName(item: any) {
   const name = basename(item.path);
   if (name.endsWith(".exe")) {
-    return i18n(name.replace(".exe", ""));
+    return t(name.replace(".exe", ""));
   } else {
     return name;
   }

@@ -3,9 +3,9 @@
     <div class="group">
       <!-- <div class="button">文件</div> -->
       <!-- <div class="button">计算机</div> -->
-      <div class="button" @click="backFolder()">{{ i18n("back") }}</div>
+      <div class="button" @click="backFolder()">{{ t("back") }}</div>
       <!-- 查看 -->
-      <div class="button" @click="popoverChange()">{{ i18n("view") }}</div>
+      <div class="button" @click="popoverChange()">{{ t("view") }}</div>
       <!-- <div class="button" @click="newFolder()">新建</div> -->
     </div>
     <div v-if="isPopoverView" class="up-pop">
@@ -30,9 +30,9 @@
         <el-icon :size="20" color="#137bd2">
           <Platform />
         </el-icon>
-        {{ i18n("desktop") }}
+        {{ t("desktop") }}
       </div>
-      <div class="showName">{{ i18n("computer") }}</div>
+      <div class="showName">{{ t("computer") }}</div>
       <FileTree
         :chosen-path="chosenTreePath"
         mode="list"
@@ -87,7 +87,7 @@ import {
   dirname,
   Notify,
   useSystem,
-  i18n,
+  t,
 } from "@/system/index.ts";
 import { useContextMenu } from "@/hook/useContextMenu";
 import { emitEvent, mountEvent } from "@/system/event";
@@ -280,13 +280,13 @@ function backgroundUp() {
 }
 
 /* ------------ 新建文件夹 ------------*/
-const createInput = ref(i18n("new.folder"));
+const createInput = ref(t("new.folder"));
 const creating = ref(false);
 function creatingEditEnd() {
   if (creating.value) {
     createFolder(createInput.value);
     creating.value = false;
-    createInput.value = i18n("new.folder");
+    createInput.value = t("new.folder");
   }
 }
 function onBackClick() {

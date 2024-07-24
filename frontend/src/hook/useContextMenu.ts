@@ -2,9 +2,8 @@ import * as fspath from '../system/core/Path';
 import { useSystem } from '../system';
 import { BrowserWindow } from '../system/window/BrowserWindow';
 import { OsFileWithoutContent } from '../system/core/FileSystem';
-import { i18n } from '../i18n';
+import { t } from '../i18n';
 import { Dialog } from '../system/window/Dialog';
-// import { MenuItem } from '@/menu/MenuItem';
 import { Menu } from '../system/menu/Menu';
 import { uniqBy } from '../util/modash';
 import { UnwrapNestedRefs } from 'vue';
@@ -12,19 +11,19 @@ import { UnwrapNestedRefs } from 'vue';
 export function createTaskbarIconContextMenu(e: MouseEvent, windowNode: UnwrapNestedRefs<BrowserWindow>) {
   Menu.buildFromTemplate([
     {
-      label: i18n('close'),
+      label: t('close'),
       click: () => {
         windowNode.close();
       },
     },
     {
-      label: i18n('maximize'),
+      label: t('maximize'),
       click: () => {
         windowNode.maximize();
       },
     },
     {
-      label: i18n('minimize'),
+      label: t('minimize'),
       click: () => {
         windowNode.minimize();
       },
@@ -48,7 +47,7 @@ function useContextMenu() {
     //console.log(path)
     let menuArr = [
       {
-        label: i18n('refresh'),
+        label: t('refresh'),
         click: () => {
           callback?.();
         },
@@ -151,7 +150,7 @@ function useContextMenu() {
       //   ],
       // },
       {
-        label: i18n('paste'),
+        label: t('paste'),
         click: () => {
           pasteFile(path).then(() => {
             callback?.();
@@ -159,7 +158,7 @@ function useContextMenu() {
         },
       },
       {
-        label: i18n('new.folder'),
+        label: t('new.folder'),
         click: () => {
           createNewDir(path).then(() => {
             callback?.();
@@ -177,7 +176,7 @@ function useContextMenu() {
     );
     menu.popup(e);
   }
-  async function createNewFile(path: string, ext: string = '.txt', title: string = i18n('new.file')) {
+  async function createNewFile(path: string, ext: string = '.txt', title: string = t('new.file')) {
     const system = useSystem();
     if (!system) return;
     if (["/", "/B"].includes(path)) return;
@@ -196,20 +195,20 @@ function useContextMenu() {
     const system = useSystem();
     if (!system) return;
     if (["/", "/B"].includes(path)) return;
-    let newFilePath = fspath.join(path, i18n('new.folder'));
+    let newFilePath = fspath.join(path, t('new.folder'));
     if (await system.fs.exists(newFilePath)) {
       let i = 1;
-      while (await system.fs.exists(fspath.join(path, `${i18n('new.folder')}(${i})`))) {
+      while (await system.fs.exists(fspath.join(path, `${t('new.folder')}(${i})`))) {
         i++;
       }
-      newFilePath = fspath.join(path, `${i18n('new.folder')}(${i})`);
+      newFilePath = fspath.join(path, `${t('new.folder')}(${i})`);
     }
     return await system.fs.mkdir(newFilePath);
   }
 
   function openPropsWindow(path: string) {
     new BrowserWindow({
-      title: i18n('props'),
+      title: t('props'),
       content: "FileProps",
       config: {
         content: path,
@@ -316,7 +315,7 @@ function useContextMenu() {
   }
   async function openWith(file: OsFileWithoutContent) {
     const tempWin = new BrowserWindow({
-      title: i18n('open.with'),
+      title: t('open.with'),
       content: "OpenWiteDialog",
       config: {
         content: file.path,
@@ -375,8 +374,8 @@ function useContextMenu() {
     if (["/", "/B"].includes(path)) return;
     if (fspath.extname(path) === '.ln') {
       Dialog.showMessageBox({
-        title: i18n('error'),
-        message: i18n('cannot.create.shortcut'),
+        title: t('error'),
+        message: t('cannot.create.shortcut'),
         type: 'error',
       });
       return;
@@ -386,8 +385,8 @@ function useContextMenu() {
     const linkPath = fspath.join(parentPath, baseName + '.ln');
     if (await system.fs.exists(linkPath)) {
       Dialog.showMessageBox({
-        title: i18n('error'),
-        message: i18n('shortcut.has.been.created'),
+        title: t('error'),
+        message: t('shortcut.has.been.created'),
         type: 'error',
       });
       return;

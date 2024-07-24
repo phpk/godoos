@@ -4,16 +4,16 @@
       <div class="file-item_img"></div>
       <div class="file-item_title"></div>
       <div class="file-item_type">
-        <span>{{ i18n("size") }}</span>
+        <span>{{ t("size") }}</span>
       </div>
       <div class="file-item_type">
-        <span>{{ i18n("creation.time") }}</span>
+        <span>{{ t("creation.time") }}</span>
       </div>
       <div class="file-item_type">
-        <span>{{ i18n("modification.time") }}</span>
+        <span>{{ t("modification.time") }}</span>
       </div>
       <div class="file-item_type">
-        <span>{{ i18n("permission") }}</span>
+        <span>{{ t("permission") }}</span>
       </div>
     </div>
   </template>
@@ -67,7 +67,7 @@
 import { useSystem, basename, dirname, join, OsFileWithoutContent } from '@/system/index.ts';
 import { emitEvent, mountEvent } from '@/system/event';
 import { useContextMenu } from '@/hook/useContextMenu.ts';
-import { i18n, dealSystemName } from '@/i18n';
+import { t, dealSystemName } from '@/i18n';
 import { useFileDrag } from '@/hook/useFileDrag';
 import { useAppMenu } from '@/hook/useAppMenu';
 import { onMounted, ref, markRaw } from 'vue';
@@ -116,7 +116,7 @@ function getName(item: any) {
   // console.log(name)
   // console.log(item.path)
   if (name.endsWith('.exe')) {
-    return i18n(name.replace('.exe', ""))
+    return t(name.replace('.exe', ""))
   } else {
     return name
   }
@@ -232,14 +232,14 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
   // eslint-disable-next-line prefer-const
   let menuArr = [
     {
-      label: i18n('open'),
+      label: t('open'),
       click: () => {
         chosenIndexs.value = [];
         props.onOpen(item);
       },
     },
     // {
-    //   label: i18n('open.with'),
+    //   label: t('open.with'),
     //   click: () => {
     //     chosenIndexs.value = [];
     //     openWith(item);
@@ -249,7 +249,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
   ];
   if (choose.ifShow) {
     menuArr.push({
-      label: i18n('selected'),
+      label: t('selected'),
       click: () => {
         const paths: any = []
         chosenIndexs.value.forEach((index) => {
@@ -277,7 +277,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
   if (ext != 'exe') {
     const fileMenus = [
       {
-        label: i18n('rename'),
+        label: t('rename'),
         click: () => {
           editIndex.value = index;
           editName.value = basename(item.path);
@@ -285,7 +285,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
         },
       },
       {
-        label: i18n('copy'),
+        label: t('copy'),
         click: () => {
           //if(["/","/B"].includes(item.path)) return;
           copyFile(chosenIndexs.value.map((index) => props.fileList[index]));
@@ -293,7 +293,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
         },
       },
       {
-        label: i18n('delete'),
+        label: t('delete'),
         click: async () => {
           // await Promise.all(
           //   chosenIndexs.value.map((index) => {
@@ -318,7 +318,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
   const sysEndMenu = [
 
     {
-      label: i18n('create.shortcut'),
+      label: t('create.shortcut'),
       click: () => {
         createLink(item.path)?.then(() => {
           chosenIndexs.value = [];
@@ -327,7 +327,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
       },
     },
     {
-      label: i18n('props'),
+      label: t('props'),
       click: () => {
         chosenIndexs.value.forEach((index) => {
           openPropsWindow(props.fileList[index].path);
@@ -353,7 +353,7 @@ function handleDragLeave() {
   hoverIndex.value = -1;
 }
 
-// function dealI18nName(name: string) {
+// function dealtName(name: string) {
 //   return name;
 // }
 </script>

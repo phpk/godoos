@@ -8,7 +8,7 @@
           </svg>
         </div>
         <div class="s-option-button_title">
-          {{ i18n("startMenu.power") }}
+          {{ t("startMenu.power") }}
         </div>
       </div>
       <div class="s-option-button" @click.stop="($ev) => handleClick(1, $ev)" v-glowing>
@@ -18,7 +18,7 @@
           </svg>
         </div>
         <div class="s-option-button_title">
-          {{ i18n("setting") }}
+          {{ t("setting") }}
         </div>
       </div>
     </div>
@@ -26,7 +26,7 @@
 </template>
 <script lang="ts" setup>
 import { emitEvent } from "@/system/event";
-import { useSystem, Dialog, i18n, Menu, BrowserWindow } from "@/system";
+import { useSystem, Dialog, t, Menu, BrowserWindow } from "@/system";
 import { vGlowing } from "@/util/glowingBorder";
 
 const sys = useSystem();
@@ -35,18 +35,18 @@ function handleClick(key: number, ev: MouseEvent) {
     case 0:
       Menu.buildFromTemplate([
         {
-          label: i18n("startMenu.shutdown"),
+          label: t("startMenu.shutdown"),
           click: () => {
             emitEvent("system.shutdown");
           },
         },
         {
-          label: i18n("startMenu.recover"),
+          label: t("startMenu.recover"),
           click: () => {
             Dialog.showMessageBox({
-              title: i18n("startMenu.recover"),
-              message: i18n("is.recover"),
-              buttons: [i18n("startMenu.recover"), i18n("cancel")],
+              title: t("startMenu.recover"),
+              message: t("is.recover"),
+              buttons: [t("startMenu.recover"), t("cancel")],
             }).then((res) => {
               //console.log(res)
               if (res.response === -1) {

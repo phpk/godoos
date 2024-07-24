@@ -47,7 +47,7 @@
         <div class="setting-item">
           <label></label>
           <el-button @click="submitOsInfo" type="primary">
-            {{ i18n("confirm") }}
+            {{ t("confirm") }}
           </el-button>
         </div>
       </div>
@@ -90,7 +90,7 @@
         <div class="setting-item">
           <label></label>
           <el-button @click="submitUserInfo" type="primary">
-            {{ i18n("confirm") }}
+            {{ t("confirm") }}
           </el-button>
         </div>
       </div>
@@ -117,7 +117,7 @@
 
 <script lang="ts" setup>
 import { inject, ref } from "vue";
-import { Dialog, join, System, i18n } from "@/system";
+import { Dialog, join, System, t } from "@/system";
 import JSZip from "jszip";
 import FileSaver from "file-saver";
 import { getSystemConfig, setSystemConfig } from "@/system/config";
@@ -219,8 +219,8 @@ function submitOsInfo() {
       if (res.code === 0) {
         setSystemConfig(saveData);
         Dialog.showMessageBox({
-          message: i18n("save.success"),
-          title: i18n("language"),
+          message: t("save.success"),
+          title: t("language"),
           type: "info",
         }).then(() => {
           location.reload();
@@ -260,8 +260,8 @@ function submitUserInfo() {
   }
   setSystemConfig(saveData);
   Dialog.showMessageBox({
-    message: i18n("save.success"),
-    title: i18n("language"),
+    message: t("save.success"),
+    title: t("language"),
     type: "info",
   });
 }

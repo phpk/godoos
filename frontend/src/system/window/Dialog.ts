@@ -43,7 +43,7 @@ class Dialog {
     function setProgress(value: number) {
       process.value = value;
       if (value >= 100) {
-        //dialogwin.close();
+        dialogwin.close();
       }
     }
 

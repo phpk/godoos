@@ -50,7 +50,7 @@
 <script lang="ts" setup>
 import { useSystem,OsFileWithoutContent,basename } from '@/system/index.ts';
 import { onMounted, ref } from 'vue';
-import { dealSystemName } from '@/i18n/index.ts';
+import { dealSystemName } from '@/i18n';
 const sys = useSystem();
 type FileWithOpen = OsFileWithoutContent & {
   isOpen?: boolean;

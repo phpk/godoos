@@ -533,7 +533,7 @@ export { Dialog } from './window/Dialog';
 export type { SystemOptions, WinApp } from './type/type';
 export { vDragable } from './window/MakeDragable';
 export type { OsFileInterface } from './core/FIleInterface';
-export { i18n } from '../i18n';
+export { t } from '../i18n';
 export { Tray } from './menu/Tary';
 export { dealIcon } from '../util/Icon';
 export { Menu } from './menu/Menu';

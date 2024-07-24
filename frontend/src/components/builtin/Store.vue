@@ -78,7 +78,7 @@
 <script setup lang="ts">
 import { inject, onMounted, ref } from "vue";
 import { BrowserWindow, System, Dialog, vDragable } from "@/system";
-import { i18n } from "@/i18n";
+import { t } from "@/i18n";
 import storeList from "@/assets/store.json";
 const browserWindow: BrowserWindow = inject("browserWindow")!;
 import { getSystemKey, setSystemKey } from "@/system/config";
@@ -115,9 +115,9 @@ function install(item: any) {
     `link::url::${item.url}::${item.icon}`
   );
   Dialog.showMessageBox({
-    message: i18n("install.success"),
+    message: t("install.success"),
     type: "info",
-    buttons: [i18n("confirm")],
+    buttons: [t("confirm")],
   });
   installedList.value.push(item.name);
   setCache();
@@ -126,9 +126,9 @@ function install(item: any) {
 function uninstall(item: any) {
   sys.fs.unlink(`${sys._options.userLocation}Desktop/${item.name}.url`);
   Dialog.showMessageBox({
-    message: i18n("uninstall.success"),
+    message: t("uninstall.success"),
     type: "info",
-    buttons: [i18n("confirm")],
+    buttons: [t("confirm")],
   });
   delete installedList.value[installedList.value.indexOf(item.name)];
   setCache();

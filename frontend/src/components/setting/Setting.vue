@@ -9,7 +9,7 @@
       <div class="upbar-left">
         <div class="back-arr" v-if="currentRouter !== 'main'" @click="back">←</div>
         <div class="upbar-text">
-          {{ i18n("setting") }}
+          {{ t("setting") }}
         </div>
       </div>
       <div class="upbar-right">
@@ -23,7 +23,7 @@
       <div class="outer" v-if="currentRouter === 'main'">
         <div class="uper_tab">
           <div class="tab">
-            {{ i18n("windows.setting") }}
+            {{ t("windows.setting") }}
           </div>
         </div>
         <div class="outer_main">
@@ -59,7 +59,7 @@
 import { inject, ref } from "vue";
 
 import { BrowserWindow } from "@/system/window/BrowserWindow";
-import { i18n } from "@/i18n";
+import { t } from "@/i18n";
 import { useSystem } from "@/system";
 import { vDragable } from "@/system/window/MakeDragable";
 import { vGlowing } from "@/util/glowingBorder";
@@ -84,33 +84,33 @@ function openSet(key: string) {
 const setList = ref([
   {
     key: "system",
-    title: i18n("system"),
+    title: t("system"),
     desc: "存储、备份还原、用户角色",
-    // desc: i18n('brightness'),
+    // desc: t('brightness'),
     icon: "system",
     content: "SetSystem",
   },
 
   {
     key: "custom",
-    title: i18n("personalization"),
-    desc: i18n("background.lockscreen.color"),
+    title: t("personalization"),
+    desc: t("background.lockscreen.color"),
     icon: "personal",
     content: "SetCustom",
   },
 
   {
     key: "language",
-    title: i18n("time.and.language"),
-    desc: i18n("language"),
+    title: t("time.and.language"),
+    desc: t("language"),
     icon: "language",
     content: "SetLang",
   },
 
   {
     key: "account",
-    title: i18n("account"),
-    desc: i18n("your.account"),
+    title: t("account"),
+    desc: t("your.account"),
     icon: "account",
     content: "SetAccount",
   },

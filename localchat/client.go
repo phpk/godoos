@@ -9,32 +9,6 @@ import (
 	"time"
 )
 
-// func StartServiceDiscovery() {
-// 	conn, err := net.ListenPacket("udp", broadcastAddr)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		return
-// 	}
-// 	defer conn.Close()
-
-//		buffer := make([]byte, 1024)
-//		for {
-//			n, addr, err := conn.ReadFrom(buffer)
-//			if err != nil {
-//				fmt.Println(err)
-//				continue
-//			}
-//			fmt.Printf("Received message: %s from %s\n", buffer[:n], addr)
-//			var udpMsg UdpMessage
-//			err = json.Unmarshal(buffer[:n], &udpMsg)
-//			if err != nil {
-//				fmt.Printf("Error unmarshalling JSON: %v\n", err)
-//				continue
-//			}
-//			log.Printf("Get message: %+v", udpMsg)
-//			OnlineUsers[udpMsg.IP] = udpMsg
-//		}
-//	}
 func DiscoverServers() {
 	broadcastTicker := time.NewTicker(broadcartTime)
 	done := make(chan struct{}) // New channel to signal when to stop
@@ -80,11 +54,6 @@ func DiscoverServers() {
 			}
 		}
 	}()
-
-	// You might have some condition here to decide when to stop the ticker
-	// For example, a signal handling mechanism or a specific duration.
-	// After that condition is met, you would call:
-	// close(done)
 }
 
 // 获取自己的IP地址和主机名

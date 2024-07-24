@@ -2,7 +2,7 @@
   <div class="outer">
     <div class="tab">
       <div class="tab-item">
-        {{ i18n("general") }}
+        {{ t("general") }}
       </div>
     </div>
     <div class="content">
@@ -18,45 +18,45 @@
           </span>
 
           <WinButton class="some-button" @click="editFileName">
-            {{ i18n("rename") }}
+            {{ t("rename") }}
           </WinButton>
         </div>
       </div>
       <div class="split-line"></div>
       <div class="propitem">
-        <div class="propname">{{ i18n("file.type") }}：</div>
+        <div class="propname">{{ t("file.type") }}：</div>
         <div class="propvalue">{{ extname(file?.path || "") }}</div>
       </div>
       <div class="propitem">
-        <div class="propname">{{ i18n("location") }}：</div>
+        <div class="propname">{{ t("location") }}：</div>
         <div class="propvalue">{{ file?.path }}</div>
       </div>
       <div class="propitem">
-        <div class="propname">{{ i18n("size") }}：</div>
+        <div class="propname">{{ t("size") }}：</div>
         <div class="propvalue">{{ dealSize(file?.size) }}</div>
       </div>
 
       <div class="propitem">
-        <div class="propname">{{ i18n("permission") }}：</div>
+        <div class="propname">{{ t("permission") }}：</div>
         <div class="propvalue">{{ file?.mode?.toString(8) || "" }}</div>
       </div>
 
       <div class="propitem">
-        <div class="propname">{{ i18n("creation.time") }}：</div>
+        <div class="propname">{{ t("creation.time") }}：</div>
         <div class="propvalue">{{ file?.birthtime?.toLocaleString?.() || "" }}</div>
       </div>
 
       <div class="propitem">
-        <div class="propname">{{ i18n("modification.time") }}：</div>
+        <div class="propname">{{ t("modification.time") }}：</div>
         <div class="propvalue">{{ file?.mtime?.toLocaleString?.() || "" }}</div>
       </div>
     </div>
     <div class="button-group">
       <WinButton @click="confirm">
-        {{ i18n("confirm") }}
+        {{ t("confirm") }}
       </WinButton>
       <WinButton @click="confirm">
-        {{ i18n("cancel") }}
+        {{ t("cancel") }}
       </WinButton>
     </div>
   </div>
@@ -69,7 +69,7 @@ import {
   OsFileWithoutContent,
   basename,
   extname,
-  i18n,
+  t,
 } from "@/system";
 import { dealSize } from "@/util/file";
 
@@ -82,7 +82,7 @@ function confirm() {
 
 function editFileName() {
   const win = new BrowserWindow({
-    title: i18n("rename"),
+    title: t("rename"),
     content: "EditFileName",
     config: {
       content: file,

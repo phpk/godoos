@@ -15,21 +15,21 @@
     <div class="setting">
       <div v-if="0 === activeIndex">
         <div class="setting-item">
-          <h1 class="setting-title">{{ i18n('account.info') }}</h1>
+          <h1 class="setting-title">{{ t('account.info') }}</h1>
         </div>
         <div class="setting-item">
-          <label> {{ i18n('account') }} </label>
-          <el-input v-model="account.username" :placeholder="i18n('account')" clearable />
+          <label> {{ t('account') }} </label>
+          <el-input v-model="account.username" :placeholder="t('account')" clearable />
         </div>
         <div class="setting-item">
-          <label> {{ i18n('password') }} </label>
-          <el-input v-model="account.password" type="password" :placeholder="i18n('password')" clearable/>
+          <label> {{ t('password') }} </label>
+          <el-input v-model="account.password" type="password" :placeholder="t('password')" clearable/>
         </div>
 
         <div class="setting-item">
           <label></label>
           <el-button @click="submit" type="primary">
-            {{ i18n('confirm') }} 
+            {{ t('confirm') }} 
           </el-button>
         </div>
       </div>
@@ -42,10 +42,10 @@
 // import WinSelect from '@/components/win/WinSelect.vue';
 
 import { ref } from 'vue';
-import { Dialog,i18n } from '@/system/index.ts';
+import { Dialog,t } from '@/system/index.ts';
 import { getSystemKey, setSystemKey } from '@/system/config'
 
-const items = [i18n('account.info')];
+const items = [t('account.info')];
 
 const activeIndex = ref(0);
 
@@ -63,8 +63,8 @@ async function submit() {
   // localStorage.setItem('godoOS_password', password.value);
   setSystemKey('account', account.value);
   Dialog.showMessageBox({
-    message: i18n('save.success'),
-    title: i18n('account'),
+    message: t('save.success'),
+    title: t('account'),
     type: 'info',
   }).then(() => {
     location.reload();

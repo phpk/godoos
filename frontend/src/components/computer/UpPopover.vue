@@ -7,35 +7,35 @@
           :class="{ chosen: chosenView == 'big' }"
           @click="changeView('big')"
         >
-          {{ i18n("large.icon") }}
+          {{ t("large.icon") }}
         </div>
         <div
           class="up-pop-button"
           :class="{ chosen: chosenView == 'middle' }"
           @click="changeView('middle')"
         >
-          {{ i18n("middle.icon") }}
+          {{ t("middle.icon") }}
         </div>
         <div
           class="up-pop-button"
           :class="{ chosen: chosenView == 'icon' }"
           @click="changeView('icon')"
         >
-          {{ i18n("small.icon") }}
+          {{ t("small.icon") }}
         </div>
         <div
           class="up-pop-button"
           :class="{ chosen: chosenView == 'list' }"
           @click="changeView('list')"
         >
-          {{ i18n("list") }}
+          {{ t("list") }}
         </div>
         <div
           class="up-pop-button"
           :class="{ chosen: chosenView == 'detail' }"
           @click="changeView('detail')"
         >
-          {{ i18n("detail.info") }}
+          {{ t("detail.info") }}
         </div>
       </div>
       <div class="group-title">布局</div>
@@ -43,7 +43,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { i18n } from "@/i18n";
+import { t } from "@/i18n";
 import { ref } from "vue";
 const props = defineProps({
   modelValue: {

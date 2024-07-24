@@ -1,6 +1,6 @@
 <template>
   <div class="contaion">
-    <div class="showName">{{ i18n("favorite") }}</div>
+    <div class="showName">{{ t("favorite") }}</div>
 
     <div
       class="file-item mode-list"
@@ -21,7 +21,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { i18n } from "@/i18n";
+import { t } from "@/i18n";
 const props = defineProps({
   onOpen: {
     type: Function,
@@ -33,47 +33,47 @@ const props = defineProps({
 const quickLinks = [
   {
     img: "word",
-    name: i18n("document"),
+    name: t("document"),
     path: "/C/Users/Doc",
   },
   {
     img: "excel",
-    name: i18n("excel"),
+    name: t("excel"),
     path: "/C/Users/Execl",
   },
   {
     img: "pptexe",
-    name: i18n("ppt"),
+    name: t("ppt"),
     path: "/C/Users/PPT",
   },
   {
     img: "markdown",
-    name: i18n("markdown"),
+    name: t("markdown"),
     path: "/C/Users/Markdown",
   },
   {
     img: "mindexe",
-    name: i18n("mindmap"),
+    name: t("mindmap"),
     path: "/C/Users/Mind",
   },
   {
     img: "baiban",
-    name: i18n("whiteBoard"),
+    name: t("whiteBoard"),
     path: "/C/Users/Baiban",
   },
   {
     img: "kanban",
-    name: i18n("board"),
+    name: t("board"),
     path: "/C/Users/Kanban",
   },
   {
     img: "gallery",
-    name: i18n("gallery"),
+    name: t("gallery"),
     path: "/C/Users/Photo",
   },
   {
     img: "music",
-    name: i18n("music"),
+    name: t("music"),
     path: "/C/Users/Music",
   },
 ];

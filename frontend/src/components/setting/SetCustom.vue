@@ -14,7 +14,7 @@
     </div>
     <div class="setting">
       <div class="setting-item">
-        <h1 class="setting-title">{{ i18n("background") }}</h1>
+        <h1 class="setting-title">{{ t("background") }}</h1>
       </div>
       <div class="setting-item">
         <el-select v-model="config.background.type">
@@ -53,7 +53,7 @@
       <div class="setting-item">
         <label> </label>
         <el-button @click="submit" type="primary">
-          {{ i18n("confirm") }}
+          {{ t("confirm") }}
         </el-button>
       </div>
     </div>
@@ -63,16 +63,16 @@
 <script lang="ts" setup>
 import { getSystemConfig, setSystemConfig } from "@/system/config";
 import { ref, toRaw } from "vue";
-import { Dialog, i18n, useSystem } from "@/system";
+import { Dialog, t, useSystem } from "@/system";
 const sys = useSystem();
-const items = [i18n("background")];
+const items = [t("background")];
 const desktopOptions = [
   {
-    label: i18n("image"),
+    label: t("image"),
     value: "image",
   },
   {
-    label: i18n("color"),
+    label: t("color"),
     value: "color",
   },
 ];
@@ -86,8 +86,8 @@ async function submit() {
   setSystemConfig(val);
   config.value = val;
   Dialog.showMessageBox({
-    message: i18n("save.success"),
-    title: i18n("wallpaper"),
+    message: t("save.success"),
+    title: t("wallpaper"),
     type: "success",
   }).then(() => {
     //location.reload();
@@ -109,8 +109,8 @@ const selectItem = (index: number) => {
 //   await system.setConfig("rootStyle", rootStyle);
 
 //   Dialog.showMessageBox({
-//     message: i18n("save.success"),
-//     title: i18n("style"),
+//     message: t("save.success"),
+//     title: t("style"),
 //     type: "info",
 //   });
 // }

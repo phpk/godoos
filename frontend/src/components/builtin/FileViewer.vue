@@ -1,7 +1,7 @@
 <template>
   <div class="txt">
     <div class="txt-upper">
-      <div class="txt-button" @click="handleButton">{{ i18n("file") }}(F)</div>
+      <div class="txt-button" @click="handleButton">{{ t("file") }}(F)</div>
       <div class="txt-button" @click="changeFormat">{{ format }}</div>
     </div>
     <div class="txt-content">
@@ -11,7 +11,7 @@
 </template>
 <script setup lang="ts">
 import { inject, ref } from "vue";
-import { useSystem, Notify, BrowserWindow, i18n, Menu } from "@/system";
+import { useSystem, Notify, BrowserWindow, t, Menu } from "@/system";
 // import { Menu } from '@/menu/Menu';
 
 const browserWindow: BrowserWindow | undefined = inject("browserWindow");
@@ -40,13 +40,13 @@ const system = useSystem();
 function handleButton(e: MouseEvent) {
   Menu.buildFromTemplate([
     {
-      label: i18n("save"),
+      label: t("save"),
       click: async () => {
         const file = await system.fs.stat(browserWindow?.config.path);
         if (!file) {
           new Notify({
-            title: i18n("tips"),
-            content: i18n("file.not.exist"),
+            title: t("tips"),
+            content: t("file.not.exist"),
           });
           return;
         }
@@ -60,8 +60,8 @@ function handleButton(e: MouseEvent) {
         }
 
         new Notify({
-          title: i18n("tips"),
-          content: i18n("file.save.success"),
+          title: t("tips"),
+          content: t("file.save.success"),
         });
       },
     },

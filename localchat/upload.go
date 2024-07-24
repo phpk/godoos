@@ -3,6 +3,7 @@ package localchat
 import (
 	"encoding/base64"
 	"fmt"
+	"godoos/libs"
 	"io"
 	"log"
 	"net/http"
@@ -103,7 +104,7 @@ func SaveContentToFile(content, fileName string) (UploadInfo, error) {
 	if err != nil {
 		return UploadInfo{}, err
 	}
-	appDir, err := getAppDir()
+	appDir, err := libs.GetOsDir()
 	if err != nil {
 		return UploadInfo{}, err
 	}

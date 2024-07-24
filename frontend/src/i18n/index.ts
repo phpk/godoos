@@ -1,18 +1,21 @@
-import { zhCN } from './system/zh';
-import { enUS } from './system/en';
-import { getSystemKey, setSystemKey } from '../system/config'
-
-function getLang() {
+import { createI18n } from 'vue-i18n'
+import elEnLocale from 'element-plus/es/locale/lang/en'
+import elZhLocale from 'element-plus/es/locale/lang/zh-cn'
+import zhLang  from './lang/zh.json';
+import enLang  from './lang/en.json';
+import { getSystemKey, setSystemKey } from '@/system/config'
+export function getLang() {
   let currentLang = getSystemKey('lang')
   if (!currentLang) {
     try {
-      const supported = ["en", "zh"]
-      const { 0: browserLang } = navigator.language.split("-");
+      const supported = ["en", "zh-cn"]
+      const browserLang = (navigator.language || (navigator as any).browserLanguage).toLowerCase()
       if (supported.includes(browserLang)) {
         currentLang = browserLang
       } else {
         currentLang = "en";
       }
+      setLang(currentLang)
     } catch (e) {
       console.log(e);
     }
@@ -20,28 +23,42 @@ function getLang() {
   return currentLang
 }
 
-export let currentLang = getLang()
-export function setLang(lang: string) {
-  currentLang = lang
-  setSystemKey('lang', lang)
-}
 
-export function i18n(key: string) {
-  if (currentLang == 'zh') {
-    return zhCN[key] ?? key;
-  } else if (currentLang == 'en') {
-    return enUS[key] ?? key;
-  } else {
-    return enUS[key] ?? key;
+const messages = {
+  en: {
+    ...enLang,
+    ...elEnLocale
+  },
+  'zh-cn': {
+    ...zhLang,
+    ...elZhLocale
   }
 }
-
+export const i18n = createI18n({
+  globalInjection: true,
+  legacy: false,
+  locale: getLang(),
+  messages: messages
+})
+export function setLang(lang: string) {
+  //currentLang = lang
+  setSystemKey('lang', lang)
+}
+export function changeLang() {
+  const lang = getLang()
+  const setlang = lang == 'en' ? 'zh-cn' : 'en'
+  setLang(setlang)
+  return setlang
+}
+export function t(textkey :string) {
+  return i18n.global.t(textkey)
+}
 export function dealSystemName(name: string) {
   const sysNames:any = {
-    "C": i18n('system'),
-    "D": i18n('document'),
-    "E": i18n('office'),
-    "B": i18n('recycle')
+    "C": t('system'),
+    "D": t('document'),
+    "E": t('office'),
+    "B": t('recycle')
   }
   if (sysNames[name]) {
     return sysNames[name];

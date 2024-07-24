@@ -1,6 +1,6 @@
 import type { System } from "./index";
 import { BrowserWindow } from "./window/BrowserWindow";
-import { i18n } from "../i18n";
+import { t } from "@/i18n";
 
 import { dealIcon } from "../util/Icon";
 import { basename } from "./core/Path";
@@ -15,7 +15,7 @@ export function initBuiltinApp(system: System) {
       name: d.name,
       icon: d.appIcon,
       window: {
-        title: i18n(d.name),
+        title: t(d.name),
         content: d.content,
         icon: d.appIcon,
         width: d.width,
@@ -73,10 +73,10 @@ export function initBuiltinApp(system: System) {
     if (d.isContext) {
       system.setConfig("contextMenus", [
         {
-          label: i18n(d.name),
+          label: t(d.name),
           click() {
             new BrowserWindow({
-              title: i18n(d.name),
+              title: t(d.name),
               icon: d.appIcon,
               path: addSave.window.path,
               width: d.width,
@@ -167,7 +167,7 @@ export function initBuiltinFileOpener(system: System) {
         width: 800,
         height: 600,
         center: true,
-        title: i18n("computer"),
+        title: t("computer"),
         content: "MyComputer",
         //icon: myComputerLogoIcon,
         icon: "computer",

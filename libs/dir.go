@@ -2,7 +2,6 @@ package libs
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -43,7 +42,7 @@ func InitOsDir() (string, error) {
 func GetOsDir() (string, error) {
 	osDirInfo, _ := GetConfig("osInfo")
 	res := osDirInfo.Value
-	log.Printf("=====osInfo: %s", res)
+	//log.Printf("=====osInfo: %s", res)
 	// if osDirInfo.UserType == "member" {
 	// 	res = filepath.Join(res, osDirInfo.UserName)
 	// }

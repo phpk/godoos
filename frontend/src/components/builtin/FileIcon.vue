@@ -11,7 +11,7 @@
 </template>
 <script setup lang="ts">
 import lnicon from '@/assets/ln.png';
-import { OsFileWithoutContent,extname } from '../../system';
+import { OsFileWithoutContent,extname } from '@/system';
 // import { extname } from '../core/Path';
 import { ref } from 'vue';
 const props:any = defineProps<{
