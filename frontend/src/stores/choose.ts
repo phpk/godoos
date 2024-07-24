@@ -3,11 +3,12 @@ import { BrowserWindow } from "@/system";
 import { ref } from 'vue';
 export const useChooseStore = defineStore('chooseStore', () => {
     const win:any = ref()
-    const path = ref([])
+    const path:any = ref([])
+    const ifShow = ref(false)
     const select = (title = '选择文件', fileExt:any) => {
        win.value = new BrowserWindow({
             title,
-            content: "FileList",
+            content: "Computer",
             config: {
                 ext: fileExt,
                 path: '/'
@@ -22,14 +23,17 @@ export const useChooseStore = defineStore('chooseStore', () => {
             resizable: true,
         });
         win.value.show()
+        ifShow.value = true
     }
     const close = () => {
+        ifShow.value = false
         win.value.close()
     }
     
     return {
         win,
         path,
+        ifShow,
         select,
         close
     }

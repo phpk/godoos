@@ -17,62 +17,36 @@
       </div>
     </div>
   </template>
-  <div
-    draggable="true"
-    class="file-item"
-    :class="{
-      chosen: chosenIndexs.includes(index),
-      'no-chosen': !chosenIndexs.includes(index),
-      'mode-icon': mode === 'icon',
-      'mode-list': mode === 'list',
-      'mode-big': mode === 'big',
-      'mode-middle': mode === 'middle',
-      'mode-detail': mode === 'detail',
-      'drag-over': hoverIndex === index,
-    }"
-    :style="{
+  <div draggable="true" class="file-item" :class="{
+    chosen: chosenIndexs.includes(index),
+    'no-chosen': !chosenIndexs.includes(index),
+    'mode-icon': mode === 'icon',
+    'mode-list': mode === 'list',
+    'mode-big': mode === 'big',
+    'mode-middle': mode === 'middle',
+    'mode-detail': mode === 'detail',
+    'drag-over': hoverIndex === index,
+  }" :style="{
       '--theme-color': theme === 'light' ? '#ffffff6b' : '#3bdbff3d',
-    }"
-    v-for="(item, index) in fileList"
-    :key="item.path"
-    @dblclick="handleOnOpen(item)"
-    @touchstart.passive="doubleTouch($event, item)"
-    @contextmenu.stop.prevent="handleRightClick($event, item, index)"
-    @drop="hadnleDrop($event, item.path)"
-    @dragenter.prevent="handleDragEnter(index)"
-    @dragover.prevent
-    @dragleave="handleDragLeave()"
-    @dragstart.stop="startDragApp($event, item)"
-    @click="handleClick(index)"
-    @mousedown.stop
-    :ref="
-      (ref:any) => {
+    }" v-for="(item, index) in fileList" :key="item.path" @dblclick="handleOnOpen(item)"
+    @touchstart.passive="doubleTouch($event, item)" @contextmenu.stop.prevent="handleRightClick($event, item, index)"
+    @drop="hadnleDrop($event, item.path)" @dragenter.prevent="handleDragEnter(index)" @dragover.prevent
+    @dragleave="handleDragLeave()" @dragstart.stop="startDragApp($event, item)" @click="handleClick(index)"
+    @mousedown.stop :ref="(ref: any) => {
         if (ref) {
           appPositions[index] = markRaw(ref as Element);
         }
       }
-    "
-  >
+      ">
     <div class="file-item_img">
       <FileIcon :file="item" />
     </div>
     <span v-if="editIndex !== index" class="file-item_title">
       {{ getName(item) }}
     </span>
-    <textarea
-      autofocus
-      draggable="false"
-      @dragover.stop
-      @dragstart.stop
-      @dragenter.stop
-      @mousedown.stop
-      @dblclick.stop
-      @click.stop
-      @blur="onEditNameEnd"
-      v-if="editIndex === index"
-      class="file-item_title file-item_editing"
-      v-model="editName"
-    ></textarea>
+    <textarea autofocus draggable="false" @dragover.stop @dragstart.stop @dragenter.stop @mousedown.stop @dblclick.stop
+      @click.stop @blur="onEditNameEnd" v-if="editIndex === index" class="file-item_title file-item_editing"
+      v-model="editName"></textarea>
     <template v-if="mode === 'detail'">
       <div class="file-item_type">
         <span>{{ item.isDirectory ? "-" : dealSize(item.size) }}</span>
@@ -90,11 +64,9 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { useSystem,basename, dirname, join,OsFileWithoutContent } from '@/system/index.ts';
+import { useSystem, basename, dirname, join, OsFileWithoutContent } from '@/system/index.ts';
 import { emitEvent, mountEvent } from '@/system/event';
 import { useContextMenu } from '@/hook/useContextMenu.ts';
-// import { basename, dirname, join } from '@/system/core/Path';
-// import { OsFileWithoutContent } from '@/system/core/FileSystem';
 import { i18n, dealSystemName } from '@/i18n';
 import { useFileDrag } from '@/hook/useFileDrag';
 import { useAppMenu } from '@/hook/useAppMenu';
@@ -103,9 +75,11 @@ import { Rect } from '@/hook/useRectChosen';
 import { throttle } from '@/util/debounce';
 import { dealSize } from '@/util/file';
 import { Menu } from '@/system/menu/Menu';
-const { openPropsWindow, copyFile, createLink,deleteFile } = useContextMenu();
+import { useChooseStore } from "@/stores/choose";
+const { openPropsWindow, copyFile, createLink, deleteFile } = useContextMenu();
 const sys = useSystem();
 const { startDrag, folderDrop } = useFileDrag(sys);
+const choose = useChooseStore()
 const props = defineProps({
   onChosen: {
     type: Function,
@@ -137,20 +111,26 @@ const props = defineProps({
   },
 });
 
-function getName(item:any){
+function getName(item: any) {
   const name = dealSystemName(basename(item.path))
   // console.log(name)
   // console.log(item.path)
-  if(name.endsWith('.exe')){
-    return i18n(name.replace('.exe',""))
-  }else{
+  if (name.endsWith('.exe')) {
+    return i18n(name.replace('.exe', ""))
+  } else {
     return name
   }
 }
 function handleOnOpen(item: OsFileWithoutContent) {
   chosenIndexs.value = [];
-  props.onOpen(item);
-  emitEvent('desktop.app.open');
+  if (choose.ifShow && !item.isDirectory) {
+    choose.path.push(item.path)
+    choose.close()
+  } else {
+    props.onOpen(item);
+    emitEvent('desktop.app.open');
+  }
+
 }
 function hadnleDrop(mouse: DragEvent, path: string) {
   hoverIndex.value = -1;
@@ -267,73 +247,73 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
     // },
 
   ];
-  //console.log(item.parentPath)
-  //let filePath = item.path;
-  // if(filePath.length > 1) {
-  //   if(filePath.charAt(1) === "B") {
-  //     menuArr.push({
-  //     label: "还原",
-  //     click: async () => {
-  //       //console.log(item);
-  //       await Promise.all(
-  //         chosenIndexs.value.map((index) => {
-  //           const item = props.fileList[index];
-  //           return backFile(item);
-  //         })
-  //       );
-  //       chosenIndexs.value = [];
-  //       props.onRefresh();
-
-  //     },
-  //   })
-  //   }
-  // }
-  // eslint-disable-next-line prefer-const
-  let extMenus = useAppMenu(item, index);
-  if(extMenus && extMenus.length > 0) {
-    // eslint-disable-next-line prefer-spread
-    menuArr.push.apply(menuArr,extMenus)
-  }
-  if(ext != 'exe') {
-    const fileMenus = [
-      {
-      label: i18n('rename'),
+  if (choose.ifShow) {
+    menuArr.push({
+      label: i18n('selected'),
       click: () => {
-        editIndex.value = index;
-        editName.value = basename(item.path);
-        chosenIndexs.value = [];
-      },
-    },
-      {
-      label: i18n('copy'),
-      click: () => {
-        //if(["/","/B"].includes(item.path)) return;
-        copyFile(chosenIndexs.value.map((index) => props.fileList[index]));
-        chosenIndexs.value = [];
-      },
-    },
-    {
-      label: i18n('delete'),
-      click: async () => {
-        // await Promise.all(
-        //   chosenIndexs.value.map((index) => {
-        //     const item = props.fileList[index];
-        //     deleteFile(item);
-        //     props.onRefresh();
-        //     return true;
-        //   })
-        // );
-        for(let i = 0; i < chosenIndexs.value.length; i++){
-          await deleteFile(props.fileList[chosenIndexs.value[i]]);
+        const paths: any = []
+        chosenIndexs.value.forEach((index) => {
+          const item = props.fileList[index];
+          if (!item.isDirectory) {
+            paths.push(item.path)
+          }
+        })
+        if (paths.length > 0) {
+          choose.path = paths
+          choose.close()
         }
         chosenIndexs.value = [];
-        props.onRefresh();
-        sys.refershAppList()
+
+
       },
-    }
+    })
+  }
+  // eslint-disable-next-line prefer-const
+  let extMenus = useAppMenu(item, index);
+  if (extMenus && extMenus.length > 0) {
+    // eslint-disable-next-line prefer-spread
+    menuArr.push.apply(menuArr, extMenus)
+  }
+  if (ext != 'exe') {
+    const fileMenus = [
+      {
+        label: i18n('rename'),
+        click: () => {
+          editIndex.value = index;
+          editName.value = basename(item.path);
+          chosenIndexs.value = [];
+        },
+      },
+      {
+        label: i18n('copy'),
+        click: () => {
+          //if(["/","/B"].includes(item.path)) return;
+          copyFile(chosenIndexs.value.map((index) => props.fileList[index]));
+          chosenIndexs.value = [];
+        },
+      },
+      {
+        label: i18n('delete'),
+        click: async () => {
+          // await Promise.all(
+          //   chosenIndexs.value.map((index) => {
+          //     const item = props.fileList[index];
+          //     deleteFile(item);
+          //     props.onRefresh();
+          //     return true;
+          //   })
+          // );
+          for (let i = 0; i < chosenIndexs.value.length; i++) {
+            await deleteFile(props.fileList[chosenIndexs.value[i]]);
+          }
+          chosenIndexs.value = [];
+          props.onRefresh();
+          sys.refershAppList()
+        },
+      }
     ];
     // eslint-disable-next-line prefer-spread
-    menuArr.push.apply(menuArr,fileMenus)
+    menuArr.push.apply(menuArr, fileMenus)
   }
   const sysEndMenu = [
 
@@ -357,7 +337,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
     }
   ];
   // eslint-disable-next-line prefer-spread
-  menuArr.push.apply(menuArr,sysEndMenu)
+  menuArr.push.apply(menuArr, sysEndMenu)
   //console.log(item)
 
   //console.log(ext)
@@ -391,17 +371,21 @@ function handleDragLeave() {
   padding-top: 4px;
   border: 1px solid transparent;
   margin: 6px;
+
   .file-item_img {
     width: 60%;
     height: 60%;
     pointer-events: none;
   }
+
   .file-item_type {
     display: none;
   }
+
   .file-item_title {
     pointer-events: none;
   }
+
   .file-item_editing {
     display: inline-block !important;
     outline: none;
@@ -419,10 +403,12 @@ function handleDragLeave() {
 .file-item:hover {
   background-color: #b1f1ff4c;
 }
+
 .chosen {
   border: 1px dashed #3bdbff3d;
   // background-color: #ffffff6b;
   background-color: var(--theme-color);
+
   .file-item_title {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -432,6 +418,7 @@ function handleDragLeave() {
     -webkit-line-clamp: 2;
   }
 }
+
 .no-chosen {
   .file-item_title {
     overflow: hidden;
@@ -442,11 +429,13 @@ function handleDragLeave() {
     -webkit-line-clamp: 2;
   }
 }
+
 .drag-over {
   border: 1px dashed #3bdbff3d;
   // background-color: #ffffff6b;
   background-color: var(--theme-color);
 }
+
 .mode-icon {
   .file-item_img {
     width: 60%;
@@ -486,18 +475,22 @@ function handleDragLeave() {
     word-break: break-all;
   }
 }
+
 .mode-icon {
   width: var(--desk-item-size);
   height: var(--desk-item-size);
 }
+
 .mode-big {
   width: calc(var(--desk-item-size) * 2.5);
   height: calc(var(--desk-item-size) * 2.5);
 }
+
 .mode-middle {
   width: calc(var(--desk-item-size) * 1.5);
   height: calc(var(--desk-item-size) * 1.5);
 }
+
 .mode-detail {
   display: flex;
   flex-direction: row;
@@ -505,9 +498,11 @@ function handleDragLeave() {
   height: var(--menulist-item-height);
   width: 100%;
   margin: 2px;
+
   .file-item_img {
     width: 30px;
   }
+
   .file-item_title {
     width: 40%;
     display: flex;
@@ -517,6 +512,7 @@ function handleDragLeave() {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
   .file-item_type {
     display: block;
     color: var(--color-dark-hover);

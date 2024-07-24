@@ -126,7 +126,19 @@ const { refersh, createFolder, backFolder, openFolder, onComputerMount } = useCo
   },
   setFileList(list) {
     //console.log(list)
-    currentList.value = list;
+    //currentList.value = list;
+    if(config.ext && config.ext instanceof Array && config.ext.length > 0) {
+        const res:any = []
+        list.forEach((d : any) => {
+          
+            if(config.ext.includes(d.ext) || d.isDirectory){
+                res.push(d)
+            }
+        })
+        currentList.value = res;
+    }else{
+        currentList.value = list;
+    }
   },
   openFile(path) {
     system?.openFile(path);
