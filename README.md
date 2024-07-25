@@ -45,7 +45,7 @@
 - ***无需联网使用，全开源***
 - ***零配置，无需注册，下载即用***
 - ***零污染，无插件依赖***
-- ***精小，打包后仅61M，确包含了所有的办公套件***
+- ***精小，打包后仅65M，确包含了所有的办公套件***
 - ***可无限扩展，支持自定义应用***
 - ***golang开发后端，低资源消耗和高性能***
 
@@ -167,3 +167,18 @@ wails build
 - [vditor](https://github.com/Vanessa219/vditor)
 - [mind-map](https://github.com/wanglin2/mind-map)
 - [canvas-editor](https://github.com/Hufe921/canvas-editor)
+
+## 关联项目
+- [godooa](https://gitee.com/ruitao_admin/gdoa)
+- [gododb](https://gitee.com/ruitao_admin/gododb)
+
+## 微信群
+<img src="https://gitee.com/ruitao_admin/gdoa/raw/master/docs/wx.png" width="150" />
+
+## 开源
+
+- 承诺永久免费开源
+- 允许企业/个人单独使用
+- 如用于商业活动或二次开发后发售，请购买相关版权
+- 不提供私下维护工作，如有bug请 [issures](https://gitee.com/ruitao_admin/gododbs) 提交
+- 请尊重作者的劳动成果
