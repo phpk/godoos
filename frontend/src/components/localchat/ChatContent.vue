@@ -2,8 +2,8 @@
 import { onMounted, inject, ref, nextTick, watch } from "vue";
 import { useLocalChatStore } from "@/stores/localchat";
 import { formatChatTime } from "@/util/common";
-import Vditor from "vditor";
-import "vditor/dist/index.css";
+// import Vditor from "vditor";
+// import "vditor/dist/index.css";
 import { ElScrollbar } from "element-plus";
 import { System } from "@/system";
 const sys:any = inject<System>("system");
@@ -38,7 +38,9 @@ watch(
 );
 function replaceIconTags(text:any) {
   // 定义正则表达式，匹配 {*任意内容*} 的格式
-  text = Vditor.md2html(text);
+  // console.log(text)
+  // text = Vditor.md2html(text);
+  // console.log(text)
   const regex = /\{\-(.*?)\-\}/g;
 
   // 使用正则表达式的replace方法进行替换
