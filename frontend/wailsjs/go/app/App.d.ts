@@ -4,5 +4,3 @@
 export function OpenDirDialog():Promise<string>;
 
 export function RestartApp():Promise<void>;
-
-export function UpdateApp(arg1:string):Promise<boolean>;

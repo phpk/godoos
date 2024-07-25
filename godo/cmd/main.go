@@ -6,6 +6,7 @@ import (
 	"godo/libs"
 	"godo/localchat"
 	"godo/progress"
+	"godo/sys"
 	"log"
 	"net/http"
 	"time"
@@ -38,8 +39,11 @@ func OsStart() {
 	progressRouter.HandleFunc("/app/{name}/{subpath:.*}", progress.ForwardRequest).Methods(http.MethodGet, http.MethodPost)
 	router.HandleFunc("/ping", progress.Ping).Methods(http.MethodGet)
 	router.HandleFunc("/", progress.Ping).Methods(http.MethodGet)
-	router.HandleFunc("/system/info", files.HandleSystemInfo).Methods(http.MethodGet)
-	router.HandleFunc("/system/setting", HandleSetConfig).Methods(http.MethodPost)
+	router.HandleFunc("/system/updateInfo", sys.GetUpdateUrlHandler).Methods(http.MethodGet)
+	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
+	router.HandleFunc("/system/storeList", sys.GetStoreInfoHandler).Methods(http.MethodGet)
+	router.HandleFunc("/system/setting", sys.HandleSetConfig).Methods(http.MethodPost)
+	router.HandleFunc("/files/info", files.HandleSystemInfo).Methods(http.MethodGet)
 	router.HandleFunc("/file/read", files.HandleReadDir).Methods(http.MethodGet)
 	router.HandleFunc("/file/stat", files.HandleStat).Methods(http.MethodGet)
 	router.HandleFunc("/file/chmod", files.HandleChmod).Methods(http.MethodPost)

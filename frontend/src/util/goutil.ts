@@ -1,8 +1,16 @@
 export async function OpenDirDialog(){
     if((window as any).go) {
-        //(window as any).go.OpenDirDialog();
-        return (window as any)['go']['main']['App']['OpenDirDialog']();
+        return (window as any)['go']['app']['App']['OpenDirDialog']();
     }else {
         return ""
     }
+}
+
+export function RestartApp(){
+    if(!(window as any).go){
+        window.location.reload();
+    }else{
+        return (window as any)['go']['app']['App']['RestartApp']();
+    }
+   
 }

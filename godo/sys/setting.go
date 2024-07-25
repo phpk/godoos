@@ -1,4 +1,4 @@
-package cmd
+package sys
 
 import (
 	"encoding/json"

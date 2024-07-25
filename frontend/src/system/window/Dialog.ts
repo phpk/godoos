@@ -49,6 +49,7 @@ class Dialog {
 
     return {
       setProgress,
+      dialogwin
     };
   }
   public static showMessageBox(option: {

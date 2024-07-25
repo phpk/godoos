@@ -25,7 +25,8 @@ import { Tray, TrayOptions } from './menu/Tary';
 import { InitSystemFile, InitUserFile } from './core/SystemFileConfig';
 import { createInitFile } from './core/createInitFile';
 import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig } from './config'
-
+import { checkUpdate } from '@/util/update';
+import { RestartApp } from '@/util/goutil';
 
 export type OsPlugin = (system: System) => void;
 export type FileOpener = {
@@ -71,8 +72,6 @@ export class System {
     this._eventer = this.initEvent();
     this.firstRun();  
     this.initSystem();
-    
-    
   }
 
   /**
@@ -112,11 +111,17 @@ export class System {
     this.initBackground(); // 初始化壁纸
     this.emit('start');
     
-    // setTimeout(() => {
-    //   if (this._rootState.magnet?.length < 1) {
-    //     this.refershAppList()
-    //   }
-    // }, 6000);
+    setTimeout(() => {
+      if (this._rootState.magnet?.length < 1) {
+        this.refershAppList()
+      }
+      checkUpdate();
+      setTimeout(() => {
+        if (this._rootState.magnet?.length < 1) {
+          this.recover()
+        }
+      }, 3000);
+    }, 6000);
 
   }
   /**
@@ -382,7 +387,7 @@ export class System {
   }
   reboot() {
     this._rootState.state = SystemStateEnum.close;
-    window.location.reload();
+    RestartApp();
   }
   recover() {
     clearSystemConfig()
@@ -390,7 +395,7 @@ export class System {
     this.fs.removeFileSystem().then(() => {
       window.indexedDB.deleteDatabase("GodoDatabase");
       
-      window.location.reload();
+      RestartApp();
     })
 
   }

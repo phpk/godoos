@@ -2,15 +2,13 @@ module godoos
 
 go 1.22.5
 
-require (
-	github.com/minio/selfupdate v0.6.0
-	github.com/wailsapp/wails/v2 v2.9.1
-)
+require github.com/wailsapp/wails/v2 v2.9.1
 
 require (
 	aead.dev/minisign v0.2.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
+	github.com/minio/selfupdate v0.6.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.8.0 // indirect

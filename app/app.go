@@ -13,8 +13,7 @@ import (
 
 // App struct
 type App struct {
-	ctx   context.Context
-	exDir string
+	ctx context.Context
 }
 
 // NewApp creates a new App application struct

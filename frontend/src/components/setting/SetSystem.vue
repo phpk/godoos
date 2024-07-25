@@ -27,7 +27,7 @@
         </div>
         <div class="setting-item" v-if="config.storeType === 'local'">
           <label>存储地址</label>
-          <el-input v-model="config.storePath" @click="selectFile" />
+          <el-input v-model="config.storePath" @click="selectFile()" />
         </div>
         <template v-if="config.storeType === 'net'">
           <div class="setting-item">

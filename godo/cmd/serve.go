@@ -73,10 +73,10 @@ func corsMiddleware() mux.MiddlewareFunc {
 			w.Header().Set("Access-Control-Allow-Headers", allowHeaders)
 
 			// 如果是预检请求（OPTIONS），直接返回 200 OK
-			// if r.Method == http.MethodOptions {
-			// 	w.WriteHeader(http.StatusOK)
-			// 	return
-			// }
+			if r.Method == http.MethodOptions {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
 
 			next.ServeHTTP(w, r)
 		})
