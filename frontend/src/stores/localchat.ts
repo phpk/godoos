@@ -330,7 +330,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     const targetUser = userList.value.find((d: any) => d.id === chatTargetId.value)
     //console.log(targetUser)
     if(targetUser.isOnline) {
-      const postUrl = `http://${targetUser.ip}:56780/message`
+      const postUrl = `http://${targetUser.ip}:56780/localchat/message`
       const completion = await fetch(postUrl, {
         method: "POST",
         body: JSON.stringify(saveMsg),
@@ -408,7 +408,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     formData.append("ip", hostInfo.value.ip);
     formData.append("hostname", hostInfo.value.hostname);
     //console.log(formData)
-    const postUrl = `http://${targetUser.ip}:56780/upload`
+    const postUrl = `http://${targetUser.ip}:56780/localchat/upload`
     const res = await fetch(postUrl, {
       method: "POST",
       body: formData,

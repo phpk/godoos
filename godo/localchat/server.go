@@ -1,6 +1,3 @@
-//go:build !windows
-// +build !windows
-
 package localchat
 
 import (
@@ -11,21 +8,30 @@ import (
 )
 
 func StartServiceDiscovery() {
-	conn, err := net.ListenPacket("udp", broadcastAddr)
+	// 解析多播地址
+	addr, err := net.ResolveUDPAddr("udp4", broadcastAddr)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error resolving multicast address:", err)
+		return
+	}
+
+	// 监听本地网络接口上的多播地址
+	conn, err := net.ListenMulticastUDP("udp4", nil, addr)
+	if err != nil {
+		fmt.Println("Error listening on multicast address:", err)
 		return
 	}
 	defer conn.Close()
 
 	buffer := make([]byte, 1024)
 	for {
-		n, addr, err := conn.ReadFrom(buffer)
+		n, addr, err := conn.ReadFromUDP(buffer)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("Error reading from UDP: %v", err)
 			continue
 		}
 		fmt.Printf("Received message: %s from %s\n", buffer[:n], addr)
+
 		var udpMsg UdpMessage
 		err = json.Unmarshal(buffer[:n], &udpMsg)
 		if err != nil {
