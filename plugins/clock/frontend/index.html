@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh_CN" >
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+    <title>番茄钟</title>
+    <link rel="stylesheet" href="css/index.css">
+  </head>
+  <body>
+    <script src="js/NoSleep.min.js"></script>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/tools.js"></script>
+    <script src="js/index.js"></script>
+    <!-- 版心 -->
+    <div class="w">
+      <!-- 帮助界面 -->
+      <div class="class page p0 ">
+        <h3>提示(点击进入主页)</h3>
+        <div class="tip">
+          <p>点击屏幕中间进入/退出全屏</p>
+          <p>点击左上角的番茄钟获取提示</p>
+          <p>点击中上角的时间电量切换钟表模式</p>
+          <p>点击右上角的已工作时间切换显示计划时间</p>
+        </div>
+      </div>
+      <!-- 第一页:主界面 -->
+      <div class="page p1 none">
+        <div class="top flex">
+          <!-- 顶部状态栏 -->
+          <div class="top-left iconfont">&#xe602;番茄钟</div>
+          <div class="top-center"><span class="now-time">00:00:00</span></div>
+          <div class="top-right">好好学习，天天向上</div>
+        </div>
+        <div class="main flex ">
+          <!-- 主要的时钟部分 -->
+          <div class="lcd" id="n1">4</div>
+          <div class="lcd" id="n2">5</div>
+          <div class="lcd" id="n3">:</div>
+          <div class="lcd" id="n4">0</div>
+          <div class="lcd" id="n5">0</div>
+        </div>
+        <div class="footer flex">
+          <!-- 底部 -->
+          <div class="footer-left play iconfont">&#xe769;</div>
+          <div class="footer-center reset iconfont">&#xe60a;</div>
+          <div class="footer-right setting iconfont">&#xe631;</div>
+        </div>
+      </div>
+      <!-- 第二页:设置界面 -->
+      <div class="page p2 none">
+        <ol>
+          <li class="option">设置工作/休息时间</li>
+          <li class="option">设置计划倒计时</li>
+          <li class="option">查看工作历史</li>
+          <li class="option">清除本地数据</li>
+          <li class="option">返回</li>
+        </ol>
+      </div>
+      <!-- 第三页:设置工作/休息时间 -->
+      <div class="page p3 none">
+          <div class="p3-main">
+            <div class="line1">
+              <span>工作时间(分):</span>
+              <span><input type="text" name="study-time" id="input-study-time" value="45"></span>
+            </div>
+            <div class="line2">
+              <span>休息时间(分):</span>
+              <span ><input type="text" name="rest-time" id="input-rest-time" value="5"></span>
+            </div>
+          </div>
+          <div class="p3-bottom">
+            <button>应用</button>
+            <button>返回</button>
+          </div>
+      </div>
+      <!-- 第四页:设置计划倒计时 -->
+      <div class="page p4 none">
+        <div class="p4-main">
+          <div class="line1">
+            <span>计划名称:</span>
+            <span><input type="text" name="plan-name" id="input-plan-name" value=""></span>
+          </div>
+          <div class="line2">
+            <span>截止日期:</span>
+            <span ><input type="text" name="plan-time" id="input-plan-time" value="2021/12/31"></span>
+          </div>
+        </div>
+        <div class="p4-bottom">
+          <button>应用</button>
+          <button>返回</button>
+        </div>
+      </div>
+      <!-- 第五页:展示历史工作时间 -->
+      <div class="page p5 none ">
+        <div id="echarts" style="width:85vw;height: 50vw; margin: 0 auto;">
+        
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

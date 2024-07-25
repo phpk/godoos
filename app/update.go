@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"io"
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -20,6 +18,17 @@ type ProgressReader struct {
 	reader io.Reader
 	total  int64
 	err    error
+}
+type DownloadStatus struct {
+	Name        string  `json:"name"`
+	Path        string  `json:"path"`
+	Url         string  `json:"url"`
+	Transferred int64   `json:"transferred"`
+	Size        int64   `json:"size"`
+	Speed       float64 `json:"speed"`
+	Progress    float64 `json:"progress"`
+	Downloading bool    `json:"downloading"`
+	Done        bool    `json:"done"`
 }
 
 func (pr *ProgressReader) Read(p []byte) (n int, err error) {
@@ -88,13 +97,6 @@ func (a *App) UpdateApp(url string) (broken bool, err error) {
 		return false, err
 	}
 	// restart app
-	if runtime.GOOS == "windows" {
-		name, err := os.Executable()
-		if err != nil {
-			return false, err
-		}
-		exec.Command(name, os.Args[1:]...).Start()
-		wruntime.Quit(a.ctx)
-	}
+	a.RestartApp()
 	return false, nil
 }

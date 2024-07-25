@@ -3,12 +3,10 @@ package app
 import (
 	"context"
 	"errors"
-	"godoos/cmd"
+	cmd "godo/cmd"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
-	"strings"
 
 	wruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -28,7 +26,7 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
-	go cmd.OsStart()
+	cmd.OsStart()
 }
 func (a *App) Shutdown(ctx context.Context) {
 	a.ctx = ctx
@@ -44,35 +42,31 @@ func (a *App) OpenDirDialog() string {
 	return path
 }
 
-func (a *App) GetAbsPath(path string) (string, error) {
-	var absPath string
-	var err error
-	if filepath.IsAbs(path) {
-		absPath = filepath.Clean(path)
-	} else {
-		absPath, err = filepath.Abs(filepath.Join(a.exDir, path))
-		if err != nil {
-			return "", err
-		}
-	}
-	absPath = strings.ReplaceAll(absPath, "/", string(os.PathSeparator))
-	//println("GetAbsPath:", absPath)
-	return absPath, nil
-}
-
 func (a *App) RestartApp() error {
-	if runtime.GOOS == "windows" {
-		name, err := os.Executable()
-		if err != nil {
-			return err
-		}
-		exec.Command(name, os.Args[1:]...).Start()
+	name, err := os.Executable()
+	if err != nil {
+		return err
+	}
+
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command(name, os.Args[1:]...)
+	case "darwin": // macOS
+		cmd = exec.Command("/usr/bin/open", name)
+	case "linux":
+		cmd = exec.Command(name, os.Args[1:]...)
+		// Optionally, you could use 'xdg-open' or 'gnome-open' etc.
+		// cmd = exec.Command("/usr/bin/gnome-open", name)
+	default:
+		return errors.New("unsupported OS")
+	}
+
+	if cmd != nil {
+		cmd.Start()
 		wruntime.Quit(a.ctx)
 		return nil
 	}
-	return errors.New("unsupported OS")
-}
 
-func (a *App) GetPlatform() string {
-	return runtime.GOOS
+	return errors.New("failed to restart application")
 }

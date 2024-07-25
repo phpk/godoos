@@ -1,0 +1,206 @@
+
+/* 设置字体 */
+@font-face {
+font-family: 'lcd';
+src: url('../font/lcd.ttf') format('truetype');
+}
+@font-face {
+font-family: 'icon';
+src: url('../font/iconfont.ttf') format('truetype');
+}
+/*css 初始化 */
+html, body, ul, li, ol, dl, dd, dt, p, h1, h2, h3, h4, h5, h6, form, fieldset, legend, img { margin:0; padding:0; }
+fieldset, img,input,button { font-family:"Times New Roman","Microsoft YaHei","SimSun";   ;border:none; padding:0;margin:0;outline-style:none; }  /*去掉边框、去掉轮廓（比如输入框外面的蓝边框）*/
+/*去掉列表前面的圆点*/
+ul, ol {
+    list-style: none;
+}
+/* 设置隐藏 */
+.none {
+    display: none;
+}
+.flex {
+    display: flex;
+}
+/* 设置版心并居中 */
+.w {
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    width: 95vw;
+}
+/* 设置字体 */
+.iconfont {
+    font-family:"icon" !important;
+    font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+}
+#n1,#n2,#n4,#n5{
+    width: 23%;
+}
+#n3 {
+    width: 8%;
+    transform: translate(20%,-25%);
+}
+.lcd {
+    font-family:"lcd" !important;
+    font-size:45vw;font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+}
+/* 帮助界面 */
+.p0 {
+    margin: 0 auto;
+    padding: 0 14vw;
+    position: relative;
+    
+}
+h3 {
+    position: absolute;
+    left: 50%;
+    top: -7vw;
+    transform: translateX(-50%);
+    font-size: 4vw;
+}
+.tip {
+    border: 1px solid #999;
+}
+.p0 p {
+    margin: 2vw 0 ;
+    text-align: center;
+    font-size: 3vw;
+}
+/* 开始第一页 */
+.top {
+    position: relative;
+    z-index: 999;
+}
+.top div{
+    width: 33.3%;
+    font-size: 3vw;
+}
+.top-left {
+    text-align: left;
+}
+.top-center {
+    text-align: center;
+}
+.top-right {
+    text-align: right;
+    white-space: nowrap;
+}
+.footer div{
+    width: 33.3%;
+    text-align: center;
+    font-size: 5vw;
+}
+
+.main {
+    margin: 1.5vw 0 2.5vw;
+    padding: 1vw 3vw;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+/* 开始第二页 */
+ol {
+    margin: 0 auto;
+    width: 50vw;
+}
+ol li {
+    text-align: center;
+    line-height: 7.4vw;
+    font-size: 4vw;
+    border-bottom: 1px solid #e1e1e1;
+}
+ol li:nth-last-child(1){
+    border-bottom: none;
+}
+
+/* 开始第三页 */
+.p3 {
+    font-size: 4vw;
+    padding: 0 20%;
+    overflow: hidden;
+}
+button{
+    background-color: #fff;
+    border: 1px solid black;
+    font-size: 4vw;
+    padding: 0.2vw 0.7vw;
+}
+.line1,.line2 {
+    margin: 5vw auto;
+    display: flex;
+    justify-content: space-between;
+}
+.line1 {
+    margin-top: 0;
+}
+.p3 input{
+    width: 100%;
+    text-align: center;
+    font-size: 4vw;
+    border: 1px solid black;
+}
+.p3-main span{
+    width: 50%;
+}
+.p3-bottom {
+    padding: 0 2vw;
+    display: flex;
+    justify-content: space-between;
+}
+.p3-bottom button{
+    width: 40%;
+}
+/* 第四页 */
+.p4 {
+    font-size: 4vw;
+    padding: 0 20%;
+    overflow: hidden;
+}
+
+.p4 input{
+    width: 100%;
+    text-align: center;
+    font-size: 4vw;
+    border: 1px solid black;
+}
+.p4-main span{
+    width: 50%;
+}
+.p4-bottom {
+    padding: 0 2vw;
+    display: flex;
+    justify-content: space-between;
+}
+.p4-bottom button{
+    width: 40%;
+}
+.p5 {
+    position: relative;
+}
+.p5 .back {
+    position: absolute;
+    right: 10%;
+    bottom: 2vw;
+    font-size: 2vw;
+    border: 1px solid black;
+    padding: 0.5vw;
+}
+
+/* 全屏 */
+::backdrop {
+    z-index:0;  
+    background-color: white !important;
+}
+
+html, *:fullscreen, *:-webkit-full-screen, *:-moz-full-screen {
+    background-color: white !important;
+    z-index:1;
+}

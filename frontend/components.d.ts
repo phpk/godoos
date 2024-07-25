@@ -7,9 +7,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddApp: typeof import('./src/components/store/AddApp.vue')['default']
     AppIcon: typeof import('./src/components/taskbar/AppIcon.vue')['default']
     AppIconGroup: typeof import('./src/components/taskbar/AppIconGroup.vue')['default']
-    AppItem: typeof import('./src/components/builtin/AppItem.vue')['default']
+    AppItem: typeof import('./src/components/store/AppItem.vue')['default']
     Battery: typeof import('./src/components/taskbar/Battery.vue')['default']
     BatteryPop: typeof import('./src/components/taskbar/BatteryPop.vue')['default']
     Browser: typeof import('./src/components/builtin/Browser.vue')['default']
@@ -106,7 +107,7 @@ declare module 'vue' {
     StartMenu: typeof import('./src/components/taskbar/StartMenu.vue')['default']
     StartOption: typeof import('./src/components/taskbar/StartOption.vue')['default']
     StateIcon: typeof import('./src/components/taskbar/StateIcon.vue')['default']
-    Store: typeof import('./src/components/builtin/Store.vue')['default']
+    Store: typeof import('./src/components/store/Store.vue')['default']
     Taskbar: typeof import('./src/components/taskbar/Taskbar.vue')['default']
     UpPopover: typeof import('./src/components/computer/UpPopover.vue')['default']
     UrlBrowser: typeof import('./src/components/builtin/UrlBrowser.vue')['default']

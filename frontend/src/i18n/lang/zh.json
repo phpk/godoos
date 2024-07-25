@@ -130,5 +130,18 @@
   "black": "黑色",
   "cannot.create.shortcut": "无法创建快捷方式",
   "shortcut.has.been.created": "快捷方式已创建",
-  "system.message": "系统消息"
+  "system.message": "系统消息",
+  "store" : {
+      "hots":"热门",
+      "work": "办公",
+      "development": "开发工具",
+      "games": "游戏",
+      "education": "教育",
+      "news": "新闻",
+      "shopping":"购物",
+      "social": "社交",
+      "utilities": "实用工具",
+      "others": "其他",
+      "add":"添加应用"
+  }
 }

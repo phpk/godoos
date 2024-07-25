@@ -1,0 +1,10 @@
+{
+    "name" : "godoos",
+    "version" : "0.0.1",
+    "description" : "godoos",
+    "main" : "frontend",
+    "platform" : ["windows","darwin","linux"],
+    "author" : "aiok",
+    "license" : "MIT",
+    "dependencies" : {}
+}
