@@ -11,6 +11,8 @@ An efficient intranet office platform that includes various tools such as Word, 
 
 English | [简体中文](README.md)
 
+[FAQ](./docs/Faq.md) | [API](./docs/Api.md)
+
 ### Install
 
 [![Windows][Windows-image]][Windows-url]
@@ -38,12 +40,12 @@ English | [简体中文](README.md)
 </div>
 
 ## Highlights
-- No need for internet connection, fully open source
-- Zero configuration, no registration required, download and use immediately
-- Zero pollution, no plugin dependency
-- Small in size, packaged for only 61M, it does include all the office suites
-- Unlimited scalability, supports custom applications
-- Golang develops backend with low resource consumption and high performance
+- ***No need for internet connection, fully open source***
+- ***Zero configuration, no registration required, download and use immediately***
+- ***Zero pollution, no plugin dependency***
+- ***Small in size, packaged for only 61M, it does include all the office suites***
+- ***Unlimited scalability, supports custom applications***
+- ***Golang develops backend with low resource consumption and high performance***
 
 ## Function Description
 

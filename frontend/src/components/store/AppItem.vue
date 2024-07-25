@@ -9,7 +9,7 @@
     />
     <div class="app-content">
       <div class="app-title">{{ item?.name }}</div>
-      <div class="app-desc">{{ item?.desc ? item?.desc : item?.name }}</div>
+      <div class="app-desc">{{ item?.desc ?? item?.name }}</div>
       <div class="app-button">
         <div
           v-if="installedList!.includes(item?.name)"
@@ -17,7 +17,7 @@
           <button @click="uninstall?.(item)">卸载</button>
         </div>
         <div v-else>
-          <button v-if="item?.url" @click="install?.(item)">安装</button>
+          <button v-if="item?.url || item?.path" @click="install?.(item)">安装</button>
         </div>
       </div>
     </div>
@@ -75,12 +75,12 @@ defineProps({
 }
 .app-item:hover {
   box-shadow: 0 0 20px 2px #dddddd5b;
-  /* transform: translateY(-2px); */
+  transform: translateY(-2px);
 }
-/* .app-item:active {
+.app-item:active {
   box-shadow: 0 0 0px #ccc;
   transform: translateY(0px);
-} */
+}
 .app-button {
   width: 100%;
   display: flex;

@@ -142,6 +142,7 @@
       "social": "社交",
       "utilities": "实用工具",
       "others": "其他",
-      "add":"添加应用"
+      "add":"添加应用",
+      "errorList":"获取列表失败！"
   }
 }

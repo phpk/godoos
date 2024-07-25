@@ -16,7 +16,6 @@ var assets embed.FS
 func main() {
 	// Create an instance of the app structure
 	app := App.NewApp()
-
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "GodoOS",

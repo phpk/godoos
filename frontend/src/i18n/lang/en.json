@@ -142,6 +142,7 @@
     "social": "Social Networking",
     "utilities": "Utilities",
     "others": "Others",
-    "add":"Add"
+    "add":"Add",
+    "errorList":"Cannot get the list of applications"
 }
 }

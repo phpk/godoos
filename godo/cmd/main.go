@@ -26,6 +26,12 @@ func OsStart() {
 	router.Use(loggingMiddleware{}.Middleware)
 	staticDir := libs.GetStaticDir()
 	router.PathPrefix("/static").Handler(http.StripPrefix("/static", http.FileServer(http.Dir(staticDir))))
+	router.HandleFunc("/ping", progress.Ping).Methods(http.MethodGet)
+	if libs.PathExists("./dist") {
+		router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./dist"))))
+	} else {
+		router.HandleFunc("/", progress.Ping).Methods(http.MethodGet)
+	}
 	progressRouter := router.PathPrefix("/progress").Subrouter()
 	progressRouter.HandleFunc("/start/{name}", progress.StartProcess).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/stop/{name}", progress.StopProcess).Methods(http.MethodGet)
@@ -37,8 +43,7 @@ func OsStart() {
 	progressRouter.HandleFunc("/killport", progress.KillPortHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/app/{name}", progress.ForwardRequest).Methods(http.MethodGet, http.MethodPost)
 	progressRouter.HandleFunc("/app/{name}/{subpath:.*}", progress.ForwardRequest).Methods(http.MethodGet, http.MethodPost)
-	router.HandleFunc("/ping", progress.Ping).Methods(http.MethodGet)
-	router.HandleFunc("/", progress.Ping).Methods(http.MethodGet)
+
 	router.HandleFunc("/system/updateInfo", sys.GetUpdateUrlHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/storeList", sys.GetStoreInfoHandler).Methods(http.MethodGet)
