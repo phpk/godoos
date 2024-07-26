@@ -33,11 +33,11 @@
 
 [MacOS-image]: ./docs/img/MacOS.svg
 
-[MacOS-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos.dmg
+[MacOS-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-amd64.zip
 
 [Linux-image]: ./docs/img/Linux.svg
 
-[Linux-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux
+[Linux-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux-amd64.zip
 
 </div>
 
@@ -74,7 +74,7 @@
 <img src="./docs/img/file.png" width="600" />
 
 ### 三、内网聊天
-- 无需繁琐的注册流程，只需在同一局域网内，即可自动发现并列出所有可用的聊天对象，即刻开启即时通讯。支持基于局域网的即时消息传输、文件传输等功能，促进团队内部的无缝沟通与协作。
+- 无需注册流程，只需在同一内网，即可自动发现并列出所有可用的聊天对象，支持基于局域网的即时消息传输、文件传输等功能。
 <img src="./docs/img/localchat.png" width="600" />
 
 ### 四、文档

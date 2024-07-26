@@ -31,11 +31,11 @@ English | [简体中文](README.md)
 
 [MacOS-image]: ./docs/img/MacOS.svg
 
-[MacOS-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos.dmg
+[MacOS-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-amd64.zip
 
 [Linux-image]: ./docs/img/Linux.svg
 
-[Linux-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux
+[Linux-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux-amd64.zip
 
 </div>
 
