@@ -8,23 +8,27 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func StopCmd(name string) error {
+	cmd, ok := processes[name]
+	if !ok {
+		return fmt.Errorf("Process not found")
+	}
+	if err := cmd.Cmd.Process.Kill(); err != nil {
+		return fmt.Errorf("failed to kill process: %v", err)
+	}
+	//delete(processes, name) // 更新status，表示进程已停止
+	cmd.Running = false
+	return nil
+}
 func StopProcess(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["name"]
 
-	cmd, ok := processes[name]
-	if !ok {
-		respondWithError(w, http.StatusNotFound, "Process not found")
-		return
-	}
-
-	// 停止进程并更新status
-	if err := cmd.Cmd.Process.Kill(); err != nil {
+	err := StopCmd(name)
+	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	//delete(processes, name) // 更新status，表示进程已停止
-	cmd.Running = false
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Process %s stopped.", name)
 }
@@ -34,7 +38,7 @@ func StopAllHandler() error {
 
 	for name, cmd := range processes {
 		if err := cmd.Cmd.Process.Signal(os.Interrupt); err != nil {
-			return fmt.Errorf("Failed to stop process %s: %v", name, err)
+			return fmt.Errorf("failed to stop process %s: %v", name, err)
 		}
 	}
 	return nil

@@ -27,10 +27,10 @@ func StartServiceDiscovery() {
 	for {
 		n, addr, err := conn.ReadFromUDP(buffer)
 		if err != nil {
-			log.Printf("Error reading from UDP: %v", err)
+			log.Printf("Error reading from UDP: %v,addr:%v", err, addr)
 			continue
 		}
-		fmt.Printf("Received message: %s from %s\n", buffer[:n], addr)
+		//fmt.Printf("Received message: %s from %s\n", buffer[:n], addr)
 
 		var udpMsg UdpMessage
 		err = json.Unmarshal(buffer[:n], &udpMsg)
@@ -38,7 +38,7 @@ func StartServiceDiscovery() {
 			fmt.Printf("Error unmarshalling JSON: %v\n", err)
 			continue
 		}
-		log.Printf("Get message: %+v", udpMsg)
+		//log.Printf("Get message: %+v", udpMsg)
 		OnlineUsers[udpMsg.IP] = udpMsg
 	}
 }

@@ -61,7 +61,7 @@ func UpdateAppHandler(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 	pr := &ProgressReader{reader: resp.Body}
 
-	ticker := time.NewTicker(250 * time.Millisecond)
+	ticker := time.NewTicker(200 * time.Millisecond)
 	defer ticker.Stop()
 	flusher, ok := w.(http.Flusher)
 	if !ok {

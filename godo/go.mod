@@ -3,11 +3,9 @@ module godo
 go 1.22.5
 
 require (
-	github.com/cavaliergopher/grab/v3 v3.0.1
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gorilla/mux v1.8.1
 	github.com/minio/selfupdate v0.6.0
-	github.com/pkg/errors v0.9.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
 )
 

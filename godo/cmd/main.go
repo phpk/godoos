@@ -6,6 +6,7 @@ import (
 	"godo/libs"
 	"godo/localchat"
 	"godo/progress"
+	"godo/store"
 	"godo/sys"
 	"log"
 	"net/http"
@@ -41,13 +42,16 @@ func OsStart() {
 	progressRouter.HandleFunc("/list", progress.Status).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/listport", progress.ListPortsHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/killport", progress.KillPortHandler).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/app/{name}", progress.ForwardRequest).Methods(http.MethodGet, http.MethodPost)
-	progressRouter.HandleFunc("/app/{name}/{subpath:.*}", progress.ForwardRequest).Methods(http.MethodGet, http.MethodPost)
 
 	router.HandleFunc("/system/updateInfo", sys.GetUpdateUrlHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
-	router.HandleFunc("/system/storeList", sys.GetStoreInfoHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/setting", sys.HandleSetConfig).Methods(http.MethodPost)
+
+	router.HandleFunc("/store/list", store.GetStoreInfoHandler).Methods(http.MethodGet)
+	router.HandleFunc("/store/download", store.DownloadHandler).Methods(http.MethodGet)
+	router.HandleFunc("/store/install", store.InstallHandler).Methods(http.MethodGet)
+	router.HandleFunc("/store/uninstall", store.UnInstallHandler).Methods(http.MethodGet)
+
 	router.HandleFunc("/files/info", files.HandleSystemInfo).Methods(http.MethodGet)
 	router.HandleFunc("/file/read", files.HandleReadDir).Methods(http.MethodGet)
 	router.HandleFunc("/file/stat", files.HandleStat).Methods(http.MethodGet)

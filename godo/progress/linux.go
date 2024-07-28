@@ -7,6 +7,6 @@ import (
 	"os/exec"
 )
 
-func setHideConsoleCursor(cmd *exec.Cmd) *exec.Cmd {
+func SetHideConsoleCursor(cmd *exec.Cmd) *exec.Cmd {
 	return cmd
 }

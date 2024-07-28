@@ -2,10 +2,14 @@ package progress
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"net/http"
 	"os"
+	"os/exec"
+	"runtime"
+	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -34,37 +38,46 @@ func checkInactiveProcesses() {
 	defer processesMu.RUnlock()
 
 	for name, p := range processes {
-		// 检查进程是否还在运行
 		pid := p.Cmd.Process.Pid
 		_, err := os.FindProcess(pid)
 		if err != nil {
-			p.Running = false
-			// 进程已不存在，跳过后续检查
+			if os.IsNotExist(err) {
+				p.Running = false
+				log.Printf("Process %s (PID: %d) not found.", name, pid)
+			} else {
+				log.Printf("Error finding process %s (PID: %d): %v", name, pid, err)
+			}
 			continue
 		}
 
-		// 如果进程还在运行，检查/ping接口
-		if p.Running {
-			resp, err := http.Get(p.PingURL)
-			if err != nil {
-				p.Running = false
-				// 进程未响应
-				log.Printf("Error checking ping for process %s: %v", name, err)
-				continue
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-				p.Running = false
-				// 进程未正常响应，停止进程
-				if err := p.Cmd.Process.Signal(os.Kill); err != nil {
-					log.Printf("Failed to stop process %s before restart: %v", name, err)
-					continue
-				}
-			} else {
-				// 进程正常响应，更新LastPingAt并继续检查下一个进程
-				p.LastPing = time.Now()
-			}
-		}
+		// 进程仍然运行，更新LastPing
+		p.LastPing = time.Now()
 	}
+}
+
+func IsProcessRunning(appName string) (bool, error) {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("powershell", "Get-Process", appName)
+	case "linux":
+		fallthrough
+	case "darwin":
+		cmd = exec.Command("pgrep", "-f", appName)
+	default:
+		return false, fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+	}
+
+	var output []byte
+	var err error
+	if cmd.SysProcAttr == nil {
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+	}
+	cmd.SysProcAttr.HideWindow = true // For Windows to hide the console window
+
+	if output, err = cmd.CombinedOutput(); err != nil {
+		return false, fmt.Errorf("error checking process: %w", err)
+	}
+
+	return len(strings.TrimSpace(string(output))) > 0, nil
 }

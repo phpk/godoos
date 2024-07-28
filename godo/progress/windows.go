@@ -9,7 +9,7 @@ import (
 	"syscall"
 )
 
-func setHideConsoleCursor(cmd *exec.Cmd) *exec.Cmd {
+func SetHideConsoleCursor(cmd *exec.Cmd) *exec.Cmd {
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	return cmd
 }

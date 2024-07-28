@@ -14,7 +14,7 @@ type Process struct {
 	Running  bool
 	ExitCode int
 	Cmd      *exec.Cmd
-	PingURL  string // 新增字段，存储每个进程的/ping URL
+	Waiting  bool
 	LastPing time.Time
 }
 
@@ -26,16 +26,13 @@ var (
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	http.Error(w, message, code)
 }
-func registerProcess(name, pingURL string, cmdstr *exec.Cmd) {
+func RegisterProcess(name string, cmdstr *exec.Cmd) {
 	processesMu.Lock()
 	defer processesMu.Unlock()
-
-	log.Printf("pingurl is: %s", pingURL) // 更改这里的格式化字符串
 
 	processes[name] = &Process{
 		Name:    name,
 		Running: true,
-		PingURL: pingURL,
 		Cmd:     cmdstr,
 	}
 }
@@ -54,10 +51,10 @@ func Status(w http.ResponseWriter, r *http.Request) {
 		if cmd.Cmd.ProcessState != nil && cmd.Cmd.ProcessState.Exited() {
 			cmd.Running = false
 			// 进程已经退出
-			ps = append(ps, Process{Name: name, Running: false, PingURL: cmd.PingURL, LastPing: cmd.LastPing, ExitCode: cmd.Cmd.ProcessState.ExitCode()})
+			ps = append(ps, Process{Name: name, Running: false, Waiting: cmd.Waiting, LastPing: cmd.LastPing, ExitCode: cmd.Cmd.ProcessState.ExitCode()})
 		} else {
 			// 进程仍在运行
-			ps = append(ps, Process{Name: name, Running: true, PingURL: cmd.PingURL, LastPing: cmd.LastPing})
+			ps = append(ps, Process{Name: name, Running: true, Waiting: cmd.Waiting, LastPing: cmd.LastPing})
 		}
 	}
 

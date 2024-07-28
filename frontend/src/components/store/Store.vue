@@ -3,8 +3,8 @@ import { inject, onMounted, ref } from "vue";
 import { System } from "@/system";
 import {notifySuccess, notifyError} from "@/util/msg";
 import { t } from "@/i18n";
-//import storeList from "@/assets/store.json";
-import { getSystemKey, setSystemKey } from "@/system/config";
+import storeInitList from "@/assets/store.json";
+import { getSystemKey, setSystemKey, parseJson } from "@/system/config";
 const sys: any = inject<System>("system");
 const currentCateId = ref(0)
 const currentTitle = ref(t("store.hots"))
@@ -14,6 +14,7 @@ const categoryIcon = ['HomeFilled', 'Odometer', 'Postcard', 'TrendCharts', 'Scho
 const isready = ref(false);
 const installed = getSystemKey("intstalledPlugins");
 const apiUrl = getSystemKey("apiUrl");
+
 const installedList: any = ref(installed);
 const storeList: any = ref([])
 onMounted(async() => {
@@ -22,14 +23,16 @@ onMounted(async() => {
 });
 async function getList(){
   if(currentCate.value == 'add')return;
-  const storeUrl = apiUrl + '/system/storeList?cate=' + currentCate.value
-  fetch(storeUrl).then(res => {
-    res.json().then(data => {
-      storeList.value = data
-    })
-  }).catch(() => {
-    notifyError(t("store.errorList"))
-  })
+  storeList.value = storeInitList
+  // const apiUrl = getSystemKey("apiUrl");
+  // const storeUrl = apiUrl + '/system/storeList?cate=' + currentCate.value
+  // fetch(storeUrl).then(res => {
+  //   res.json().then(data => {
+  //     storeList.value = data
+  //   })
+  // }).catch(() => {
+  //   notifyError(t("store.errorList"))
+  // })
   isready.value = true;
 }
 async function changeCate(index: number, item: string) {
@@ -44,8 +47,14 @@ function setCache() {
     sys.refershAppList();
   }, 1000);
 }
-function install(item: any) {
-  //console.log(item)
+async function install(item: any) {
+  
+  if(item.needDownload){
+    await download(item)
+  }
+  if(item.needInstall){
+    
+  }
   if(item.url){
     sys.fs.writeFile(
       `${sys._options.userLocation}Desktop/${item.name}.url`,
@@ -63,6 +72,35 @@ function uninstall(item: any) {
   notifySuccess(t("uninstall.success"))
   delete installedList.value[installedList.value.indexOf(item.name)];
   setCache();
+}
+async function download(item: any) {
+  //console.log(item)
+  const completion = await fetch(apiUrl + '/store/download?url=' + item.url)
+  if(!completion.ok){
+    notifyError(t("store.downloadError"))
+  }
+  //console.log(completion)
+  const reader:any = completion.body?.getReader();
+  if (!reader) {
+    notifyError(t("store.cantStream"));
+  }
+  while (true) {
+    const { done, value } = await reader?.read();
+    if (done) {
+      break;
+    }
+   // console.log(value)
+    const json = await new TextDecoder().decode(value);
+    //console.log(json)
+    const res = parseJson(json)
+    console.log(res)
+    if(res){
+      if(res.done) {
+        notifySuccess(t("store.downloadSuccess"))
+        break;
+      }
+    }
+  }
 }
 </script>
 <template>

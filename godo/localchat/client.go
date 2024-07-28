@@ -42,7 +42,7 @@ func DiscoverServers() {
 					conn.Close()
 					continue
 				}
-				log.Printf("Sending message: %+v", msg)
+				//log.Printf("Sending message: %+v", msg)
 				_, err = conn.Write(jsonData)
 				if err != nil {
 					fmt.Println(err)

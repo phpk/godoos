@@ -17,7 +17,7 @@
           <button @click="uninstall?.(item)">卸载</button>
         </div>
         <div v-else>
-          <button v-if="item?.url || item?.path" @click="install?.(item)">安装</button>
+          <button v-if="item?.url" @click="install?.(item)">安装</button>
         </div>
       </div>
     </div>
