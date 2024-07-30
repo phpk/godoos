@@ -9,12 +9,11 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
 func CheckActive(ctx context.Context) {
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
 
 	activeCheckWg := sync.WaitGroup{}
@@ -38,12 +37,15 @@ func checkInactiveProcesses() {
 	defer processesMu.RUnlock()
 
 	for name, p := range processes {
-		pid := p.Cmd.Process.Pid
+		pid := p.Pid
 		_, err := os.FindProcess(pid)
 		if err != nil {
 			if os.IsNotExist(err) {
 				p.Running = false
 				log.Printf("Process %s (PID: %d) not found.", name, pid)
+				if p.IsOn {
+					go ExecuteScript(name)
+				}
 			} else {
 				log.Printf("Error finding process %s (PID: %d): %v", name, pid, err)
 			}
@@ -70,11 +72,14 @@ func IsProcessRunning(appName string) (bool, error) {
 
 	var output []byte
 	var err error
-	if cmd.SysProcAttr == nil {
-		cmd.SysProcAttr = &syscall.SysProcAttr{}
-	}
+	// if cmd.SysProcAttr == nil {
+	// 	cmd.SysProcAttr = &syscall.SysProcAttr{}
+	// }
 	//cmd.SysProcAttr.HideWindow = true // For Windows to hide the console window
-
+	if runtime.GOOS == "windows" {
+		// 在Windows上，通过设置CreationFlags来隐藏窗口
+		cmd = SetHideConsoleCursor(cmd)
+	}
 	if output, err = cmd.CombinedOutput(); err != nil {
 		return false, fmt.Errorf("error checking process: %w", err)
 	}

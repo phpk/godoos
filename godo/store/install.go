@@ -3,56 +3,14 @@ package store
 import (
 	"encoding/json"
 	"fmt"
-	"godo/files"
 	"godo/libs"
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"strings"
-	"time"
 )
-
-type StoreInfo struct {
-	Name         string           `json:"name"`
-	URL          string           `json:"url"`
-	NeedDownload bool             `json:"needDownload"`
-	Icon         string           `json:"icon"`
-	Setting      Setting          `json:"setting"`
-	Config       map[string]any   `json:"config"`
-	Cmds         map[string][]Cmd `json:"cmds"`
-	Install      Install          `json:"install"`
-	Start        Install          `json:"start"`
-}
-type Setting struct {
-	BinPath  string `json:"binPath"`
-	ConfPath string `json:"confPath"`
-	DataDir  string `json:"dataDir"`
-	LogDir   string `json:"logDir"`
-}
-
-type Item struct {
-	Name  string `json:"name"`
-	Value any    `json:"value"`
-}
-type Cmd struct {
-	Name     string   `json:"name"`
-	FilePath string   `json:"filePath,omitempty"`
-	Content  string   `json:"content,omitempty"`
-	BinPath  string   `json:"binPath,omitempty"`
-	Cmds     []string `json:"cmds,omitempty"`
-	Waiting  int      `json:"waiting"`
-	Kill     bool     `json:"kill"`
-	Envs     []Item   `json:"envs"`
-}
-
-type Install struct {
-	Envs []Item   `json:"envs"`
-	Cmds []string `json:"cmds"`
-}
 
 func InstallHandler(w http.ResponseWriter, r *http.Request) {
 	pluginName := r.URL.Query().Get("name")
@@ -60,22 +18,34 @@ func InstallHandler(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "the app name is empty!")
 		return
 	}
-	exeDir := libs.GetRunDir()
-	exePath := filepath.Join(exeDir, pluginName)
-	log.Printf("the app path is %s", exePath)
+	exePath := GetExePath(pluginName)
+	//log.Printf("the app path is %s", exePath)
 	if !libs.PathExists(exePath) {
 		libs.ErrorMsg(w, "the app path is not exists!")
 		return
 	}
-	installFile := filepath.Join(exePath, "install.json")
-	if !libs.PathExists(installFile) {
-		libs.ErrorMsg(w, "the install.json is not exists!")
+	installInfo, err := GetInstallInfo(pluginName)
+	if err != nil {
+		libs.ErrorMsg(w, "the install.json is error:"+err.Error())
+		return
+	}
+	if pluginName != installInfo.Name {
+		libs.ErrorMsg(w, "the app name must equal the install.json!")
+		return
+	}
+	if !installInfo.NeedInstall {
+		libs.SuccessMsg(w, "success", "the app is installed!")
+		return
+	}
+	storeFile := filepath.Join(exePath, "store.json")
+	if !libs.PathExists(storeFile) {
+		libs.ErrorMsg(w, "the store.json is not exists!")
 		return
 	}
 	var storeInfo StoreInfo
-	content, err := os.ReadFile(installFile)
+	content, err := os.ReadFile(storeFile)
 	if err != nil {
-		libs.ErrorMsg(w, "cant read the install.json!")
+		libs.ErrorMsg(w, "cant read the store.json!")
 		return
 	}
 	//设置 info.json
@@ -85,17 +55,16 @@ func InstallHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(contentBytes, &storeInfo)
 	if err != nil {
 		log.Printf("Error during unmarshal: %v", err)
-		libs.ErrorMsg(w, "the install.json is error: "+err.Error())
+		libs.ErrorMsg(w, "the store.json is error: "+err.Error())
 		return
 	}
 	replacePlaceholdersInCmds(&storeInfo)
-	infoFile := filepath.Join(exePath, "info.json")
-	err = SaveStoreInfo(storeInfo, infoFile)
+	storeInfo.Name = installInfo.Name
+	err = SaveInfoFile(storeInfo)
 	if err != nil {
-		libs.ErrorMsg(w, "save the info.json is error!")
+		libs.ErrorMsg(w, "the store info.json is error: "+err.Error())
 		return
 	}
-
 	//设置config
 	if libs.PathExists(storeInfo.Setting.ConfPath + ".tpl") {
 		err = SaveStoreConfig(storeInfo, exePath)
@@ -109,20 +78,27 @@ func InstallHandler(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "install the app is error!")
 		return
 	}
+	var res string
 	//复制static目录
 	staticPath := filepath.Join(exePath, "static")
 	if libs.PathExists(staticPath) {
 		staticDir := libs.GetStaticDir()
 		targetPath := filepath.Join(staticDir, pluginName)
-		err = os.Rename(staticPath, targetPath)
-		if err != nil {
-			// libs.ErrorMsg(w, "copy the static is error!")
-			// return
-			log.Printf("copy the static is error! %v", err)
+		if !libs.PathExists(targetPath) {
+			err = os.Rename(staticPath, targetPath)
+			if err != nil {
+				log.Printf("copy the static is error! %v", err)
+			}
+			iconPath := filepath.Join(targetPath, storeInfo.Icon)
+			if libs.PathExists(iconPath) {
+				res = "http://localhost:56780/static/" + pluginName + "/" + storeInfo.Icon
+			}
 		}
+
 	}
-	libs.SuccessMsg(w, "success", "install the app success!")
+	libs.SuccessMsg(w, res, "install the app success!")
 }
+
 func UnInstallHandler(w http.ResponseWriter, r *http.Request) {
 	pluginName := r.URL.Query().Get("name")
 	if pluginName == "" {
@@ -136,8 +112,16 @@ func UnInstallHandler(w http.ResponseWriter, r *http.Request) {
 		// return
 		log.Printf("stop the app is error! %s", err)
 	}
-	exeDir := libs.GetRunDir()
-	exePath := filepath.Join(exeDir, pluginName)
+	installInfo, err := GetInstallInfo(pluginName)
+	if err != nil {
+		libs.ErrorMsg(w, "the install.json is error:"+err.Error())
+		return
+	}
+	if installInfo.IsDev {
+		libs.SuccessMsg(w, "success", "uninstall the app success!")
+		return
+	}
+	exePath := GetExePath(pluginName)
 	//log.Printf("the app path is %s", exePath)
 	if libs.PathExists(exePath) {
 		err := os.RemoveAll(exePath)
@@ -158,6 +142,28 @@ func UnInstallHandler(w http.ResponseWriter, r *http.Request) {
 	libs.SuccessMsg(w, "success", "uninstall the app success!")
 
 }
+func GetInstallInfo(pluginName string) (InstallInfo, error) {
+	var installInfo InstallInfo
+	exePath := GetExePath(pluginName)
+	installFile := filepath.Join(exePath, "install.json")
+	if !libs.PathExists(installFile) {
+		return installInfo, fmt.Errorf("install.json is not exist:%s", installFile)
+	}
+	content, err := os.ReadFile(installFile)
+	if err != nil {
+		return installInfo, err
+	}
+	err = json.Unmarshal(content, &installInfo)
+	if err != nil {
+		return installInfo, err
+	}
+	return installInfo, nil
+}
+func GetExePath(pluginName string) string {
+	exeDir := libs.GetRunDir()
+	return filepath.Join(exeDir, pluginName)
+}
+
 func convertValueToString(value any) string {
 	var strValue string
 	switch v := value.(type) {
@@ -187,157 +193,69 @@ func InstallStore(storeInfo StoreInfo) error {
 	}
 	return nil
 }
-func RunCmds(storeInfo StoreInfo, cmdKey string) error {
-	cmds := storeInfo.Cmds[cmdKey]
-	for _, cmd := range cmds {
-
-		if cmd.Name == "stop" {
-			runStop(storeInfo)
-		}
-		if cmd.Name == "start" {
-			runStart(storeInfo)
-		}
-		if cmd.Name == "restart" {
-			runRestart(storeInfo)
-		}
-		if cmd.Name == "exec" {
-			runExec(storeInfo, cmd)
-		}
-		if cmd.Name == "writeFile" {
-			err := WriteFile(cmd)
-			if err != nil {
-				return fmt.Errorf("failed to write to file: %w", err)
-			}
-		}
-		if cmd.Name == "deleteFile" {
-			err := DeleteFile(cmd)
-			if err != nil {
-				return fmt.Errorf("failed to delete file: %w", err)
-			}
-		}
-		if cmd.Name == "unzip" {
-			err := Unzip(cmd)
-			if err != nil {
-				return fmt.Errorf("failed to unzip file: %w", err)
-			}
-		}
-		if cmd.Name == "zip" {
-			err := Zip(cmd)
-			if err != nil {
-				return fmt.Errorf("failed to unzip file: %w", err)
-			}
-		}
-		if cmd.Name == "mkdir" {
-			err := MkDir(cmd)
-			if err != nil {
-				return fmt.Errorf("failed to create directory: %w", err)
-			}
+func RunCmd(storeInfo StoreInfo, cmd Cmd) error {
+	if cmd.Name == "stop" {
+		runStop(storeInfo)
+	}
+	if cmd.Name == "start" {
+		runStart(storeInfo)
+	}
+	if cmd.Name == "restart" {
+		runRestart(storeInfo)
+	}
+	if cmd.Name == "exec" {
+		runExec(storeInfo, cmd)
+	}
+	if cmd.Name == "writeFile" {
+		err := WriteFile(cmd)
+		if err != nil {
+			return fmt.Errorf("failed to write to file: %w", err)
 		}
 	}
-	return nil
-}
-func runStop(storeInfo StoreInfo) error {
-	return StopCmd(storeInfo.Name)
-}
-func runStart(storeInfo StoreInfo) error {
-	err := SetEnvs(storeInfo.Start.Envs)
-	if err != nil {
-		return fmt.Errorf("failed to set start environment variable %s: %w", storeInfo.Name, err)
-	}
-	if !libs.PathExists(storeInfo.Setting.BinPath) {
-		return fmt.Errorf("script file %s does not exist", storeInfo.Setting.BinPath)
-	}
-	var cmd *exec.Cmd
-	if len(storeInfo.Start.Cmds) > 0 {
-		cmd = exec.Command(storeInfo.Setting.BinPath, storeInfo.Start.Cmds...)
-	} else {
-		cmd = exec.Command(storeInfo.Setting.BinPath)
-	}
-	if runtime.GOOS == "windows" {
-		// 在Windows上，通过设置CreationFlags来隐藏窗口
-		cmd = SetHideConsoleCursor(cmd)
-	}
-	// 启动脚本命令并返回可能的错误
-	go func(cmd *exec.Cmd) {
-		if err := cmd.Start(); err != nil {
-			log.Println("Error starting script:", err)
-			return
-		}
-		RegisterProcess(storeInfo.Name, cmd)
-	}(cmd)
-
-	return nil
-}
-func runRestart(storeInfo StoreInfo) error {
-	err := runStop(storeInfo)
-	if err != nil {
-		return fmt.Errorf("failed to stop process %s: %w", storeInfo.Name, err)
-	}
-	return runStart(storeInfo)
-}
-func runExec(storeInfo StoreInfo, cmdParam Cmd) error {
-	err := SetEnvs(cmdParam.Envs)
-	if err != nil {
-		return fmt.Errorf("failed to set start environment variable %s: %w", storeInfo.Name, err)
-	}
-	log.Printf("bin path:%v", cmdParam.BinPath)
-	log.Printf("cmds:%v", cmdParam.Cmds)
-	cmd := exec.Command(cmdParam.BinPath, cmdParam.Cmds...)
-	if runtime.GOOS == "windows" {
-		// 在Windows上，通过设置CreationFlags来隐藏窗口
-		cmd = SetHideConsoleCursor(cmd)
-	}
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("failed to run exec process %s: %w", storeInfo.Name, err)
-	}
-	if cmdParam.Waiting > 0 {
-		if err = cmd.Wait(); err != nil {
-			return fmt.Errorf("failed to wait for exec process %s: %w", storeInfo.Name, err)
-		}
-		time.Sleep(time.Second * time.Duration(cmdParam.Waiting))
-	}
-	if cmdParam.Kill {
-		if err := cmd.Process.Kill(); err != nil {
-			return fmt.Errorf("failed to kill process: %v", err)
+	if cmd.Name == "changeFile" {
+		err := ChangeFile(storeInfo, cmd)
+		if err != nil {
+			return fmt.Errorf("failed to change to file: %w", err)
 		}
 	}
-	log.Printf("run exec process %s, name is %s", storeInfo.Name, cmdParam.Name)
-	return nil
-}
-func WriteFile(cmd Cmd) error {
-	if cmd.FilePath != "" {
-		content := cmd.Content
-		if content != "" {
-			err := os.WriteFile(cmd.FilePath, []byte(content), 0644)
-			if err != nil {
-				return fmt.Errorf("failed to write to file: %w", err)
-			}
-		}
-	}
-	return nil
-}
-func DeleteFile(cmd Cmd) error {
-	if cmd.FilePath != "" {
-		err := os.Remove(cmd.FilePath)
+	if cmd.Name == "deleteFile" {
+		err := DeleteFile(cmd)
 		if err != nil {
 			return fmt.Errorf("failed to delete file: %w", err)
 		}
 	}
-	return nil
-}
-func MkDir(cmd Cmd) error {
-	err := os.MkdirAll(cmd.FilePath, os.ModePerm)
-	if err != nil {
-		return fmt.Errorf("failed to make dir: %w", err)
+	if cmd.Name == "unzip" {
+		err := Unzip(cmd)
+		if err != nil {
+			return fmt.Errorf("failed to unzip file: %w", err)
+		}
+	}
+	if cmd.Name == "zip" {
+		err := Zip(cmd)
+		if err != nil {
+			return fmt.Errorf("failed to unzip file: %w", err)
+		}
+	}
+	if cmd.Name == "mkdir" {
+		err := MkDir(cmd)
+		if err != nil {
+			return fmt.Errorf("failed to create directory: %w", err)
+		}
 	}
 	return nil
 }
-func Unzip(cmd Cmd) error {
-	return files.Decompress(cmd.FilePath, cmd.Content)
+func RunCmds(storeInfo StoreInfo, cmdKey string) error {
+	cmds := storeInfo.Cmds[cmdKey]
+	for _, cmd := range cmds {
+		if _, ok := storeInfo.Cmds[cmd.Name]; ok {
+			RunCmds(storeInfo, cmd.Name)
+		} else {
+			RunCmd(storeInfo, cmd)
+		}
+	}
+	return nil
 }
-func Zip(cmd Cmd) error {
-	return files.Encompress(cmd.FilePath, cmd.Content)
-}
+
 func SetEnvs(envs []Item) error {
 	if len(envs) > 0 {
 		for _, item := range envs {
@@ -351,6 +269,11 @@ func SetEnvs(envs []Item) error {
 		}
 	}
 	return nil
+}
+func SaveInfoFile(storeInfo StoreInfo) error {
+	exePath := GetExePath(storeInfo.Name)
+	infoFile := filepath.Join(exePath, "info.json")
+	return SaveStoreInfo(storeInfo, infoFile)
 }
 func SaveStoreInfo(storeInfo StoreInfo, infoFile string) error {
 	// 使用 json.MarshalIndent 直接获取内容的字节切片

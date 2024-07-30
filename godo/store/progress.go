@@ -10,12 +10,15 @@ import (
 )
 
 type Process struct {
-	Name     string    `json:"name"`
-	Running  bool      `json:"running"`
-	ExitCode int       `json:"exitCode"`
-	Cmd      *exec.Cmd `json:"cmd"`
-	Waiting  bool      `json:"waiting"`
-	LastPing time.Time `json:"lastPing"`
+	Name         string    `json:"name"`
+	Running      bool      `json:"running"`
+	ExitCode     int       `json:"exitCode"`
+	Cmd          *exec.Cmd `json:"cmd"`
+	Pid          int       `json:"pid"`
+	ProgressName string    `json:"progressName"`
+	Waiting      bool      `json:"waiting"`
+	IsOn         bool      `json:"isOn"`
+	LastPing     time.Time `json:"lastPing"`
 }
 
 var (
@@ -26,13 +29,16 @@ var (
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	http.Error(w, message, code)
 }
-func RegisterProcess(name string, cmdstr *exec.Cmd) {
+func RegisterProcess(name string, progressName string, isOn bool, cmdstr *exec.Cmd) {
 	processesMu.Lock()
 	defer processesMu.Unlock()
 	processes[name] = &Process{
-		Name:    name,
-		Running: true,
-		Cmd:     cmdstr,
+		Name:         name,
+		Running:      true,
+		Cmd:          cmdstr,
+		Pid:          cmdstr.Process.Pid,
+		IsOn:         isOn,
+		ProgressName: progressName,
 	}
 }
 func GetCmd(name string) *Process {
@@ -42,20 +48,9 @@ func GetCmd(name string) *Process {
 	return processes[name]
 }
 func Status(w http.ResponseWriter, r *http.Request) {
-	// processesMu.RLock()
-	// defer processesMu.RUnlock()
-
 	var ps []Process
 	for name, cmd := range processes {
-		// if cmd.Cmd.ProcessState != nil && cmd.Cmd.ProcessState.Exited() {
-		// 	cmd.Running = false
-		// 	// 进程已经退出
-		// 	ps = append(ps, Process{Name: name, Running: false, Waiting: cmd.Waiting, LastPing: cmd.LastPing, ExitCode: cmd.Cmd.ProcessState.ExitCode()})
-		// } else {
-		// 	// 进程仍在运行
-		// 	ps = append(ps, Process{Name: name, Running: true, Waiting: cmd.Waiting, LastPing: cmd.LastPing})
-		// }
-		ps = append(ps, Process{Name: name, Running: cmd.Running, Waiting: cmd.Waiting, LastPing: cmd.LastPing, ExitCode: cmd.Cmd.ProcessState.ExitCode()})
+		ps = append(ps, Process{Name: name, Running: cmd.Running, Waiting: cmd.Waiting, Pid: cmd.Pid, LastPing: cmd.LastPing, ExitCode: cmd.Cmd.ProcessState.ExitCode()})
 	}
 
 	jsonBytes, err := json.MarshalIndent(ps, "", "  ")

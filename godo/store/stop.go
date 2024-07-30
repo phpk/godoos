@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os/exec"
+	"runtime"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -11,6 +15,7 @@ import (
 )
 
 func KillByPid(pid int) error {
+	log.Println("Killing process with PID:", pid)
 	p, err := process.NewProcess(int32(pid))
 	if err != nil {
 		return fmt.Errorf("failed to create process object: %w", err)
@@ -23,15 +28,25 @@ func KillByPid(pid int) error {
 	return nil
 }
 func StopCmd(name string) error {
+	processesMu.Lock()
+	defer processesMu.Unlock()
 	cmd, ok := processes[name]
 	if !ok {
 		return fmt.Errorf("Process not found")
 	}
-	processes[name].Running = false
-	err := KillByPid(cmd.Cmd.Process.Pid)
-	if err != nil {
-		return fmt.Errorf("failed to kill process: %w", err)
+	//processes[name].Running = false
+	if cmd.ProgressName != "" {
+		err := KillProcessByName(cmd.ProgressName)
+		if err != nil {
+			return fmt.Errorf("failed to kill process: %w", err)
+		}
+	} else {
+		err := KillByPid(cmd.Pid)
+		if err != nil {
+			return fmt.Errorf("failed to kill process: %w", err)
+		}
 	}
+	delete(processes, name)
 	return nil
 }
 func StopProcess(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +69,8 @@ func StopAllHandler() error {
 		if err := KillByPid(cmd.Cmd.Process.Pid); err != nil {
 			return fmt.Errorf("failed to stop process %s: %v", name, err)
 		}
-		processes[name].Running = false
+		//processes[name].Running = false
+		delete(processes, name)
 	}
 	return nil
 }
@@ -75,15 +91,15 @@ func ReStartProcess(w http.ResponseWriter, r *http.Request) {
 	name := vars["name"]
 
 	// Stop the process first
-	if cmd, ok := processes[name]; ok {
-		if err := KillByPid(cmd.Cmd.Process.Pid); err != nil {
+	if _, ok := processes[name]; ok {
+		if err := StopCmd(name); err != nil {
 			// respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to stop process %s before restart: %v", name, err))
 			// return
 			log.Printf("Failed to stop process %s before restart: %v", name, err)
 		}
 		// processesMu.Lock()
 		// defer processesMu.Unlock()
-		processes[name].Running = false
+		//processes[name].Running = false
 	} else {
 		respondWithError(w, http.StatusNotFound, fmt.Sprintf("Process %s not found to restart", name))
 		return
@@ -97,4 +113,83 @@ func ReStartProcess(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Process %s restarted.", name)
+}
+func killByPids(pids []int) error {
+	for _, pid := range pids {
+		if err := KillByPid(pid); err != nil {
+			return fmt.Errorf("failed to kill process with PID %d: %w", pid, err)
+		}
+		fmt.Printf("Killed process with PID %d\n", pid)
+	}
+	return nil
+}
+
+// KillProcessByName 终止所有与给定名称匹配的进程
+func KillProcessByName(processName string) error {
+	switch runtime.GOOS {
+	case "windows":
+		// Windows 系统下的实现
+		pids, err := findPidsWindows(processName)
+		if err != nil {
+			return err
+		}
+		err = killByPids(pids)
+		if err != nil {
+			return err
+		}
+	default:
+		// Unix/Linux 系统下的实现
+		pids, err := findPidsUnix(processName)
+		if err != nil {
+			return err
+		}
+		err = killByPids(pids)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// findPidsUnix 在 Unix/Linux 系统下查找具有指定名称的进程的 PID
+func findPidsUnix(name string) ([]int, error) {
+	cmd := exec.Command("pgrep", "-f", name)
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute pgrep: %w", err)
+	}
+	pids := strings.Fields(string(output))
+	result := make([]int, len(pids))
+	for i, pidStr := range pids {
+		pid, err := strconv.Atoi(pidStr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert PID to integer: %w", err)
+		}
+		result[i] = pid
+	}
+	return result, nil
+}
+
+// findPidsWindows 在 Windows 系统下查找具有指定名称的进程的 PID
+func findPidsWindows(name string) ([]int, error) {
+	cmd := exec.Command("tasklist")
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute tasklist: %w", err)
+	}
+	lines := strings.Split(string(output), "\r\n")
+	var pids []int
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) >= 3 {
+			if strings.Contains(strings.ToLower(fields[0]), strings.ToLower(name)) {
+				pid, err := strconv.Atoi(fields[1])
+				if err != nil {
+					return nil, fmt.Errorf("failed to convert PID to integer: %w", err)
+				}
+				pids = append(pids, pid)
+			}
+		}
+	}
+	return pids, nil
 }

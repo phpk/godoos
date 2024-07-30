@@ -4,19 +4,12 @@
         "url": "https://gitee.com/ruitao_admin/godoos-mysql5.7/releases/download/mysql5.7/mysql5.7.zip",
         "needDownload": true,
         "needInstall": true,
+        "isDev":true,
         "version": "5.7.37",
         "icon": "https://img0.baidu.com/it/u=1087008535,3349487719&fm=253&fmt=auto&app=138&f=PNG?w=969&h=500",
         "checkProgress": true,
         "hasRestart": true,
-        "setting": [
-            {
-                "path": "setting.html",
-                "lang":{
-                    "cn-zh": "设置",
-                    "en": "Setting"
-                }
-            }
-        ]
+        "setting": true
     },
     {
         "name": "nginx",

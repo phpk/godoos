@@ -41,11 +41,12 @@ func OsStart() {
 	progressRouter.HandleFunc("/listporgress", store.Status).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/listport", store.ListPortsHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/killport", store.KillPortHandler).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/storelist", store.GetStoreInfoHandler).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/storelist", store.GetStoreListHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/download", store.DownloadHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/install", store.InstallHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/installOut", store.RunOutHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/uninstall", store.UnInstallHandler).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/setting", store.StoreSettingHandler).Methods(http.MethodPost)
 
 	router.HandleFunc("/system/updateInfo", sys.GetUpdateUrlHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)

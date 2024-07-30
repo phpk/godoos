@@ -1,7 +1,3 @@
----
-title: Markdown编辑器
-icon: circle-info
----
 
 ## 概览
 Markdown 编辑器允许您使用丰富的文本编辑体验创建和编辑 Markdown 文件。它包括实时保存、文件导入/导出以及访问最近的 Markdown 文件等功能。

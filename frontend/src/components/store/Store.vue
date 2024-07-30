@@ -24,15 +24,17 @@ onMounted(async () => {
 async function getList() {
   if (currentCate.value == 'add') return;
   storeList.value = storeInitList
+
   // const apiUrl = getSystemKey("apiUrl");
   // const storeUrl = apiUrl + '/store/storelist?cate=' + currentCate.value
-  // fetch(storeUrl).then(res => {
-  //   res.json().then(data => {
-  //     storeList.value = data
-  //   })
-  // }).catch(() => {
-  //   notifyError(t("store.errorList"))
-  // })
+  // const res = await fetch(storeUrl)
+  // if (!res.ok) {
+  //   notifyError(t('store.getStoreListError'))
+  //   return
+  // }
+  // const data = await res.json()
+  // //console.log(data)
+  // storeList.value = data
   await checkProgress()
   isready.value = true;
 }
@@ -41,8 +43,8 @@ async function checkProgress() {
   if (!completion.ok) {
     return
   }
-  let res:any = await completion.json()
-  if(!res || res.length < 1){
+  let res: any = await completion.json()
+  if (!res || res.length < 1) {
     res = []
   }
   storeList.value.forEach((item: any, index: number) => {
@@ -50,7 +52,7 @@ async function checkProgress() {
     console.log(pitem)
     if (pitem) {
       storeList.value[index].isRuning = pitem.running
-    }else{
+    } else {
       storeList.value[index].isRuning = false
     }
   })
@@ -69,7 +71,7 @@ function setCache() {
 }
 async function install(item: any) {
 
-  if (item.needDownload) {
+  if (item.needDownload && !item.isDev) {
     await download(item)
   }
   if (item.needInstall) {
@@ -84,8 +86,11 @@ async function install(item: any) {
       notifyError(res.message)
       return
     }
+    if(res.data){
+      item.icon = res.data
+    }
   }
-  if(item.isOut){
+  if (item.isOut) {
     item.progress = 0
     const completion = await fetch(apiUrl + '/store/installOut?url=' + item.url)
     if (!completion.ok) {
@@ -98,10 +103,10 @@ async function install(item: any) {
       return
     }
   }
-  if (item.isWeb) {
+  if (item.webUrl) {
     sys.fs.writeFile(
       `${sys._options.userLocation}Desktop/${item.name}.url`,
-      `link::url::${item.url}::${item.icon}`
+      `link::url::${item.webUrl}::${item.icon}`
     );
   }
 
@@ -165,26 +170,26 @@ async function download(item: any) {
   }
 }
 async function pauseApp(item: any) {
-  const res:any = await fetch(apiUrl + '/store/stop/' + item.name)
-  if(!res.ok){
+  const res: any = await fetch(apiUrl + '/store/stop/' + item.name)
+  if (!res.ok) {
     const msg = await res.text()
     notifyError(msg)
     return
   }
-  setTimeout(async() => {
+  setTimeout(async () => {
     await checkProgress()
   }, 1000)
-  
+
 }
 async function restartApp(item: any) {
   await fetch(apiUrl + '/store/restart/' + item.name)
-  setTimeout(async() => {
+  setTimeout(async () => {
     await checkProgress()
   }, 1000)
 }
 async function startApp(item: any) {
   await fetch(apiUrl + '/store/start/' + item.name)
-  setTimeout(async() => {
+  setTimeout(async () => {
     await checkProgress()
   }, 1000)
 }
@@ -204,25 +209,10 @@ async function startApp(item: any) {
       </div>
       <div class="store">
         <div v-if="isready" class="store-top">
-          <!-- <div class="left-bar"></div> -->
           <div class="right-main">
             <div class="main-title">
               <span class="sub-title">{{ currentTitle }} </span>
             </div>
-            <!-- <div class="swiper">
-              <div class="swiper-txt">主页</div>
-              <div class="swiper-inner">
-                <div class="swiper-tab">
-                  <img src="/image/store/banner1.jpg" />
-                </div>
-                <div class="swiper-tab">
-                  <img src="/image/store/banner2.jpg" />
-                </div>
-                <div class="swiper-tab">
-                  <img src="/image/store/banner3.jpg" />
-                </div>
-              </div>
-            </div> -->
             <div class="main-app">
               <div v-for="item in storeList" v-if="currentCate != 'add'" class="store-item" :key="item.name">
                 <AppItem :item="item" :installed-list="installedList" :install="install" :uninstall="uninstall"
