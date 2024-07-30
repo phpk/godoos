@@ -87,8 +87,6 @@ func IsSupportedFormat(filename string) bool {
 		".zip": true,
 		".tar": true,
 		".gz":  true,
-		".bz2": true,
-		// 添加其他支持的复合格式
 	}
 
 	for format := range supportedFormats {

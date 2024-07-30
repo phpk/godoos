@@ -44,6 +44,7 @@ function useContextMenu() {
         callback?.();
       });
     }
+    
     //console.log(path)
     let menuArr = [
       {
@@ -72,10 +73,6 @@ function useContextMenu() {
             label: '数据表格(Excel)',
             click: () => clickFunc('xlsx', '未命名数据表格'),
           },
-          // {
-          //   label: '笔记(Note)',
-          //   click: () => clickFunc('note', '未命名笔记'),
-          // },
           {
             label: '文本文件(txt)',
             click: () => clickFunc('txt', '未命名文本文件'),
@@ -97,36 +94,13 @@ function useContextMenu() {
             label: '白板(Baiban)',
             click: () => clickFunc('bb', '未命名白板'),
           },
-          // {
-          //   label: '工作绘图(Flow)',
-          //   click: () => clickFunc('flow', '未命名工作绘图'),
-          // },
           {
             label: '甘特图(Gant)',
             click: () => clickFunc('gant', '未命名项目'),
           },
-          // {
-          //   label: '原型图(Proto)',
-          //   click: () => clickFunc('proto', '原型图'),
-          // },
-          // {
-          //   label: '流程图(Flow)',
-          //   click: () => clickFunc('mind', '流程图'),
-          // },
-          // {
-          //   label: '泳道图(Uml)',
-          //   click: () => clickFunc('uml', '泳道图'),
-          // },
-          // {
-          //   label: '用例图(Case)',
-          //   click: () => clickFunc('case', '泳道图'),
-          // },
-          // {
-          //   label: '顺序图(Seq)',
-          //   click: () => clickFunc('seq', '顺序图'),
-          // },
         ],
       },
+      
       // {
       //   label: '新建报告',
       //   submenu: [

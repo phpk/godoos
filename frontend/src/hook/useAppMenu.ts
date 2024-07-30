@@ -1,45 +1,54 @@
-import { OsFileWithoutContent } from '@/system/core/FileSystem';
-import { BrowserWindow } from '@/system/window/BrowserWindow';
-export function useAppMenu(item: OsFileWithoutContent, _: number) {
+import { OsFileWithoutContent, BrowserWindow, Notify } from '@/system';
+import { t } from "@/i18n"
+export function useAppMenu(item: OsFileWithoutContent, sys: any, props: any) {
   let menuArr: any = [];
-  const ext:any = item.name.split(".").pop();
+  const ext: any = item.name.split(".").pop();
   const picExt = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'];
   if (picExt.includes(ext)) {
     menuArr.push({
-      label: '编辑',
+      label: t('piceditor'),
       click: () => {
         const photoWindow = new BrowserWindow({
           width: 800,
           height: 600,
           icon: "picedit",
           center: true,
-          title: '图像绘图',
+          title: t('piceditor'),
           url: "/picedit/index.html",
           config: item
         });
         photoWindow.show()
       },
     },)
-  } 
-  // const fileExt = ['txt', 'html', 'json', 'xml', 'css', 'js','vue','go','php','java','py']
-  // if (fileExt.includes(ext)) {
-  //   menuArr.push({
-  //     label: '文本编辑',
-  //     click: () => {
-  //       const textWindow = new BrowserWindow({
-  //         width: 800,
-  //         height: 600,
-  //         icon:  "editorbt",
-  //         center: true,
-  //         title: '文件编辑',
-  //         url: "/text/index.html",
-  //         config: item
-  //       });
-  //       textWindow.show()
-  //     },
-  //   },)
-  // }
+  }
+  const zipExt = ['zip', 'tar', 'gz', 'bz2']
+  const unzipSucess = (res: any) => {
+    //console.log(res)
+    if (!res || res.code < 0) {
+      new Notify({
+        title: t('tips'),
+        content: t('error'),
+      });
+    } else {
+      props.onRefresh();
+      new Notify({
+        title: t('tips'),
+        content: t('file.unzip.success'),
+      });
+    }
 
+  };
+  if (zipExt.includes(ext)) {
+    menuArr.push({
+      label: t('unzip'),
+      click: () => {
+        //console.log(item.path)
+        sys.fs.unzip(item.path).then((res: any) => {
+          unzipSucess(res)
+        })
+      },
+    },)
+  }
   return menuArr;
 }
 //export { useAppMenu };

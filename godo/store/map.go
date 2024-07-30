@@ -1,4 +1,4 @@
-package progress
+package store
 
 type ProcessInfo struct {
 	Port     string

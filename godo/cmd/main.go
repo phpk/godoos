@@ -5,7 +5,6 @@ import (
 	"godo/files"
 	"godo/libs"
 	"godo/localchat"
-	"godo/progress"
 	"godo/store"
 	"godo/sys"
 	"log"
@@ -27,32 +26,32 @@ func OsStart() {
 	router.Use(loggingMiddleware{}.Middleware)
 	staticDir := libs.GetStaticDir()
 	router.PathPrefix("/static").Handler(http.StripPrefix("/static", http.FileServer(http.Dir(staticDir))))
-	router.HandleFunc("/ping", progress.Ping).Methods(http.MethodGet)
+	router.HandleFunc("/ping", store.Ping).Methods(http.MethodGet)
 	if libs.PathExists("./dist") {
 		router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./dist"))))
 	} else {
-		router.HandleFunc("/", progress.Ping).Methods(http.MethodGet)
+		router.HandleFunc("/", store.Ping).Methods(http.MethodGet)
 	}
-	progressRouter := router.PathPrefix("/progress").Subrouter()
-	progressRouter.HandleFunc("/start/{name}", progress.StartProcess).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/stop/{name}", progress.StopProcess).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/startall", progress.StartAll).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/stopall", progress.StopAll).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/restart/{name}", progress.ReStartProcess).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/list", progress.Status).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/listport", progress.ListPortsHandler).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/killport", progress.KillPortHandler).Methods(http.MethodGet)
+	progressRouter := router.PathPrefix("/store").Subrouter()
+	progressRouter.HandleFunc("/start/{name}", store.StartProcess).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/stop/{name}", store.StopProcess).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/startall", store.StartAll).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/stopall", store.StopAll).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/restart/{name}", store.ReStartProcess).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/listporgress", store.Status).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/listport", store.ListPortsHandler).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/killport", store.KillPortHandler).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/storelist", store.GetStoreInfoHandler).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/download", store.DownloadHandler).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/install", store.InstallHandler).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/installOut", store.RunOutHandler).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/uninstall", store.UnInstallHandler).Methods(http.MethodGet)
 
 	router.HandleFunc("/system/updateInfo", sys.GetUpdateUrlHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/setting", sys.HandleSetConfig).Methods(http.MethodPost)
 
-	router.HandleFunc("/store/list", store.GetStoreInfoHandler).Methods(http.MethodGet)
-	router.HandleFunc("/store/download", store.DownloadHandler).Methods(http.MethodGet)
-	router.HandleFunc("/store/install", store.InstallHandler).Methods(http.MethodGet)
-	router.HandleFunc("/store/uninstall", store.UnInstallHandler).Methods(http.MethodGet)
-
-	router.HandleFunc("/files/info", files.HandleSystemInfo).Methods(http.MethodGet)
+	router.HandleFunc("/file/info", files.HandleSystemInfo).Methods(http.MethodGet)
 	router.HandleFunc("/file/read", files.HandleReadDir).Methods(http.MethodGet)
 	router.HandleFunc("/file/stat", files.HandleStat).Methods(http.MethodGet)
 	router.HandleFunc("/file/chmod", files.HandleChmod).Methods(http.MethodPost)
@@ -66,12 +65,14 @@ func OsStart() {
 	router.HandleFunc("/file/copyfile", files.HandleCopyFile).Methods(http.MethodGet)
 	router.HandleFunc("/file/writefile", files.HandleWriteFile).Methods(http.MethodPost)
 	router.HandleFunc("/file/appendfile", files.HandleAppendFile).Methods(http.MethodPost)
+	router.HandleFunc("/file/zip", files.HandleZip).Methods(http.MethodGet)
+	router.HandleFunc("/file/unzip", files.HandleUnZip).Methods(http.MethodGet)
 	router.HandleFunc("/file/watch", files.WatchHandler).Methods(http.MethodGet)
 	router.HandleFunc("/localchat/sse", localchat.SseHandler).Methods(http.MethodGet)
 	router.HandleFunc("/localchat/message", localchat.HandleMessage).Methods(http.MethodPost)
 	router.HandleFunc("/localchat/upload", localchat.MultiUploadHandler).Methods(http.MethodPost)
 
-	go progress.CheckActive(context.Background())
+	go store.CheckActive(context.Background())
 	log.Printf("Listening on port: %v", serverAddress)
 	srv = &http.Server{Addr: serverAddress, Handler: router}
 	Serve(srv)
@@ -79,7 +80,7 @@ func OsStart() {
 func OsStop() {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	err := progress.StopAllHandler()
+	err := store.StopAllHandler()
 	if err != nil {
 		log.Fatalf("Servers forced to shutdown error: %v", err)
 	}

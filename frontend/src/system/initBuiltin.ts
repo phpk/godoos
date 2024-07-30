@@ -168,7 +168,7 @@ export function initBuiltinFileOpener(system: System) {
         height: 600,
         center: true,
         title: t("computer"),
-        content: "MyComputer",
+        content: "Computer",
         //icon: myComputerLogoIcon,
         icon: "computer",
         config: {

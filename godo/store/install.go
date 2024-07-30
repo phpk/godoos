@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"godo/files"
 	"godo/libs"
-	"godo/progress"
 	"log"
 	"net/http"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"time"
 )
 
 type StoreInfo struct {
@@ -44,7 +44,8 @@ type Cmd struct {
 	Content  string   `json:"content,omitempty"`
 	BinPath  string   `json:"binPath,omitempty"`
 	Cmds     []string `json:"cmds,omitempty"`
-	Waiting  bool     `json:"waiting"`
+	Waiting  int      `json:"waiting"`
+	Kill     bool     `json:"kill"`
 	Envs     []Item   `json:"envs"`
 }
 
@@ -61,7 +62,7 @@ func InstallHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	exeDir := libs.GetRunDir()
 	exePath := filepath.Join(exeDir, pluginName)
-	//log.Printf("the app path is %s", exePath)
+	log.Printf("the app path is %s", exePath)
 	if !libs.PathExists(exePath) {
 		libs.ErrorMsg(w, "the app path is not exists!")
 		return
@@ -115,8 +116,9 @@ func InstallHandler(w http.ResponseWriter, r *http.Request) {
 		targetPath := filepath.Join(staticDir, pluginName)
 		err = os.Rename(staticPath, targetPath)
 		if err != nil {
-			libs.ErrorMsg(w, "copy the static is error!")
-			return
+			// libs.ErrorMsg(w, "copy the static is error!")
+			// return
+			log.Printf("copy the static is error! %v", err)
 		}
 	}
 	libs.SuccessMsg(w, "success", "install the app success!")
@@ -127,10 +129,12 @@ func UnInstallHandler(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "the app name is empty!")
 		return
 	}
-	err := progress.StopCmd(pluginName)
+	log.Printf("uninstall the app %s", pluginName)
+	err := StopCmd(pluginName)
 	if err != nil {
-		libs.ErrorMsg(w, "stop the app is error!")
-		return
+		// libs.ErrorMsg(w, "stop the app is error!")
+		// return
+		log.Printf("stop the app is error! %s", err)
 	}
 	exeDir := libs.GetRunDir()
 	exePath := filepath.Join(exeDir, pluginName)
@@ -233,29 +237,35 @@ func RunCmds(storeInfo StoreInfo, cmdKey string) error {
 	return nil
 }
 func runStop(storeInfo StoreInfo) error {
-	return progress.StopCmd(storeInfo.Name)
+	return StopCmd(storeInfo.Name)
 }
 func runStart(storeInfo StoreInfo) error {
 	err := SetEnvs(storeInfo.Start.Envs)
 	if err != nil {
 		return fmt.Errorf("failed to set start environment variable %s: %w", storeInfo.Name, err)
 	}
-	if len(storeInfo.Start.Cmds) > 0 {
-		if !libs.PathExists(storeInfo.Setting.BinPath) {
-			return fmt.Errorf("script file %s does not exist", storeInfo.Setting.BinPath)
-		}
-		cmd := exec.Command(storeInfo.Setting.BinPath, storeInfo.Start.Cmds...)
-		if runtime.GOOS == "windows" {
-			// 在Windows上，通过设置CreationFlags来隐藏窗口
-			cmd = progress.SetHideConsoleCursor(cmd)
-		}
-		// 启动脚本命令并返回可能的错误
-		if err := cmd.Start(); err != nil {
-			return fmt.Errorf("failed to start process %s: %w", storeInfo.Name, err)
-		}
-
-		progress.RegisterProcess(storeInfo.Name, cmd)
+	if !libs.PathExists(storeInfo.Setting.BinPath) {
+		return fmt.Errorf("script file %s does not exist", storeInfo.Setting.BinPath)
 	}
+	var cmd *exec.Cmd
+	if len(storeInfo.Start.Cmds) > 0 {
+		cmd = exec.Command(storeInfo.Setting.BinPath, storeInfo.Start.Cmds...)
+	} else {
+		cmd = exec.Command(storeInfo.Setting.BinPath)
+	}
+	if runtime.GOOS == "windows" {
+		// 在Windows上，通过设置CreationFlags来隐藏窗口
+		cmd = SetHideConsoleCursor(cmd)
+	}
+	// 启动脚本命令并返回可能的错误
+	go func(cmd *exec.Cmd) {
+		if err := cmd.Start(); err != nil {
+			log.Println("Error starting script:", err)
+			return
+		}
+		RegisterProcess(storeInfo.Name, cmd)
+	}(cmd)
+
 	return nil
 }
 func runRestart(storeInfo StoreInfo) error {
@@ -275,14 +285,20 @@ func runExec(storeInfo StoreInfo, cmdParam Cmd) error {
 	cmd := exec.Command(cmdParam.BinPath, cmdParam.Cmds...)
 	if runtime.GOOS == "windows" {
 		// 在Windows上，通过设置CreationFlags来隐藏窗口
-		cmd = progress.SetHideConsoleCursor(cmd)
+		cmd = SetHideConsoleCursor(cmd)
 	}
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to run exec process %s: %w", storeInfo.Name, err)
 	}
-	if cmdParam.Waiting {
+	if cmdParam.Waiting > 0 {
 		if err = cmd.Wait(); err != nil {
 			return fmt.Errorf("failed to wait for exec process %s: %w", storeInfo.Name, err)
+		}
+		time.Sleep(time.Second * time.Duration(cmdParam.Waiting))
+	}
+	if cmdParam.Kill {
+		if err := cmd.Process.Kill(); err != nil {
+			return fmt.Errorf("failed to kill process: %v", err)
 		}
 	}
 	log.Printf("run exec process %s, name is %s", storeInfo.Name, cmdParam.Name)

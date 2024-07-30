@@ -1,24 +1,28 @@
 <template>
   <div class="app-item">
-    <img
-      v-if="item?.icon"
-      draggable="false"
-      class="app-img"
-      :src="item?.icon"
-      alt=""
-    />
+    <img v-if="item?.icon" draggable="false" class="app-img" :src="item?.icon" alt="" />
     <div class="app-content">
       <div class="app-title">{{ item?.name }}</div>
-      <div class="app-desc">{{ item?.desc ?? item?.name }}</div>
+      <div class="app-desc">
+        <el-progress :text-inside="true" style="margin-top: 3px;" v-if="item?.progress" :stroke-width="20"
+        :percentage="item?.progress" />
+      </div>
       <div class="app-button">
-        <div
-          v-if="installedList!.includes(item?.name)"
-        >
-          <button @click="uninstall?.(item)">卸载</button>
-        </div>
-        <div v-else>
-          <button v-if="item?.url" @click="install?.(item)">安装</button>
-        </div>
+
+        <template v-if="installedList!.includes(item?.name)">
+          <div v-if="item!.checkProgress">
+            <button @click="pause?.(item)" v-if="item?.isRuning">暂停</button>
+            <button @click="start?.(item)" v-else>启动</button>
+          </div>
+          <div v-if="item!.hasRestart && item?.isRuning">
+            <button @click="restart?.(item)">重启</button>
+          </div>
+          <button @click="uninstall?.(item)" v-if="!item?.isRuning">卸载</button>
+        </template>
+        <template v-else>
+          <button v-if="item?.url" @click="install?.(item)" :disabled="item?.progress">安装</button>
+          
+        </template>
       </div>
     </div>
   </div>
@@ -29,6 +33,9 @@ defineProps({
   installedList: Array,
   install: Function,
   uninstall: Function,
+  pause: Function,
+  start: Function,
+  restart: Function
 });
 </script>
 <style scoped>
@@ -53,6 +60,7 @@ defineProps({
   border: 1px solid #cccccc7b;
   user-select: none;
 }
+
 .app-content {
   margin-left: 10px;
   display: flex;
@@ -62,32 +70,39 @@ defineProps({
   height: 80px;
   width: 100%;
 }
+
 .app-title {
   font-size: 16px;
   font-weight: bold;
   padding-bottom: 6px;
   user-select: none;
 }
+
 .app-desc {
   font-size: 12px;
   color: #666;
   user-select: none;
 }
+
 .app-item:hover {
   box-shadow: 0 0 20px 2px #dddddd5b;
   transform: translateY(-2px);
 }
+
 .app-item:active {
   box-shadow: 0 0 0px #ccc;
   transform: translateY(0px);
 }
+
 .app-button {
   width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
+  gap: 10px;
 }
+
 .app-button button {
   width: 60px;
   height: 30px;
@@ -97,10 +112,12 @@ defineProps({
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .app-button button:hover {
   box-shadow: 0 0 10px #ccc;
   /* transform: translateY(-2px); */
 }
+
 .app-button button:active {
   box-shadow: 0 0 0px #ccc;
   transform: translateY(0px);

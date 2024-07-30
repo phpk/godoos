@@ -187,19 +187,33 @@ export function handleWatch(path: string, callback: any, errback: any) {
         errback("Your browser does not support server-sent events.")
     }
 }
+export async function handleZip(path: string, ext: string): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/zip?path=${encodeURIComponent(path)}&ext=${ext}`);
+    if (!res.ok) {
+        return false;
+    }
+    return await res.json();
+}
+export async function handleUnZip(path: string): Promise<any> {
+    const res = await fetch(`${API_BASE_URL}/unzip?path=${encodeURIComponent(path)}`);
+    if (!res.ok) {
+        return false;
+    }
+    return await res.json();
+}
 export const useOsFile = () => {
     return {
         async readdir(path: string) {
             const response = await handleReadDir(path);
             if (response && response.data) {
-                return response.data; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response.data; 
             }
             return [];
         },
         async stat(path: string) {
             const response = await handleStat(path);
             if (response && response.data) {
-                return response.data; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response.data; 
             }
             return false;
         },
@@ -207,87 +221,91 @@ export const useOsFile = () => {
             const modes = osFileModeToOctal(mode)
             const response = await handleChmod(path, modes);
             if (response) {
-                return response; // 假设返回的JSON包含操作状态或其他相关信息
+                return response;
             }
             return false;
         },
         async exists(path: string) {
-            //return handleExists(path);
             const response = await handleExists(path);
             if (response && response.data) {
-                return response.data; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response.data; 
             }
             return false;
         },
         async readFile(path: string) {
             // 注意：handleReadFile返回的是JSON，但通常readFile期望返回Buffer或字符串
-            // 根据你的后端API实际返回的数据类型调整此方法
             const response = await handleReadFile(path);
             if (response && response.data) {
-                return response.data; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response.data; 
             }
             return false;
         },
         async unlink(path: string) {
-            //return handleUnlink(path);
             const response = await handleUnlink(path);
             if (response) {
-                return response; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response; 
             }
             return false;
         },
         async rename(oldPath: string, newPath: string) {
-            //return handleRename(oldPath, newPath);
-
             const response = await handleRename(oldPath, newPath);
             if (response) {
-                return response; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response; 
             }
             return false;
         },
         async rmdir(path: string) {
-            //return handleRmdir(path);
             const response = await handleRmdir(path);
             if (response) {
-                return response; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response; 
             }
             return false;
         },
         async mkdir(path: string) {
-            //return handleMkdir(path);
             const response = await handleMkdir(path);
             if (response) {
-                return response; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response; 
             }
             return false;
         },
         async copyFile(srcPath: string, dstPath: string) {
-            //return handleCopyFile(srcPath, dstPath);
             const response = await handleCopyFile(srcPath, dstPath);
             if (response) {
-                return response; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response; 
             }
             return false;
         },
         async writeFile(path: string, content: string | Blob) {
-            //return handleWriteFile(path, content);
             const response = await handleWriteFile(path, content);
             if (response) {
-                return response; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response; 
             }
             return false;
         },
         async appendFile(path: string, content: string | Blob) {
-            //return handleAppendFile(path, content);
             const response = await handleAppendFile(path, content);
             if (response) {
-                return response; // 假设返回的JSON包含名为"data"的字段，存储了文件内容
+                return response; 
             }
             return false;
         },
         async search(path: string, options: any) {
             console.log(path, options)
             return true;
+        },
+        async zip(path: string, ext: string) {
+            const response = await handleZip(path, ext);
+            if (response) {
+                return response; 
+            }
+            return false;
+        },
+        async unzip(path: string) {
+            const response = await handleUnZip(path);
+            if (response) {
+                return response; 
+            }
+            return false;
         },
         serializeFileSystem() {
             return Promise.reject('fs 不支持序列化');

@@ -398,6 +398,58 @@ func HandleChmod(w http.ResponseWriter, r *http.Request) {
 	res := libs.APIResponse{Message: fmt.Sprintf("Permissions of file '%s' successfully changed to %o.", path, mode)}
 	json.NewEncoder(w).Encode(res)
 }
+func HandleZip(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Query().Get("path")
+	ext := r.URL.Query().Get("ext")
+	if ext == "" {
+		ext = "zip"
+	}
+	if err := validateFilePath(path); err != nil {
+		libs.HTTPError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	basePath, err := libs.GetOsDir()
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	sourcePath := filepath.Join(basePath, path)
+	compressedFilePath := filepath.Join(basePath, path+"."+ext)
+	err = CompressFileOrFolder(sourcePath, compressedFilePath)
+	if err != nil {
+		libs.HTTPError(w, http.StatusConflict, err.Error())
+		return
+	}
+	res := libs.APIResponse{Message: fmt.Sprintf("success zip %s.%s.", path, ext)}
+	json.NewEncoder(w).Encode(res)
+}
+
+func HandleUnZip(w http.ResponseWriter, r *http.Request) {
+	path := r.URL.Query().Get("path")
+
+	if err := validateFilePath(path); err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+
+	basePath, err := libs.GetOsDir()
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+
+	zipFilePath := filepath.Join(basePath, path)
+	destPath := filepath.Dir(zipFilePath)
+	err = Decompress(zipFilePath, destPath)
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	res := libs.APIResponse{Message: fmt.Sprintf("success unzip %s.", path)}
+	json.NewEncoder(w).Encode(res)
+}
 
 // parseMode converts a string representation of a mode to an os.FileMode
 func parseMode(modeStr string) (os.FileMode, error) {

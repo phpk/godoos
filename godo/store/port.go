@@ -1,4 +1,4 @@
-package progress
+package store
 
 import (
 	"encoding/json"

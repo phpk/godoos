@@ -1,4 +1,4 @@
-package progress
+package store
 
 import (
 	"encoding/json"
@@ -10,12 +10,12 @@ import (
 )
 
 type Process struct {
-	Name     string
-	Running  bool
-	ExitCode int
-	Cmd      *exec.Cmd
-	Waiting  bool
-	LastPing time.Time
+	Name     string    `json:"name"`
+	Running  bool      `json:"running"`
+	ExitCode int       `json:"exitCode"`
+	Cmd      *exec.Cmd `json:"cmd"`
+	Waiting  bool      `json:"waiting"`
+	LastPing time.Time `json:"lastPing"`
 }
 
 var (
@@ -29,7 +29,6 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 func RegisterProcess(name string, cmdstr *exec.Cmd) {
 	processesMu.Lock()
 	defer processesMu.Unlock()
-
 	processes[name] = &Process{
 		Name:    name,
 		Running: true,
@@ -43,19 +42,20 @@ func GetCmd(name string) *Process {
 	return processes[name]
 }
 func Status(w http.ResponseWriter, r *http.Request) {
-	processesMu.RLock()
-	defer processesMu.RUnlock()
+	// processesMu.RLock()
+	// defer processesMu.RUnlock()
 
 	var ps []Process
 	for name, cmd := range processes {
-		if cmd.Cmd.ProcessState != nil && cmd.Cmd.ProcessState.Exited() {
-			cmd.Running = false
-			// 进程已经退出
-			ps = append(ps, Process{Name: name, Running: false, Waiting: cmd.Waiting, LastPing: cmd.LastPing, ExitCode: cmd.Cmd.ProcessState.ExitCode()})
-		} else {
-			// 进程仍在运行
-			ps = append(ps, Process{Name: name, Running: true, Waiting: cmd.Waiting, LastPing: cmd.LastPing})
-		}
+		// if cmd.Cmd.ProcessState != nil && cmd.Cmd.ProcessState.Exited() {
+		// 	cmd.Running = false
+		// 	// 进程已经退出
+		// 	ps = append(ps, Process{Name: name, Running: false, Waiting: cmd.Waiting, LastPing: cmd.LastPing, ExitCode: cmd.Cmd.ProcessState.ExitCode()})
+		// } else {
+		// 	// 进程仍在运行
+		// 	ps = append(ps, Process{Name: name, Running: true, Waiting: cmd.Waiting, LastPing: cmd.LastPing})
+		// }
+		ps = append(ps, Process{Name: name, Running: cmd.Running, Waiting: cmd.Waiting, LastPing: cmd.LastPing, ExitCode: cmd.Cmd.ProcessState.ExitCode()})
 	}
 
 	jsonBytes, err := json.MarshalIndent(ps, "", "  ")

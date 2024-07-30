@@ -4,6 +4,7 @@ import (
 	"compress/bzip2"
 	"compress/gzip"
 	"fmt"
+	"godo/libs"
 	"io"
 	"os"
 	"path/filepath"
@@ -48,13 +49,26 @@ func Untar(reader io.Reader, destPath string) error {
 		}
 
 		target := filepath.Join(destPath, header.Name)
+
+		// Ensure that all directories in the path are created.
 		if header.Typeflag == tar.TypeDir {
-			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
-				return err
+			if !libs.PathExists(target) {
+				if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
+					return err
+				}
 			}
+
 			continue
 		}
 
+		// If it's a regular file, ensure its parent directories exist.
+		if !libs.PathExists(target) {
+			if err := os.MkdirAll(filepath.Dir(target), os.ModePerm); err != nil {
+				return err
+			}
+		}
+
+		// Create the file and write the contents from the tar archive.
 		outFile, err := os.OpenFile(target, os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(header.Mode))
 		if err != nil {
 			return err
@@ -114,21 +128,33 @@ func Unzip(zipFilePath, destPath string) error {
 
 		path := filepath.Join(destPath, f.Name)
 
+		// Ensure parent directory exists before creating the file or directory.
+		if !libs.PathExists(filepath.Dir(path)) {
+			if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+				return err
+			}
+		}
+
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(path, f.Mode())
+			// Create the directory itself if it doesn't exist yet.
+			if !libs.PathExists(path) {
+				if err := os.Mkdir(path, f.Mode()); err != nil {
+					return err
+				}
+			}
+
 			continue
 		}
 
-		os.MkdirAll(filepath.Dir(path), f.Mode())
-
+		// Open the file for writing, truncating if it already exists.
 		outFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
 			return err
 		}
 		defer outFile.Close()
 
-		_, err = io.Copy(outFile, rc)
-		if err != nil {
+		// Write the contents of the zip file entry to the output file.
+		if _, err := io.Copy(outFile, rc); err != nil {
 			return err
 		}
 	}
@@ -155,11 +181,15 @@ func IsSupportedCompressionFormat(filename string) bool {
 
 // HandlerFile 根据文件后缀判断是否支持解压，支持则解压，否则移动文件
 func HandlerFile(filePath string, destDir string) error {
-	if !IsSupportedCompressionFormat(filePath) {
+	// log.Printf("HandlerFile: %s", filePath)
+	// log.Printf("destDir: %s", destDir)
+	if IsSupportedCompressionFormat(filePath) {
 		// 移动文件
-		newPath := filepath.Join(destDir, filepath.Base(filePath))
-		return os.Rename(filePath, newPath)
+		// newPath := filepath.Join(destDir, filepath.Base(filePath))
+		// return os.Rename(filePath, newPath)
+		// 解压文件
+		return Decompress(filePath, destDir)
 	}
-	// 解压文件
-	return Decompress(filePath, destDir)
+	return nil
+
 }

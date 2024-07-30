@@ -4,6 +4,7 @@ import { SystemOptions } from '../type/type';
 import { InitSystemFile, InitUserFile } from './SystemFileConfig';
 import { createInitFile } from './createInitFile';
 import { OsFileMode } from './FileMode';
+import JSZip from "jszip";
 type DateLike = Date | string | number;
 // Os文件模式枚举
 class OsFileInfo {
@@ -405,7 +406,7 @@ class OsFileSystem implements OsFileInterface {
    * @param path 文件路径
    * @returns 文件内容
    */
-  async readFile(path: string): Promise<string | null> {
+  async readFile(path: string): Promise<string | any> {
     try {
       const volume = this.checkVolumePath(path);
       if (volume) {
@@ -891,12 +892,13 @@ class OsFileSystem implements OsFileInterface {
     const transedPath = fspath.transformPath(path);
     // 获取父路径
     let parentPath = fspath.dirname(transedPath);
+    
     // 如果父路径为空，设置为根路径
     if (parentPath === '') parentPath = '/';
     // 判断文件是否存在
     const exists = await this.exists(parentPath);
     // 如果文件不存在，则抛出错误
-    if (!exists) {
+    if (!exists && path != parentPath) {
       this.onerror('Cannot create directory to a non-exist path:' + parentPath);
       return Promise.reject('Cannot create directory to a non-exist path:' + parentPath);
     }
@@ -1071,6 +1073,75 @@ class OsFileSystem implements OsFileInterface {
         resolve(files);
       };
     });
+  }
+  async zip(path: string, ext?: string) {
+    ext = 'zip';
+    const ziplibs = new JSZip();
+    const that = this;
+    async function dfsPackage(path: string, ziplibs: JSZip) {
+      const dir = await that.readdir(path);
+
+      for (let i = 0; i < dir.length; i++) {
+        const item = dir[i];
+        const stat = await that.stat(item.path);
+        if (stat) {
+          if (stat.isDirectory) {
+            await dfsPackage(item.path, ziplibs);
+          } else {
+            const content = await that.readFile(item.path);
+            try {
+              atob(content || "");
+              ziplibs.file(item.path, content || "");
+            } catch (error) {
+              ziplibs.file(item.path, content || "");
+            }
+          }
+        }
+      }
+    }
+    await dfsPackage(path, ziplibs);
+    const content = await ziplibs.generateAsync({ type: "blob" })
+    const targetPath = path + "." + ext;
+    await that.writeFile(targetPath, content);
+    return { code: 0 }
+  }
+  async unzip(path: string) {
+    const stat = await this.stat(path);
+    if (stat?.isDirectory) {
+      return { code: -1 }
+    }
+    const that = this;
+    try {
+      const content = await this.readFile(path);
+      const ziplibs = new JSZip();
+      const unziped = await ziplibs.loadAsync(content);
+      const targetPath = path.substring(0, path.lastIndexOf("."))
+      
+      if (!await that.exists(targetPath)) {
+        await that.mkdir(targetPath)
+      }
+      const unzipArray: Array<JSZip.JSZipObject> = [];
+      unziped.forEach((_, zipEntry) => {
+        unzipArray.push(zipEntry);
+      });
+      for (let i = 0; i < unzipArray.length; i++) {
+        const zipEntry = unzipArray[i];
+        if (zipEntry.dir) {
+          await this.mkdir(zipEntry.name);
+        } else {
+          let fileC: any = await zipEntry.async("string");
+          if (!fileC.startsWith("link::")) {
+            fileC = await zipEntry.async("arraybuffer");
+          }
+          this.writeFile(zipEntry.name, fileC);
+        }
+      }
+      return { code: 0 }
+    } catch (error) {
+      console.log(error)
+      return { code: -1 }
+    }
+
   }
 }
 

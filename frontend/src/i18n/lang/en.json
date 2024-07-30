@@ -59,6 +59,8 @@
   "tips": "Tips",
   "file.not.exist": "File Not Exist",
   "file.save.success": "File Save Success",
+  "file.zip.success": "File Zip Success",
+  "file.unzip.success": "File Unzip Success",
   "new": "New",
   "back": "Back",
   "path.not.exist": "Path Not Exist",

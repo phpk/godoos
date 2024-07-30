@@ -1,7 +1,7 @@
 [
     {
         "name": "mysql5.7",
-        "url": "https://gitee.com/ruitao_admin/godoos-mysql5.7/releases/download/mysql5.7/mysql-windows-5.7.7z",
+        "url": "https://gitee.com/ruitao_admin/godoos-mysql5.7/releases/download/mysql5.7/mysql5.7.zip",
         "needDownload": true,
         "needInstall": true,
         "version": "5.7.37",
@@ -17,5 +17,35 @@
                 }
             }
         ]
+    },
+    {
+        "name": "nginx",
+        "url": "https://gitee.com/ruitao_admin/godoos-mysql5.7/releases/download/mysql5.7andredis5.0/nginx.zip",
+        "needDownload": true,
+        "needInstall": true,
+        "version": "1.25.3",
+        "icon": "https://p9.itc.cn/q_70/images03/20211130/a01ca555bc16455cbb2b50aed44fb64f.jpeg",
+        "checkProgress": true,
+        "hasRestart": true
+    },
+    {
+        "name": "redis5.0",
+        "url": "https://gitee.com/ruitao_admin/godoos-mysql5.7/releases/download/mysql5.7andredis5.0/redis5.0.zip",
+        "needDownload": true,
+        "needInstall": true,
+        "version": "5.0.0",
+        "icon": "https://img1.baidu.com/it/u=4217735613,2025794445&fm=253&fmt=auto&app=138&f=JPEG?w=293&h=247",
+        "checkProgress": true,
+        "hasRestart": true
+    },
+    {
+        "name": "Notepad3",
+        "url": "https://gitee.com/ruitao_admin/godoos-mysql5.7/releases/download/mysql5.7andredis5.0/Notepad3.zip",
+        "needDownload": true,
+        "needInstall": true,
+        "version": "3.0.0",
+        "icon": "https://www.waerfa.com/images/qfinx.png",
+        "checkProgress": true,
+        "hasRestart": true
     }
 ]

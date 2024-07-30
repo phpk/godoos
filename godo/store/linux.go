@@ -1,9 +1,10 @@
 //go:build !windows
 
-package progress
+package store
 
 import (
 	// 导入包
+
 	"os/exec"
 )
 

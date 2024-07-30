@@ -1,4 +1,4 @@
-package progress
+package store
 
 import (
 	"context"
@@ -73,7 +73,7 @@ func IsProcessRunning(appName string) (bool, error) {
 	if cmd.SysProcAttr == nil {
 		cmd.SysProcAttr = &syscall.SysProcAttr{}
 	}
-	cmd.SysProcAttr.HideWindow = true // For Windows to hide the console window
+	//cmd.SysProcAttr.HideWindow = true // For Windows to hide the console window
 
 	if output, err = cmd.CombinedOutput(); err != nil {
 		return false, fmt.Errorf("error checking process: %w", err)

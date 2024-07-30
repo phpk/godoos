@@ -13,7 +13,7 @@ const router = useRouter();
 const props = defineProps<{
   win: any;
 }>();
-
+const win = ref(props.win)
 if (props.win.path) {
   router.push(props.win.path);
 }

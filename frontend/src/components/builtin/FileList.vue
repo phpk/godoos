@@ -27,16 +27,16 @@
     'mode-detail': mode === 'detail',
     'drag-over': hoverIndex === index,
   }" :style="{
-      '--theme-color': theme === 'light' ? '#ffffff6b' : '#3bdbff3d',
-    }" v-for="(item, index) in fileList" :key="item.path" @dblclick="handleOnOpen(item)"
+    '--theme-color': theme === 'light' ? '#ffffff6b' : '#3bdbff3d',
+  }" v-for="(item, index) in fileList" :key="item.path" @dblclick="handleOnOpen(item)"
     @touchstart.passive="doubleTouch($event, item)" @contextmenu.stop.prevent="handleRightClick($event, item, index)"
     @drop="hadnleDrop($event, item.path)" @dragenter.prevent="handleDragEnter(index)" @dragover.prevent
     @dragleave="handleDragLeave()" @dragstart.stop="startDragApp($event, item)" @click="handleClick(index)"
     @mousedown.stop :ref="(ref: any) => {
-        if (ref) {
-          appPositions[index] = markRaw(ref as Element);
-        }
+      if (ref) {
+        appPositions[index] = markRaw(ref as Element);
       }
+    }
       ">
     <div class="file-item_img">
       <FileIcon :file="item" />
@@ -64,7 +64,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { useSystem, basename, dirname, join, OsFileWithoutContent } from '@/system/index.ts';
+import { useSystem, basename, dirname, join, OsFileWithoutContent, Notify } from '@/system/index.ts';
+import { getSystemKey } from '@/system/config'
 import { emitEvent, mountEvent } from '@/system/event';
 import { useContextMenu } from '@/hook/useContextMenu.ts';
 import { t, dealSystemName } from '@/i18n';
@@ -228,9 +229,26 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
   }
   const ext = item.name.split(".").pop();
 
+  const zipSucess = (res: any) => {
+    if (!res || res.code < 0) {
+      new Notify({
+        title: t('tips'),
+        content: t('error'),
+      });
+    } else {
+      props.onRefresh();
+      new Notify({
+        title: t('tips'),
+        content: t('file.zip.success'),
+      });
+      if (item.parentPath == '/C/Users/Desktop') {
+        sys.refershAppList()
+      }
+    }
 
+  };
   // eslint-disable-next-line prefer-const
-  let menuArr = [
+  let menuArr: any = [
     {
       label: t('open'),
       click: () => {
@@ -247,6 +265,49 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
     // },
 
   ];
+  if (item.isDirectory) {
+    if (getSystemKey('storeType') == 'local') {
+      menuArr.push({
+        label: t('zip'),
+        submenu: [
+          {
+            label: 'zip',
+            click: () => {
+              sys.fs.zip(item.path, 'zip').then((res: any) => {
+                zipSucess(res)
+              });
+            },
+          },
+          {
+            label: 'tar',
+            click: () => {
+              sys.fs.zip(item.path, 'tar').then((res: any) => {
+                zipSucess(res)
+              });
+            },
+          },
+          {
+            label: 'gz',
+            click: () => {
+              sys.fs.zip(item.path, 'gz').then((res: any) => {
+                zipSucess(res)
+              });
+            },
+          },
+        ],
+      })
+    } else {
+      menuArr.push({
+        label: t('zip'),
+        click: () => {
+          sys.fs.zip(item.path, 'zip').then((res: any) => {
+            zipSucess(res)
+          });
+        },
+      })
+    }
+
+  }
   if (choose.ifShow) {
     menuArr.push({
       label: t('selected'),
@@ -269,7 +330,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
     })
   }
   // eslint-disable-next-line prefer-const
-  let extMenus = useAppMenu(item, index);
+  let extMenus = useAppMenu(item, sys, props);
   if (extMenus && extMenus.length > 0) {
     // eslint-disable-next-line prefer-spread
     menuArr.push.apply(menuArr, extMenus)
@@ -295,22 +356,17 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
       {
         label: t('delete'),
         click: async () => {
-          // await Promise.all(
-          //   chosenIndexs.value.map((index) => {
-          //     const item = props.fileList[index];
-          //     deleteFile(item);
-          //     props.onRefresh();
-          //     return true;
-          //   })
-          // );
           for (let i = 0; i < chosenIndexs.value.length; i++) {
             await deleteFile(props.fileList[chosenIndexs.value[i]]);
           }
           chosenIndexs.value = [];
           props.onRefresh();
-          sys.refershAppList()
+          if (item.parentPath == '/C/Users/Desktop') {
+            sys.refershAppList()
+          }
         },
-      }
+      },
+
     ];
     // eslint-disable-next-line prefer-spread
     menuArr.push.apply(menuArr, fileMenus)

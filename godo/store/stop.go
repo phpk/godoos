@@ -1,23 +1,37 @@
-package progress
+package store
 
 import (
 	"fmt"
+	"log"
 	"net/http"
-	"os"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/shirou/gopsutil/process"
 )
 
+func KillByPid(pid int) error {
+	p, err := process.NewProcess(int32(pid))
+	if err != nil {
+		return fmt.Errorf("failed to create process object: %w", err)
+	}
+
+	// 杀死进程及其子进程
+	if err := p.Kill(); err != nil {
+		return fmt.Errorf("failed to kill process: %w", err)
+	}
+	return nil
+}
 func StopCmd(name string) error {
 	cmd, ok := processes[name]
 	if !ok {
 		return fmt.Errorf("Process not found")
 	}
-	if err := cmd.Cmd.Process.Kill(); err != nil {
-		return fmt.Errorf("failed to kill process: %v", err)
+	processes[name].Running = false
+	err := KillByPid(cmd.Cmd.Process.Pid)
+	if err != nil {
+		return fmt.Errorf("failed to kill process: %w", err)
 	}
-	//delete(processes, name) // 更新status，表示进程已停止
-	cmd.Running = false
 	return nil
 }
 func StopProcess(w http.ResponseWriter, r *http.Request) {
@@ -37,9 +51,10 @@ func StopAllHandler() error {
 	defer processesMu.Unlock()
 
 	for name, cmd := range processes {
-		if err := cmd.Cmd.Process.Signal(os.Interrupt); err != nil {
+		if err := KillByPid(cmd.Cmd.Process.Pid); err != nil {
 			return fmt.Errorf("failed to stop process %s: %v", name, err)
 		}
+		processes[name].Running = false
 	}
 	return nil
 }
@@ -49,15 +64,6 @@ func StopAll(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	// processesMu.Lock()
-	// defer processesMu.Unlock()
-
-	// for name, cmd := range processes {
-	// 	if err := cmd.Cmd.Process.Signal(os.Interrupt); err != nil {
-	// 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to stop process %s: %v", name, err))
-	// 		return
-	// 	}
-	// }
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "All processes stopped.")
@@ -70,16 +76,19 @@ func ReStartProcess(w http.ResponseWriter, r *http.Request) {
 
 	// Stop the process first
 	if cmd, ok := processes[name]; ok {
-		if err := cmd.Cmd.Process.Kill(); err != nil {
-			respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to stop process %s before restart: %v", name, err))
-			return
+		if err := KillByPid(cmd.Cmd.Process.Pid); err != nil {
+			// respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to stop process %s before restart: %v", name, err))
+			// return
+			log.Printf("Failed to stop process %s before restart: %v", name, err)
 		}
-		//delete(processes, name)
-		cmd.Running = false
+		// processesMu.Lock()
+		// defer processesMu.Unlock()
+		processes[name].Running = false
 	} else {
 		respondWithError(w, http.StatusNotFound, fmt.Sprintf("Process %s not found to restart", name))
 		return
 	}
+	time.Sleep(time.Second * 2)
 	// Start the process again
 	err := ExecuteScript(name)
 	if err != nil {
