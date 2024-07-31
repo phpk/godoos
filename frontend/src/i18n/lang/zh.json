@@ -147,6 +147,29 @@
       "utilities": "实用工具",
       "others": "其他",
       "add":"添加应用",
-      "errorList":"获取列表失败！"
-  }
+      "errorList":"获取列表失败！",
+      "urlEmpty":"网址为空",
+      "hasSameName":"存在相同名称的应用！",
+      "installError":"安装失败！",
+      "installSuccess":"安装成功！",
+      "uninstallSuccess":"卸载成功",
+      "downloadError":"下载失败！",
+      "cantStream":"暂不支持流下载！"
+  },
+  "process":{
+    "title":"进程管理",
+    "port":"端口",
+    "pid":"PID",
+    "name":"名称",
+    "proto":"类型",
+    "action":"操作"
+  },
+  "upgrade": {
+		"title": "新版本升级",
+		"msg": "新版本来啦，马上更新尝鲜吧！不用担心，更新很快的哦！",
+		"desc": "提示：更新会还原默认配置",
+		"btnOne": "残忍拒绝",
+		"btnTwo": "马上更新",
+		"btnTwoLoading": "更新中"
+	}
 }

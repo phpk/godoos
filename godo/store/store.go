@@ -42,6 +42,19 @@ func GetStoreListHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 }
+func GetInstallInfoHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		libs.ErrorMsg(w, "name is required")
+		return
+	}
+	info, err := GetInstallInfo(name)
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	libs.SuccessMsg(w, info, "")
+}
 func StoreSettingHandler(w http.ResponseWriter, r *http.Request) {
 	var req map[string]any
 	err := json.NewDecoder(r.Body).Decode(&req)

@@ -12,7 +12,7 @@ type APIResponse struct {
 	Error   string `json:"error,omitempty"`
 }
 
-func writeJSONResponse(w http.ResponseWriter, res APIResponse, status int) {
+func WriteJSONResponse(w http.ResponseWriter, res APIResponse, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(res)
@@ -20,11 +20,11 @@ func writeJSONResponse(w http.ResponseWriter, res APIResponse, status int) {
 
 // HTTPError 返回带有JSON错误消息的HTTP错误
 func HTTPError(w http.ResponseWriter, status int, message string) {
-	writeJSONResponse(w, APIResponse{Message: message, Code: -1}, status)
+	WriteJSONResponse(w, APIResponse{Message: message, Code: -1}, status)
 }
 func ErrorMsg(w http.ResponseWriter, message string) {
-	writeJSONResponse(w, APIResponse{Message: message, Code: -1}, 200)
+	WriteJSONResponse(w, APIResponse{Message: message, Code: -1}, 200)
 }
 func SuccessMsg(w http.ResponseWriter, data any, message string) {
-	writeJSONResponse(w, APIResponse{Message: message, Data: data, Code: 0}, 200)
+	WriteJSONResponse(w, APIResponse{Message: message, Data: data, Code: 0}, 200)
 }

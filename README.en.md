@@ -133,6 +133,9 @@ English | [简体中文](README.md)
 - Support standard kanban, a must-have tool for project management, which can quickly create kanban and place it in different folders
 <img src="./docs/img/kanban.png" width="600" />
 
+### 22、 Process management
+- Support process management, can view process list, kill processes
+
 ## Development
 ### Build
 - Front end construction

@@ -57,6 +57,19 @@ export const appList = [
         isMagnet: true,
         isMenuList: true,
     },
+    {
+        name: 'process.title',
+        appIcon: "progress",
+        content: "ProcessManager",
+        width: 800,
+        height: 600,
+        frame: true,
+        center: true,
+        resizable: false,
+        isDeskTop: false,
+        isMagnet: true,
+        isMenuList: true,
+    },
     
     {
         name: "create.shortcut",

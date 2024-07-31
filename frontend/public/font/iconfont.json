@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "39799840",
+      "name": "progress",
+      "font_class": "progress",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
       "icon_id": "30862364",
       "name": "zip",
       "font_class": "zip",

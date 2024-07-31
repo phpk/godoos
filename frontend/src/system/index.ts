@@ -25,7 +25,7 @@ import { Tray, TrayOptions } from './menu/Tary';
 import { InitSystemFile, InitUserFile } from './core/SystemFileConfig';
 import { createInitFile } from './core/createInitFile';
 import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig } from './config'
-import { checkUpdate } from '@/util/update';
+import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
 
 export type OsPlugin = (system: System) => void;
@@ -115,7 +115,8 @@ export class System {
       if (this._rootState.magnet?.length < 1) {
         this.refershAppList()
       }
-      checkUpdate();
+      const upgradeStore = useUpgradeStore();
+      upgradeStore.checkUpdate()
       setTimeout(() => {
         if (this._rootState.magnet?.length < 1) {
           this.recover()

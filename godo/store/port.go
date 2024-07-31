@@ -1,24 +1,34 @@
 package store
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os/exec"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 )
 
-type PortRangeResponse struct {
-	Start        int   `json:"start"`
-	End          int   `json:"end"`
-	EnabledPorts []int `json:"enabled_ports"`
+type ProcessSystemInfo struct {
+	PID   int    `json:"pid"`
+	Port  int    `json:"port"`
+	Proto string `json:"proto"`
+	Name  string `json:"name"`
 }
 
-func getProcessIdsOnPort(port int) ([]string, error) {
+type AllProcessesResponse struct {
+	Processes []ProcessSystemInfo `json:"processes"`
+}
+
+var processInfoRegex = regexp.MustCompile(`(\d+)\s+.*:\s*(\d+)\s+.*LISTEN\s+.*:(\d+)`)
+
+func listAllProcesses() ([]ProcessSystemInfo, error) {
 	osType := runtime.GOOS
 
 	var cmd *exec.Cmd
@@ -27,55 +37,115 @@ func getProcessIdsOnPort(port int) ([]string, error) {
 
 	switch osType {
 	case "darwin", "linux":
-		cmd = exec.Command("lsof", "-ti", fmt.Sprintf("tcp:%d", port))
+		cmd = exec.Command("lsof", "-i", "-n", "-P")
 	case "windows":
-		cmd = exec.Command("powershell", "-Command", "Get-Process | Where-Object {$_.Id -eq "+strconv.Itoa(port)+"} | Select-Object -ExpandProperty Id")
+		cmd = exec.Command("netstat", "-ano")
 	default:
 		return nil, fmt.Errorf("unsupported operating system")
 	}
 
 	output, err = cmd.CombinedOutput()
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			// 如果lsof或powershell命令找不到任何进程，它会返回非零退出代码，这是正常情况
-			if exitError.ExitCode() != 1 {
-				return nil, fmt.Errorf("failed to list processes on port %d: %v", port, err)
+		return nil, fmt.Errorf("failed to list all processes: %v", err)
+	}
+
+	processes := make([]ProcessSystemInfo, 0)
+
+	// 解析输出
+	switch osType {
+	case "darwin", "linux":
+		scanner := bufio.NewScanner(bytes.NewBuffer(output)) // 使用bufio.Scanner
+
+		for scanner.Scan() {
+			line := scanner.Text()
+			matches := processInfoRegex.FindStringSubmatch(line)
+			if matches != nil {
+				pid, _ := strconv.Atoi(matches[1])
+				port, _ := strconv.Atoi(matches[3])
+				processName, err := getProcessName(osType, pid)
+				if err != nil {
+					log.Printf("Failed to get process name for PID %d: %v", pid, err)
+					continue
+				}
+				processes = append(processes, ProcessSystemInfo{
+					PID:   pid,
+					Port:  port,
+					Proto: matches[2],
+					Name:  processName,
+				})
 			}
-		} else {
-			return nil, fmt.Errorf("failed to list processes on port %d: %v", port, err)
+		}
+	case "windows":
+		scanner := bufio.NewScanner(bytes.NewBuffer(output))
+		for scanner.Scan() {
+			line := scanner.Text()
+			// 需要针对Windows的netstat输出格式进行解析
+			// 示例：TCP    0.0.0.0:80          0.0.0.0:*               LISTENING       1234
+			fields := strings.Fields(line)
+			if len(fields) >= 4 && fields[3] == "LISTENING" {
+				_, port, err := net.SplitHostPort(fields[1])
+				if err != nil {
+					log.Printf("Failed to parse port: %v", err)
+					continue
+				}
+				pid, _ := strconv.Atoi(fields[4])
+				processName, err := getProcessName(osType, pid)
+				if err != nil {
+					log.Printf("Failed to get process name for PID %d: %v", pid, err)
+					continue
+				}
+				portInt, err := strconv.Atoi(port)
+				if err != nil {
+					log.Printf("Failed to convert port to integer: %v", err)
+					continue
+				}
+				processes = append(processes, ProcessSystemInfo{
+					PID:   pid,
+					Port:  portInt,
+					Proto: fields[0],
+					Name:  processName,
+				})
+			}
 		}
 	}
 
-	pids := strings.Fields(strings.TrimSpace(string(output)))
-	return pids, nil
+	return processes, nil
 }
-func listEnabledPorts(portRangeStart, portRangeEnd int) ([]int, error) {
-	var usedPorts []int
-	var wg sync.WaitGroup
 
-	for i := portRangeStart; i <= portRangeEnd; i++ {
-		currentPort := i // 创建一个新的变量来绑定当前的i值
-		wg.Add(1)
-		go func() { // 注意这里不再直接传入port，而是使用currentPort
-			defer wg.Done()
+func getProcessName(osType string, pid int) (string, error) {
+	var cmd *exec.Cmd
+	var output []byte
+	var err error
 
-			pids, err := getProcessIdsOnPort(currentPort)
-			if err != nil {
-				log.Printf("Error checking port %d: %v", currentPort, err)
-			}
-
-			if len(pids) > 0 {
-				usedPorts = append(usedPorts, currentPort)
-			}
-		}()
+	switch osType {
+	case "darwin", "linux":
+		cmd = exec.Command("ps", "-p", strconv.Itoa(pid), "-o", "comm=")
+	case "windows":
+		cmd = exec.Command("tasklist", "/FI", fmt.Sprintf("PID eq %d", pid), "/NH")
+	default:
+		return "", fmt.Errorf("unsupported operating system")
 	}
 
-	wg.Wait()
+	output, err = cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("failed to get process name: %v", err)
+	}
+	// log.Printf("output: %s", output)
+	switch osType {
+	case "darwin", "linux":
+		return strings.TrimSpace(string(output)), nil
+	case "windows":
+		parts := strings.Fields(string(output))
+		if len(parts) >= 1 {
+			return parts[0], nil
+		}
+		return "", fmt.Errorf("no process name found in output")
+	}
 
-	return usedPorts, nil
+	return "", fmt.Errorf("unknown error getting process name")
 }
 
-func killProcess(pid int) error {
+func killProcessByName(name string) error {
 	osType := runtime.GOOS
 
 	var cmd *exec.Cmd
@@ -83,90 +153,42 @@ func killProcess(pid int) error {
 
 	switch osType {
 	case "darwin", "linux":
-		cmd = exec.Command("kill", "-9", strconv.Itoa(pid))
+		cmd = exec.Command("pkill", name)
 	case "windows":
-		cmd = exec.Command("taskkill", "/F", "/PID", strconv.Itoa(pid)) // /F 表示强制结束
+		cmd = exec.Command("taskkill", "/IM", name, "/F") // /F 表示强制结束
 	default:
 		return fmt.Errorf("unsupported operating system")
 	}
 
 	err = cmd.Run()
 	if err != nil {
-		log.Printf("Failed to kill process with PID %d: %v", pid, err)
+		log.Printf("Failed to kill process with name %s: %v", name, err)
 	}
 
 	return err
 }
 
-func killAllProcessesOnPort(port int, w http.ResponseWriter) {
-	pids, err := getProcessIdsOnPort(port)
-	if err != nil {
-		http.Error(w, "Failed to list processes", http.StatusInternalServerError)
+func KillProcessByNameHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	if err := killProcessByName(name); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to kill process: %v", err), http.StatusInternalServerError)
 		return
 	}
-
-	for _, pidStr := range pids {
-		if pidStr == "" {
-			continue
-		}
-
-		pidInt, err := strconv.Atoi(pidStr)
-		if err != nil {
-			log.Printf("Failed to convert PID to integer: %v", err)
-			continue
-		}
-
-		if err := killProcess(pidInt); err != nil {
-			log.Printf("Failed to kill process with PID %d: %v", pidInt, err)
-			continue
-		}
-	}
-
-	fmt.Fprintf(w, "All processes on port %d have been killed", port)
+	fmt.Fprintf(w, "Process '%s' has been killed", name)
 }
-func KillPortHandler(w http.ResponseWriter, r *http.Request) {
-	portStr := r.URL.Query().Get("port")
-	port, err := strconv.Atoi(portStr)
+
+func ListAllProcessesHandler(w http.ResponseWriter, r *http.Request) {
+	processes, err := listAllProcesses()
 	if err != nil {
-		http.Error(w, "Invalid port number", http.StatusBadRequest)
-		return
-	}
-	killAllProcessesOnPort(port, w)
-}
-func ListPortsHandler(w http.ResponseWriter, r *http.Request) {
-	startStr := r.URL.Query().Get("start")
-	endStr := r.URL.Query().Get("end")
-
-	// 设置默认值
-	start := 56711
-	end := 56730
-
-	// 如果参数存在，则尝试转换为整数，否则使用默认值
-	if startStr != "" {
-		start, _ = strconv.Atoi(startStr)
-	}
-
-	if endStr != "" {
-		end, _ = strconv.Atoi(endStr)
-	}
-
-	ports, err := listEnabledPorts(start, end)
-	if err != nil {
-		http.Error(w, "Failed to list ports", http.StatusInternalServerError)
+		http.Error(w, "Failed to list all processes", http.StatusInternalServerError)
 		return
 	}
 
-	// 构造JSON响应结构体
-	response := PortRangeResponse{
-		Start:        start,
-		End:          end,
-		EnabledPorts: ports,
+	response := AllProcessesResponse{
+		Processes: processes,
 	}
 
-	// 设置响应内容类型为JSON
 	w.Header().Set("Content-Type", "application/json")
-
-	// 编码并写入响应体
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
 		return

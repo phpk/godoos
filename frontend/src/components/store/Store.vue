@@ -1,82 +1,38 @@
 <script setup lang="ts">
-import { inject, onMounted, ref } from "vue";
+import { inject, onMounted } from "vue";
 import { System } from "@/system";
 import { notifySuccess, notifyError } from "@/util/msg";
+import { useStoreStore } from "@/stores/store";
+import { setSystemKey,parseJson } from "@/system/config";
 import { t } from "@/i18n";
-import storeInitList from "@/assets/store.json";
-import { getSystemKey, setSystemKey, parseJson } from "@/system/config";
 const sys: any = inject<System>("system");
-const currentCateId = ref(0)
-const currentTitle = ref(t("store.hots"))
-const currentCate = ref('hots')
-const categoryList = ['hots', 'work', 'development', 'games', 'education', 'news', 'shopping', 'social', 'utilities', 'others', 'add']
-const categoryIcon = ['HomeFilled', 'Odometer', 'Postcard', 'TrendCharts', 'School', 'HelpFilled', 'ShoppingCart', 'ChatLineRound', 'MessageBox', 'Ticket', 'CirclePlusFilled']
-const isready = ref(false);
-const installed = getSystemKey("intstalledPlugins");
-const apiUrl = getSystemKey("apiUrl");
+const store = useStoreStore()
 
-const installedList: any = ref(installed);
-const storeList: any = ref([])
 onMounted(async () => {
-  await getList();
-
+  await store.getList();
 });
-async function getList() {
-  if (currentCate.value == 'add') return;
-  storeList.value = storeInitList
 
-  // const apiUrl = getSystemKey("apiUrl");
-  // const storeUrl = apiUrl + '/store/storelist?cate=' + currentCate.value
-  // const res = await fetch(storeUrl)
-  // if (!res.ok) {
-  //   notifyError(t('store.getStoreListError'))
-  //   return
-  // }
-  // const data = await res.json()
-  // //console.log(data)
-  // storeList.value = data
-  await checkProgress()
-  isready.value = true;
-}
-async function checkProgress() {
-  const completion: any = await fetch(apiUrl + '/store/listporgress')
-  if (!completion.ok) {
-    return
-  }
-  let res: any = await completion.json()
-  if (!res || res.length < 1) {
-    res = []
-  }
-  storeList.value.forEach((item: any, index: number) => {
-    const pitem: any = res.find((i: any) => i.name == item.name)
-    console.log(pitem)
-    if (pitem) {
-      storeList.value[index].isRuning = pitem.running
-    } else {
-      storeList.value[index].isRuning = false
-    }
-  })
-}
-async function changeCate(index: number, item: string) {
-  currentCateId.value = index
-  currentCate.value = item
-  currentTitle.value = t("store." + item)
-  await getList()
-}
 function setCache() {
-  setSystemKey("intstalledPlugins", installedList.value);
+  setSystemKey("intstalledPlugins", store.installedList);
   setTimeout(() => {
     sys.refershAppList();
   }, 1000);
 }
 async function install(item: any) {
-
+  if (item.isOut) {
+    item.progress = 0
+    const flag = store.addOutList(item)
+    if(!flag){
+      notifyError(t("store.installError"))
+    }
+  }
   if (item.needDownload && !item.isDev) {
     await download(item)
   }
+  
   if (item.needInstall) {
     item.progress = 0
-    const completion = await fetch(apiUrl + '/store/install?name=' + item.name)
+    const completion = await fetch(store.apiUrl + '/store/install?name=' + item.name)
     if (!completion.ok) {
       notifyError(t("store.installError"))
       return
@@ -86,23 +42,11 @@ async function install(item: any) {
       notifyError(res.message)
       return
     }
-    if(res.data){
-      item.icon = res.data
+    if (res.data) {
+      item.icon = res.data.icon
     }
   }
-  if (item.isOut) {
-    item.progress = 0
-    const completion = await fetch(apiUrl + '/store/installOut?url=' + item.url)
-    if (!completion.ok) {
-      notifyError(t("store.installError"))
-      return
-    }
-    const res = await completion.json()
-    if (res.code && res.code < 0) {
-      notifyError(res.message)
-      return
-    }
-  }
+  
   if (item.webUrl) {
     sys.fs.writeFile(
       `${sys._options.userLocation}Desktop/${item.name}.url`,
@@ -110,18 +54,18 @@ async function install(item: any) {
     );
   }
 
-  notifySuccess(t("install.success"))
-  installedList.value.push(item.name);
-  await checkProgress()
+  notifySuccess(t("store.installSuccess"))
+  store.installedList.push(item.name);
+  await store.checkProgress()
   setCache();
 }
 
 async function uninstall(item: any) {
   if (item.needInstall) {
     item.progress = 0
-    const completion = await fetch(apiUrl + '/store/uninstall?name=' + item.name)
+    const completion = await fetch(store.apiUrl + '/store/uninstall?name=' + item.name)
     if (!completion.ok) {
-      notifyError(t("store.installError"))
+      notifyError(t("store.hasSameName"))
       return
     }
     const res = await completion.json()
@@ -131,14 +75,14 @@ async function uninstall(item: any) {
     }
   }
   sys.fs.unlink(`${sys._options.userLocation}Desktop/${item.name}.url`);
-  notifySuccess(t("uninstall.success"))
-  delete installedList.value[installedList.value.indexOf(item.name)];
+  notifySuccess(t("store.uninstallSuccess"))
+  delete store.installedList[store.installedList.indexOf(item.name)];
   setCache();
 }
 async function download(item: any) {
   //console.log(item)
   if (item.progress) return;
-  const completion = await fetch(apiUrl + '/store/download?url=' + item.url)
+  const completion = await fetch(store.apiUrl + '/store/download?url=' + item.url)
   if (!completion.ok) {
     notifyError(t("store.downloadError"))
   }
@@ -156,7 +100,7 @@ async function download(item: any) {
     const json = await new TextDecoder().decode(value);
     //console.log(json)
     const res = parseJson(json)
-    console.log(res)
+    //console.log(res)
     if (res) {
       if (res.progress) {
         item.progress = res.progress
@@ -170,27 +114,27 @@ async function download(item: any) {
   }
 }
 async function pauseApp(item: any) {
-  const res: any = await fetch(apiUrl + '/store/stop/' + item.name)
+  const res: any = await fetch(store.apiUrl + '/store/stop/' + item.name)
   if (!res.ok) {
     const msg = await res.text()
     notifyError(msg)
     return
   }
   setTimeout(async () => {
-    await checkProgress()
+    await store.checkProgress()
   }, 1000)
 
 }
 async function restartApp(item: any) {
-  await fetch(apiUrl + '/store/restart/' + item.name)
+  await fetch(store.apiUrl + '/store/restart/' + item.name)
   setTimeout(async () => {
-    await checkProgress()
+    await store.checkProgress()
   }, 1000)
 }
 async function startApp(item: any) {
-  await fetch(apiUrl + '/store/start/' + item.name)
+  await fetch(store.apiUrl + '/store/start/' + item.name)
   setTimeout(async () => {
-    await checkProgress()
+    await store.checkProgress()
   }, 1000)
 }
 </script>
@@ -198,27 +142,27 @@ async function startApp(item: any) {
   <div class="outer">
     <div class="main">
       <div class="left">
-        <div class="left-icon" v-for="(item, key) in categoryList" @click="changeCate(key, item)">
-          <div class="icon-derc" v-if="key == currentCateId"></div>
+        <div class="left-icon" v-for="(item, key) in store.categoryList" @click="store.changeCate(key, item)">
+          <div class="icon-derc" v-if="key == store.currentCateId"></div>
           <el-tooltip class="box-item" effect="dark" :content="t('store.' + item)" placement="right">
             <el-icon size="22">
-              <component :is="categoryIcon[key]" />
+              <component :is="store.categoryIcon[key]" />
             </el-icon>
           </el-tooltip>
         </div>
       </div>
       <div class="store">
-        <div v-if="isready" class="store-top">
+        <div v-if="store.isready" class="store-top">
           <div class="right-main">
             <div class="main-title">
-              <span class="sub-title">{{ currentTitle }} </span>
+              <span class="sub-title">{{ store.currentTitle }} </span>
             </div>
             <div class="main-app">
-              <div v-for="item in storeList" v-if="currentCate != 'add'" class="store-item" :key="item.name">
-                <AppItem :item="item" :installed-list="installedList" :install="install" :uninstall="uninstall"
+              <div v-for="item in store.storeList" v-if="store.currentCate != 'add'" class="store-item" :key="item.name">
+                <AppItem :item="item" :installed-list="store.installedList" :install="install" :uninstall="uninstall"
                   :pause="pauseApp" :start="startApp" :restart="restartApp" />
               </div>
-              <AddApp v-else />
+              <AddApp v-else :install="install" />
 
             </div>
           </div>

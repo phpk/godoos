@@ -38,6 +38,7 @@ type InstallInfo struct {
 	CheckProgress bool   `json:"checkProgress"` // 标志位，表示是否显示启动和停止。
 	HasRestart    bool   `json:"hasRestart"`    // 标志位，表示安装后是否需要重启。
 	Setting       bool   `json:"setting"`       // 标志位，表示是否需要配置。
+	Dependencies  []Item `json:"dependencies"`  // 依赖项。
 }
 ```
 

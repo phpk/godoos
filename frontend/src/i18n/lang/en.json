@@ -2,6 +2,7 @@
   "hello": "hello",
   "startMenu.power": "Power",
   "setting": "Setting",
+  "progressmanger": "Progress",
   "startMenu.shutdown": "Shutdown",
   "startMenu.recover": "Recover",
   "windows.setting": "Windows Setting",
@@ -133,18 +134,34 @@
   "cannot.create.shortcut": "Cannot Create Shortcut",
   "shortcut.has.been.created": "Shortcut Has Been Created",
   "system.message": "System Message",
-  "store" : {
-    "hots":"Popular",
+  "store": {
+    "hots": "Popular",
     "work": "Work",
     "development": "Development",
     "games": "Games",
     "education": "Education",
     "news": "News",
-    "shopping":"Shopping",
+    "shopping": "Shopping",
     "social": "Social Networking",
     "utilities": "Utilities",
     "others": "Others",
-    "add":"Add",
-    "errorList":"Cannot get the list of applications"
-}
+    "add": "Add",
+    "errorList": "Cannot get the list of applications"
+  },
+  "process":{
+    "title":"Process Manager",
+    "port":"Port",
+    "pid":"PID",
+    "name":"Name",
+    "proto":"Protocol",
+    "action":"Actions"
+  },
+  "upgrade": {
+		"title": "New version",
+		"msg": "The new version is available, please update it now! Dont worry, the update is fast!",
+		"desc": "Prompt: Update will restore the default configuration",
+		"btnOne": "Cruel refusal",
+		"btnTwo": "Update now",
+		"btnTwoLoading": "Updating"
+	}
 }

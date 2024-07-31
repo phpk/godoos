@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, defineProps } from "vue";
 import { OpenDirDialog } from "@/util/goutil";
 import { getSystemKey, parseJson } from "@/system/config";
 const apiUrl = getSystemKey("apiUrl");
-const installed = getSystemKey("intstalledPlugins");
 import { notifySuccess, notifyError } from "@/util/msg";
 import { t } from "@/i18n";
+const props = defineProps({
+    install: {
+        type: Function,
+        required: true,
+    },
+});
 const formData = ref({
     importType: 'download',
     url: '',
@@ -17,10 +22,10 @@ const addType = [
         'name': '远程下载',
         'type': 'download'
     },
-    {
-        'name': '本地导入',
-        'type': 'local'
-    },
+    // {
+    //     'name': '本地导入',
+    //     'type': 'local'
+    // },
     {
         'name': '开发模式',
         'type': 'dev'
@@ -63,6 +68,8 @@ async function addAppByDownload() {
             if (res.done) {
                 notifySuccess(t("store.downloadSuccess"))
                 progress.value = 0
+                const pluginName = res.path.split("/").pop().split(".")[0]
+                await installPlugin(pluginName)
                 break;
             }
         }
@@ -72,7 +79,20 @@ async function addAppByImport() {
 
 }
 async function addAppByDev() {
-
+    if(formData.value.devPath && formData.value.devPath != ""){
+        await installPlugin(formData.value.devPath)
+    } 
+}
+async function installPlugin(pluginName: string) {
+    const completion = await fetch(apiUrl + '/store/installInfo?name=' + pluginName)
+    if (!completion.ok) {
+        notifyError(t("store.installError"))
+        return
+    }
+    const item = await completion.json()
+    //console.log(item)
+    item.isOut = true
+    await props.install(item.data)
 }
 </script>
 <template>

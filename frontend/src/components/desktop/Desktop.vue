@@ -17,6 +17,9 @@
       <NotifyGroup></NotifyGroup>
       <MessageCenterPop></MessageCenterPop>
       <Chosen></Chosen>
+      <Sponsors v-if="upgradeStore.hasNotice"></Sponsors>
+      <Upgrade v-if="upgradeStore.hasUpgrade"></Upgrade>
+      <Ad v-if="upgradeStore.hasAd"></Ad>
     </div>
     <div class="bottom">
       <Taskbar></Taskbar>
@@ -31,10 +34,12 @@ import { useFileDrag } from "@/hook/useFileDrag";
 import { Rect, useRectChosen } from "@/hook/useRectChosen";
 import { useSystem } from "@/system";
 import { onErrorCaptured } from "vue";
+import { useUpgradeStore } from '@/stores/upgrade';
 
 const { createDesktopContextMenu } = useContextMenu();
 const { choseStart, chosing, choseEnd, getRect, Chosen } = useRectChosen();
 const system = useSystem();
+const upgradeStore = useUpgradeStore();
 const { dragFileToDrop } = useFileDrag(system);
 
 let chosenCallback: (rect: Rect) => void = () => {
@@ -87,6 +92,7 @@ function handleRightClick(e: MouseEvent) {
 onErrorCaptured((err) => {
   system.emitError(err.message.toString());
 });
+
 </script>
 <style lang="scss" scoped>
 .desktop {

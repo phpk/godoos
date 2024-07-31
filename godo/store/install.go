@@ -29,6 +29,21 @@ func InstallHandler(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "the install.json is error:"+err.Error())
 		return
 	}
+	if len(installInfo.Dependencies) > 0 {
+		var needInstalls []Item
+		for _, item := range installInfo.Dependencies {
+			info, err := GetInstallInfo(item.Value.(string))
+			if err != nil {
+				needInstalls = append(needInstalls, item)
+				continue
+			}
+			if info.Version != installInfo.Version {
+				needInstalls = append(needInstalls, item)
+			}
+		}
+		libs.WriteJSONResponse(w, libs.APIResponse{Message: "you need install apps!", Data: needInstalls, Code: -1}, 200)
+		return
+	}
 	if pluginName != installInfo.Name {
 		libs.ErrorMsg(w, "the app name must equal the install.json!")
 		return
@@ -78,7 +93,6 @@ func InstallHandler(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "install the app is error!")
 		return
 	}
-	var res string
 	//复制static目录
 	staticPath := filepath.Join(exePath, "static")
 	if libs.PathExists(staticPath) {
@@ -91,12 +105,12 @@ func InstallHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			iconPath := filepath.Join(targetPath, storeInfo.Icon)
 			if libs.PathExists(iconPath) {
-				res = "http://localhost:56780/static/" + pluginName + "/" + storeInfo.Icon
+				installInfo.Icon = "http://localhost:56780/static/" + pluginName + "/" + storeInfo.Icon
 			}
 		}
 
 	}
-	libs.SuccessMsg(w, res, "install the app success!")
+	libs.SuccessMsg(w, installInfo, "install the app success!")
 }
 
 func UnInstallHandler(w http.ResponseWriter, r *http.Request) {
