@@ -65,6 +65,8 @@ type InstallStruct struct {
 	InstallCmds []string `json:"installCmds"` // 安装过程中需要执行的命令列表。
 }
 type StartStruct struct {
-	StartEnvs []Item   `json:"startEnvs"` // 安装过程中需要的环境变量。
-	StartCmds []string `json:"startCmds"` // 安装过程中需要执行的命令列表。
+	StartEnvs  []Item   `json:"startEnvs"`  // 启动过程中需要的环境变量。
+	BeforeCmds []string `json:"beforeCmds"` // 启动前需要执行的命令列表。
+	StartCmds  []string `json:"startCmds"`  // 启动过程中需要执行的命令列表。
+	AfterCmds  []string `json:"afterCmds"`  // 启动后需要执行的命令列表。
 }

@@ -25,8 +25,8 @@ export const useStoreStore = defineStore('storeStore', () => {
         }
         let list:any = await res.json()
         //console.log(data)
-        if (outList.value.length > 0 && currentCate.value == 'hots') {
-            const names = list.value.map((item : any) => item.name)
+        if (outList.value.length > 0 && currentCate.value == 'hots' && list && list.length > 0) {
+            const names = list.map((item : any) => item.name)
             const adds:any = []
             outList.value.forEach((item : any) => {
                 if (!names.includes(item.name)) {
@@ -40,7 +40,9 @@ export const useStoreStore = defineStore('storeStore', () => {
         isready.value = true;
     }
     async function addOutList(item:any) {
+        console.log(item)
         const has = outList.value.find((i:any) => i.name === item.name)
+        console.log(has)
         if(!has) {
             item.isOut = true
             outList.value.push(item)

@@ -1,0 +1,14 @@
+{
+    "name": "nginx",
+    "icon": "nginx.png",
+    "setting": {
+        "binPath": "{exePath}/nginx.exe",
+        "progressName":"nginx.exe"
+    },
+    "start": {
+        "startCmds": [
+            "-p", 
+            "{exePath}"
+        ]
+    }
+}

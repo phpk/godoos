@@ -20,7 +20,7 @@
     "name": "",             // string, 应用程序名称。
     "url": "",              // string, 应用程序下载地址。
     "webUrl":"",            // string, 如何设置，应用程序将显示到桌面。
-    "isDev": true,          // boolean, 是否为开发环境。
+    "isDev": true,          // boolean, 是否为开发环境。如果设置为true将不会下载数据。
     "needDownload": true,   // boolean, 是否需要下载，本地开发设置为false。
     "needInstall": true,    // boolean, 是否需要安装。
     "version": "1.0.0",    // string, 应用程序版本。
@@ -73,9 +73,11 @@ type InstallInfo struct {
     },
     "start": {
         "startEnvs": [],
+        "beforeCmds": [],// 启动前需要执行的命令列表。可调用命令列表集commands里面的命令。
         "startCmds": [// object[], 纯参数命令集。将启动`setting.binPath`,不可调用命令列表集`commands`里面的命令。
             "--defaults-file={exePath}/my.ini"
-        ]
+        ],
+        "AfterCmds": []// 启动后需要执行的命令列表。可调用命令列表集commands里面的命令。
     }
 }
 ```
@@ -114,7 +116,7 @@ type Cmd struct {
 	TplPath  string   `json:"tplPath,omitempty"`  // 命令的模板路径。
 	Cmds     []string `json:"cmds,omitempty"`     // 要执行的子命令列表。
 	Waiting  int      `json:"waiting"`            // 等待的时间。
-	Kill     bool     `json:"kill"`               // 标志位，表示是否需要终止之前的命令。如果setting中设置了progressName会优先杀死整个进程
+	Kill     bool     `json:"kill"`               // 标志位，表示是否需要终止之前的命令。如果设置了`content`中的进程名，则优先以进程名字杀死进程
 	Envs     []Item   `json:"envs"`               // 命令执行时的环境变量。
 }
 ```
@@ -126,8 +128,10 @@ type InstallStruct struct {
 	InstallCmds []string `json:"installCmds"` // 安装过程中需要执行的命令列表。
 }
 type StartStruct struct {
-	StartEnvs []Item   `json:"startEnvs"` // 安装过程中需要的环境变量。
-	StartCmds []string `json:"startCmds"` // 安装过程中需要执行的命令列表。
+	StartEnvs  []Item   `json:"startEnvs"`  // 启动过程中需要的环境变量。
+	BeforeCmds []string `json:"beforeCmds"` // 启动前需要执行的命令列表。可调用命令列表集commands里面的命令。
+	StartCmds  []string `json:"startCmds"`  // 启动过程中需要执行的命令列表。
+	AfterCmds  []string `json:"afterCmds"`  // 启动后需要执行的命令列表。可调用命令列表集commands里面的命令。
 }
 // Item 是一个通用的键值对结构体，用于表示配置项或环境变量等。
 type Item struct {
@@ -184,6 +188,7 @@ const comp = await fetch('http://localhost:56780/store/setting', {
                     "--init-file={exePath}/password.txt"
                 ],
                 "waiting": 3,
+                "content": "mysqld.exe",
                 "kill": true
             },
             {
@@ -226,4 +231,7 @@ const comp = await fetch('http://localhost:56780/store/setting', {
 11. `startApp` 启动其他应用，content为应用名
 12. `stopApp` 停止其他应用，content为应用名
 
+### 进阶操作
+1. 下载[mysql8.0](https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.39-winx64.zip)
+2. 参考demo下的mysql8.0目录，尝试自己制作安装包
 

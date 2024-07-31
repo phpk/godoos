@@ -21,6 +21,15 @@ func runStart(storeInfo StoreInfo) error {
 	if err != nil {
 		return fmt.Errorf("failed to set start environment variable %s: %w", storeInfo.Name, err)
 	}
+	if len(storeInfo.Start.BeforeCmds) > 0 {
+		for _, cmdKey := range storeInfo.Start.BeforeCmds {
+			if _, ok := storeInfo.Commands[cmdKey]; ok {
+				// 如果命令存在，你可以进一步处理 cmds
+				RunCmds(storeInfo, cmdKey)
+			}
+		}
+
+	}
 	binPath := storeInfo.Setting.BinPath
 	if !libs.PathExists(binPath) {
 		return fmt.Errorf("script file %s does not exist", storeInfo.Setting.BinPath)
@@ -49,7 +58,15 @@ func runStart(storeInfo StoreInfo) error {
 		}
 
 	}(cmd)
+	if len(storeInfo.Start.AfterCmds) > 0 {
+		for _, cmdKey := range storeInfo.Start.AfterCmds {
+			if _, ok := storeInfo.Commands[cmdKey]; ok {
+				// 如果命令存在，你可以进一步处理 cmds
+				RunCmds(storeInfo, cmdKey)
+			}
+		}
 
+	}
 	return nil
 }
 func RunStartApp(appName string) error {
@@ -89,9 +106,9 @@ func runExec(storeInfo StoreInfo, cmdParam Cmd) error {
 			time.Sleep(time.Second * time.Duration(cmdParam.Waiting))
 		}
 		if cmdParam.Kill {
-			if storeInfo.Setting.ProgressName != "" {
-				if err := KillProcessByName(storeInfo.Setting.ProgressName); err != nil {
-					log.Printf("failed to kill process %s: %s", storeInfo.Setting.ProgressName, err.Error())
+			if cmdParam.Content != "" {
+				if err := KillProcessByName(cmdParam.Content); err != nil {
+					log.Printf("failed to kill process %s: %s", cmdParam.Content, err.Error())
 				}
 			} else {
 				if err := cmd.Process.Kill(); err != nil {

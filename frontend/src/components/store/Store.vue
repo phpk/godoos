@@ -19,9 +19,10 @@ function setCache() {
   }, 1000);
 }
 async function install(item: any) {
+  //console.log(item)
   if (item.isOut) {
     item.progress = 0
-    const flag = store.addOutList(item)
+    const flag = await store.addOutList(item)
     if(!flag){
       notifyError(t("store.installError"))
     }
@@ -48,7 +49,7 @@ async function install(item: any) {
   }
   
   if (item.webUrl) {
-    sys.fs.writeFile(
+    await sys.fs.writeFile(
       `${sys._options.userLocation}Desktop/${item.name}.url`,
       `link::url::${item.webUrl}::${item.icon}`
     );
@@ -61,6 +62,12 @@ async function install(item: any) {
 }
 
 async function uninstall(item: any) {
+  if (item.webUrl) {
+    await sys.fs.unlink(`${sys._options.userLocation}Desktop/${item.name}.url`);
+  } 
+  
+  delete store.installedList[store.installedList.indexOf(item.name)];
+  setCache();
   if (item.needInstall) {
     item.progress = 0
     const completion = await fetch(store.apiUrl + '/store/uninstall?name=' + item.name)
@@ -74,10 +81,7 @@ async function uninstall(item: any) {
       return
     }
   }
-  sys.fs.unlink(`${sys._options.userLocation}Desktop/${item.name}.url`);
   notifySuccess(t("store.uninstallSuccess"))
-  delete store.installedList[store.installedList.indexOf(item.name)];
-  setCache();
 }
 async function download(item: any) {
   //console.log(item)
