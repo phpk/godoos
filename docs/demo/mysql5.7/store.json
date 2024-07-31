@@ -1,5 +1,4 @@
 {
-    "name": "mysql5.7",
     "icon": "mysql.png",
     "setting": {
         "binPath": "{exePath}/bin/mysqld.exe",
@@ -32,6 +31,7 @@
                     "--init-file={exePath}/password.txt"
                 ],
                 "waiting": 3,
+                "content": "mysqld.exe",
                 "kill": true
             },
             {
@@ -65,6 +65,7 @@
                     "--init-file={exePath}/password.txt"
                 ],
                 "waiting": 3,
+                "content": "mysqld.exe",
                 "kill": true
             }
         ]

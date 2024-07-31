@@ -2,9 +2,12 @@
 import { ref, defineProps } from "vue";
 import { OpenDirDialog } from "@/util/goutil";
 import { getSystemKey, parseJson } from "@/system/config";
-const apiUrl = getSystemKey("apiUrl");
+import { useStoreStore } from "@/stores/store";
 import { notifySuccess, notifyError } from "@/util/msg";
 import { t } from "@/i18n";
+const apiUrl = getSystemKey("apiUrl");
+const store = useStoreStore()
+const fileInput = ref()
 const props = defineProps({
     install: {
         type: Function,
@@ -22,10 +25,10 @@ const addType = [
         'name': '远程下载',
         'type': 'download'
     },
-    // {
-    //     'name': '本地导入',
-    //     'type': 'local'
-    // },
+    {
+        'name': '本地导入',
+        'type': 'local'
+    },
     {
         'name': '开发模式',
         'type': 'dev'
@@ -76,7 +79,27 @@ async function addAppByDownload() {
     }
 }
 async function addAppByImport() {
-
+    fileInput.value.click()
+}
+async function upload(e: any) {
+    const file = e.target.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('files', file);
+        const completion = await fetch(apiUrl + '/store/upload', {
+            method: 'POST',
+            body: formData
+        })
+        if (!completion.ok) {
+            notifyError(t("store.importError"))
+            return
+        }
+        const item = await completion.json()
+        //console.log(item)
+        if(item.data){
+            await installPlugin(item.data)
+        }
+    }
 }
 async function addAppByDev() {
     if(formData.value.devPath && formData.value.devPath != ""){
@@ -91,8 +114,9 @@ async function installPlugin(pluginName: string) {
     }
     const item = await completion.json()
     //console.log(item)
-    item.isOut = true
+    item.data.isOut = true
     await props.install(item.data)
+    store.changeCate(0, 'hots')
 }
 </script>
 <template>
@@ -112,7 +136,8 @@ async function installPlugin(pluginName: string) {
             <el-button type="primary" @click="addAppByDownload()">添加</el-button>
         </template>
         <template v-if="formData.importType == 'local'">
-            <el-button type="primary" @click="addAppByImport()">导入</el-button>
+            <input type="file" style="display: none;" ref="fileInput" accept=".zip,.tar,.tar.gz,.tar.bz2" @change="upload">
+            <el-button type="primary" @click="addAppByImport()">导入压缩包</el-button>
         </template>
         <template v-if="formData.importType == 'dev'">
             <el-form-item label="本地路径">
