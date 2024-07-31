@@ -3,12 +3,14 @@ import { ref } from "vue";
 import { getSystemKey, setSystemKey, parseJson, getSystemConfig } from '@/system/config'
 import { RestartApp } from '@/util/goutil';
 import { ElMessage } from 'element-plus'
+import { t } from '@/i18n';
 export const useUpgradeStore = defineStore('upgradeStore', () => {
     const hasUpgrade = ref(false);
     const hasNotice = ref(false);
     const hasAd = ref(false);
     const updateUrl = ref('');
     const versionTag = ref(0)
+    const upgradeDesc = ref('')
     const currentVersion = ref(0)
     const progress = ref(0)
     const noticeList:any = ref([])
@@ -21,6 +23,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         const releaseData = await releaseRes.json()
         versionTag.value = releaseData.version
         if(versionTag.value > config.version){
+            upgradeDesc.value = releaseData.desc ?? t('upgrade.msg')
             hasUpgrade.value = true
             updateUrl.value = releaseData.url
         }
@@ -78,6 +81,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         hasNotice,
         hasAd,
         versionTag,
+        upgradeDesc,
         updateUrl,
         noticeList,
         adList,

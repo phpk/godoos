@@ -89,12 +89,13 @@ func StoreSettingHandler(w http.ResponseWriter, r *http.Request) {
 			storeInfo.Config[k] = v // 如果k存在，则更新；如果不存在，则新增
 		}
 	}
+	replacePlaceholdersInCmds(&storeInfo)
 	err = SaveInfoFile(storeInfo)
 	if err != nil {
 		libs.ErrorMsg(w, "the store info.json is error: "+err.Error())
 		return
 	}
-	_, ok := storeInfo.Cmds[cmdKey]
+	_, ok := storeInfo.Commands[cmdKey]
 	if !ok {
 		libs.ErrorMsg(w, "cmdKey is not found")
 		return

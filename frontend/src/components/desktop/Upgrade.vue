@@ -15,9 +15,9 @@
 				</div>
 			</div>
 			<div class="upgrade-content">
-				GodoOS {{ $t('upgrade.msg') }}
+				GodoOS {{ upgradeStore.upgradeDesc }}
 				<div class="mt5">
-					<el-link type="primary" class="font12" href="https://gitee.com/lyt-top/vue-next-admin/blob/master/CHANGELOG.md" target="_black">
+					<el-link type="primary" class="font12" href="https://gitee.com/ruitao_admin/godoos/blob/master/CHANGELOG.md" target="_black">
 						CHANGELOG.md
 					</el-link>
 				</div>

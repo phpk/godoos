@@ -1,0 +1,84 @@
+{
+    "name": "mysql5.7",
+    "icon": "mysql.png",
+    "setting": {
+        "binPath": "{exePath}/bin/mysqld.exe",
+        "confPath": "{exePath}/my.ini",
+        "progressName": "mysqld.exe",
+        "isOn": true
+    },
+    "config": {
+        "password": "root",
+        "port": 3306,
+        "dataDir": "{exePath}/data",
+        "logDir": "{exePath}/logs"
+    },
+    "commands": {
+        "initData": [
+            {
+                "name": "exec",
+                "binPath": "{exePath}/bin/mysqld.exe",
+                "cmds": [
+                    "--defaults-file={exePath}/my.ini",
+                    "--initialize"
+                ],
+                "waiting": 1
+            },
+            {
+                "name": "exec",
+                "binPath": "{exePath}/bin/mysqld.exe",
+                "cmds": [
+                    "--defaults-file={exePath}/my.ini",
+                    "--init-file={exePath}/password.txt"
+                ],
+                "waiting": 3,
+                "kill": true
+            },
+            {
+                "name": "start"
+            }
+        ],
+        "setting": [
+            {
+                "name": "changeFile",
+                "tplPath": "{exePath}/my.ini.tpl",
+                "filePath": "{exePath}/my.ini"
+            },
+            {
+                "name": "initData"
+            }
+        ],
+        "changePassword": [
+            {
+                "name": "changeFile",
+                "tplPath": "{exePath}/password.txt.tpl",
+                "filePath": "{exePath}/password.txt"
+            },
+            {
+                "name": "stop"
+            },
+            {
+                "name": "exec",
+                "binPath": "{exePath}/bin/mysqld.exe",
+                "cmds": [
+                    "--defaults-file={exePath}/my.ini",
+                    "--init-file={exePath}/password.txt"
+                ],
+                "waiting": 3,
+                "kill": true
+            }
+        ]
+    },
+    "install": {
+        "installEnvs": [],
+        "installCmds": [
+            "initData"
+        ]
+    },
+    "start": {
+        "startEnvs": [],
+        "startCmds": [
+            "--defaults-file={exePath}/my.ini"
+        ]
+    }
+}

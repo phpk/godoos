@@ -192,13 +192,13 @@ func convertValueToString(value any) string {
 }
 
 func InstallStore(storeInfo StoreInfo) error {
-	err := SetEnvs(storeInfo.Install.Envs)
+	err := SetEnvs(storeInfo.Install.InstallEnvs)
 	if err != nil {
 		return fmt.Errorf("failed to set install environment variable %s: %w", storeInfo.Name, err)
 	}
-	if len(storeInfo.Install.Cmds) > 0 {
-		for _, cmdKey := range storeInfo.Install.Cmds {
-			if _, ok := storeInfo.Cmds[cmdKey]; ok {
+	if len(storeInfo.Install.InstallCmds) > 0 {
+		for _, cmdKey := range storeInfo.Install.InstallCmds {
+			if _, ok := storeInfo.Commands[cmdKey]; ok {
 				// 如果命令存在，你可以进一步处理 cmds
 				RunCmds(storeInfo, cmdKey)
 			}
@@ -213,6 +213,12 @@ func RunCmd(storeInfo StoreInfo, cmd Cmd) error {
 	}
 	if cmd.Name == "start" {
 		runStart(storeInfo)
+	}
+	if cmd.Name == "startApp" {
+		RunStartApp(cmd.Content)
+	}
+	if cmd.Name == "stopApp" {
+		RunStopApp(cmd.Content)
 	}
 	if cmd.Name == "restart" {
 		runRestart(storeInfo)
@@ -259,9 +265,9 @@ func RunCmd(storeInfo StoreInfo, cmd Cmd) error {
 	return nil
 }
 func RunCmds(storeInfo StoreInfo, cmdKey string) error {
-	cmds := storeInfo.Cmds[cmdKey]
+	cmds := storeInfo.Commands[cmdKey]
 	for _, cmd := range cmds {
-		if _, ok := storeInfo.Cmds[cmd.Name]; ok {
+		if _, ok := storeInfo.Commands[cmd.Name]; ok {
 			RunCmds(storeInfo, cmd.Name)
 		} else {
 			RunCmd(storeInfo, cmd)
@@ -333,21 +339,24 @@ func replacePlaceholdersInCmds(storeInfo *StoreInfo) {
 	// 遍历Config中的所有键值对
 	for key, value := range storeInfo.Config {
 		// 遍历Cmds中的所有命令组
-		for cmdGroupName, cmds := range storeInfo.Cmds {
+		for cmdGroupName, cmds := range storeInfo.Commands {
 			// 遍历每个命令组中的所有Cmd
 			for i, cmd := range cmds {
-				strValue := convertValueToString(value)
-				// 使用正则表达式替换Content中的占位符
-				storeInfo.Cmds[cmdGroupName][i].Content = pattern.ReplaceAllStringFunc(
-					cmd.Content,
-					func(match string) string {
-						// 检查占位符是否与Config中的键匹配
-						if strings.Trim(match, "{}") == key {
-							return strValue
-						}
-						return match
-					},
-				)
+				if cmd.Content != "" {
+					strValue := convertValueToString(value)
+					// 使用正则表达式替换Content中的占位符
+					storeInfo.Commands[cmdGroupName][i].Content = pattern.ReplaceAllStringFunc(
+						cmd.Content,
+						func(match string) string {
+							// 检查占位符是否与Config中的键匹配
+							if strings.Trim(match, "{}") == key {
+								return strValue
+							}
+							return match
+						},
+					)
+				}
+
 			}
 		}
 	}

@@ -15,19 +15,21 @@ import (
 func runStop(storeInfo StoreInfo) error {
 	return StopCmd(storeInfo.Name)
 }
+
 func runStart(storeInfo StoreInfo) error {
-	err := SetEnvs(storeInfo.Start.Envs)
+	err := SetEnvs(storeInfo.Start.StartEnvs)
 	if err != nil {
 		return fmt.Errorf("failed to set start environment variable %s: %w", storeInfo.Name, err)
 	}
-	if !libs.PathExists(storeInfo.Setting.BinPath) {
+	binPath := storeInfo.Setting.BinPath
+	if !libs.PathExists(binPath) {
 		return fmt.Errorf("script file %s does not exist", storeInfo.Setting.BinPath)
 	}
 	var cmd *exec.Cmd
-	if len(storeInfo.Start.Cmds) > 0 {
-		cmd = exec.Command(storeInfo.Setting.BinPath, storeInfo.Start.Cmds...)
+	if len(storeInfo.Start.StartCmds) > 0 {
+		cmd = exec.Command(binPath, storeInfo.Start.StartCmds...)
 	} else {
-		cmd = exec.Command(storeInfo.Setting.BinPath)
+		cmd = exec.Command(binPath)
 	}
 	if runtime.GOOS == "windows" {
 		// 在Windows上，通过设置CreationFlags来隐藏窗口
@@ -49,6 +51,12 @@ func runStart(storeInfo StoreInfo) error {
 	}(cmd)
 
 	return nil
+}
+func RunStartApp(appName string) error {
+	return ExecuteScript(appName)
+}
+func RunStopApp(appName string) error {
+	return StopCmd(appName)
 }
 func runRestart(storeInfo StoreInfo) error {
 	err := runStop(storeInfo)

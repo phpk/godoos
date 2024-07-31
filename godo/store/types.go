@@ -21,13 +21,13 @@ type InstallInfo struct {
 // StoreInfo 维护了应用程序商店的信息。
 // 包含应用程序的名称、图标、配置信息等。
 type StoreInfo struct {
-	Name    string           `json:"name"`    // 应用程序商店的名称。
-	Icon    string           `json:"icon"`    // 应用程序商店的图标路径。
-	Setting Setting          `json:"setting"` // 应用程序商店的配置信息。
-	Config  map[string]any   `json:"config"`  // 应用程序的配置信息映射。
-	Cmds    map[string][]Cmd `json:"cmds"`    // 应用程序的命令集合。
-	Install Install          `json:"install"` // 安装应用程序的信息。
-	Start   Install          `json:"start"`   // 启动应用程序的信息。
+	Name     string           `json:"name"`     // 应用程序商店的名称。
+	Icon     string           `json:"icon"`     // 应用程序商店的图标路径。
+	Setting  Setting          `json:"setting"`  // 应用程序商店的配置信息。
+	Config   map[string]any   `json:"config"`   // 应用程序的配置信息映射。
+	Commands map[string][]Cmd `json:"commands"` // 应用程序的命令集合。
+	Install  InstallStruct    `json:"install"`  // 安装应用程序的信息。
+	Start    StartStruct      `json:"start"`    // 启动应用程序的信息。
 }
 
 // Setting 描述了应用程序的设置信息。
@@ -60,7 +60,11 @@ type Cmd struct {
 }
 
 // Install 描述了安装过程中的环境变量和命令列表。
-type Install struct {
-	Envs []Item   `json:"envs"` // 安装过程中需要的环境变量。
-	Cmds []string `json:"cmds"` // 安装过程中需要执行的命令列表。
+type InstallStruct struct {
+	InstallEnvs []Item   `json:"installEnvs"` // 安装过程中需要的环境变量。
+	InstallCmds []string `json:"installCmds"` // 安装过程中需要执行的命令列表。
+}
+type StartStruct struct {
+	StartEnvs []Item   `json:"startEnvs"` // 安装过程中需要的环境变量。
+	StartCmds []string `json:"startCmds"` // 安装过程中需要执行的命令列表。
 }
