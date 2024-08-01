@@ -40,6 +40,8 @@ func listAllProcesses() ([]ProcessSystemInfo, error) {
 		cmd = exec.Command("lsof", "-i", "-n", "-P")
 	case "windows":
 		cmd = exec.Command("netstat", "-ano")
+		cmd = SetHideConsoleCursor(cmd)
+
 	default:
 		return nil, fmt.Errorf("unsupported operating system")
 	}
@@ -122,6 +124,7 @@ func getProcessName(osType string, pid int) (string, error) {
 		cmd = exec.Command("ps", "-p", strconv.Itoa(pid), "-o", "comm=")
 	case "windows":
 		cmd = exec.Command("tasklist", "/FI", fmt.Sprintf("PID eq %d", pid), "/NH")
+		cmd = SetHideConsoleCursor(cmd)
 	default:
 		return "", fmt.Errorf("unsupported operating system")
 	}
@@ -156,6 +159,7 @@ func killProcessByName(name string) error {
 		cmd = exec.Command("pkill", name)
 	case "windows":
 		cmd = exec.Command("taskkill", "/IM", name, "/F") // /F 表示强制结束
+		cmd = SetHideConsoleCursor(cmd)
 	default:
 		return fmt.Errorf("unsupported operating system")
 	}

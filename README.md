@@ -50,6 +50,9 @@
 - ***支持多平台，Windows、Linux、MacOS***
 - ***完善的应用商店体系，简单学习一下[应用商店配置](./docs/Store.md)即可开发出复杂的应用***
 
+## 🚀 演示视频
+- [全程操作](https://www.bilibili.com/video/BV1NdvaeEEz3/?vd_source=739e0e59aeefdb2e9f760e5037d00245)
+
 ## 🚧 开发进程
 - 2024年8月1日，发布v1.0.0版本，发布后，项目进入第二阶段。
 
