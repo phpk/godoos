@@ -1,12 +1,11 @@
 {
     "name": "mysql5.7",
-    "url": "https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.44-winx64.zip",
+    "pkg": "https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.44-winx64.zip",
+    "url": "https://gitee.com/ruitao_admin/godoos-image/releases/download/godoos-store/mysql5.7.zip",
     "isDev": true,
-    "needDownload": true,
-    "needInstall": true,
     "version": "5.7.44",
     "icon": "https://img0.baidu.com/it/u=1087008535,3349487719&fm=253&fmt=auto&app=138&f=PNG?w=969&h=500",
-    "checkProgress": true,
+    "hasStart": true,
     "hasRestart": true,
     "setting": true,
     "isOn": true

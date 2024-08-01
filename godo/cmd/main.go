@@ -42,7 +42,7 @@ func OsStart() {
 	progressRouter.HandleFunc("/listport", store.ListAllProcessesHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/killport", store.KillProcessByNameHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/storelist", store.GetStoreListHandler).Methods(http.MethodGet)
-	progressRouter.HandleFunc("/download", store.DownloadHandler).Methods(http.MethodGet)
+	progressRouter.HandleFunc("/download", store.DownloadHandler).Methods(http.MethodPost)
 	progressRouter.HandleFunc("/install", store.InstallHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/installInfo", store.GetInstallInfoHandler).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/installOut", store.RunOutHandler).Methods(http.MethodGet)

@@ -216,17 +216,34 @@
 }
 
 .main-app {
-    width: 100%;
+    width: 96%;
     /* height: 100%; */
     display: flex;
+    padding:2%;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 10px;
     justify-content: flex-start;
-    align-items: flex-start;
     padding: 10px;
-    overflow: auto;
-    align-content: flex-start;
+}
+
+.store-item {
+    width: calc(33.333% - 10px); /* Subtract the gap size */
+    box-sizing: border-box; /* Include padding and border in element's total width */
+}
+
+/* For screens smaller than 768px, make it one column */
+@media (max-width: 768px) {
+    .store-item {
+        width: 100%;
+    }
+}
+
+/* For screens between 768px and 1024px, make it two columns */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .store-item {
+        width: calc(50% - 10px);
+    }
 }
 
 .store-noready {

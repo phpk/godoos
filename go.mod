@@ -6,6 +6,7 @@ require github.com/wailsapp/wails/v2 v2.9.1
 
 require (
 	aead.dev/minisign v0.2.0 // indirect
+	github.com/cavaliergopher/grab/v3 v3.0.1 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/minio/selfupdate v0.6.0 // indirect

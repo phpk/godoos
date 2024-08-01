@@ -3,19 +3,25 @@ package store
 // InstallInfo 描述了应用程序的安装信息。
 // 包含应用程序的名称、下载地址、版本号等关键安装信息。
 type InstallInfo struct {
-	Name          string `json:"name"`          // 应用程序名称。
-	URL           string `json:"url"`           // 应用程序下载地址。
-	WebUrl        string `json:"webUrl"`        // 应用程序的网页地址。
-	IsDev         bool   `json:"isDev"`         // 标志位，表示是否为开发者版本。
-	NeedDownload  bool   `json:"needDownload"`  // 标志位，表示是否需要下载。
-	NeedInstall   bool   `json:"needInstall"`   // 标志位，表示是否需要安装。
-	Version       string `json:"version"`       // 应用程序的版本号。
-	Desc          string `json:"desc"`          // 应用程序的描述信息。
-	Icon          string `json:"icon"`          // 应用程序的图标路径。
-	CheckProgress bool   `json:"checkProgress"` // 标志位，表示是否显示启动和停止。
-	HasRestart    bool   `json:"hasRestart"`    // 标志位，表示安装后是否需要重启。
-	Setting       bool   `json:"setting"`       // 标志位，表示是否需要配置。
-	Dependencies  []Item `json:"dependencies"`  // 依赖项。
+	Name         string           `json:"name"`         // 应用程序名称。
+	URL          string           `json:"url"`          // 应用程序下载地址或适配包的下载地址。
+	Pkg          string           `json:"pkg"`          // 应用程序的官方下载地址。
+	WebUrl       string           `json:"webUrl"`       // 应用程序的网页地址。
+	IsDev        bool             `json:"isDev"`        // 标志位，表示是否为开发者版本。
+	Version      string           `json:"version"`      // 应用程序的版本号。
+	Desc         string           `json:"desc"`         // 应用程序的描述信息。
+	Icon         string           `json:"icon"`         // 应用程序的图标路径。
+	HasStart     bool             `json:"hasStart"`     // 标志位，表示是否显示启动和停止。
+	HasRestart   bool             `json:"hasRestart"`   // 标志位，表示安装后是否需要重启。
+	Setting      bool             `json:"setting"`      // 标志位，表示是否需要配置。
+	Dependencies []Item           `json:"dependencies"` // 依赖项。
+	Categrory    string           `json:"category"`     // 应用程序的分类。
+	History      []InstallHastory `json:"history"`      // 应用程序的历史版本。
+}
+type InstallHastory struct {
+	Version string `json:"version"`
+	URL     string `json:"url"`
+	Pkg     string `json:"pkg"` // 应用程序的官方下载地址。
 }
 
 // StoreInfo 维护了应用程序商店的信息。

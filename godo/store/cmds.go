@@ -167,7 +167,8 @@ func MkDir(cmd Cmd) error {
 	return nil
 }
 func Unzip(cmd Cmd) error {
-	return files.Decompress(cmd.FilePath, cmd.Content)
+	_, err := files.Decompress(cmd.FilePath, cmd.Content)
+	return err
 }
 func Zip(cmd Cmd) error {
 	return files.Encompress(cmd.FilePath, cmd.Content)

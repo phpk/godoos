@@ -1,12 +1,11 @@
 {
     "name": "mysql8.0",
-    "url": "https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.39-winx64.zip",
+    "pkg": "https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.39-winx64.zip",
+    "url": "",
     "isDev": true,
-    "needDownload": true,
-    "needInstall": true,
     "version": "8.0.39",
     "icon": "https://img0.baidu.com/it/u=1087008535,3349487719&fm=253&fmt=auto&app=138&f=PNG?w=969&h=500",
-    "checkProgress": true,
+    "hasStart": true,
     "hasRestart": true,
     "setting": true,
     "isOn": true

@@ -104,6 +104,53 @@ func Rmdir(basePath, dirPath string) error {
 	fullPath := filepath.Join(basePath, dirPath)
 	return os.RemoveAll(fullPath)
 }
+func CopyResource(src, dst string) error {
+	// 检查源路径是否为目录或文件
+	info, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+
+	// 如果源路径是一个目录，则递归复制整个目录
+	if info.IsDir() {
+		return CopyDirectory(src, dst)
+	}
+
+	// 如果源路径是一个文件，则直接复制文件
+	return CopyFile(src, dst)
+}
+
+func CopyDirectory(src, dst string) error {
+	// 创建目标目录
+	if err := os.MkdirAll(dst, os.ModePerm); err != nil {
+		return err
+	}
+
+	// 遍历源目录中的所有文件和子目录
+	files, err := os.ReadDir(src)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		// 构建源文件和目标文件的完整路径
+		srcPath := filepath.Join(src, file.Name())
+		dstPath := filepath.Join(dst, file.Name())
+
+		// 递归复制子目录或复制文件
+		if file.IsDir() {
+			if err := CopyDirectory(srcPath, dstPath); err != nil {
+				return err
+			}
+		} else {
+			if err := CopyFile(srcPath, dstPath); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
 
 // CopyFile copies a file
 func CopyFile(src, dst string) error {

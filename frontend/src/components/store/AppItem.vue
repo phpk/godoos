@@ -1,41 +1,14 @@
-<template>
-  <div class="app-item">
-    <img v-if="item?.icon" draggable="false" class="app-img" :src="item?.icon" alt="" />
-    <div class="app-content">
-      <div class="app-title">{{ item?.name }}</div>
-      <div class="app-desc">
-        <span>{{ item?.desc ?? item?.name }}</span>
-        <el-progress :text-inside="true" style="margin-top: 3px;" v-if="item?.progress" :stroke-width="20"
-          :percentage="item?.progress" />
-      </div>
-      <div class="app-button">
-
-        <template v-if="installedList!.includes(item?.name)">
-          <div v-if="item!.checkProgress">
-            <button @click="pause?.(item)" v-if="item?.isRuning">暂停</button>
-            <button @click="start?.(item)" v-else>启动</button>
-          </div>
-          <div v-if="item!.hasRestart && item?.isRuning">
-            <button @click="restart?.(item)">重启</button>
-          </div>
-          <button @click="setting?.(item)" v-if="!item?.isRuning && item?.setting">配置</button>
-          <button @click="uninstall?.(item)" v-if="!item?.isRuning">卸载</button>
-        </template>
-        <template v-else>
-          <button @click="install?.(item)" :disabled="item?.progress">安装</button>
-
-        </template>
-      </div>
-    </div>
-  </div>
-
-</template>
 <script setup lang="ts">
 import { BrowserWindow } from "@/system";
-defineProps({
+import { t } from "@/i18n";
+const downloading = ref(false)
+const props = defineProps({
   item: Object,
   installedList: Array,
-  install: Function,
+  install: {
+        type: Function,
+        required: true,
+  },
   uninstall: Function,
   pause: Function,
   start: Function,
@@ -44,7 +17,7 @@ defineProps({
 
 function setting(item: any) {
   const win = new BrowserWindow({
-    title: "配置",
+    title: t('store.setting'),
     url: `http://localhost:56780/static/${item.name}/index.html`,
     icon: "gallery",
     width: 500,
@@ -55,13 +28,45 @@ function setting(item: any) {
   });
   win.show()
 }
+async function installApp(item: any) {
+  downloading.value = true;
+  await props.install(item);
+}
 </script>
+<template>
+  <div class="app-item">
+    <img v-if="item?.icon" draggable="false" class="app-img" :src="item?.icon" alt="" />
+    <div class="app-content">
+      <div class="app-title">{{ item?.name }}</div>
+      <div class="app-desc">
+        <span>{{ item?.desc ?? item?.name }}</span>
+        <el-progress :text-inside="true" style="margin-top: 3px;" v-if="item?.progress > 0" :stroke-width="20"
+          :percentage="item?.progress" />
+      </div>
+      <div class="app-button">
+
+        <template v-if="installedList!.includes(item?.name)">
+          <template v-if="item!.hasStart">
+            <el-button @click="pause?.(item)" v-if="item?.isRuning">{{ t('store.stop') }}</el-button>
+            <el-button @click="start?.(item)" v-else>{{ t('store.start') }}</el-button>
+          </template>
+          <el-button @click="restart?.(item)" v-if="item!.hasRestart && item?.isRuning">{{ t('store.restart') }}</el-button>
+          <el-button @click="setting?.(item)" v-if="!item?.isRuning && item?.setting">{{ t('store.setting') }}</el-button>
+          <el-button @click="uninstall?.(item)" v-if="!item?.isRuning">{{ t('store.uninstall') }}</el-button>
+        </template>
+        <template v-else>
+          <el-button type="primary" @click="installApp(item)" :disabled="item?.progress" :loading="downloading">{{ t('store.install') }}</el-button> 
+        </template>
+      </div>
+    </div>
+  </div>
+
+</template>
+
 <style scoped>
 .app-item {
   width: calc(100% - 20px);
-  min-height: 100px;
-  min-width:200px;
-  margin: 10px;
+  height: 120px;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -113,13 +118,16 @@ function setting(item: any) {
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  width: 100%;
   -webkit-box-orient: vertical;
   padding: 5px; /* 添加内边距 */
   /* 可选：添加边框 */
   /* border: 1px solid #ddd; */
   /* 可选：添加背景色 */
   /* background-color: #f9f9f9; */
+}
+.app-desc .el-progress {
+  width: 90% !important; /* 或者任何你想要的具体宽度 */
 }
 @media (min-width: 769px) {
   .app-desc {
@@ -141,18 +149,17 @@ function setting(item: any) {
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 5px;
+  margin-top: 10px;
 }
 
 .app-button button {
-  width: 60px;
+  width: 50px;
   height: 30px;
   border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: #fff;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 14px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 

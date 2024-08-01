@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // UploadHandler 处理上传的HTTP请求
@@ -37,7 +36,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	cachePath := libs.GetCacheDir()
 	baseName := filepath.Base(header.Filename)
-	filenameNoExt := strings.TrimSuffix(baseName, filepath.Ext(baseName))
 
 	savePath := filepath.Join(cachePath, baseName)
 
@@ -56,11 +54,39 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "写入文件出错", http.StatusInternalServerError)
 		return
 	}
-	runDir := libs.GetRunDir()
-	err = files.HandlerFile(savePath, runDir)
+
+	zipPath, err := files.Decompress(savePath, cachePath)
 	if err != nil {
-		log.Printf("Error moving file: %v", err)
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	storeFile := filepath.Join(zipPath, "install.json")
+	if !libs.PathExists(storeFile) {
+		libs.ErrorMsg(w, "store.json not found")
+		return
+	}
+	installCacheInfo, err := GetInstallInfoByPath(storeFile)
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	runDir := libs.GetRunDir()
+	targetDir := filepath.Join(runDir, installCacheInfo.Name)
+	err = files.CopyResource(zipPath, targetDir)
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	err = os.RemoveAll(zipPath)
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
 	}
 
-	libs.SuccessMsg(w, filenameNoExt, "File already exists and is of correct size")
+	installInfo, err := Installation(installCacheInfo.Name)
+	if err != nil {
+		libs.ErrorData(w, installInfo, "the install.json is error:"+err.Error())
+		return
+	}
+	libs.SuccessMsg(w, installInfo, "install the app success!")
 }

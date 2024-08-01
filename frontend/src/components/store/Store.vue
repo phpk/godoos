@@ -1,75 +1,79 @@
 <script setup lang="ts">
-import { inject, onMounted } from "vue";
-import { System } from "@/system";
+import { onMounted } from "vue";
 import { notifySuccess, notifyError } from "@/util/msg";
 import { useStoreStore } from "@/stores/store";
-import { setSystemKey,parseJson } from "@/system/config";
+import { parseJson } from "@/system/config";
 import { t } from "@/i18n";
-const sys: any = inject<System>("system");
 const store = useStoreStore()
 
 onMounted(async () => {
   await store.getList();
 });
 
-function setCache() {
-  setSystemKey("intstalledPlugins", store.installedList);
-  setTimeout(() => {
-    sys.refershAppList();
-  }, 1000);
-}
 async function install(item: any) {
   //console.log(item)
   if (item.isOut) {
     item.progress = 0
     const flag = await store.addOutList(item)
-    if(!flag){
+    if (!flag) {
       notifyError(t("store.installError"))
     }
   }
-  if (item.needDownload && !item.isDev) {
-    await download(item)
-  }
-  
-  if (item.needInstall) {
+  if ((item.pkg != "" || item.url != "") && !item.isDev) {
+    const postData = {
+      name: item.name,
+      pkg: item.pkg,
+      url: item.url,
+      needInstall: item.needInstall,
+    }
+    const url = store.apiUrl + '/store/download'
+    const res = await download(item, url, postData)
+    console.log(res)
+    if(res.code < 0){
+      if(res.data && res.data.dependencies && res.data.dependencies.length > 0){
+        const names:any = []
+        res.data.dependencies.forEach((element:any) => {
+          names.push(element.name)
+        });
+        notifyError("you need install these plugins first" + names.join(","))
+      }else{
+        notifyError(t("store.installError"))
+      }
+      return
+    }
+    item = res.data
     item.progress = 0
-    const completion = await fetch(store.apiUrl + '/store/install?name=' + item.name)
-    if (!completion.ok) {
-      notifyError(t("store.installError"))
-      return
-    }
-    const res = await completion.json()
-    if (res.code && res.code < 0) {
-      notifyError(res.message)
-      return
-    }
-    if (res.data) {
-      item.icon = res.data.icon
-    }
-  }
-  
-  if (item.webUrl) {
-    await sys.fs.writeFile(
-      `${sys._options.userLocation}Desktop/${item.name}.url`,
-      `link::url::${item.webUrl}::${item.icon}`
-    );
+    
+    await store.addDesktop(item);
+    await store.checkProgress()
+    notifySuccess(t("store.installSuccess"))
   }
 
-  notifySuccess(t("store.installSuccess"))
-  store.installedList.push(item.name);
-  await store.checkProgress()
-  setCache();
+  // if (item.needInstall) {
+  //   item.progress = 0
+  //   const completion = await fetch(store.apiUrl + '/store/install?name=' + item.name)
+  //   if (!completion.ok) {
+  //     notifyError(t("store.installError"))
+  //     return
+  //   }
+  //   const res = await completion.json()
+  //   if (res.code && res.code < 0) {
+  //     notifyError(res.message)
+  //     return
+  //   }
+  //   if (res.data) {
+  //     item.icon = res.data.icon
+  //   }
+  // }
+
+  // await store.addDesktop(item);
+  // await store.checkProgress()
+  // notifySuccess(t("store.installSuccess"))
 }
 
 async function uninstall(item: any) {
-  if (item.webUrl) {
-    await sys.fs.unlink(`${sys._options.userLocation}Desktop/${item.name}.url`);
-  } 
-  
-  delete store.installedList[store.installedList.indexOf(item.name)];
-  setCache();
+  await store.removeDesktop(item);
   if (item.needInstall) {
-    item.progress = 0
     const completion = await fetch(store.apiUrl + '/store/uninstall?name=' + item.name)
     if (!completion.ok) {
       notifyError(t("store.hasSameName"))
@@ -83,10 +87,13 @@ async function uninstall(item: any) {
   }
   notifySuccess(t("store.uninstallSuccess"))
 }
-async function download(item: any) {
+async function download(item: any, url: string, postData: any) {
   //console.log(item)
-  if (item.progress) return;
-  const completion = await fetch(store.apiUrl + '/store/download?url=' + item.url)
+  if (item.progress && item.progress > 0) return;
+  const completion = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(postData),
+  })
   if (!completion.ok) {
     notifyError(t("store.downloadError"))
   }
@@ -95,6 +102,7 @@ async function download(item: any) {
   if (!reader) {
     notifyError(t("store.cantStream"));
   }
+  let res:any
   while (true) {
     const { done, value } = await reader?.read();
     if (done) {
@@ -102,20 +110,15 @@ async function download(item: any) {
     }
     // console.log(value)
     const json = await new TextDecoder().decode(value);
-    //console.log(json)
-    const res = parseJson(json)
+    res = parseJson(json)
     //console.log(res)
     if (res) {
       if (res.progress) {
         item.progress = res.progress
       }
-      if (res.done) {
-        notifySuccess(t("store.downloadSuccess"))
-        item.progress = 0
-        break;
-      }
     }
   }
+  return res
 }
 async function pauseApp(item: any) {
   const res: any = await fetch(store.apiUrl + '/store/stop/' + item.name)
@@ -162,7 +165,8 @@ async function startApp(item: any) {
               <span class="sub-title">{{ store.currentTitle }} </span>
             </div>
             <div class="main-app">
-              <div v-for="item in store.storeList" v-if="store.currentCate != 'add'" class="store-item" :key="item.name">
+              <div v-for="item in store.storeList" v-if="store.currentCate != 'add'" class="store-item"
+                :key="item.name">
                 <AppItem :item="item" :installed-list="store.installedList" :install="install" :uninstall="uninstall"
                   :pause="pauseApp" :start="startApp" :restart="restartApp" />
               </div>

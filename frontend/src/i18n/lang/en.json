@@ -146,22 +146,45 @@
     "utilities": "Utilities",
     "others": "Others",
     "add": "Add",
-    "errorList": "Cannot get the list of applications"
+    "errorList": "Cannot get the list of applications",
+    "urlEmpty": "The Url is empty",
+    "hasSameName": "There are applications with the same name!",
+    "installError": "Installation failed!",
+    "installSuccess": "Installation successful!",
+    "uninstallSuccess": "Uninstalling successful",
+    "downloadError": "Download failed!",
+    "downloadSuccess":"Download successful!",
+    "cantStream": "Streaming download is currently not supported!",
+    "setting": "Setting",
+    "stop": "Stop",
+    "start": "Start",
+    "restart": "Restart",
+    "uninstall": "Uninstall",
+    "install": "Install",
+    "remoteDownload": "Remote Download",
+    "localImport": "Local Import",
+    "devMode": "Development Mode",
+    "importZip": "Import Zip",
+    "localPath": "Local Path",
+    "userDirectory": "Under the user directory .godoos/run, only fill in the directory name",
+    "addMethod": "Add Method",
+    "downloadUrl": "Download URL",
+    "downloadProgress": "Download Progress"
   },
-  "process":{
-    "title":"Process Manager",
-    "port":"Port",
-    "pid":"PID",
-    "name":"Name",
-    "proto":"Protocol",
-    "action":"Actions"
+  "process": {
+    "title": "Process Manager",
+    "port": "Port",
+    "pid": "PID",
+    "name": "Name",
+    "proto": "Protocol",
+    "action": "Actions"
   },
   "upgrade": {
-		"title": "New version",
-		"msg": "The new version is available, please update it now! Dont worry, the update is fast!",
-		"desc": "Prompt: Update will restore the default configuration",
-		"btnOne": "Cruel refusal",
-		"btnTwo": "Update now",
-		"btnTwoLoading": "Updating"
-	}
+    "title": "New version",
+    "msg": "The new version is available, please update it now! Dont worry, the update is fast!",
+    "desc": "Prompt: Update will restore the default configuration",
+    "btnOne": "Cruel refusal",
+    "btnTwo": "Update now",
+    "btnTwoLoading": "Updating"
+  }
 }

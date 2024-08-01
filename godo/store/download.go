@@ -2,155 +2,236 @@ package store
 
 import (
 	"encoding/json"
+	"fmt"
 	"godo/files"
 	"godo/libs"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
+
+	"github.com/cavaliergopher/grab/v3"
 )
 
-type ProgressReader struct {
-	reader io.Reader
-	total  int64
-	err    error
+const (
+	concurrency = 6 // 并发下载数
+)
+
+var downloads = make(map[string]*grab.Response)
+var downloadsMutex sync.Mutex
+
+type FileProgress struct {
+	Progress   int    `json:"progress"` // 将进度改为浮点数，以百分比表示
+	IsFinished bool   `json:"is_finished"`
+	Total      int64  `json:"total"`
+	Current    int64  `json:"completed"`
+	Status     string `json:"status"`
 }
 
-type DownloadStatus struct {
-	Name        string  `json:"name"`
-	Path        string  `json:"path"`
-	Url         string  `json:"url"`
-	Current     int64   `json:"current"`
-	Size        int64   `json:"size"`
-	Speed       float64 `json:"speed"`
-	Progress    int     `json:"progress"`
-	Downloading bool    `json:"downloading"`
-	Done        bool    `json:"done"`
-}
-
-func (pr *ProgressReader) Read(p []byte) (n int, err error) {
-	n, err = pr.reader.Read(p)
-	pr.err = err
-	pr.total += int64(n)
-	return
+type ReqBody struct {
+	DownloadUrl string `json:"url"`
+	PkgUrl      string `json:"pkg"`
+	Name        string `json:"name"`
 }
 
 func DownloadHandler(w http.ResponseWriter, r *http.Request) {
-	url := r.URL.Query().Get("url")
-	log.Printf("Download url: %s", url)
-
-	// 获取下载目录，这里假设从请求参数中获取，如果没有则使用默认值
+	var reqBody ReqBody
+	err := json.NewDecoder(r.Body).Decode(&reqBody)
+	if err != nil {
+		libs.ErrorMsg(w, "first Decode request body error")
+		return
+	}
 	downloadDir := libs.GetCacheDir()
 	if downloadDir == "" {
 		downloadDir = "./downloads"
 	}
-
-	// 拼接完整的文件路径
-	fileName := filepath.Base(url)
-	filePath := filepath.Join(downloadDir, fileName)
-
-	// 开始下载
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Printf("Failed to get file: %v", err)
-		http.Error(w, "Failed to get file", http.StatusInternalServerError)
+	if reqBody.Name == "" {
+		libs.ErrorMsg(w, "the name is empty")
 		return
 	}
-	defer resp.Body.Close()
-
-	// 检查文件是否已存在且大小一致
-	if fileInfo, err := os.Stat(filePath); err == nil {
-		if fileInfo.Size() == resp.ContentLength {
-			// 文件已存在且大小一致，无需下载
-			runDir := libs.GetRunDir()
-			err := files.HandlerFile(filePath, runDir)
-			if err != nil {
-				log.Printf("Error moving file: %v", err)
-			}
-			libs.SuccessMsg(w, "success", "File already exists and is of correct size")
+	if reqBody.DownloadUrl == "" && reqBody.PkgUrl == "" {
+		libs.ErrorMsg(w, "the url is empty")
+		return
+	}
+	paths := []string{}
+	for _, url := range []string{reqBody.DownloadUrl, reqBody.PkgUrl} {
+		if url == "" {
+			continue
+		}
+		if rsp, ok := downloads[url]; ok {
+			// 如果URL正在下载，跳过创建新的下载器实例
+			go trackProgress(w, rsp, url)
+			continue
+		}
+		// 创建新的下载器实例
+		client := grab.NewClient()
+		client.HTTPClient = &http.Client{
+			Transport: &http.Transport{
+				MaxIdleConnsPerHost: concurrency, // 可选，设置并发连接数
+			},
+		}
+		filePath := filepath.Join(downloadDir, filepath.Base(url))
+		paths = append(paths, filePath)
+		log.Printf("filePath is %s", filePath)
+		// 创建下载请求
+		req, err := grab.NewRequest(filePath, url)
+		if err != nil {
+			libs.ErrorMsg(w, "Invalid download URL")
 			return
-		} else {
-			// 重新打开响应体以便后续读取
-			resp.Body = http.NoBody
-			resp, err = http.Get(url)
-			if err != nil {
-				log.Printf("Failed to get file: %v", err)
-				http.Error(w, "Failed to get file", http.StatusInternalServerError)
-				return
+		}
+
+		resp := client.Do(req)
+		if fileInfo, err := os.Stat(filePath); err == nil {
+			// 文件存在，检查文件大小是否与远程资源匹配
+			if fileInfo.Size() == resp.Size() { // 这里的req.Size需要从下载请求中获取，或通过其他方式预知
+				log.Printf("File %s already exists and is up-to-date.", filePath)
+				continue
 			}
 		}
-	}
+		downloads[url] = resp
+		//log.Printf("Download urls: %v\n", reqBody.DownloadUrl)
 
-	// 创建文件
-	file, err := os.Create(filePath)
+		// // 跟踪进度
+		go trackProgress(w, resp, url)
+		// 等待下载完成并检查错误
+		if err := resp.Err(); err != nil {
+			libs.ErrorMsg(w, "Download failed")
+			return
+		}
+	}
+	if len(paths) > 0 {
+		// 解压文件
+		err := HandlerZipFiles(paths, reqBody.Name)
+		if err != nil {
+			libs.ErrorMsg(w, "Decompress failed:"+err.Error())
+			return
+		}
+	}
+	installInfo, err := Installation(reqBody.Name)
 	if err != nil {
-		log.Printf("Failed to create file: %v", err)
-		http.Error(w, "Failed to create file", http.StatusInternalServerError)
+		libs.ErrorData(w, installInfo, "the install.json is error:"+err.Error())
 		return
 	}
-	defer file.Close()
+	libs.SuccessMsg(w, installInfo, "install the app success!")
+}
+func HandlerZipFiles(paths []string, name string) error {
+	runDir := libs.GetRunDir()
+	targetDir := filepath.Join(runDir, name)
+	downloadDir := libs.GetCacheDir()
+	for _, filePath := range paths {
+		zipPath, err := files.Decompress(filePath, downloadDir)
+		if err != nil {
+			return fmt.Errorf("decompress failed: %v", err)
+		}
+		err = files.CopyResource(zipPath, targetDir)
+		if err != nil {
+			return fmt.Errorf("copyResource failed")
+		}
+		err = os.RemoveAll(zipPath)
+		if err != nil {
+			return fmt.Errorf("removeAll failed")
+		}
 
-	// 使用ProgressReader来跟踪进度
-	pr := &ProgressReader{reader: resp.Body}
+	}
 
-	// 启动定时器来报告进度
-	ticker := time.NewTicker(200 * time.Millisecond)
+	return nil
+}
+func trackProgress(w http.ResponseWriter, resp *grab.Response, md5url string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recovered panic in trackProgress: %v", r)
+		}
+		downloadsMutex.Lock()
+		defer downloadsMutex.Unlock()
+		delete(downloads, md5url)
+	}()
+	ticker := time.NewTicker(100 * time.Millisecond)
 	defer ticker.Stop()
-
 	flusher, ok := w.(http.Flusher)
 	if !ok {
 		log.Printf("Streaming unsupported")
 		http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
 		return
 	}
-
-	go func() {
-		for {
-			<-ticker.C
-			rp := &DownloadStatus{
-				Name:        fileName,
-				Path:        filePath,
-				Url:         url,
-				Current:     pr.total,
-				Size:        resp.ContentLength,
-				Speed:       0, // 这里可以计算速度，但为了简化示例，我们暂时设为0
-				Progress:    int(100 * (float64(pr.total) / float64(resp.ContentLength))),
-				Downloading: pr.err == nil && pr.total < resp.ContentLength,
-				Done:        pr.total == resp.ContentLength,
+	for {
+		select {
+		case <-ticker.C:
+			fp := FileProgress{
+				Progress:   int(resp.Progress() * 100),
+				IsFinished: resp.IsComplete(),
+				Total:      resp.Size(),
+				Current:    resp.BytesComplete(),
+				Status:     "loading",
 			}
-			if pr.err != nil || rp.Done {
-				rp.Downloading = false
-				//log.Printf("Download complete: %s", filePath)
-				runDir := libs.GetRunDir()
-				err := files.HandlerFile(filePath, runDir)
-				if err != nil {
-					log.Printf("Error moving file: %v", err)
-				}
-				break
+			//log.Printf("Progress: %v", fp)
+			if resp.IsComplete() && fp.Current == fp.Total {
+				fp.Status = "loaded"
+			}
+			jsonBytes, err := json.Marshal(fp)
+			if err != nil {
+				log.Printf("Error marshaling FileProgress to JSON: %v", err)
+				continue
 			}
 			if w != nil {
-				jsonBytes, err := json.Marshal(rp)
-				if err != nil {
-					log.Printf("Error marshaling DownloadStatus to JSON: %v", err)
-					continue
-				}
-				w.Write(jsonBytes)
+				io.WriteString(w, string(jsonBytes))
 				w.Write([]byte("\n"))
 				flusher.Flush()
 			} else {
 				log.Println("ResponseWriter is nil, cannot send progress")
 			}
-		}
-	}()
+			if fp.Status == "loaded" {
+				return
+			}
 
-	// 将响应体的内容写入文件
-	_, err = io.Copy(file, pr)
-	if err != nil {
-		log.Printf("Failed to write file: %v", err)
-		http.Error(w, "Failed to write file", http.StatusInternalServerError)
-		return
+		}
 	}
-	libs.SuccessMsg(w, "success", "Download complete")
+}
+
+// Predefined filename for the icon
+const iconFilename = "icon.png"
+
+// DownloadIcon downloads the icon from the given URL to the target path with a predefined filename.
+func DownloadIcon(url, iconTargetPath string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	out, err := os.Create(iconTargetPath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	if _, err := io.Copy(out, resp.Body); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// HandlerIcon handles the icon by downloading it and updating the installInfo.
+func HandlerIcon(installInfo InstallInfo, targetPath string) (string, error) {
+	var iconUrl string
+	if url, err := url.Parse(installInfo.Icon); err == nil && url.Scheme != "" {
+		// Download the icon using the predefined filename
+		iconTargetPath := filepath.Join(targetPath, installInfo.Name, "_icon.png")
+		if err := DownloadIcon(installInfo.Icon, iconTargetPath); err != nil {
+			return "", fmt.Errorf("error downloading icon: %v", err)
+		}
+		iconUrl = "http://localhost:56780/static/" + installInfo.Name + "/" + installInfo.Name + "_icon.png"
+	} else {
+		iconUrl = "http://localhost:56780/static/" + installInfo.Name + "/" + installInfo.Icon
+	}
+
+	return iconUrl, nil
 }

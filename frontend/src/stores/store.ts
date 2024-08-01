@@ -1,18 +1,19 @@
 import { defineStore } from 'pinia'
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import { t } from "@/i18n";
 // import storeInitList from "@/assets/store.json";
+import { System } from "@/system";
 import { getSystemKey } from "@/system/config";
 export const useStoreStore = defineStore('storeStore', () => {
+    const sys: any = inject<System>("system");
     const currentCateId = ref(0)
     const currentTitle = ref(t("store.hots"))
     const currentCate = ref('hots')
     const categoryList = ['hots', 'work', 'development', 'games', 'education', 'news', 'shopping', 'social', 'utilities', 'others', 'add']
     const categoryIcon = ['HomeFilled', 'Odometer', 'Postcard', 'TrendCharts', 'School', 'HelpFilled', 'ShoppingCart', 'ChatLineRound', 'MessageBox', 'Ticket', 'CirclePlusFilled']
     const isready = ref(false);
-    const installed = getSystemKey("intstalledPlugins");
     const apiUrl = getSystemKey("apiUrl");
-    const installedList: any = ref(installed);
+    const installedList: any = ref([]);
     const storeList: any = ref([])
     const outList: any = ref([])
     async function getList() {
@@ -21,14 +22,15 @@ export const useStoreStore = defineStore('storeStore', () => {
         const storeUrl = apiUrl + '/store/storelist?cate=' + currentCate.value
         const res = await fetch(storeUrl)
         if (!res.ok) {
-          return []
+            return []
         }
-        let list:any = await res.json()
+        const json: any = await res.json()
+        let list = json.data || []
         //console.log(data)
         if (outList.value.length > 0 && currentCate.value == 'hots' && list && list.length > 0) {
-            const names = list.map((item : any) => item.name)
-            const adds:any = []
-            outList.value.forEach((item : any) => {
+            const names = list.map((item: any) => item.name)
+            const adds: any = []
+            outList.value.forEach((item: any) => {
                 if (!names.includes(item.name)) {
                     adds.push(item)
                 }
@@ -39,16 +41,14 @@ export const useStoreStore = defineStore('storeStore', () => {
         await checkProgress()
         isready.value = true;
     }
-    async function addOutList(item:any) {
-        console.log(item)
-        const has = outList.value.find((i:any) => i.name === item.name)
-        console.log(has)
-        if(!has) {
+    async function addOutList(item: any) {
+        const has = outList.value.find((i: any) => i.name === item.name)
+        if (!has) {
             item.isOut = true
             outList.value.push(item)
-            await  getList()
+            await getList()
             return true
-        }else{
+        } else {
             return false
         }
     }
@@ -57,7 +57,7 @@ export const useStoreStore = defineStore('storeStore', () => {
         currentCate.value = item
         currentTitle.value = t("store." + item)
         await getList()
-      }
+    }
     async function checkProgress() {
         const completion: any = await fetch(apiUrl + '/store/listporgress')
         if (!completion.ok) {
@@ -77,8 +77,27 @@ export const useStoreStore = defineStore('storeStore', () => {
             }
         })
     }
-    
-    
+    async function addDesktop(item: any) {
+        if (item.webUrl) {
+            await sys.fs.writeFile(
+                `${sys._options.userLocation}Desktop/${item.name}.url`,
+                `link::url::${item.webUrl}::${item.icon}`
+            );
+            setTimeout(() => {
+                sys.refershAppList();
+            }, 1000);
+        }
+        installedList.value.push(item.name);
+    }
+    async function removeDesktop(item: any) {
+        if (item.webUrl) {
+            await sys.fs.unlink(`${sys._options.userLocation}Desktop/${item.name}.url`);
+            setTimeout(() => {
+                sys.refershAppList();
+            }, 1000);
+        }
+        delete installedList.value[installedList.value.indexOf(item.name)];
+    }
     return {
         currentCateId,
         categoryIcon,
@@ -93,7 +112,9 @@ export const useStoreStore = defineStore('storeStore', () => {
         changeCate,
         getList,
         addOutList,
-        checkProgress
+        checkProgress,
+        addDesktop,
+        removeDesktop
     }
 }, {
     persist: {
@@ -102,7 +123,8 @@ export const useStoreStore = defineStore('storeStore', () => {
             {
                 storage: localStorage,
                 paths: [
-                    "outList"
+                    "outList",
+                    "installedList"
                 ]
             }, // name 字段用localstorage存储
         ],

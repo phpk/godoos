@@ -14,33 +14,57 @@ import (
 
 func GetStoreListHandler(w http.ResponseWriter, r *http.Request) {
 	cate := r.URL.Query().Get("cate")
-	os := runtime.GOOS
-	arch := runtime.GOARCH
-	if cate == "" {
-		libs.ErrorMsg(w, "cate is required")
+	list, err := GetInstallList(cate)
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
 		return
 	}
+	libs.SuccessMsg(w, list, "")
+}
+func InstallByName(name string, cate string) (InstallInfo, error) {
+	var installInfo InstallInfo
+	list, err := GetInstallList(cate)
+
+	if err != nil {
+		return installInfo, fmt.Errorf("failed to get plugin list: %v", err)
+	}
+	for _, item := range list {
+		if item.Name == name {
+			installInfo = item
+			break
+		}
+	}
+	if installInfo.Name == "" {
+		return installInfo, fmt.Errorf("plugin not found")
+	}
+	return Installation(installInfo.Name)
+}
+func GetInstallList(cate string) ([]InstallInfo, error) {
+	if cate == "" {
+		cate = "hots"
+	}
+	os := runtime.GOOS
+	arch := runtime.GOARCH
+	var list []InstallInfo
 	pluginUrl := "https://gitee.com/ruitao_admin/godoos-image/raw/master/store/" + os + "/" + arch + "/" + cate + ".json"
 	res, err := http.Get(pluginUrl)
 	if err != nil {
-		libs.ErrorMsg(w, err.Error())
+		return list, fmt.Errorf("failed to get plugin list: %v", err)
 	}
 	defer res.Body.Close()
-	if res.StatusCode == 200 {
-		body, err := io.ReadAll(res.Body)
-		if err != nil {
-			libs.ErrorMsg(w, err.Error())
-			return
-		}
-		var info interface{}
-		err = json.Unmarshal(body, &info)
-		if err != nil {
-			fmt.Println("Error unmarshalling JSON:", err)
-			return
-		}
-		json.NewEncoder(w).Encode(info)
-
+	if res.StatusCode != 200 {
+		return list, fmt.Errorf("failed to get plugin list")
 	}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return list, fmt.Errorf("failed to get plugin list: %v", err)
+	}
+	err = json.Unmarshal(body, &list)
+	if err != nil {
+		return list, fmt.Errorf("failed to get plugin list: %v", err)
+	}
+	return list, nil
+
 }
 func GetInstallInfoHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
@@ -115,7 +139,10 @@ func GetStoreInfo(name string) (StoreInfo, error) {
 	if !libs.PathExists(infoPath) {
 		return storeInfo, fmt.Errorf("process information for '%s' not found", name)
 	}
-
+	return GetStoreInfoByPath(infoPath)
+}
+func GetStoreInfoByPath(infoPath string) (StoreInfo, error) {
+	var storeInfo StoreInfo
 	content, err := os.ReadFile(infoPath)
 	if err != nil {
 		return storeInfo, fmt.Errorf("failed to read info.json: %v", err)
@@ -128,4 +155,22 @@ func GetStoreInfo(name string) (StoreInfo, error) {
 		return storeInfo, fmt.Errorf("script file '%s' not found", scriptPath)
 	}
 	return storeInfo, nil
+}
+func GetInstalled() []InstallInfo {
+	runDir := libs.GetRunDir()
+	var list []InstallInfo
+
+	filepath.Walk(runDir, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			infoPath := filepath.Join(path, "install.json")
+			if libs.PathExists(infoPath) {
+				installInfo, err := GetInstallInfoByPath(infoPath)
+				if err == nil {
+					list = append(list, installInfo)
+				}
+			}
+		}
+		return nil // 返回nil表示继续遍历
+	})
+	return list
 }

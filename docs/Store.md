@@ -18,16 +18,15 @@
 ```json
 {
     "name": "",             // string, 应用程序名称。
-    "url": "",              // string, 应用程序下载地址。
+    "url": "",              // string, 应用程序下载地址或适配包的下载地址。
+    "pkg": "",              // string, 应用程序的官方下载地址。可为空。
     "webUrl":"",            // string, 如何设置，应用程序将显示到桌面。
     "isDev": true,          // boolean, 是否为开发环境。如果设置为true将不会下载数据。
-    "needDownload": true,   // boolean, 是否需要下载，本地开发设置为false。
-    "needInstall": true,    // boolean, 是否需要安装。
-    "version": "1.0.0",    // string, 应用程序版本。
+    "version": "1.0.0",     // string, 应用程序版本。
     "icon": "",             // string, 应用程序图标，为可访问的网络地址。
-    "checkProgress": true,  // boolean, 表示是否显示启动和停止。
+    "hasStart": true,       // boolean, 表示是否显示启动和停止。
     "hasRestart": true,     // boolean, 是否需要重启。
-    "setting": true         // boolean, 是否需要设置。
+    "setting": true         // boolean, 是否需要设置。只有应用停止才会显示。
 }
 
 ```
@@ -36,19 +35,25 @@
 install.json的结构体为：
 ```json
 type InstallInfo struct {
-	Name          string `json:"name"`          // 应用程序名称。重要，必须和应用的目录名称一致。
-	URL           string `json:"url"`           // 应用程序下载地址。
-	WebUrl        string `json:"webUrl"`        // 应用程序的网页地址。
-	IsDev         bool   `json:"isDev"`         // 标志位，表示是否为开发者版本。
-	NeedDownload  bool   `json:"needDownload"`  // 标志位，表示是否需要下载。
-	NeedInstall   bool   `json:"needInstall"`   // 标志位，表示是否需要安装。
-	Version       string `json:"version"`       // 应用程序的版本号。
-	Desc          string `json:"desc"`          // 应用程序的描述信息。
-	Icon          string `json:"icon"`          // 应用程序的图标路径。
-	CheckProgress bool   `json:"checkProgress"` // 标志位，表示是否显示启动和停止。
-	HasRestart    bool   `json:"hasRestart"`    // 标志位，表示安装后是否需要重启。
-	Setting       bool   `json:"setting"`       // 标志位，表示是否需要配置。
-	Dependencies  []Item `json:"dependencies"`  // 依赖项。
+	Name         string           `json:"name"`         // 应用程序名称。
+	URL          string           `json:"url"`          // 应用程序下载地址或适配包的下载地址。
+	Pkg          string           `json:"pkg"`          // 应用程序的官方下载地址。
+	WebUrl       string           `json:"webUrl"`       // 应用程序的网页地址。
+	IsDev        bool             `json:"isDev"`        // 标志位，表示是否为开发者版本。
+	Version      string           `json:"version"`      // 应用程序的版本号。
+	Desc         string           `json:"desc"`         // 应用程序的描述信息。
+	Icon         string           `json:"icon"`         // 应用程序的图标路径。
+	HasStart     bool             `json:"hasStart"`     // 标志位，表示是否显示启动和停止。
+	HasRestart   bool             `json:"hasRestart"`   // 标志位，表示安装后是否需要重启。
+	Setting      bool             `json:"setting"`      // 标志位，表示是否需要配置。
+	Dependencies []Item           `json:"dependencies"` // 依赖项。
+	Categrory    string           `json:"category"`     // 应用程序的分类。
+	History      []InstallHastory `json:"history"`      // 应用程序的历史版本。
+}
+type InstallHastory struct {
+	Version string `json:"version"`
+	URL     string `json:"url"`
+	Pkg     string `json:"pkg"` // 应用程序的官方下载地址。
 }
 ```
 
@@ -57,7 +62,6 @@ type InstallInfo struct {
 ```json
 {
     "name": "mysql5.7",     // string, 应用程序名称。可不设置，会继承自install.json
-    "icon": "mysql.png",    // string, 应用程序图标，一般放在应用程序static目录下。
     "setting": {
         "binPath": "{exePath}/bin/mysqld.exe", // string, 重要，必须设置。为启动程序路径。
         "confPath": "{exePath}/my.ini",// string, 可为空。为配置文件路径。
@@ -84,11 +88,11 @@ type InstallInfo struct {
 
 - 备注：核心的替换参数为`{exePath}`即程序的执行目录。其他`{参数}`对应`store.json`里的`config`。
 
-store.json的struct为
+store.json的结构体为：
+
 ```json
 type StoreInfo struct {
 	Name     string           `json:"name"`     // 应用程序商店的名称。
-	Icon     string           `json:"icon"`     // 应用程序商店的图标路径。
 	Setting  Setting          `json:"setting"`  // 应用程序商店的配置信息。
 	Config   map[string]any   `json:"config"`   // 应用程序的配置信息映射。
 	Commands map[string][]Cmd `json:"commands"` // 应用程序的命令集合。

@@ -22,16 +22,16 @@ const formData = ref({
 const progress = ref(0)
 const addType = [
     {
-        'name': '远程下载',
-        'type': 'download'
+        name: t('store.remoteDownload'),
+        type: 'download'
     },
     {
-        'name': '本地导入',
-        'type': 'local'
+        name: t('store.localImport'),
+        type: 'local'
     },
     {
-        'name': '开发模式',
-        'type': 'dev'
+        name: t('store.devMode'),
+        type: 'dev'
     }
 ]
 function selectFile() {
@@ -96,15 +96,15 @@ async function upload(e: any) {
         }
         const item = await completion.json()
         //console.log(item)
-        if(item.data){
+        if (item.data) {
             await installPlugin(item.data)
         }
     }
 }
 async function addAppByDev() {
-    if(formData.value.devPath && formData.value.devPath != ""){
+    if (formData.value.devPath && formData.value.devPath != "") {
         await installPlugin(formData.value.devPath)
-    } 
+    }
 }
 async function installPlugin(pluginName: string) {
     const completion = await fetch(apiUrl + '/store/installInfo?name=' + pluginName)
@@ -121,30 +121,31 @@ async function installPlugin(pluginName: string) {
 </script>
 <template>
     <el-form label-width="auto" style="max-width: 600px;padding-left: 30px;">
-        <el-form-item label="添加方式">
+        <el-form-item :label="t('store.addMethod')">
             <el-select v-model="formData.importType" style="width: 280px;">
                 <el-option v-for="item in addType" :key="item.type" :label="item.name" :value="item.type" />
             </el-select>
         </el-form-item>
         <template v-if="formData.importType == 'download'">
-            <el-form-item label="下载地址">
+            <el-form-item :label="t('store.downloadUrl')">
                 <el-input v-model="formData.url" style="width: 280px;" />
             </el-form-item>
-            <el-form-item label="下载进度" v-if="progress > 0">
+            <el-form-item :label="t('store.downloadProgress')" v-if="progress > 0">
                 <el-progress :text-inside="true" :stroke-width="20" :percentage="progress" />
             </el-form-item>
-            <el-button type="primary" @click="addAppByDownload()">添加</el-button>
+            <el-button type="primary" @click="addAppByDownload()">{{ t('store.add') }}</el-button>
         </template>
         <template v-if="formData.importType == 'local'">
-            <input type="file" style="display: none;" ref="fileInput" accept=".zip,.tar,.tar.gz,.tar.bz2" @change="upload">
-            <el-button type="primary" @click="addAppByImport()">导入压缩包</el-button>
+            <input type="file" style="display: none;" ref="fileInput" accept=".zip,.tar,.tar.gz,.tar.bz2"
+                @change="upload">
+            <el-button type="primary" @click="addAppByImport()">{{ t('store.importZip') }}</el-button>
         </template>
         <template v-if="formData.importType == 'dev'">
-            <el-form-item label="本地路径">
-                <el-input v-model="formData.devPath" style="width: 280px;" placeholder="用户目录下.godoos/run，只填目录名称"
+            <el-form-item :label="t('store.localPath')">
+                <el-input v-model="formData.devPath" style="width: 280px;" :placeholder="t('store.userDirectory')"
                     @click="selectFile()" />
             </el-form-item>
-            <el-button type="primary" @click="addAppByDev()">添加</el-button>
+            <el-button type="primary" @click="addAppByDev()">{{ t('store.add') }}</el-button>
         </template>
     </el-form>
 </template>

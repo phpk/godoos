@@ -25,6 +25,9 @@ func HTTPError(w http.ResponseWriter, status int, message string) {
 func ErrorMsg(w http.ResponseWriter, message string) {
 	WriteJSONResponse(w, APIResponse{Message: message, Code: -1}, 200)
 }
+func ErrorData(w http.ResponseWriter, data any, message string) {
+	WriteJSONResponse(w, APIResponse{Message: message, Data: data, Code: -1}, 200)
+}
 func SuccessMsg(w http.ResponseWriter, data any, message string) {
 	WriteJSONResponse(w, APIResponse{Message: message, Data: data, Code: 0}, 200)
 }

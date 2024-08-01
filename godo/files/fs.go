@@ -442,12 +442,12 @@ func HandleUnZip(w http.ResponseWriter, r *http.Request) {
 
 	zipFilePath := filepath.Join(basePath, path)
 	destPath := filepath.Dir(zipFilePath)
-	err = Decompress(zipFilePath, destPath)
+	zipPath, err := Decompress(zipFilePath, destPath)
 	if err != nil {
 		libs.ErrorMsg(w, err.Error())
 		return
 	}
-	res := libs.APIResponse{Message: fmt.Sprintf("success unzip %s.", path)}
+	res := libs.APIResponse{Message: fmt.Sprintf("success unzip %s.", path), Data: zipPath}
 	json.NewEncoder(w).Encode(res)
 }
 

@@ -1,6 +1,5 @@
 {
     "name": "redis5.0",
-    "icon": "redis.png",
     "setting": {
         "binPath": "{exePath}/redis-server.exe"
     },

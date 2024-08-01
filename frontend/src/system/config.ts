@@ -102,10 +102,7 @@ export const getSystemConfig = (ifset = false) => {
             dbname: ''
         };
     }
-    // 初始化已安装插件列表，若本地存储中已存在则不进行覆盖
-    if (!config.intstalledPlugins) {
-        config.intstalledPlugins = [];
-    }
+  
     // 初始化桌面快捷方式列表，若本地存储中已存在则不进行覆盖
     if (!config.desktopList) {
         config.desktopList = [];

@@ -1,5 +1,4 @@
 {
-    "icon": "mysql.png",
     "setting": {
         "binPath": "{exePath}/bin/mysqld.exe",
         "confPath": "{exePath}/my.ini",

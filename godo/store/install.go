@@ -18,151 +18,193 @@ func InstallHandler(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "the app name is empty!")
 		return
 	}
-	exePath := GetExePath(pluginName)
-	//log.Printf("the app path is %s", exePath)
-	if !libs.PathExists(exePath) {
-		libs.ErrorMsg(w, "the app path is not exists!")
+	installInfo, err := Installation(pluginName)
+	if err != nil {
+		libs.ErrorData(w, installInfo, "the install.json is error:"+err.Error())
 		return
+	}
+	libs.SuccessMsg(w, installInfo, "install the app success!")
+}
+
+// Installation 处理安装逻辑
+func Installation(pluginName string) (InstallInfo, error) {
+	var installInfo InstallInfo
+	exePath := GetExePath(pluginName)
+	if !libs.PathExists(exePath) {
+		return installInfo, fmt.Errorf("the app path is not exists")
 	}
 	installInfo, err := GetInstallInfo(pluginName)
 	if err != nil {
-		libs.ErrorMsg(w, "the install.json is error:"+err.Error())
-		return
+		return installInfo, fmt.Errorf("the install.json is error: %v", err)
 	}
 	if len(installInfo.Dependencies) > 0 {
 		var needInstalls []Item
 		for _, item := range installInfo.Dependencies {
-			info, err := GetInstallInfo(item.Value.(string))
+			depInfo, err := GetInstallInfo(item.Value.(string))
 			if err != nil {
 				needInstalls = append(needInstalls, item)
 				continue
 			}
-			if info.Version != installInfo.Version {
+			if depInfo.Version != installInfo.Version {
 				needInstalls = append(needInstalls, item)
 			}
 		}
-		libs.WriteJSONResponse(w, libs.APIResponse{Message: "you need install apps!", Data: needInstalls, Code: -1}, 200)
-		return
+		installInfo.Dependencies = needInstalls
+		return installInfo, fmt.Errorf("dependencies require installation")
 	}
+
+	// Check if the plugin name matches the install.json name
 	if pluginName != installInfo.Name {
-		libs.ErrorMsg(w, "the app name must equal the install.json!")
-		return
+		return installInfo, fmt.Errorf("plugin name does not match install.json")
 	}
-	if !installInfo.NeedInstall {
-		libs.SuccessMsg(w, "success", "the app is installed!")
-		return
-	}
-	storeFile := filepath.Join(exePath, "store.json")
-	if !libs.PathExists(storeFile) {
-		libs.ErrorMsg(w, "the store.json is not exists!")
-		return
-	}
-	var storeInfo StoreInfo
-	content, err := os.ReadFile(storeFile)
-	if err != nil {
-		libs.ErrorMsg(w, "cant read the store.json!")
-		return
-	}
-	//设置 info.json
-	exePath = strings.ReplaceAll(exePath, "\\", "/")
-	contentBytes := []byte(strings.ReplaceAll(string(content), "{exePath}", exePath))
-	//log.Printf("====content: %s", string(contentBytes))
-	err = json.Unmarshal(contentBytes, &storeInfo)
-	if err != nil {
-		log.Printf("Error during unmarshal: %v", err)
-		libs.ErrorMsg(w, "the store.json is error: "+err.Error())
-		return
-	}
-	replacePlaceholdersInCmds(&storeInfo)
-	storeInfo.Name = installInfo.Name
-	err = SaveInfoFile(storeInfo)
-	if err != nil {
-		libs.ErrorMsg(w, "the store info.json is error: "+err.Error())
-		return
-	}
-	//设置config
-	if libs.PathExists(storeInfo.Setting.ConfPath + ".tpl") {
-		err = SaveStoreConfig(storeInfo, exePath)
-		if err != nil {
-			libs.ErrorMsg(w, "save the config is error!")
-			return
-		}
-	}
-	err = InstallStore(storeInfo)
-	if err != nil {
-		libs.ErrorMsg(w, "install the app is error!")
-		return
-	}
-	//复制static目录
+	// Copy static directory
 	staticPath := filepath.Join(exePath, "static")
 	if libs.PathExists(staticPath) {
 		staticDir := libs.GetStaticDir()
 		targetPath := filepath.Join(staticDir, pluginName)
 		if !libs.PathExists(targetPath) {
-			err = os.Rename(staticPath, targetPath)
-			if err != nil {
-				log.Printf("copy the static is error! %v", err)
+			if err := os.Rename(staticPath, targetPath); err != nil {
+				return installInfo, fmt.Errorf("error copying static directory: %w", err)
 			}
-			iconPath := filepath.Join(targetPath, storeInfo.Icon)
-			if libs.PathExists(iconPath) {
-				installInfo.Icon = "http://localhost:56780/static/" + pluginName + "/" + storeInfo.Icon
+			iconUrl, err := HandlerIcon(installInfo, targetPath)
+			if err == nil {
+				installInfo.Icon = iconUrl
+				err = SaveInstallInfo(installInfo)
+				if err != nil {
+					return installInfo, fmt.Errorf("error saving install.json: %w", err)
+				}
 			}
-		}
 
+		}
 	}
-	libs.SuccessMsg(w, installInfo, "install the app success!")
+	// Process store.json
+	storeFile := filepath.Join(exePath, "store.json")
+	if !libs.PathExists(storeFile) {
+		return installInfo, nil
+	}
+	var storeInfo StoreInfo
+	content, err := os.ReadFile(storeFile)
+	if err != nil {
+		return installInfo, fmt.Errorf("cannot read store.json: %w", err)
+	}
+	//设置 store.json
+	exePath = strings.ReplaceAll(exePath, "\\", "/")
+	contentBytes := []byte(strings.ReplaceAll(string(content), "{exePath}", exePath))
+	//log.Printf("====content: %s", string(contentBytes))
+	err = json.Unmarshal(contentBytes, &storeInfo)
+
+	if err != nil {
+		return installInfo, fmt.Errorf("error unmarshalling store.json: %w", err)
+	}
+	replacePlaceholdersInCmds(&storeInfo)
+	storeInfo.Name = installInfo.Name
+
+	// Save store info
+	if err := SaveInfoFile(storeInfo); err != nil {
+		return installInfo, fmt.Errorf("error saving store info.json: %w", err)
+	}
+
+	// Set up configuration
+	if libs.PathExists(storeInfo.Setting.ConfPath + ".tpl") {
+		if err := SaveStoreConfig(storeInfo, exePath); err != nil {
+			return installInfo, fmt.Errorf("error saving config: %w", err)
+		}
+	}
+
+	// Install the store
+	if err := InstallStore(storeInfo); err != nil {
+		return installInfo, fmt.Errorf("error installing app: %w", err)
+	}
+
+	return installInfo, nil
 }
 
+// UnInstallHandler 处理卸载请求
 func UnInstallHandler(w http.ResponseWriter, r *http.Request) {
 	pluginName := r.URL.Query().Get("name")
 	if pluginName == "" {
 		libs.ErrorMsg(w, "the app name is empty!")
 		return
 	}
-	log.Printf("uninstall the app %s", pluginName)
-	err := StopCmd(pluginName)
-	if err != nil {
-		// libs.ErrorMsg(w, "stop the app is error!")
-		// return
-		log.Printf("stop the app is error! %s", err)
+
+	// Execute the uninstallation process
+	if err := Uninstallation(pluginName); err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
 	}
+
+	// Success response
+	libs.SuccessMsg(w, "success", "uninstall the app success!")
+}
+
+// Uninstallation 执行插件卸载逻辑
+func Uninstallation(pluginName string) error {
+	if err := StopCmd(pluginName); err != nil {
+		log.Printf("stopping the app encountered an error: %s", err)
+	}
+
+	// Retrieve install information
 	installInfo, err := GetInstallInfo(pluginName)
 	if err != nil {
-		libs.ErrorMsg(w, "the install.json is error:"+err.Error())
-		return
+		return fmt.Errorf("error retrieving install.json: %w", err)
 	}
+
+	// Check if the app is in development mode
 	if installInfo.IsDev {
-		libs.SuccessMsg(w, "success", "uninstall the app success!")
-		return
+		return nil // No further action required for dev mode apps
 	}
-	exePath := GetExePath(pluginName)
-	//log.Printf("the app path is %s", exePath)
-	if libs.PathExists(exePath) {
-		err := os.RemoveAll(exePath)
-		if err != nil {
-			libs.ErrorMsg(w, "delete the app is error!")
-			return
+	//检查是否有其他应用依赖于它
+	installedList := GetInstalled()
+	if len(installedList) > 1 {
+		hasDeps := []Item{}
+		for _, item := range installedList {
+			for _, dep := range item.Dependencies {
+				if dep.Value == pluginName {
+					hasDeps = append(hasDeps, dep)
+				}
+			}
+		}
+		if len(hasDeps) > 0 {
+			return fmt.Errorf("the app is being used by other applications: %v", hasDeps)
 		}
 	}
+	// Remove the application directory
+	exePath := GetExePath(pluginName)
+	if libs.PathExists(exePath) {
+		if err := os.RemoveAll(exePath); err != nil {
+			return fmt.Errorf("error deleting the app: %w", err)
+		}
+	}
+
+	// Remove the static directory
 	staticDir := libs.GetStaticDir()
 	staticPath := filepath.Join(staticDir, pluginName)
 	if libs.PathExists(staticPath) {
-		err := os.RemoveAll(staticPath)
-		if err != nil {
-			libs.ErrorMsg(w, "delete the static is error!")
-			return
+		if err := os.RemoveAll(staticPath); err != nil {
+			return fmt.Errorf("error deleting the static files: %w", err)
 		}
 	}
-	libs.SuccessMsg(w, "success", "uninstall the app success!")
 
+	return nil
 }
-func GetInstallInfo(pluginName string) (InstallInfo, error) {
-	var installInfo InstallInfo
+func GetInstallPath(pluginName string) (string, error) {
 	exePath := GetExePath(pluginName)
 	installFile := filepath.Join(exePath, "install.json")
 	if !libs.PathExists(installFile) {
-		return installInfo, fmt.Errorf("install.json is not exist:%s", installFile)
+		return "", fmt.Errorf("install.json is not exist:%s", installFile)
 	}
+	return installFile, nil
+}
+func GetInstallInfo(pluginName string) (InstallInfo, error) {
+	var installInfo InstallInfo
+	installFile, err := GetInstallPath(pluginName)
+	if err != nil {
+		return installInfo, err
+	}
+	return GetInstallInfoByPath(installFile)
+}
+func GetInstallInfoByPath(installFile string) (InstallInfo, error) {
+	var installInfo InstallInfo
 	content, err := os.ReadFile(installFile)
 	if err != nil {
 		return installInfo, err
@@ -298,6 +340,21 @@ func SaveInfoFile(storeInfo StoreInfo) error {
 func SaveStoreInfo(storeInfo StoreInfo, infoFile string) error {
 	// 使用 json.MarshalIndent 直接获取内容的字节切片
 	content, err := json.MarshalIndent(storeInfo, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal reqBodies to JSON: %w", err)
+	}
+	if err := os.WriteFile(infoFile, content, 0644); err != nil {
+		return fmt.Errorf("failed to write to file: %w", err)
+	}
+	return nil
+}
+func SaveInstallInfo(installIonfo InstallInfo) error {
+	infoFile, err := GetInstallPath(installIonfo.Name)
+	if err != nil {
+		return err
+	}
+	// 使用 json.MarshalIndent 直接获取内容的字节切片
+	content, err := json.MarshalIndent(installIonfo, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal reqBodies to JSON: %w", err)
 	}
