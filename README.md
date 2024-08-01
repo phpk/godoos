@@ -28,7 +28,7 @@
 
 [Windows-image]: ./docs/img/Windows.svg
 
-[Windows-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-windows.exe
+[Windows-url]: https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-amd64-installer.exe
 
 [MacOS-image]: ./docs/img/MacOS.svg
 
