@@ -14,7 +14,6 @@
 [FAQ](./docs/Faq.md) | [API](./docs/Api.md) | [应用开发](./docs/Store.md)
 
 
-
 ### 📚 安装
 
 [![Windows][Windows-image]][Windows-url]
