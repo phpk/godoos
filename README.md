@@ -50,6 +50,10 @@
 - ***支持多平台，Windows、Linux、MacOS***
 - ***完善的应用商店体系，简单学习一下[应用商店配置](./docs/Store.md)即可开发出复杂的应用***
 
+## 💖 开源地址
+- [Gitee](https://gitee.com/ruitao_admin/godoos)
+- [Github](https://github.com/phpk/godoos)
+
 ## 🚀 演示视频
 - [全程操作](https://www.bilibili.com/video/BV1NdvaeEEz3/?vd_source=739e0e59aeefdb2e9f760e5037d00245)
 
