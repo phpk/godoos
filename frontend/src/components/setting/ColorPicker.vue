@@ -39,6 +39,3 @@ const predefineColors = ref([
   "#c7158577",
 ]);
 </script>
-<!-- <style>
-@import url('vue-accessible-color-picker/styles');
-</style> -->

@@ -75,6 +75,9 @@ export const getSystemConfig = (ifset = false) => {
                 '/image/bg/bg4.jpg',
                 '/image/bg/bg5.jpg',
                 '/image/bg/bg6.jpg',
+                '/image/bg/bg7.jpg',
+                '/image/bg/bg8.jpg',
+                '/image/bg/bg9.jpg',
             ]
         }
     }

@@ -29,7 +29,7 @@
       <template v-if="config.background.type === 'color'">
         <div class="setting-item">
           <label> </label>
-          <ColorPicker v-model="config.background.color"></ColorPicker>
+          <ColorPicker v-model:modelValue="config.background.color" @update:modelValue="onColorChange"></ColorPicker>
         </div>
       </template>
       <template v-if="config.background.type === 'image'">
@@ -39,7 +39,7 @@
               v-for="(item, index) in config.background.imageList"
               :key="index"
               :class="config.background.url === item ? 'selected' : ''"
-              @click="config.background.url = item"
+              @click="setBg(item)"
             >
               <img :src="item" />
             </li>
@@ -49,21 +49,14 @@
           <label> </label>
         </div>
       </template>
-
-      <div class="setting-item">
-        <label> </label>
-        <el-button @click="submit" type="primary">
-          {{ t("confirm") }}
-        </el-button>
-      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { getSystemConfig, setSystemConfig } from "@/system/config";
-import { ref, toRaw } from "vue";
-import { Dialog, t, useSystem } from "@/system";
+import { ref } from "vue";
+import { t, useSystem } from "@/system";
 const sys = useSystem();
 const items = [t("background")];
 const desktopOptions = [
@@ -78,42 +71,23 @@ const desktopOptions = [
 ];
 
 const activeIndex = ref(0);
-const config = ref(getSystemConfig());
+const config:any = ref(getSystemConfig());
+function setBg(item: any){
+  config.value.background.url = item
+  config.value.background.type = "image";
+  setSystemConfig(config.value);
+  sys.initBackground();
 
-/** 提交背景设置 */
-async function submit() {
-  const val = toRaw(config.value);
-  setSystemConfig(val);
-  config.value = val;
-  Dialog.showMessageBox({
-    message: t("save.success"),
-    title: t("wallpaper"),
-    type: "success",
-  }).then(() => {
-    //location.reload();
-    sys.initBackground();
-  });
 }
-
+function onColorChange(color : string){
+  config.value.background.color = color;
+  config.value.background.type = "color";
+  setSystemConfig(config.value);
+  sys.initBackground();
+}
 const selectItem = (index: number) => {
   activeIndex.value = index;
 };
-// async function submitStyle() {
-//   let rootStyle = system.getConfig("rootStyle");
-//   rootStyle = {
-//     ...rootStyle,
-//     "--icon-title-color": textColor.value,
-//     "--window-border-radius": winRadius.value,
-//     "--theme-main-color": taskBarColor.value,
-//   };
-//   await system.setConfig("rootStyle", rootStyle);
-
-//   Dialog.showMessageBox({
-//     message: t("save.success"),
-//     title: t("style"),
-//     type: "info",
-//   });
-// }
 </script>
 
 <style scoped>
