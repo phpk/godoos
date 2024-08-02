@@ -220,7 +220,7 @@ const comp = await fetch('http://localhost:56780/store/setting', {
 2. `static`目录下的在执行install时文件会自动复制到`.godoos/static/`应用目录下
 3. `store.json`如果设置了`icon`，并且`static`目录下存在该文件，则应用图标为该文件。否则为`install.json`中的icon	
 
-### 内置应用说明
+### `commands`内置函数说明
 - 系统封装了一些用于处理进程控制和文件操作的功能函数，以下是各函数的详细描述：
 1. `start` 启动应用
 2. `stop` 停止应用
@@ -234,6 +234,8 @@ const comp = await fetch('http://localhost:56780/store/setting', {
 10. `mkdir` 创建文件夹 必须设置FilePath，FilePath为创建的文件夹路径  
 11. `startApp` 启动其他应用，content为应用名
 12. `stopApp` 停止其他应用，content为应用名
+
+- 保留命令`uninstall`，如果设置了`uninstall`，系统在卸载的时候将会执行它
 
 ### 进阶操作
 1. 下载[mysql8.0](https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.39-winx64.zip)
