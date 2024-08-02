@@ -14,7 +14,8 @@ English | [简体中文](README.md)
 [FAQ](./docs/Faq.md) | [API](./docs/Api.md) | [AppStore](./docs/Store.en.md)
 
 </div>
-### 👇 Download && Install
+
+### 👇 Download and Install
 
 
 1. ![Download for MacOS][Windows-image] **Windows User**:
