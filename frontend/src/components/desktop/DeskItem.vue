@@ -34,7 +34,7 @@ onMounted(() => {
   height: 100%;
   // 应用镂空效果
   color: transparent; /* 文字颜色设为透明 */
-  text-shadow: 0 0 0.5px white, 0 0 0.5px black, 0 0 2px rgba(0, 0, 0, 2); /* 多层阴影 */
+  text-shadow: 0 0 0.5px white, 0 0 1px black, 0 0 2px rgba(0, 0, 0, 2); /* 多层阴影 */
 
   // 重置子元素的默认样式
   > * {
