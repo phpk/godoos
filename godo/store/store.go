@@ -150,10 +150,10 @@ func GetStoreInfoByPath(infoPath string) (StoreInfo, error) {
 	if err := json.Unmarshal(content, &storeInfo); err != nil {
 		return storeInfo, fmt.Errorf("failed to unmarshal info.json: %v", err)
 	}
-	scriptPath := storeInfo.Setting.BinPath
-	if !libs.PathExists(scriptPath) {
-		return storeInfo, fmt.Errorf("script file '%s' not found", scriptPath)
-	}
+	// scriptPath := storeInfo.Setting.BinPath
+	// if !libs.PathExists(scriptPath) {
+	// 	return storeInfo, fmt.Errorf("script file '%s' not found", scriptPath)
+	// }
 	return storeInfo, nil
 }
 func GetInstalled() []InstallInfo {

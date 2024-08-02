@@ -35,7 +35,7 @@ func runStart(storeInfo StoreInfo) error {
 		return fmt.Errorf("failed to get run cmd: %w", err)
 	}
 	if err := cmd.Start(); err != nil {
-		//log.Println("Error starting script:", err)
+		log.Printf("Error starting script: %v\nDetailed error: %v", err, cmd.Stderr)
 		return fmt.Errorf("error starting script: %v", err)
 	}
 
@@ -61,6 +61,7 @@ func runStart(storeInfo StoreInfo) error {
 }
 func GetRunCmd(binPath string, cmds []string) (*exec.Cmd, error) {
 	var cmd *exec.Cmd
+	log.Printf("run script: %s", strings.Join(cmds, " "))
 	if binPath != "" {
 		if !libs.PathExists(binPath) {
 			return cmd, fmt.Errorf("script file %s does not exist", binPath)
@@ -82,6 +83,7 @@ func GetRunCmd(binPath string, cmds []string) (*exec.Cmd, error) {
 		if len(cmds) == 0 {
 			return cmd, fmt.Errorf("no commands provided")
 		}
+		log.Printf("run script: %s", strings.Join(cmds, " "))
 		if len(cmds) > 1 {
 			cmd = exec.Command(cmds[0], cmds[1:]...)
 		} else {
