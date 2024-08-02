@@ -20,20 +20,21 @@
 
 1. ![Download for MacOS][Windows-image] **Windows 用户**:
    
-- [**Windows (AMD64)**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-amd64-installer.exe)
+- Windows (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-amd64-installer.exe) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-amd64-installer.exe)
 
-- [**Windows (ARM64)**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-arm64-installer.exe)
+- Windows (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-arm64-installer.exe) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-arm64-installer.exe)
 
 
 2. ![Download for MacOS][MacOS-image] **MacOS 用户**:
 
-- [**MacOS (AMD64)**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-amd64.zip)
+- MacOS (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-amd64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-amd64.zip)
 
-- [**MacOS (ARM64)**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip)
+- MacOS (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip)
 
 3. ![Download for Linux][Linux-image] **Linux 用户**:
 
-- [**Linux (AMD64)**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux-amd64.zip)
+- Linux (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux-amd64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip)
+
 
 <!-- 图标和链接 -->
 [Windows-image]: ./docs/img/Windows.svg
