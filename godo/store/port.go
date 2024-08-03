@@ -9,7 +9,6 @@ import (
 	"net"
 	"net/http"
 	"os/exec"
-	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -26,7 +25,7 @@ type AllProcessesResponse struct {
 	Processes []ProcessSystemInfo `json:"processes"`
 }
 
-var processInfoRegex = regexp.MustCompile(`(\d+)\s+.*:\s*(\d+)\s+.*LISTEN\s+.*:(\d+)`)
+//var processInfoRegex = regexp.MustCompile(`(\d+)\s+.*:\s*(\d+)\s+.*LISTEN\s+.*:(\d+)`)
 
 func listAllProcesses() ([]ProcessSystemInfo, error) {
 	osType := runtime.GOOS
@@ -37,7 +36,7 @@ func listAllProcesses() ([]ProcessSystemInfo, error) {
 
 	switch osType {
 	case "darwin", "linux":
-		cmd = exec.Command("lsof", "-i", "-n", "-P")
+		cmd = exec.Command("lsof", "-i")
 	case "windows":
 		cmd = exec.Command("netstat", "-ano")
 		cmd = SetHideConsoleCursor(cmd)
@@ -50,31 +49,34 @@ func listAllProcesses() ([]ProcessSystemInfo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all processes: %v", err)
 	}
+	//lsofRegex := regexp.MustCompile(`(\d+)\s+(\S+\s+\S+)\s+(\d+)\s+(\w+)\s+IPv4\s+(\w+)\s+(\w+)\s+TCP\s+(\S+)\->\s+(\S+)\s+\((\w+)\)`)
 
 	processes := make([]ProcessSystemInfo, 0)
-
+	// 初始化映射用于去重
+	seenPIDs := make(map[int]bool)
 	// 解析输出
 	switch osType {
 	case "darwin", "linux":
-		scanner := bufio.NewScanner(bytes.NewBuffer(output)) // 使用bufio.Scanner
-
+		scanner := bufio.NewScanner(bytes.NewBuffer(output))
 		for scanner.Scan() {
 			line := scanner.Text()
-			matches := processInfoRegex.FindStringSubmatch(line)
-			if matches != nil {
-				pid, _ := strconv.Atoi(matches[1])
-				port, _ := strconv.Atoi(matches[3])
-				processName, err := getProcessName(osType, pid)
-				if err != nil {
-					log.Printf("Failed to get process name for PID %d: %v", pid, err)
-					continue
+			fields := strings.Fields(line)
+			if len(fields) >= 9 && fields[7] == "TCP" {
+				// 解析 PID 和其他字段
+				pid, _ := strconv.Atoi(fields[1])
+				name := fields[0]
+				// 解析本地端口
+				localPortStr := strings.Split(fields[8], ":")[1]
+				localPort, _ := strconv.Atoi(localPortStr)
+				if !seenPIDs[pid] {
+					seenPIDs[pid] = true
+					processes = append(processes, ProcessSystemInfo{
+						PID:   pid,
+						Port:  localPort,
+						Proto: "TCP",
+						Name:  name,
+					})
 				}
-				processes = append(processes, ProcessSystemInfo{
-					PID:   pid,
-					Port:  port,
-					Proto: matches[2],
-					Name:  processName,
-				})
 			}
 		}
 	case "windows":
@@ -101,12 +103,15 @@ func listAllProcesses() ([]ProcessSystemInfo, error) {
 					log.Printf("Failed to convert port to integer: %v", err)
 					continue
 				}
-				processes = append(processes, ProcessSystemInfo{
-					PID:   pid,
-					Port:  portInt,
-					Proto: fields[0],
-					Name:  processName,
-				})
+				if !seenPIDs[pid] {
+					seenPIDs[pid] = true
+					processes = append(processes, ProcessSystemInfo{
+						PID:   pid,
+						Port:  portInt,
+						Proto: fields[0],
+						Name:  processName,
+					})
+				}
 			}
 		}
 	}
@@ -156,17 +161,37 @@ func killProcessByName(name string) error {
 
 	switch osType {
 	case "darwin", "linux":
-		cmd = exec.Command("pkill", name)
+		// 使用 pgrep 查找进程 PID
+		pgrepCmd := exec.Command("pgrep", "-f", name)
+		pgrepOutput, err := pgrepCmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("failed to find process with name %s: %v", name, err)
+		}
+
+		// 将输出转换为字符串并按行分割
+		pids := strings.Split(strings.TrimSpace(string(pgrepOutput)), "\n")
+
+		// 对于每个找到的 PID，使用 kill 命令杀死进程
+		for _, pidStr := range pids {
+			pid, err := strconv.Atoi(pidStr)
+			if err != nil {
+				log.Printf("Failed to convert PID to integer: %v", err)
+				continue
+			}
+			// 每次循环使用新的 *exec.Cmd 实例
+			killCmd := exec.Command("kill", "-9", strconv.Itoa(pid))
+			if err := killCmd.Run(); err != nil {
+				log.Printf("Failed to kill process with PID %d: %v", pid, err)
+			}
+		}
 	case "windows":
 		cmd = exec.Command("taskkill", "/IM", name, "/F") // /F 表示强制结束
-		cmd = SetHideConsoleCursor(cmd)
+		err = cmd.Run()
+		if err != nil {
+			log.Printf("Failed to kill process with name %s: %v", name, err)
+		}
 	default:
 		return fmt.Errorf("unsupported operating system")
-	}
-
-	err = cmd.Run()
-	if err != nil {
-		log.Printf("Failed to kill process with name %s: %v", name, err)
 	}
 
 	return err

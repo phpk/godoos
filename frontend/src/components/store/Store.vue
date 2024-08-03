@@ -28,7 +28,8 @@ async function install(item: any) {
     }
     const url = store.apiUrl + '/store/download'
     const res = await download(item, url, postData)
-    console.log(res)
+    //console.log(res)
+    item.progress = 0
     if(res.code < 0){
       if(res.data && res.data.dependencies && res.data.dependencies.length > 0){
         const names:any = []
@@ -48,27 +49,6 @@ async function install(item: any) {
     await store.checkProgress()
     notifySuccess(t("store.installSuccess"))
   }
-
-  // if (item.needInstall) {
-  //   item.progress = 0
-  //   const completion = await fetch(store.apiUrl + '/store/install?name=' + item.name)
-  //   if (!completion.ok) {
-  //     notifyError(t("store.installError"))
-  //     return
-  //   }
-  //   const res = await completion.json()
-  //   if (res.code && res.code < 0) {
-  //     notifyError(res.message)
-  //     return
-  //   }
-  //   if (res.data) {
-  //     item.icon = res.data.icon
-  //   }
-  // }
-
-  // await store.addDesktop(item);
-  // await store.checkProgress()
-  // notifySuccess(t("store.installSuccess"))
 }
 
 async function uninstall(item: any) {
@@ -125,11 +105,11 @@ async function pauseApp(item: any) {
   if (!res.ok) {
     const msg = await res.text()
     notifyError(msg)
-    return
+    //return
   }
   setTimeout(async () => {
     await store.checkProgress()
-  }, 1000)
+  }, 3000)
 
 }
 async function restartApp(item: any) {

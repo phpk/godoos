@@ -168,6 +168,15 @@ func Uninstallation(pluginName string) error {
 			return fmt.Errorf("the app is being used by other applications: %v", hasDeps)
 		}
 	}
+	storeInfo, err := GetStoreInfo(pluginName)
+	if err == nil {
+		if _, ok := storeInfo.Commands["uninstall"]; ok {
+			replacePlaceholdersInCmds(&storeInfo)
+			if err := RunCmds(storeInfo, "uninstall"); err != nil {
+				return fmt.Errorf("error running uninstall command: %w", err)
+			}
+		}
+	}
 	// Remove the application directory
 	exePath := GetExePath(pluginName)
 	if libs.PathExists(exePath) {
@@ -412,6 +421,22 @@ func replacePlaceholdersInCmds(storeInfo *StoreInfo) {
 							return match
 						},
 					)
+				}
+				if len(cmd.Cmds) > 0 {
+					for j, cmd := range cmd.Cmds {
+						strValue := convertValueToString(value)
+						// 使用正则表达式替换Content中的占位符
+						storeInfo.Commands[cmdGroupName][i].Cmds[j] = pattern.ReplaceAllStringFunc(
+							cmd,
+							func(match string) string {
+								// 检查占位符是否与Config中的键匹配
+								if strings.Trim(match, "{}") == key {
+									return strValue
+								}
+								return match
+							},
+						)
+					}
 				}
 
 			}

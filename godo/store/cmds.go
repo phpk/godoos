@@ -30,22 +30,12 @@ func runStart(storeInfo StoreInfo) error {
 		}
 
 	}
-	binPath := storeInfo.Setting.BinPath
-	if !libs.PathExists(binPath) {
-		return fmt.Errorf("script file %s does not exist", storeInfo.Setting.BinPath)
-	}
-	var cmd *exec.Cmd
-	if len(storeInfo.Start.StartCmds) > 0 {
-		cmd = exec.Command(binPath, storeInfo.Start.StartCmds...)
-	} else {
-		cmd = exec.Command(binPath)
-	}
-	if runtime.GOOS == "windows" {
-		// 在Windows上，通过设置CreationFlags来隐藏窗口
-		cmd = SetHideConsoleCursor(cmd)
+	cmd, err := GetRunCmd(storeInfo.Setting.BinPath, storeInfo.Start.StartCmds)
+	if err != nil {
+		return fmt.Errorf("failed to get run cmd: %w", err)
 	}
 	if err := cmd.Start(); err != nil {
-		//log.Println("Error starting script:", err)
+		log.Printf("Error starting script: %v\nDetailed error: %v", err, cmd.Stderr)
 		return fmt.Errorf("error starting script: %v", err)
 	}
 
@@ -69,9 +59,48 @@ func runStart(storeInfo StoreInfo) error {
 	}
 	return nil
 }
+func GetRunCmd(binPath string, cmds []string) (*exec.Cmd, error) {
+	var cmd *exec.Cmd
+	log.Printf("run script: %s", strings.Join(cmds, " "))
+	if binPath != "" {
+		if !libs.PathExists(binPath) {
+			return cmd, fmt.Errorf("script file %s does not exist", binPath)
+		}
+		// 如果是非Windows环境，设置可执行权限
+		if runtime.GOOS != "windows" {
+			// 设置文件权限，0755是一个常见的可执行文件权限掩码
+			if err := os.Chmod(binPath, 0755); err != nil {
+				return cmd, fmt.Errorf("failed to set executable permissions on %s: %w", binPath, err)
+			}
+		}
+
+		if len(cmds) > 0 {
+			cmd = exec.Command(binPath, cmds...)
+		} else {
+			cmd = exec.Command(binPath)
+		}
+	} else {
+		if len(cmds) == 0 {
+			return cmd, fmt.Errorf("no commands provided")
+		}
+		log.Printf("run script: %s", strings.Join(cmds, " "))
+		if len(cmds) > 1 {
+			cmd = exec.Command(cmds[0], cmds[1:]...)
+		} else {
+			cmd = exec.Command(cmds[0])
+		}
+	}
+
+	if runtime.GOOS == "windows" {
+		// 在Windows上，通过设置CreationFlags来隐藏窗口
+		cmd = SetHideConsoleCursor(cmd)
+	}
+	return cmd, nil
+}
 func RunStartApp(appName string) error {
 	return ExecuteScript(appName)
 }
+
 func RunStopApp(appName string) error {
 	return StopCmd(appName)
 }
@@ -87,13 +116,12 @@ func runExec(storeInfo StoreInfo, cmdParam Cmd) error {
 	if err != nil {
 		return fmt.Errorf("failed to set start environment variable %s: %w", storeInfo.Name, err)
 	}
-	log.Printf("bin path:%v", cmdParam.BinPath)
-	log.Printf("cmds:%v", cmdParam.Cmds)
-	cmd := exec.Command(cmdParam.BinPath, cmdParam.Cmds...)
-	if runtime.GOOS == "windows" {
-		// 在Windows上，通过设置CreationFlags来隐藏窗口
-		cmd = SetHideConsoleCursor(cmd)
+
+	cmd, err := GetRunCmd(cmdParam.BinPath, cmdParam.Cmds)
+	if err != nil {
+		return fmt.Errorf("failed to get run cmd: %w", err)
 	}
+
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to run exec process %s: %w", storeInfo.Name, err)
 	}
