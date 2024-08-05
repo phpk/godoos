@@ -177,6 +177,15 @@ pnpm build
 wails build
 # wails build -nsis -upx //you need install nsis and upx
 ```
+
+## 帮助
+
+### 为什么找不到本地文件？
+- 程序默认为浏览器存储。进入系统设置，修改存储方式为本地存储。
+
+### 是否支持切换存储目录？
+-支持。进入系统设置页面，修改存储目录即可。修改后程序会重启一次。
+
 ## ❤️ 感谢
 - [element-plus](http://element-plus.org/)
 - [vue3](https://v3.cn.vuejs.org/)
