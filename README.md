@@ -18,20 +18,20 @@
 ### 👇 下载安装
 
 
-1. ![Download for MacOS][Windows-image] **Windows 用户**:
+1. 💻 **Windows 用户**:
    
 - Windows (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-amd64-installer.exe) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-amd64-installer.exe)
 
 - Windows (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-arm64-installer.exe) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-arm64-installer.exe)
 
 
-2. ![Download for MacOS][MacOS-image] **MacOS 用户**:
+2. 💼 **MacOS 用户**:
 
 - MacOS (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-amd64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-amd64.zip)
 
 - MacOS (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip)
 
-3. ![Download for Linux][Linux-image] **Linux 用户**:
+3. 💽 **Linux 用户**:
 
 - Linux (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux-amd64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip)
 
@@ -46,9 +46,6 @@ docker run -d -p 56780:56780 -p 8185:80 --name godoos godoos/godoos:latest
 - 如果设置本地存储，存储地址为 /root/.godoos/os，设置成功后保存，点左下角win图标->关机图标->恢复->恢复出厂设置
 
 <!-- 图标和链接 -->
-[Windows-image]: ./docs/img/Windows.svg
-[MacOS-image]: ./docs/img/MacOS.svg
-[Linux-image]: ./docs/img/Linux.svg
 [license-image]: ./docs/img/license_%20MIT.svg
 [license-url]: https://spdx.org/licenses/MIT.html
 
