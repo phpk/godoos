@@ -42,6 +42,7 @@
 ```
 docker run -d -p 8210:56780 --name godoos godoos/godoos:latest
 ```
+- 访问地址：http://localhost:8210/
 
 <!-- 图标和链接 -->
 [Windows-image]: ./docs/img/Windows.svg
