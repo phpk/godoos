@@ -1,25 +1,38 @@
-FROM golang:latest
+FROM golang:alpine AS builder
 
-# 设置工作目录
-WORKDIR /app/
+# 在容器内部设置环境变量
+ENV GO111MODULE=on \
+    GOPROXY=https://goproxy.cn,direct \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
 
-# 将当前目录的内容复制到容器中的/app目录
+# 设置后续指令的工作目录
+WORKDIR /build
+
+# 将代码复制到容器中
 COPY . .
-ENV GOPATH=$GOPATH:/app/ GOPROXY=https://mirrors.aliyun.com/goproxy,https://goproxy.cn,direct
-# 构建二进制文件
+
+# 将代码编译成二进制可执行文件
 RUN go build -o godoos ./godo/main.go
 
-# 使用更小的基础镜像用于最终的部署
-FROM alpine:latest
-WORKDIR /app
+# 创建一个小镜像
+FROM debian:stretch-slim
 
-# 将构建好的二进制文件复制到新的镜像中
-COPY --from=0 /app/godoos /app/
+# 设置工作目录
+WORKDIR /
+
 # 复制前端构建结果
-COPY --from=0 /app/frontend/dist /app/dist
+COPY ./frontend/dist /dist
+
+# 从builder镜像中把 /build/godoos 拷贝到当前目录
+COPY --from=builder /build/godoos /godoos
+
+# 添加执行权限
+RUN chmod +x /godoos
 
 # 暴露端口
-EXPOSE 8210
+EXPOSE 56780
 
-# 运行命令
-CMD ["./godoos"]
+# 需要运行的命令
+ENTRYPOINT ["/godoos"]

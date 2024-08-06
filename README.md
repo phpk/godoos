@@ -38,6 +38,11 @@
 4.  **网页版下载**
 - 下载对应版本的安装程序下载安装，下载[网页版](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/dist.zip)解压到程序安装目录./dist，启动程序。访问地址：http://localhost:56780/
 
+5. **Docker安装**
+```
+docker run -d -p 8210:56780 --name godoos godoos/godoos:latest
+```
+
 <!-- 图标和链接 -->
 [Windows-image]: ./docs/img/Windows.svg
 [MacOS-image]: ./docs/img/MacOS.svg
