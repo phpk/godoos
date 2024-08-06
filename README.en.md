@@ -40,9 +40,11 @@ English | [简体中文](README.md)
 
 5. **Docker installation**
 ```
-docker run -d -p 8210:56780 --name godoos godoos/godoos:latest
+docker run -d -p 56780:56780 -p 8185:80 --name godoos godoos/godoos:latest
 ```
-- Access address: http://localhost:8210/
+-Access address: http://localhost:8185/
+-If local storage is set, the storage address is/root/. odoos/os. After successful setting, save it by clicking the win icon in the bottom left corner ->shutdown icon ->restore ->restore to factory settings
+
 
 <!-- 图标和链接 -->
 [Windows-image]: ./docs/img/Windows.svg

@@ -1,0 +1,25 @@
+# docker build -f Dockerfile-dev -t godoos/godoos-dev:latest .
+# docker run -it --rm -v $(pwd):/app -p 56780:56780 --name godoos-dev godoos/godoos-dev:latest
+FROM golang:alpine AS dev
+
+# 设置环境变量
+ENV GO111MODULE=on \
+    GOPROXY=https://goproxy.cn,direct \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
+
+# 设置工作目录
+WORKDIR /app
+
+# 将代码复制到容器中
+COPY . .
+
+# 设置 GOPATH 和 GOPROXY
+ENV GOPATH=$GOPATH:/app/ GOPROXY=https://mirrors.aliyun.com/goproxy,https://goproxy.cn,direct
+
+# 构建二进制文件
+CMD ["go", "run", "./godo/main.go"]
+
+# 暴露端口
+EXPOSE 56780
