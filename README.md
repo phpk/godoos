@@ -35,10 +35,10 @@
 
 - Linux (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux-amd64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip)
 
-4.  **网页版下载**
+4. 📥 **网页版下载**
 - 下载对应版本的安装程序下载安装，下载[网页版](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/dist.zip)解压到程序安装目录./dist，启动程序。访问地址：http://localhost:56780/
 
-5. **Docker安装**
+5. 🚢 **Docker安装**
 ```
 docker run -d -p 56780:56780 -p 8185:80 --name godoos godoos/godoos:latest
 ```
@@ -170,7 +170,7 @@ docker run -d -p 56780:56780 -p 8185:80 --name godoos godoos/godoos:latest
 ### 二十二、进程管理
 - 支持进程管理，可以查看进程列表，杀死进程
 
-## 开发
+## 🏆 开发
 ### 构建
 - 前端构建
 ```bash
@@ -185,7 +185,7 @@ wails build
 # wails build -nsis -upx //you need install nsis and upx
 ```
 
-## 帮助
+## 📊 帮助
 
 ### 为什么找不到本地文件？
 - 程序默认为浏览器存储。进入系统设置，修改存储方式为本地存储。
@@ -193,7 +193,7 @@ wails build
 ### 是否支持切换存储目录？
 - 支持。进入系统设置页面，修改存储目录即可。修改后程序会重启一次。
 
-## 使用场景：
+## 📆 使用场景：
 1. 对办公安全要求严苛的企业，比如不许连外网。
 2. 对办公存储有特殊需求的企业，比如要求员工的数据必须存储到对应的地方。
 3. 对办公office有极客思维的企业，office太过庞大，而godoos仅60多M。
