@@ -121,7 +121,7 @@ import { Dialog, join, System, t } from "@/system";
 import JSZip from "jszip";
 import FileSaver from "file-saver";
 import { getSystemConfig, setSystemConfig } from "@/system/config";
-import { OpenDirDialog } from "@/util/goutil";
+import { OpenDirDialog, RestartApp } from "@/util/goutil";
 const config = ref(getSystemConfig());
 const sys = inject<System>("system")!;
 let zipFile: File | undefined = undefined;
@@ -177,10 +177,12 @@ function submitOsInfo() {
   };
   if (saveData.storeType === "local") {
     if (saveData.storePath === "") {
-      Dialog.showMessageBox({
-        message: "存储地址不能为空",
-        type: "error",
-      });
+      // Dialog.showMessageBox({
+      //   message: "存储地址不能为空",
+      //   type: "error",
+      // });
+      setSystemConfig(saveData);
+      RestartApp();
       return;
     }
     postData.value = saveData.storePath;
@@ -223,7 +225,8 @@ function submitOsInfo() {
           title: t("language"),
           type: "info",
         }).then(() => {
-          location.reload();
+          //location.reload();
+          RestartApp();
         });
       } else {
         Dialog.showMessageBox({

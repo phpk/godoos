@@ -15,8 +15,11 @@ import (
 )
 
 const serverAddress = ":56780"
+const staticServerAddress = ":8215"
 
 var srv *http.Server
+var staticSrv *http.Server
+var staticRouter *http.ServeMux
 
 func OsStart() {
 	libs.Initdir()
@@ -27,11 +30,13 @@ func OsStart() {
 	staticDir := libs.GetStaticDir()
 	router.PathPrefix("/static").Handler(http.StripPrefix("/static", http.FileServer(http.Dir(staticDir))))
 	router.HandleFunc("/ping", store.Ping).Methods(http.MethodGet)
-	if libs.PathExists("./dist") {
-		router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("./dist"))))
-	} else {
+	if !libs.PathExists("./dist") {
 		router.HandleFunc("/", store.Ping).Methods(http.MethodGet)
+	} else {
+		staticRouter = http.NewServeMux()
+		staticRouter.Handle("/", http.FileServer(http.Dir("./dist")))
 	}
+
 	progressRouter := router.PathPrefix("/store").Subrouter()
 	progressRouter.HandleFunc("/start/{name}", store.StartProcess).Methods(http.MethodGet)
 	progressRouter.HandleFunc("/stop/{name}", store.StopProcess).Methods(http.MethodGet)
@@ -74,7 +79,15 @@ func OsStart() {
 	router.HandleFunc("/localchat/sse", localchat.SseHandler).Methods(http.MethodGet)
 	router.HandleFunc("/localchat/message", localchat.HandleMessage).Methods(http.MethodPost)
 	router.HandleFunc("/localchat/upload", localchat.MultiUploadHandler).Methods(http.MethodPost)
-
+	// 将静态文件服务放在最后，作为默认处理程序
+	router.PathPrefix("/").Handler(http.NotFoundHandler())
+	if staticRouter != nil {
+		go func() {
+			log.Printf("Static Server listening on port: %v", staticServerAddress)
+			staticSrv = &http.Server{Addr: staticServerAddress, Handler: staticRouter}
+			Serve(staticSrv)
+		}()
+	}
 	go store.CheckActive(context.Background())
 	log.Printf("Listening on port: %v", serverAddress)
 	srv = &http.Server{Addr: serverAddress, Handler: router}
@@ -89,6 +102,11 @@ func OsStop() {
 	}
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+	if staticSrv != nil {
+		if err := staticSrv.Shutdown(ctx); err != nil {
+			log.Fatalf("Static Server forced to shutdown: %v", err)
+		}
 	}
 	log.Println("Server stopped.")
 }
