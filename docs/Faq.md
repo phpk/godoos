@@ -13,3 +13,21 @@ pnpm build
 -支持。
 进入系统设置页面，修改存储目录即可。修改后程序会重启一次。
 
+## docker部署失败？
+daemon.json文件配置:
+```json
+{
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "experimental": false,
+  "registry-mirrors": [
+    "https://docker.m.daocloud.io"
+  ]
+}
+
+```
+
