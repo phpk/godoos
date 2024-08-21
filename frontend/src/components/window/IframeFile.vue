@@ -32,7 +32,7 @@ let hasInit = false;
 const eventHandler = async (e: MessageEvent) => {
   const eventData = e.data;
   // console.log(path)
-  console.log(eventData);
+  //console.log(eventData);
   if (eventData.type == props.eventType) {
     let data = JSON.parse(eventData.data);
     let title = data.title;

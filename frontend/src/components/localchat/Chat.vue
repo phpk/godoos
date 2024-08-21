@@ -43,7 +43,7 @@ function init() {
     //console.log("has message!");
     const eventData = event.data; // 先保存原始数据
     const jsonData = JSON.parse(eventData); // 解析数据
-    console.log(jsonData);
+    //console.log(jsonData);
     if (jsonData.type == "user_list") {
       //store.userList = jsonData;
       store.setUserList(jsonData.content);
