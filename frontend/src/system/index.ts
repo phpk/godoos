@@ -117,11 +117,13 @@ export class System {
       }
       const upgradeStore = useUpgradeStore();
       upgradeStore.checkUpdate()
-      // setTimeout(() => {
-      //   if (this._rootState.magnet?.length < 1) {
-      //     this.recover()
-      //   }
-      // }, 3000);
+      setTimeout(() => {
+        if (this._rootState.magnet?.length < 1) {
+          //this.recover()
+          clearSystemConfig();
+          RestartApp();
+        }
+      }, 3000);
     }, 6000);
 
   }
@@ -248,11 +250,7 @@ export class System {
 
   private async initFileSystem() {
     const storeType = getSystemKey("storeType")
-    if (storeType == 'local' || storeType == 'net'){
-      //this.fs = this._options.fs;
-      this.fs = useOsFile();
-      await this.initOutSystem()
-    } else {
+    if(storeType == 'browser'){
       this.fs = await new OsFileSystem().initFileSystem(this._options);
       (this.fs as OsFileSystem).on('error', (err: string) => {
         this.emitError(err);
@@ -260,6 +258,10 @@ export class System {
       this.fs.registerWatcher(new RegExp(`^${this._options.userLocation}`), () => {
         this.initAppList();
       });
+    }else{
+      //this.fs = this._options.fs;
+      this.fs = useOsFile();
+      await this.initOutSystem()
     }
   }
   async initOutSystem() {

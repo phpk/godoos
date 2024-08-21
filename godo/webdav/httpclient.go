@@ -17,22 +17,23 @@ func InitWebdav() error {
 		return fmt.Errorf("failed to find configuration for webdavClient")
 	}
 
-	infoMap, ok := clientInfo.(map[string]string)
+	// 检查 clientInfo 是否为 map 类型
+	infoMap, ok := clientInfo.(map[string]interface{})
 	if !ok {
-		return fmt.Errorf("configuration for webdavClient is not a map[string]string")
+		return fmt.Errorf("configuration for webdavClient is not a map")
 	}
 
-	url, ok := infoMap["url"]
+	url, ok := infoMap["url"].(string)
 	if !ok {
 		return fmt.Errorf("missing 'url' in webdavClient configuration")
 	}
 
-	username, ok := infoMap["username"]
+	username, ok := infoMap["username"].(string)
 	if !ok {
 		return fmt.Errorf("missing 'username' in webdavClient configuration")
 	}
 
-	password, ok := infoMap["password"]
+	password, ok := infoMap["password"].(string)
 	if !ok {
 		return fmt.Errorf("missing 'password' in webdavClient configuration")
 	}

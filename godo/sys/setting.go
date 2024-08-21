@@ -38,7 +38,7 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 			libs.SetConfig(req)
 			err := webdav.InitWebdav()
 			if err != nil {
-				libs.ErrorMsg(w, "The webdav client init is error!")
+				libs.ErrorMsg(w, "The webdav client init is error："+err.Error())
 				return
 			}
 		}

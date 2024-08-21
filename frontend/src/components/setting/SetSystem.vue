@@ -38,7 +38,7 @@
             <label>服务器地址</label>
             <el-input
               v-model="config.storenet.url"
-              placeholder="http://192.168.1.16 不要加斜杠"
+              placeholder="http://192.168.1.16:56780 不要加斜杠"
             />
           </div>
         </template>
@@ -195,8 +195,8 @@ function submitOsInfo() {
     RestartApp();
   }
   if (saveData.storeType === "webdav") {
-    const urlRegex = /^(https?:\/\/)[^\/]+$/;
-    if (!urlRegex.test(saveData.webdavClient.url)) {
+    const urlRegex = /^(https?:\/\/)/;
+    if (!urlRegex.test(saveData.webdavClient.url.trim())) {
       Dialog.showMessageBox({
         message: "服务器地址格式错误",
         type: "error",
