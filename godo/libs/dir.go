@@ -7,7 +7,7 @@ import (
 	"runtime"
 )
 
-func Initdir() error {
+func InitServer() error {
 	err := LoadConfig()
 	if err != nil {
 		return err
@@ -30,6 +30,7 @@ func Initdir() error {
 		}
 		SetConfig(osInfo)
 	}
+
 	return nil
 }
 func InitOsDir() (string, error) {

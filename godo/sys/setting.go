@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"godo/libs"
+	"godo/webdav"
 	"net"
 	"net/http"
 	"os"
@@ -33,10 +34,11 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 				libs.SetConfig(req)
 			}
 		}
-		if req.Name == "ipList" {
-			err = SetIplist(req)
+		if req.Name == "webdavClient" {
+			libs.SetConfig(req)
+			err := webdav.InitWebdav()
 			if err != nil {
-				libs.ErrorMsg(w, err.Error())
+				libs.ErrorMsg(w, "The webdav client init is error!")
 				return
 			}
 		}

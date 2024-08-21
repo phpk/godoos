@@ -1,4 +1,3 @@
-import { get } from "http";
 import { generateRandomString } from "../util/common.ts"
 export const configStoreType = localStorage.getItem('GodoOS-storeType') || 'browser';
 /**
@@ -98,6 +97,13 @@ export const getSystemConfig = (ifset = false) => {
             password: '',
         };
     }
+    if (!config.webdavClient) {
+        config.webdavClient = {
+            url: '',
+            username: '',
+            password: '',
+        };
+    }
     if (!config.dbInfo) {
         config.dbInfo = {
             url: '',
@@ -132,13 +138,15 @@ export function getApiUrl() {
 }
 export function getFileUrl() {
     const config = getSystemConfig();
-    if(config.storeType == 'local'){
-        return config.apiUrl
-    }
     if(config.storeType == 'net'){
-        return config.storenet.url
+        return config.storenet.url + '/file'
     }
-    return config.apiUrl
+    else if (config.storeType == 'webdav') {
+        return config.apiUrl + '/webdav'
+    }else{
+        return config.apiUrl + '/file'
+    }
+    
 }
 
 export function isWindowsOS() {

@@ -2,8 +2,12 @@
   <div class="container">
     <div class="nav">
       <ul>
-        <li v-for="(item, index) in items" :key="index" @click="selectItem(index)"
-          :class="{ active: index === activeIndex }">
+        <li
+          v-for="(item, index) in items"
+          :key="index"
+          @click="selectItem(index)"
+          :class="{ active: index === activeIndex }"
+        >
           {{ item }}
         </li>
       </ul>
@@ -13,17 +17,46 @@
         <div class="setting-item" style="margin-top: 60px">
           <label>存储方式</label>
           <el-select v-model="config.storeType">
-            <el-option v-for="(item, key) in storeList" :key="key" :label="item.title" :value="item.value" />
+            <el-option
+              v-for="(item, key) in storeList"
+              :key="key"
+              :label="item.title"
+              :value="item.value"
+            />
           </el-select>
         </div>
         <div class="setting-item" v-if="config.storeType === 'local'">
           <label>存储地址</label>
-          <el-input v-model="config.storePath" @click="selectFile()" placeholder="可为空，为空则取系统默认存储地址"/>
+          <el-input
+            v-model="config.storePath"
+            @click="selectFile()"
+            placeholder="可为空，为空则取系统默认存储地址"
+          />
         </div>
         <template v-if="config.storeType === 'net'">
           <div class="setting-item">
             <label>服务器地址</label>
-            <el-input v-model="config.storenet.url" placeholder="http://192.168.1.16 不要加斜杠"/>
+            <el-input
+              v-model="config.storenet.url"
+              placeholder="http://192.168.1.16 不要加斜杠"
+            />
+          </div>
+        </template>
+        <template v-if="config.storeType === 'webdav'">
+          <div class="setting-item">
+            <label>服务器地址</label>
+            <el-input
+              v-model="config.webdavClient.url"
+              placeholder="https://godoos.com/webdav/"
+            />
+          </div>
+          <div class="setting-item">
+            <label>登陆用户名</label>
+            <el-input v-model="config.webdavClient.username" />
+          </div>
+          <div class="setting-item">
+            <label>登陆密码</label>
+            <el-input v-model="config.webdavClient.password" type="password" />
           </div>
         </template>
 
@@ -34,7 +67,7 @@
           </el-button>
         </div>
       </div>
-     
+
       <div v-if="1 === activeIndex">
         <div class="setting-item">
           <h1 class="setting-title">备份</h1>
@@ -49,7 +82,12 @@
         <div class="setting-item">
           <label></label>
           <el-button @click="selectZipfile" type="primary"> 导入 </el-button>
-          <input type="file" accept=".zip" style="display: none" ref="zipFileInput" />
+          <input
+            type="file"
+            accept=".zip"
+            style="display: none"
+            ref="zipFileInput"
+          />
         </div>
       </div>
     </div>
@@ -81,9 +119,13 @@ const storeList = [
     title: "远程存储",
     value: "net",
   },
+  {
+    title: "webdav",
+    value: "webdav",
+  },
 ];
 
-const items = ["个人存储","备份还原"];
+const items = ["个人存储", "备份还原"];
 
 const activeIndex = ref(0);
 
@@ -102,6 +144,11 @@ function submitOsInfo() {
     //name: "osPath",
     type: saveData.storeType,
   };
+  if (saveData.storeType === "browser") {
+    setSystemConfig(saveData);
+    RestartApp();
+    return;
+  }
   if (saveData.storeType === "local") {
     if (saveData.storePath === "") {
       setSystemConfig(saveData);
@@ -119,13 +166,7 @@ function submitOsInfo() {
       .then((res) => {
         if (res.code === 0) {
           setSystemConfig(saveData);
-          Dialog.showMessageBox({
-            message: t("save.success"),
-            title: t("language"),
-            type: "info",
-          }).then(() => {
-            RestartApp();
-          });
+          RestartApp();
         } else {
           Dialog.showMessageBox({
             message: res.message,
@@ -143,7 +184,7 @@ function submitOsInfo() {
       return;
     }
     const urlRegex = /^(https?:\/\/)[^\/]+$/;
-    if(!urlRegex.test(saveData.storenet.url)){
+    if (!urlRegex.test(saveData.storenet.url)) {
       Dialog.showMessageBox({
         message: "服务器地址格式错误",
         type: "error",
@@ -151,15 +192,44 @@ function submitOsInfo() {
       return;
     }
     setSystemConfig(saveData);
-    Dialog.showMessageBox({
-      message: t("save.success"),
-      title: t("language"),
-      type: "info",
-    }).then(() => {
-      RestartApp();
-    });
+    RestartApp();
   }
-
+  if (saveData.storeType === "webdav") {
+    const urlRegex = /^(https?:\/\/)[^\/]+$/;
+    if (!urlRegex.test(saveData.webdavClient.url)) {
+      Dialog.showMessageBox({
+        message: "服务器地址格式错误",
+        type: "error",
+      });
+      return;
+    }
+    if (saveData.webdavClient.username === "" || saveData.webdavClient.password === "") {
+      Dialog.showMessageBox({
+        message: "用户名或密码不能为空",
+        type: "error",
+      });
+      return;
+    }
+    postData.name = "webdavClient";
+    postData.value = saveData.webdavClient;
+    const postUrl = config.value.apiUrl + "/system/setting";
+    fetch(postUrl, {
+      method: "POST",
+      body: JSON.stringify([postData]),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.code === 0) {
+          setSystemConfig(saveData);
+          RestartApp();
+        } else {
+          Dialog.showMessageBox({
+            message: res.message,
+            type: "error",
+          });
+        }
+      });
+  }
 }
 
 async function exportBackup() {

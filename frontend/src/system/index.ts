@@ -117,11 +117,11 @@ export class System {
       }
       const upgradeStore = useUpgradeStore();
       upgradeStore.checkUpdate()
-      setTimeout(() => {
-        if (this._rootState.magnet?.length < 1) {
-          this.recover()
-        }
-      }, 3000);
+      // setTimeout(() => {
+      //   if (this._rootState.magnet?.length < 1) {
+      //     this.recover()
+      //   }
+      // }, 3000);
     }, 6000);
 
   }
@@ -247,7 +247,8 @@ export class System {
   }
 
   private async initFileSystem() {
-    if (getSystemKey("storeType") == 'local'){
+    const storeType = getSystemKey("storeType")
+    if (storeType == 'local' || storeType == 'net'){
       //this.fs = this._options.fs;
       this.fs = useOsFile();
       await this.initOutSystem()

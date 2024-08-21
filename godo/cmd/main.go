@@ -7,6 +7,7 @@ import (
 	"godo/localchat"
 	"godo/store"
 	"godo/sys"
+	"godo/webdav"
 	"log"
 	"net/http"
 	"time"
@@ -22,7 +23,8 @@ var staticSrv *http.Server
 var staticRouter *http.ServeMux
 
 func OsStart() {
-	libs.Initdir()
+	libs.InitServer()
+	webdav.InitWebdav()
 	router := mux.NewRouter()
 	router.Use(corsMiddleware())
 	// 使用带有日志装饰的处理器注册路由
@@ -58,28 +60,47 @@ func OsStart() {
 	router.HandleFunc("/system/updateInfo", sys.GetUpdateUrlHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/setting", sys.ConfigHandler).Methods(http.MethodPost)
+	fileRouter := router.PathPrefix("/file").Subrouter()
+	fileRouter.HandleFunc("/info", files.HandleSystemInfo).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/read", files.HandleReadDir).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/stat", files.HandleStat).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/chmod", files.HandleChmod).Methods(http.MethodPost)
+	fileRouter.HandleFunc("/exists", files.HandleExists).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/readfile", files.HandleReadFile).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/unlink", files.HandleUnlink).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/clear", files.HandleClear).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/rename", files.HandleRename).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/mkdir", files.HandleMkdir).Methods(http.MethodPost)
+	fileRouter.HandleFunc("/rmdir", files.HandleRmdir).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/copyfile", files.HandleCopyFile).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/writefile", files.HandleWriteFile).Methods(http.MethodPost)
+	fileRouter.HandleFunc("/appendfile", files.HandleAppendFile).Methods(http.MethodPost)
+	fileRouter.HandleFunc("/zip", files.HandleZip).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/unzip", files.HandleUnZip).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/watch", files.WatchHandler).Methods(http.MethodGet)
 
-	router.HandleFunc("/file/info", files.HandleSystemInfo).Methods(http.MethodGet)
-	router.HandleFunc("/file/read", files.HandleReadDir).Methods(http.MethodGet)
-	router.HandleFunc("/file/stat", files.HandleStat).Methods(http.MethodGet)
-	router.HandleFunc("/file/chmod", files.HandleChmod).Methods(http.MethodPost)
-	router.HandleFunc("/file/exists", files.HandleExists).Methods(http.MethodGet)
-	router.HandleFunc("/file/readfile", files.HandleReadFile).Methods(http.MethodGet)
-	router.HandleFunc("/file/unlink", files.HandleUnlink).Methods(http.MethodGet)
-	router.HandleFunc("/file/clear", files.HandleClear).Methods(http.MethodGet)
-	router.HandleFunc("/file/rename", files.HandleRename).Methods(http.MethodGet)
-	router.HandleFunc("/file/mkdir", files.HandleMkdir).Methods(http.MethodPost)
-	router.HandleFunc("/file/rmdir", files.HandleRmdir).Methods(http.MethodGet)
-	router.HandleFunc("/file/copyfile", files.HandleCopyFile).Methods(http.MethodGet)
-	router.HandleFunc("/file/writefile", files.HandleWriteFile).Methods(http.MethodPost)
-	router.HandleFunc("/file/appendfile", files.HandleAppendFile).Methods(http.MethodPost)
-	router.HandleFunc("/file/zip", files.HandleZip).Methods(http.MethodGet)
-	router.HandleFunc("/file/unzip", files.HandleUnZip).Methods(http.MethodGet)
-	router.HandleFunc("/file/watch", files.WatchHandler).Methods(http.MethodGet)
-	router.HandleFunc("/localchat/sse", localchat.SseHandler).Methods(http.MethodGet)
-	router.HandleFunc("/localchat/message", localchat.HandleMessage).Methods(http.MethodPost)
-	router.HandleFunc("/localchat/upload", localchat.MultiUploadHandler).Methods(http.MethodPost)
-	router.HandleFunc("/localchat/check", localchat.CheckUserHanlder).Methods(http.MethodGet)
+	localchatRouter := router.PathPrefix("/localchat").Subrouter()
+	localchatRouter.HandleFunc("/sse", localchat.SseHandler).Methods(http.MethodGet)
+	localchatRouter.HandleFunc("/message", localchat.HandleMessage).Methods(http.MethodPost)
+	localchatRouter.HandleFunc("/upload", localchat.MultiUploadHandler).Methods(http.MethodPost)
+	localchatRouter.HandleFunc("/check", localchat.CheckUserHanlder).Methods(http.MethodGet)
+
+	// 注册 WebDAV 路由
+	webdavRouter := router.PathPrefix("/webdav").Subrouter()
+	webdavRouter.HandleFunc("/read", webdav.HandleReadDir).Methods(http.MethodGet)
+	webdavRouter.HandleFunc("/stat", webdav.HandleStat).Methods(http.MethodGet)
+	webdavRouter.HandleFunc("/chmod", webdav.HandleChmod).Methods(http.MethodPost)
+	webdavRouter.HandleFunc("/exists", webdav.HandleExists).Methods(http.MethodGet)
+	webdavRouter.HandleFunc("/readfile", webdav.HandleReadFile).Methods(http.MethodGet)
+	webdavRouter.HandleFunc("/unlink", webdav.HandleUnlink).Methods(http.MethodGet)
+	webdavRouter.HandleFunc("/clear", webdav.HandleClear).Methods(http.MethodGet)
+	webdavRouter.HandleFunc("/rename", webdav.HandleRename).Methods(http.MethodGet)
+	webdavRouter.HandleFunc("/mkdir", webdav.HandleMkdir).Methods(http.MethodPost)
+	webdavRouter.HandleFunc("/rmdir", webdav.HandleRmdir).Methods(http.MethodGet)
+	webdavRouter.HandleFunc("/copyfile", webdav.HandleCopyFile).Methods(http.MethodGet)
+	webdavRouter.HandleFunc("/writefile", webdav.HandleWriteFile).Methods(http.MethodPost)
+	webdavRouter.HandleFunc("/appendfile", webdav.HandleAppendFile).Methods(http.MethodPost)
+
 	// 将静态文件服务放在最后，作为默认处理程序
 	router.PathPrefix("/").Handler(http.NotFoundHandler())
 	if staticRouter != nil {

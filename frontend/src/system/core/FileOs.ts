@@ -1,5 +1,5 @@
 import { getFileUrl } from "../config.ts";
-const API_BASE_URL = getFileUrl() + "/file"
+const API_BASE_URL = getFileUrl()
 import { OsFileMode } from '../core/FileMode';
 export async function handleReadDir(path: string): Promise<any> {
     const res = await fetch(`${API_BASE_URL}/read?path=${encodeURIComponent(path)}`);
