@@ -141,4 +141,13 @@ export function browsertype() {
     return "IE"
   } //判断是否IE浏览器
 }
+export function isValidIP(ip: string): boolean {
+  // 正则表达式用于匹配 IPv4 地址
+  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
+  // 正则表达式用于匹配 IPv6 地址
+  const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4})$/;
+
+  // 验证 IP 地址
+  return ipv4Regex.test(ip) || ipv6Regex.test(ip);
+}

@@ -5,6 +5,7 @@ import { db } from './db'
 import { System, dirname } from "@/system";
 import { getSystemConfig } from "@/system/config";
 import { isBase64, base64ToBuffer } from "@/util/file";
+import { isValidIP } from "@/util/common";
 import { notifyError, notifySuccess } from "@/util/msg";
 export const useLocalChatStore = defineStore('localChatStore', () => {
   const config = getSystemConfig();
@@ -186,13 +187,20 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     const existingIps = new Set(userList.value.map((d : any) => d.ip));
     const updates: any[] = [];
     const newEntries: any[] = [];
-
+    // 创建一个映射表，将 ip 映射到 userList 中的完整对象
+    const userMap = new Map(
+      userList.value.map((user:any) => [user.ip, user])
+    );
+    //console.log(existingIps)
     data.forEach((d : any) => {
-      if (existingIps.has(d.ip)) {
+      const existingUser:any = userMap.get(d.ip);
+      if (existingUser && existingIps.has(d.ip)) {
         updates.push({
-          key: d.id,
+          key: existingUser.id,
           changes: {
             isOnline: true,
+            hostname:d.hostname,
+            username: d.hostname,
             updatedAt: Date.now()
           }
         });
@@ -200,13 +208,15 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
         newEntries.push({
           ip: d.ip,
           isOnline: true,
+          hostname: d.hostname,
           username: d.hostname,
           createdAt: Date.now(),
           updatedAt: Date.now()
         });
       }
     });
-
+    //console.log(updates)
+    //console.log(newEntries)
     if (updates.length > 0) {
       await db.table('chatuser').bulkUpdate(updates);
     }
@@ -331,7 +341,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     const msgId = await db.addOne('chatmsg', saveMsg)
     //await getMsgList()
     msgList.value.push(saveMsg)
-    const targetUser = userList.value.find((d: any) => d.id === chatTargetId.value)
+    const targetUser = userList.value.find((d: any) => d.ip === chatTargetIp.value)
     //console.log(targetUser)
     if (targetUser.isOnline) {
       const postUrl = `http://${targetUser.ip}:56780/localchat/message`
@@ -358,7 +368,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     if (chatTargetId.value < 1) {
       return
     }
-    const targetUser = userList.value.find((d: any) => d.id === chatTargetId.value)
+    const targetUser = userList.value.find((d: any) => d.ip === chatTargetIp.value)
     if (!targetUser.isOnline) {
       notifyError("The user is not online!");
       return;
@@ -439,16 +449,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
 
     notifySuccess("upload success!");
   }
-  function isValidIP(ip: string): boolean {
-    // 正则表达式用于匹配 IPv4 地址
-    const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-
-    // 正则表达式用于匹配 IPv6 地址
-    const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4})$/;
-
-    // 验证 IP 地址
-    return ipv4Regex.test(ip) || ipv6Regex.test(ip);
-  }
+  
 
   async function addUser(ip: string) {
     if (!isValidIP(ip)) {
@@ -466,10 +467,15 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       data.updatedAt = Date.now()
       data.isOnline = true
       data.username = data.hostname
+      if(ip != data.ip){
+        notifyError(`IP地址不一致，可能会存在不通的问题`)
+      }
+      data.ip = ip
       if (!OutUserList.value.some((item: any) => item.ip === data.ip)) {
         OutUserList.value.push(data);
         await getUserList()
       }
+      showAddUser.value = false
 
     }
 
