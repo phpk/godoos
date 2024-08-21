@@ -1,12 +1,12 @@
 <template>
   <el-row justify="space-between">
-    <el-col :span="2">
+    <el-col :span="1">
       <chat-nav />
     </el-col>
     <el-col :span="6">
       <chat-domain />
     </el-col>
-    <el-col :span="16">
+    <el-col :span="17">
       <chat-content />
     </el-col>
   </el-row>

@@ -57,7 +57,7 @@ func OsStart() {
 
 	router.HandleFunc("/system/updateInfo", sys.GetUpdateUrlHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
-	router.HandleFunc("/system/setting", sys.HandleSetConfig).Methods(http.MethodPost)
+	router.HandleFunc("/system/setting", sys.ConfigHandler).Methods(http.MethodPost)
 
 	router.HandleFunc("/file/info", files.HandleSystemInfo).Methods(http.MethodGet)
 	router.HandleFunc("/file/read", files.HandleReadDir).Methods(http.MethodGet)
@@ -79,6 +79,7 @@ func OsStart() {
 	router.HandleFunc("/localchat/sse", localchat.SseHandler).Methods(http.MethodGet)
 	router.HandleFunc("/localchat/message", localchat.HandleMessage).Methods(http.MethodPost)
 	router.HandleFunc("/localchat/upload", localchat.MultiUploadHandler).Methods(http.MethodPost)
+	router.HandleFunc("/localchat/check", localchat.CheckUserHanlder).Methods(http.MethodGet)
 	// 将静态文件服务放在最后，作为默认处理程序
 	router.PathPrefix("/").Handler(http.NotFoundHandler())
 	if staticRouter != nil {

@@ -38,10 +38,12 @@
       </div>
       
       <div v-else class="user-list-area">
-        <el-row
-          justify="start">
+        <el-row justify="space-between">
         <el-icon :size="18" @click="store.refreshUserList">
           <RefreshRight />
+        </el-icon>
+        <el-icon :size="18" @click="store.showAddUser = true">
+          <CirclePlusFilled />
         </el-icon>
         </el-row>
         <el-row
@@ -71,6 +73,20 @@
       </div>
     </el-scrollbar>
   </div>
+  <el-dialog v-model="store.showAddUser" title="添加用户" width="500">
+    <el-form>
+      <el-form-item :label-width="0">
+        <el-input v-model="userIp" autocomplete="off" placeholder="输入用户IP 例如：192.168.1.16"/>
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="store.addUser(userIp)">
+          添加
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -78,6 +94,7 @@ import { useLocalChatStore } from "@/stores/localchat";
 import { formatChatTime } from "@/util/common";
 
 const store = useLocalChatStore();
+const userIp = ref('')
 </script>
 <style scoped lang="scss">
 .win11-msg-container {

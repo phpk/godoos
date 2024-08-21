@@ -11,10 +11,8 @@ import (
 var reqBodyMap = sync.Map{}
 
 type ReqBody struct {
-	Name  string            `json:"name"`
-	Value string            `json:"value"`
-	Type  string            `json:"type"`
-	Info  map[string]string `json:"info"`
+	Name  string `json:"name"`
+	Value any    `json:"value"`
 }
 
 func GetConfigFile() (string, error) {
@@ -25,7 +23,8 @@ func GetConfigFile() (string, error) {
 	if !PathExists(baseDir) {
 		os.MkdirAll(baseDir, 0755)
 	}
-	configFile := filepath.Join(baseDir, "config.json")
+	configFile := filepath.Join(baseDir, "os_config.json")
+	//log.Printf("config file path: %s", configFile)
 	if !PathExists(configFile) {
 		// 如果文件不存在，则创建一个空的配置文件
 		err := os.WriteFile(configFile, []byte("[]"), 0644)
@@ -89,13 +88,12 @@ func SaveConfig() error {
 	}
 	return nil
 }
-func GetConfig(Name string) (ReqBody, bool) {
-
+func GetConfig(Name string) (any, bool) {
 	value, ok := reqBodyMap.Load(Name)
 	if ok {
-		return value.(ReqBody), true
+		return value.(ReqBody).Value, true
 	}
-	return ReqBody{}, false
+	return "", false
 }
 func ExistConfig(Name string) bool {
 	_, exists := reqBodyMap.Load(Name)
@@ -104,12 +102,29 @@ func ExistConfig(Name string) bool {
 func SetConfig(reqBody ReqBody) error {
 
 	reqBodyMap.Store(reqBody.Name, reqBody)
-
-	//log.Println("=====SetName", reqBody.Name)
 	if err := SaveConfig(); err != nil {
 		return fmt.Errorf("failed to save updated configuration: %w", err)
 	}
 
+	return nil
+}
+func SetConfigByName(Name string, Value any) error {
+	// 尝试从 reqBodyMap 中加载 Name
+	value, ok := reqBodyMap.Load(Name)
+	if !ok {
+		// 如果 Name 不存在，则创建一个新的 ReqBody
+		newReqBody := ReqBody{Name: Name, Value: Value}
+		reqBodyMap.Store(Name, newReqBody)
+	} else {
+		// 如果 Name 存在，则更新现有 ReqBody 的 Value
+		existingReqBody, _ := value.(ReqBody)
+		existingReqBody.Value = Value
+		reqBodyMap.Store(Name, existingReqBody)
+	}
+
+	if err := SaveConfig(); err != nil {
+		return fmt.Errorf("failed to save updated configuration: %w", err)
+	}
 	return nil
 }
 func SetConfigs(reqBody []ReqBody) error {

@@ -3,8 +3,10 @@ package localchat
 import (
 	"encoding/json"
 	"fmt"
+	"godo/libs"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -109,4 +111,23 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 	// 这里可以添加存储文本消息到数据库或其他处理逻辑
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Text message send successfully")
+}
+func CheckUserHanlder(w http.ResponseWriter, r *http.Request) {
+	res := map[string]any{}
+	res["code"] = 0
+	res["message"] = "ok"
+	// 获取主机名
+	hostname, err := os.Hostname()
+	if err == nil {
+		hostname = "Unknown"
+	}
+	ip, _ := libs.GetIPAddress()
+
+	res["data"] = map[string]any{
+		"ip":       ip,
+		"hostname": hostname,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(res)
 }

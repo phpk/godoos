@@ -1,21 +1,12 @@
-// import { useSystemStore } from "./system.ts"
-// const systemStore = useSystemStore();
-// const API_BASE_URL = systemStore.getFileUrl()
-import { getSystemKey } from "../config.ts";
-const API_BASE_URL = getSystemKey('apiUrl') + "/file"
+import { getFileUrl } from "../config.ts";
+const API_BASE_URL = getFileUrl() + "/file"
 import { OsFileMode } from '../core/FileMode';
 export async function handleReadDir(path: string): Promise<any> {
-    // if(window.go){
-    //     return await window.go.app.App.ReadDir(path)
-    // }else{
-
-    // }
     const res = await fetch(`${API_BASE_URL}/read?path=${encodeURIComponent(path)}`);
     if (!res.ok) {
         return false;
     }
     return await res.json();
-
 }
 
 export async function handleStat(path: string): Promise<any> {

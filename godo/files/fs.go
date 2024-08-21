@@ -16,13 +16,11 @@ import (
 )
 
 func HandleSystemInfo(w http.ResponseWriter, r *http.Request) {
-	info := libs.GetSystemInfo()
-
-	// res := libs.APIResponse{
-	// 	Message: "File information retrieved successfully.",
-	// 	Data:    info,
-	// }
-	//json.NewEncoder(w).Encode(res)
+	info, err := libs.GetSystemInfo()
+	if err != nil {
+		libs.ErrorMsg(w, "Failed to retrieve file information.")
+		return
+	}
 	libs.SuccessMsg(w, info, "File information retrieved successfully.")
 }
 

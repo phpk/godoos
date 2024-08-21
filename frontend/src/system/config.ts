@@ -1,3 +1,4 @@
+import { get } from "http";
 import { generateRandomString } from "../util/common.ts"
 export const configStoreType = localStorage.getItem('GodoOS-storeType') || 'browser';
 /**
@@ -129,7 +130,16 @@ export const getSystemConfig = (ifset = false) => {
 export function getApiUrl() {
     return getSystemKey('apiUrl')
 }
-
+export function getFileUrl() {
+    const config = getSystemConfig();
+    if(config.storeType == 'local'){
+        return config.apiUrl
+    }
+    if(config.storeType == 'net'){
+        return config.storenet.url
+    }
+    return config.apiUrl
+}
 
 export function isWindowsOS() {
     return /win64|wow64|win32|win16|wow32/i.test(navigator.userAgent);

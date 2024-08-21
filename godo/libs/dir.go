@@ -12,19 +12,23 @@ func Initdir() error {
 	if err != nil {
 		return err
 	}
-	exist := ExistConfig("osInfo")
+	exist := ExistConfig("osPath")
 	if !exist {
 		osDir, err := InitOsDir()
 		if err != nil {
 			return err
 		}
-		info := GetSystemInfo()
 		osData := ReqBody{
-			Name:  "osInfo",
+			Name:  "osPath",
 			Value: osDir,
-			Info:  info,
 		}
 		SetConfig(osData)
+		info := GenerateSystemInfo()
+		osInfo := ReqBody{
+			Name:  "osInfo",
+			Value: info,
+		}
+		SetConfig(osInfo)
 	}
 	return nil
 }
@@ -40,14 +44,13 @@ func InitOsDir() (string, error) {
 	return osDir, nil
 }
 func GetOsDir() (string, error) {
-	osDirInfo, _ := GetConfig("osInfo")
-	res := osDirInfo.Value
-	//log.Printf("=====osInfo: %s", res)
-	// if osDirInfo.UserType == "member" {
-	// 	res = filepath.Join(res, osDirInfo.UserName)
-	// }
-	return res, nil
+	osDir, ok := GetConfig("osPath")
+	if !ok {
+		return "", fmt.Errorf("osPath not found")
+	}
+	return osDir.(string), nil
 }
+
 func GetAppDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {

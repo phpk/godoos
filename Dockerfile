@@ -9,6 +9,7 @@ ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=amd64
+    GODOTOPTYPE=docker
 
 # 设置后续指令的工作目录
 WORKDIR /build

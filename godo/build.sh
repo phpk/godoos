@@ -27,6 +27,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
     # 设置GOOS和GOARCH环境变量
     export GOOS=$OS
     export GOARCH=$ARCH
+    export GODOTOPTYPE="web"
 
     # 执行编译命令，并处理可能的错误
     go build -o "$OUTPUT_FILE" ./main.go || { echo "编译 $OS/$ARCH 失败，请检查错误并尝试解决。"; continue; }
