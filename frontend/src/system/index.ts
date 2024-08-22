@@ -115,14 +115,15 @@ export class System {
       if (this._rootState.magnet?.length < 1) {
         this.refershAppList()
       }
-      const upgradeStore = useUpgradeStore();
-      upgradeStore.checkUpdate()
       setTimeout(() => {
         if (this._rootState.magnet?.length < 1) {
           //this.recover()
           clearSystemConfig();
           RestartApp();
+          return;
         }
+        const upgradeStore = useUpgradeStore();
+        upgradeStore.checkUpdate()
       }, 3000);
     }, 6000);
 

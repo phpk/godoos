@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/minio/selfupdate"
@@ -44,6 +43,19 @@ type DownloadStatus struct {
 	Progress    float64 `json:"progress"`
 	Downloading bool    `json:"downloading"`
 	Done        bool    `json:"done"`
+}
+type UpdateAdReq struct {
+	Img  string `json:"img"`
+	Name string `json:"name"`
+	Link string `json:"link"`
+	Desc string `json:"desc"`
+}
+type UpdateVersionReq struct {
+	Version string        `json:"version"`
+	Url     string        `json:"url"`
+	Name    string        `json:"name"`
+	Desc    string        `json:"desc"`
+	AdList  []UpdateAdReq `json:"adList"`
 }
 
 func (pr *ProgressReader) Read(p []byte) (n int, err error) {
@@ -117,7 +129,12 @@ func UpdateAppHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUpdateUrlHandler(w http.ResponseWriter, r *http.Request) {
-	updateUrl := "https://gitee.com/ruitao_admin/godoos-image/raw/master/version/version.json"
+	info, err := libs.GetSystemInfo()
+	if err != nil {
+		http.Error(w, "update error:"+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	updateUrl := "https://godocms.com/version?info=" + info
 	res, err := http.Get(updateUrl)
 	if err != nil {
 		libs.ErrorMsg(w, err.Error())
@@ -129,47 +146,12 @@ func GetUpdateUrlHandler(w http.ResponseWriter, r *http.Request) {
 			libs.ErrorMsg(w, err.Error())
 			return
 		}
-		var info VersionInfo
-		err = json.Unmarshal(body, &info)
+		var updateInfo UpdateVersionReq
+		err = json.Unmarshal(body, &updateInfo)
 		if err != nil {
 			fmt.Println("Error unmarshalling JSON:", err)
 			return
 		}
-		//log.Printf("info: %v", info)
-		// 根据操作系统和架构获取路径
-		path := getPathForOSAndArch(&info)
-		// 将结果以 JSON 格式返回给前端
-		response := map[string]string{"url": path, "version": info.Version}
-		json.NewEncoder(w).Encode(response)
-
+		json.NewEncoder(w).Encode(updateInfo)
 	}
-}
-
-// 根据操作系统和架构获取路径
-func getPathForOSAndArch(info *VersionInfo) string {
-	os := runtime.GOOS
-	arch := runtime.GOARCH
-	switch os {
-	case "windows":
-		if arch == "amd64" {
-			return info.Windows.Amd64
-		} else if arch == "arm64" {
-			return info.Windows.Arm64
-		}
-	case "linux":
-		if arch == "amd64" {
-			return info.Linux.Amd64
-		} else if arch == "arm64" {
-			return info.Linux.Arm64
-		}
-	case "darwin":
-		if arch == "amd64" {
-			return info.Darwin.Amd64
-		} else if arch == "arm64" {
-			return info.Darwin.Arm64
-		}
-	default:
-		return ""
-	}
-	return ""
 }

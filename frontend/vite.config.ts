@@ -40,5 +40,6 @@ export default defineConfig(async () => ({
         drop_debugger: true
       }
     },
+    outDir: '../godo/deps/dist',
   }
 }));

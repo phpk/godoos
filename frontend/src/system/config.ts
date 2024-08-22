@@ -14,8 +14,7 @@ export const getSystemConfig = (ifset = false) => {
 
     // 初始化配置对象的各项属性，若本地存储中已存在则不进行覆盖
     if (!config.version) {
-        config.version = '1.0.0';
-        //config.version = '0.0.9';
+        config.version = '1.0.1';
     }
     if (!config.isFirstRun) {
         config.isFirstRun = false;

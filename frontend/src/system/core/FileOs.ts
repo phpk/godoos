@@ -135,7 +135,7 @@ export function getFormData(content: any) {
     }
 
     const formData = new FormData();
-    formData.append('content', blobContent); // 可以自定义文件名
+    formData.append('content', blobContent); 
     return formData
 }
 export async function handleWriteFile(filePath: string, content: any): Promise<any> {
