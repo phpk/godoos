@@ -215,6 +215,7 @@ wails build
 - [canvas-editor](https://github.com/Hufe921/canvas-editor)
 
 ## 💕 关联项目
+- [godoai](https://gitee.com/ruitao_admin/godoai)
 - [godooa](https://gitee.com/ruitao_admin/gdoa)
 - [gododb](https://gitee.com/ruitao_admin/gododb)
 
