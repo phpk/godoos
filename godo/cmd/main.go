@@ -23,6 +23,11 @@ var srv *http.Server
 
 func OsStart() {
 	libs.InitServer()
+	err := files.InitOsSystem()
+	if err != nil {
+		log.Fatalf("InitOsSystem error: %v", err)
+		return
+	}
 	webdav.InitWebdav()
 	router := mux.NewRouter()
 	router.Use(corsMiddleware())
@@ -54,6 +59,7 @@ func OsStart() {
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/setting", sys.ConfigHandler).Methods(http.MethodPost)
 	fileRouter := router.PathPrefix("/file").Subrouter()
+	fileRouter.HandleFunc("/desktop", files.HandleDesktop).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/info", files.HandleSystemInfo).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/read", files.HandleReadDir).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/stat", files.HandleStat).Methods(http.MethodGet)

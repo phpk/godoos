@@ -17,8 +17,8 @@
 			<div class="upgrade-content">
 				GodoOS {{ upgradeStore.upgradeDesc }}
 				<div class="mt5">
-					<el-link type="primary" class="font12" href="https://gitee.com/ruitao_admin/godoos/blob/master/CHANGELOG.md" target="_black">
-						CHANGELOG.md
+					<el-link type="primary" class="font12" href="https://godoos.com/home/blog/godoos/" target="_black">
+						查看详情
 					</el-link>
 				</div>
 				<div class="upgrade-content-desc mt5">{{ $t('upgrade.desc') }}</div>

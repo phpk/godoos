@@ -35,9 +35,9 @@ export function initBuiltinApp(system: System) {
     if (d.isDeskTop) {
       system.addApp(addSave);
     }
-    if (d.isMagnet) {
-      system.addMagnet(addSave);
-    }
+    // if (d.isMagnet) {
+    //   system.addMagnet(addSave);
+    // }
     if (d.isMenuList) {
       system.addMenuList(addSave);
     }

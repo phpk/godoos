@@ -34,42 +34,42 @@ const quickLinks = [
   {
     img: "word",
     name: t("document"),
-    path: "/C/Users/Doc",
+    path: "/C/Users/Documents/Word",
   },
   {
     img: "excel",
     name: t("excel"),
-    path: "/C/Users/Execl",
+    path: "/C/Users/Documents/Execl",
   },
   {
     img: "pptexe",
     name: t("ppt"),
-    path: "/C/Users/PPT",
+    path: "/C/Users/Documents/PPT",
   },
   {
     img: "markdown",
     name: t("markdown"),
-    path: "/C/Users/Markdown",
+    path: "/C/Users/Documents/Markdown",
   },
   {
     img: "mindexe",
     name: t("mindmap"),
-    path: "/C/Users/Mind",
+    path: "/C/Users/Documents/Mind",
   },
   {
     img: "baiban",
     name: t("whiteBoard"),
-    path: "/C/Users/Baiban",
+    path: "/C/Users/Documents/Baiban",
   },
   {
     img: "kanban",
     name: t("board"),
-    path: "/C/Users/Kanban",
+    path: "/C/Users/Documents/Kanban",
   },
   {
     img: "gallery",
     name: t("gallery"),
-    path: "/C/Users/Photo",
+    path: "/C/Users/Pictures",
   },
   {
     img: "music",

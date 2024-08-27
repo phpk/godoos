@@ -10,7 +10,7 @@ import {
 } from './type/type';
 import { initEventer, Eventer, initEventListener } from './event';
 import { OsFileSystem } from './core/FileSystem';
-import {useOsFile} from './core/FileOs';
+import { useOsFile } from './core/FileOs';
 import { version } from '../../package.json';
 import { BrowserWindow, BrowserWindowOption } from './window/BrowserWindow';
 
@@ -22,9 +22,7 @@ import { Notify, NotifyConstructorOptions } from './notification/Notification';
 import { Dialog } from './window/Dialog';
 import { pick } from '../util/modash';
 import { Tray, TrayOptions } from './menu/Tary';
-import { InitSystemFile, InitUserFile } from './core/SystemFileConfig';
-import { createInitFile } from './core/createInitFile';
-import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig } from './config'
+import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig, getFileUrl } from './config'
 import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
 
@@ -64,13 +62,13 @@ export class System {
   fs!: any;
 
   constructor(options?: SystemOptions) {
-    
+
     this._options = this.initOptions(options);
     this._rootState = this.initRootState();
     System.GLOBAL_SYSTEM = this; // 挂载全局系统
     Bios._onOpen && Bios._onOpen(this);
     this._eventer = this.initEvent();
-    this.firstRun();  
+    this.firstRun();
     this.initSystem();
   }
 
@@ -100,8 +98,8 @@ export class System {
     await this.initFileSystem(); // 初始化文件系统
     await this.initSavedConfig(); // 初始化保存的配置
     initBuiltinApp(this); // 初始化内建应用
-    this.initApp(); // 初始化配置应用到app文件夹中
-    this.initAppList(); // 刷新app文件夹，展示应用
+    //this.initApp(); // 初始化配置应用到app文件夹中
+    //this.initAppList(); // 刷新app文件夹，展示应用
     // 判断是否登录
     this.isLogin();
     initEventListener(); // 初始化事件侦听
@@ -110,21 +108,10 @@ export class System {
     //this.runPlugin(this); // 运行fs中插件
     this.initBackground(); // 初始化壁纸
     this.emit('start');
-    
+
     setTimeout(() => {
-      if (this._rootState.magnet?.length < 1) {
-        this.refershAppList()
-      }
-      setTimeout(() => {
-        if (this._rootState.magnet?.length < 1) {
-          //this.recover()
-          clearSystemConfig();
-          RestartApp();
-          return;
-        }
-        const upgradeStore = useUpgradeStore();
-        upgradeStore.checkUpdate()
-      }, 3000);
+      const upgradeStore = useUpgradeStore();
+      upgradeStore.checkUpdate()
     }, 6000);
 
   }
@@ -164,7 +151,7 @@ export class System {
     const background = getSystemKey('background');
     if (background.type === 'image') {
       this._rootState.options.background = background.url
-    }else{
+    } else {
       this._rootState.options.background = background.color;
     }
     // this._rootState.options.background = '/image/bg/bg5.jpg';
@@ -179,37 +166,63 @@ export class System {
     return initEventer();
   }
   private initApp() {
-
-    this._rootState.options.desktop?.forEach((item) => {
-      this.addApp(item);
-    });
-    this._rootState.options.magnet?.forEach((item) => {
-      this.addMagnet(item);
-    });
-    this._rootState.options.menulist?.forEach((item) => {
-      this.addMenuList(item);
-    });
+    const fileUrl = getFileUrl();
+    if (!fileUrl) return;
+    fetch(`${fileUrl}/desktop`).then(res => res.json()).then(res => {
+      if (res && res.code == 0) {
+        this._rootState.apps = res.data.apps;
+        this._rootState.menulist = res.data.menulist;
+        res.data.apps.forEach((item: any) => {
+          this._rootState.windowMap['Desktop'].set(item.name, item);
+        })
+        res.data.apps.forEach((item: any) => {
+          this._rootState.windowMap['Menulist'].set(item.name, item);
+        })
+        // this._rootState.windowMap[loc].set(options.name, options);
+        // useSystem()._rootState.apps = res.data.apps;
+        // useSystem()._rootState.menulist = res.data.menulist;
+      }
+    })
+    // this._rootState.options.desktop?.forEach((item) => {
+    //   this.addApp(item);
+    // });
+    // this._rootState.options.menulist?.forEach((item) => {
+    //   this.addMenuList(item);
+    // });
 
   }
 
   refershAppList() {
-    const APP_TYPE = ['apps', 'magnet', 'menulist'];
+    
     const system = useSystem();
+    if (!system) return;
+    const fileUrl = getFileUrl();
+    if (!fileUrl) return;
+    fetch(`${fileUrl}/desktop`).then(res => res.json()).then(res => {
+      if (res && res.code == 0) {
+        // system._rootState.apps = res.data.apps;
+        // system._rootState.menulist = res.data.menulist;
+        system._rootState.apps.splice(0, system._rootState.apps.length, ...res.data.apps);
+        system._rootState.menulist.splice(0, system._rootState.menulist.length, ...res.data.menulist);
+      }
+    })
+    //const APP_TYPE = ['apps', 'menulist'];
+    // console.log('refresh')
+    /*
     for (let i = 0; i < APP_TYPE.length; i++) {
       const element = APP_TYPE[i];
       system?.fs
         .readdir(
           `${system._options.userLocation}${{
             apps: 'Desktop',
-            magnet: 'Magnet',
             menulist: 'Menulist',
           }[element]
           }`
         )
-        .then((res:any) => {
+        .then((res: any) => {
           if (res) {
             const list = res;
-            const tempList:any = [];
+            const tempList: any = [];
             for (let j = 0; j < list.length; j++) {
               const item = list[j];
 
@@ -236,6 +249,7 @@ export class System {
           }
         });
     }
+    */
   }
 
   isReadyUpdateAppList = false;
@@ -250,38 +264,12 @@ export class System {
   }
 
   private async initFileSystem() {
-    const storeType = getSystemKey("storeType")
-    if(storeType == 'browser'){
-      this.fs = await new OsFileSystem().initFileSystem(this._options);
-      (this.fs as OsFileSystem).on('error', (err: string) => {
-        this.emitError(err);
-      });
-      this.fs.registerWatcher(new RegExp(`^${this._options.userLocation}`), () => {
-        this.initAppList();
-      });
-    }else{
-      //this.fs = this._options.fs;
-      this.fs = useOsFile();
-      await this.initOutSystem()
-    }
+    this.fs = useOsFile();
+    // this.fs.registerWatcher(new RegExp(`^${this._options.userLocation}`), () => {
+    //   this.initAppList();
+    // });
   }
-  async initOutSystem() {
-    if (!this.isFirstRun) {
-      return;
-    }
-    await this.fs.mkdir('/C');
-    await this.fs.mkdir('/D');
-    await this.fs.mkdir('/E');
-    await this.fs.mkdir('/B');
-    await createInitFile(this.fs, InitUserFile, this._options.userLocation);
-    await createInitFile(this.fs, InitSystemFile, this._options.systemLocation);
 
-    // await this.fs.chmod('/C', OsFileMode.ReadWrite);
-    // await this.fs.chmod('/D', OsFileMode.ReadWrite);
-    // await this.fs.chmod('/E', OsFileMode.ReadWrite);
-    // await this.fs.chmod('/B', OsFileMode.ReadWrite);
-
-  }
   replaceFileSystem(fs: OsFileInterface) {
     this.fs = fs;
     this.initAppList();
@@ -293,7 +281,7 @@ export class System {
       console.error('自定义文件系统不支持挂载卷');
     }
   }
-  
+
   /**
    * @description: 初始化保存的配置
    */
@@ -360,9 +348,6 @@ export class System {
   addApp(options: WinAppOptions, force = false) {
     this.addWindowSysLink('Desktop', options, force);
   }
-  addMagnet(options: WinAppOptions, force = false) {
-    this.addWindowSysLink('Magnet', options, force);
-  }
   addMenuList(options: WinAppOptions, force = false) {
     this.addWindowSysLink('Menulist', options, force);
   }
@@ -399,7 +384,7 @@ export class System {
     this._rootState.state = SystemStateEnum.close;
     this.fs.removeFileSystem().then(() => {
       window.indexedDB.deleteDatabase("GodoDatabase");
-      
+
       RestartApp();
     })
 
@@ -412,7 +397,7 @@ export class System {
   }
   emitEvent(event: string, ...args: any[]) {
     const eventArray = event.split('.');
-    eventArray.forEach((_:any, index) => {
+    eventArray.forEach((_: any, index) => {
       const tempEvent = eventArray.slice(0, index + 1).join('.');
       this._eventer.emit(tempEvent, event, args);
     });

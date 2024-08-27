@@ -192,14 +192,19 @@ func HandleUnlink(w http.ResponseWriter, r *http.Request) {
 
 // HandleClear removes the entire filesystem (Caution: Use with care!)
 func HandleClear(w http.ResponseWriter, r *http.Request) {
-	basePath, err := libs.GetOsDir()
+	// basePath, err := libs.GetOsDir()
+	// if err != nil {
+	// 	libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+	// 	return
+	// }
+	// err = Clear(basePath)
+	// if err != nil {
+	// 	libs.HTTPError(w, http.StatusConflict, err.Error())
+	// 	return
+	// }
+	err := RecoverOsSystem()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	err = Clear(basePath)
-	if err != nil {
-		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
 	res := libs.APIResponse{Message: "FileSystem successfully cleared."}
@@ -456,4 +461,12 @@ func parseMode(modeStr string) (os.FileMode, error) {
 		return 0, err
 	}
 	return os.FileMode(mode), nil
+}
+func HandleDesktop(w http.ResponseWriter, r *http.Request) {
+	rootInfo, err := GetDesktop()
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	libs.SuccessMsg(w, rootInfo, "success")
 }

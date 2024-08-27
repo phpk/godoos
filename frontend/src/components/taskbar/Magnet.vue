@@ -24,7 +24,7 @@ import { OsFileWithoutContent } from "@/system/core/FileSystem";
 import { vGlowing } from "@/util/glowingBorder";
 import { t } from "@/i18n";
 
-const { openapp, appList } = useAppOpen("magnet");
+const { openapp, appList } = useAppOpen("menulist");
 function handle(item: OsFileWithoutContent) {
   emitEvent("magnet.item.click", item);
   openapp(item);

@@ -134,7 +134,7 @@ func GetUpdateUrlHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "update error:"+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	updateUrl := "https://godocms.com/version?info=" + info
+	updateUrl := "https://godoos.com/version?info=" + info
 	res, err := http.Get(updateUrl)
 	if err != nil {
 		libs.ErrorMsg(w, err.Error())

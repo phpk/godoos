@@ -12,7 +12,6 @@ import { mountEvent } from "@/system/event";
 import { useSystem } from "@/system/index.ts";
 import { useAppOpen } from "@/hook/useAppOpen";
 import { onMounted } from "vue";
-
 const { openapp, appList } = useAppOpen("apps");
 const props = defineProps({
   onChosen: {

@@ -59,23 +59,52 @@ func GenerateSystemInfo() UserOsInfo {
 
 // GetIPAddress 获取本机IP地址
 func GetIPAddress() (string, error) {
-	addrs, err := net.InterfaceAddrs()
+	ips, err := GetValidIPAddresses()
+	//log.Printf("ips: %v", ips)
 	if err != nil {
 		return "", err
 	}
-	for _, addr := range addrs {
-		var ip net.IP
-		switch v := addr.(type) {
-		case *net.IPNet:
-			ip = v.IP
-		case *net.IPAddr:
-			ip = v.IP
-		}
-		if ip != nil && !ip.IsLoopback() && ip.To4() != nil {
-			return ip.String(), nil
+	for _, ipStr := range ips {
+		ip := net.ParseIP(ipStr)
+		if ip != nil && ip.To4() != nil && ip.String()[:7] == "192.168" {
+			return ipStr, nil
 		}
 	}
-	return "", fmt.Errorf("no valid IP address found")
+	return "", fmt.Errorf("no valid IP addresses found")
+}
+
+// GetValidIPAddresses 获取所有有效 IP 地址
+func GetValidIPAddresses() ([]string, error) {
+	var validIPs []string
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+	for _, iface := range ifaces {
+		addrs, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip != nil && !ip.IsLoopback() && ip.To4() != nil {
+				// 过滤链路本地地址
+				if !ip.IsLinkLocalUnicast() {
+					validIPs = append(validIPs, ip.String())
+				}
+			}
+		}
+	}
+	if len(validIPs) == 0 {
+		return nil, fmt.Errorf("no valid non-private and non-link-local IP address found")
+	}
+	return validIPs, nil
 }
 
 // getMACAddress 获取MAC地址
@@ -107,12 +136,8 @@ func GetSystemInfo() (string, error) {
 	if !ok {
 		return "", fmt.Errorf("未找到osInfo配置")
 	}
-	systemInfo, ok := lineseInfo.(UserOsInfo)
-	if !ok {
-		return "", fmt.Errorf("osInfo配置错误")
-	}
 	// 将系统信息序列化为JSON字符串
-	jsonBytes, err := json.Marshal(systemInfo)
+	jsonBytes, err := json.Marshal(lineseInfo)
 	if err != nil {
 		return "", err
 	}

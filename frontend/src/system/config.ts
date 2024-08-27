@@ -1,5 +1,5 @@
 import { generateRandomString } from "../util/common.ts"
-export const configStoreType = localStorage.getItem('GodoOS-storeType') || 'browser';
+export const configStoreType = localStorage.getItem('GodoOS-storeType') || 'local';
 /**
  * 获取系统配置信息。
  * 从本地存储中获取或初始化系统配置对象，并根据条件决定是否更新本地存储中的配置。

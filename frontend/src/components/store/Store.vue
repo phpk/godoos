@@ -53,7 +53,7 @@ async function install(item: any) {
 
 async function uninstall(item: any) {
   await store.removeDesktop(item);
-  if (item.needInstall) {
+  if (item.haStart) {
     const completion = await fetch(store.apiUrl + '/store/uninstall?name=' + item.name)
     if (!completion.ok) {
       notifyError(t("store.hasSameName"))
