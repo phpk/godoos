@@ -1,9 +1,9 @@
 <template>
-	<div class="ad-container" v-show="state.ad.isShow" @click="onSponsorsClick">
-		<el-carousel height="240px" indicator-position="none" :arrow="setCarouselShow" @change="onCarouselChange">
+	<div class="ad-container" v-if="upgradeStore.hasAd" @click="onSponsorsClick">
+		<el-carousel height="350px" indicator-position="none" :arrow="setCarouselShow" @change="onCarouselChange">
 			<el-carousel-item v-for="(v, k) in upgradeStore.adList" :key="k">
-				<img :src="v.url"  v-if="v.url" class="ad-img" />
-				<div class="ad-text" v-html="v.text"></div>
+				<img :src="v.img" v-if="v.img && v.img != ''" class="ad-img" />
+				<div class="ad-text" v-html="v.desc"></div>
 			</el-carousel-item>
 		</el-carousel>
 		<div class="ad-close">
@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts" name="layoutSponsors">
-import { reactive, computed, onMounted } from 'vue';
+import { reactive, computed } from 'vue';
 import { useUpgradeStore } from '@/stores/upgrade';
 const upgradeStore = useUpgradeStore();
 
@@ -31,9 +31,9 @@ const state = reactive({
 const setCarouselShow = computed(() => {
 	return upgradeStore.adList.length <= 1 ? 'never' : 'hover';
 });
-// 关闭赞助商
+// 关闭
 const onCloseSponsors = () => {
-	state.ad.isShow = false;
+	upgradeStore.hasAd = false;
 };
 // 轮播图改变时
 const onCarouselChange = (e: number) => {
@@ -46,16 +46,6 @@ const onSponsorsClick = () => {
         window.open(link)
     }
 };
-// 延迟显示，防止影响其它界面加载
-const delayShow = () => {
-	setTimeout(() => {
-		state.ad.isShow = true;
-	}, 3000);
-};
-// 页面加载时
-onMounted(() => {
-	delayShow();
-});
 </script>
 
 <style scoped lang="scss">
@@ -73,12 +63,13 @@ onMounted(() => {
 	cursor: pointer;
 	.ad-img {
 		width: 100%;
-		height: 80px;
+		height: 100px;
 	}
 	.ad-text {
 		padding: 10px;
 		color: #303133;
 		font-size: 14px;
+		text-align: left;
 	}
 	.ad-close {
 		width: 60px;

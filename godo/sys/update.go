@@ -51,11 +51,17 @@ type UpdateAdReq struct {
 	Desc string `json:"desc"`
 }
 type UpdateVersionReq struct {
-	Version string        `json:"version"`
-	Url     string        `json:"url"`
-	Name    string        `json:"name"`
-	Desc    string        `json:"desc"`
-	AdList  []UpdateAdReq `json:"adList"`
+	Version string                     `json:"version"`
+	Url     string                     `json:"url"`
+	Name    string                     `json:"name"`
+	Desc    string                     `json:"desc"`
+	AdList  []map[string][]UpdateAdReq `json:"adlist"`
+}
+type ServerRes struct {
+	Sucess  bool             `json:"sucess"`
+	Message string           `json:"message"`
+	Data    UpdateVersionReq `json:"data"`
+	Time    int64            `json:"time"`
 }
 
 func (pr *ProgressReader) Read(p []byte) (n int, err error) {
@@ -127,31 +133,39 @@ func UpdateAppHandler(w http.ResponseWriter, r *http.Request) {
 	// 更新完成后发送响应给前端
 	json.NewEncoder(w).Encode(map[string]bool{"updateCompleted": true})
 }
-
-func GetUpdateUrlHandler(w http.ResponseWriter, r *http.Request) {
+func GetUpdateInfo() (ServerRes, error) {
+	var updateInfo ServerRes
 	info, err := libs.GetSystemInfo()
 	if err != nil {
-		http.Error(w, "update error:"+err.Error(), http.StatusInternalServerError)
-		return
+		return updateInfo, fmt.Errorf("update error get info:" + err.Error())
 	}
 	updateUrl := "https://godoos.com/version?info=" + info
+	log.Printf("updateUrl:%v", updateUrl)
 	res, err := http.Get(updateUrl)
 	if err != nil {
-		libs.ErrorMsg(w, err.Error())
+		return updateInfo, fmt.Errorf("update error get url:" + err.Error())
 	}
 	defer res.Body.Close()
-	if res.StatusCode == 200 {
-		body, err := io.ReadAll(res.Body)
-		if err != nil {
-			libs.ErrorMsg(w, err.Error())
-			return
-		}
-		var updateInfo UpdateVersionReq
-		err = json.Unmarshal(body, &updateInfo)
-		if err != nil {
-			fmt.Println("Error unmarshalling JSON:", err)
-			return
-		}
-		json.NewEncoder(w).Encode(updateInfo)
+	if res.StatusCode != 200 {
+		return updateInfo, fmt.Errorf("update error get url")
 	}
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return updateInfo, fmt.Errorf("update error read body:" + err.Error())
+	}
+	err = json.Unmarshal(body, &updateInfo)
+	log.Printf("updateInfo:%v", updateInfo)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		return updateInfo, fmt.Errorf("update error unmarshal:" + err.Error())
+	}
+	return updateInfo, nil
+}
+func GetUpdateUrlHandler(w http.ResponseWriter, r *http.Request) {
+	updateInfo, err := GetUpdateInfo()
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	json.NewEncoder(w).Encode(updateInfo)
 }

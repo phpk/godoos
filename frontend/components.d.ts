@@ -92,6 +92,7 @@ declare module 'vue' {
     NetWork: typeof import('./src/components/taskbar/NetWork.vue')['default']
     NetworkPop: typeof import('./src/components/taskbar/NetworkPop.vue')['default']
     NotFound: typeof import('./src/components/window/NotFound.vue')['default']
+    Notice: typeof import('./src/components/desktop/Notice.vue')['default']
     NotifyGroup: typeof import('./src/components/builtin/NotifyGroup.vue')['default']
     OpeningDesktop: typeof import('./src/components/desktop/OpeningDesktop.vue')['default']
     OpenWiteDialog: typeof import('./src/components/builtin/OpenWiteDialog.vue')['default']

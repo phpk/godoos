@@ -17,7 +17,7 @@
       <NotifyGroup></NotifyGroup>
       <MessageCenterPop></MessageCenterPop>
       <Chosen></Chosen>
-      <Sponsors v-if="upgradeStore.hasNotice"></Sponsors>
+      <Notice v-if="upgradeStore.hasNotice"></Notice>
       <Upgrade v-if="upgradeStore.hasUpgrade"></Upgrade>
       <Ad v-if="upgradeStore.hasAd"></Ad>
     </div>

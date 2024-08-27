@@ -33,6 +33,7 @@ export default defineConfig(async () => ({
     },
   },
   build:{
+    sourcemap: true,
     // 打包环境移除console.log，debugger
     terserOptions: {
       compress: {

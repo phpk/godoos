@@ -55,7 +55,7 @@ func OsStart() {
 	progressRouter.HandleFunc("/setting", store.StoreSettingHandler).Methods(http.MethodPost)
 	progressRouter.HandleFunc("/upload", store.UploadHandler).Methods(http.MethodPost)
 
-	router.HandleFunc("/system/updateInfo", sys.GetUpdateUrlHandler).Methods(http.MethodGet)
+	router.HandleFunc("/system/message", sys.HandleSystemEvents).Methods(http.MethodGet)
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/setting", sys.ConfigHandler).Methods(http.MethodPost)
 	fileRouter := router.PathPrefix("/file").Subrouter()

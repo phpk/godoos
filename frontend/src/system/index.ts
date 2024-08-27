@@ -106,7 +106,7 @@ export class System {
     
     setTimeout(() => {
       const upgradeStore = useUpgradeStore();
-      upgradeStore.checkUpdate()
+      upgradeStore.systemMessage()
     }, 6000);
     this.emit('start');
     this._ready && this._ready(this);
@@ -180,15 +180,15 @@ export class System {
   }
 
   
-  // initAppList() {
-  //   this.isReadyUpdateAppList = true;
-  //   nextTick(() => {
-  //     if (this.isReadyUpdateAppList) {
-  //       this.isReadyUpdateAppList = false;
-  //       this.refershAppList();
-  //     }
-  //   });
-  // }
+  initAppList() {
+    this.isReadyUpdateAppList = true;
+    nextTick(() => {
+      if (this.isReadyUpdateAppList) {
+        this.isReadyUpdateAppList = false;
+        this.refershAppList();
+      }
+    });
+  }
 
  
 

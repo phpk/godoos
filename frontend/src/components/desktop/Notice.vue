@@ -1,35 +1,27 @@
 <template>
-	<div class="sponsors-container" v-show="state.sponsors.isShow" @click="onSponsorsClick">
+	<div class="notice-container" v-if="upgradeStore.hasNotice" @click="onnoticeClick">
 		<el-carousel height="240px" indicator-position="none" :arrow="setCarouselShow" @change="onCarouselChange">
 			<el-carousel-item v-for="(v, k) in upgradeStore.noticeList" :key="k">
-				<img :src="v.url" v-if="v.url" class="sponsors-img" />
-				<div class="sponsors-text" v-html="v.text"></div>
+				<img :src="v.img" v-if="v.img && v.img != ''" class="notice-img" />
+				<div class="notice-text" v-html="v.desc"></div>
 			</el-carousel-item>
 		</el-carousel>
-		<div class="sponsors-close">
-            <el-icon :size="20"  @click.stop="onCloseSponsors">
+		<div class="notice-close">
+            <el-icon :size="20"  @click.stop="onClosenotice">
             <CircleCloseFilled />
             </el-icon>
 		</div>
 	</div>
 </template>
 
-<script setup lang="ts" name="layoutSponsors">
-import { reactive, computed, onMounted } from 'vue';
+<script setup lang="ts" name="layoutnotice">
+import { reactive, computed } from 'vue';
 import { useUpgradeStore } from '@/stores/upgrade';
 const upgradeStore = useUpgradeStore();
 
 // 定义变量内容
 const state = reactive({
-	sponsors: {
-		// list: [
-		// 	{
-		// 		url: "",
-		// 		text: "",
-		// 		link: '',
-		// 	},
-		// ],
-		isShow: false,
+	notice: {
 		index: 0,
 	},
 });
@@ -38,38 +30,28 @@ const state = reactive({
 const setCarouselShow = computed(() => {
 	return upgradeStore.noticeList.length <= 1 ? 'never' : 'hover';
 });
-// 关闭赞助商
-const onCloseSponsors = () => {
-	state.sponsors.isShow = false;
+// 关闭
+const onClosenotice = () => {
+	upgradeStore.hasNotice = false;
 };
 // 轮播图改变时
 const onCarouselChange = (e: number) => {
-	state.sponsors.index = e;
+	state.notice.index = e;
 };
 // 当前项内容点击
-const onSponsorsClick = () => {
-	const link = upgradeStore.noticeList[state.sponsors.index]?.link
+const onnoticeClick = () => {
+	const link = upgradeStore.noticeList[state.notice.index]?.link
     if(link){
         window.open(link)
     }
 };
-// 延迟显示，防止影响其它界面加载
-const delayShow = () => {
-	setTimeout(() => {
-		state.sponsors.isShow = true;
-	}, 3000);
-};
-// 页面加载时
-onMounted(() => {
-	delayShow();
-});
 </script>
 
 <style scoped lang="scss">
-.sponsors-container {
+.notice-container {
 	position: fixed;
-	right: 6px;
-	bottom: 48px;
+	right: 5px;
+	bottom: 50px;
 	z-index: 3;
 	width: 200px;
 	background-color: #ffffff;
@@ -77,16 +59,17 @@ onMounted(() => {
 	border-radius: 5px;
 	overflow: hidden;
 	cursor: pointer;
-	.sponsors-img {
+	.notice-img {
 		width: 100%;
 		height: 80px;
 	}
-	.sponsors-text {
+	.notice-text {
 		padding: 10px;
 		color: #303133;
-		font-size: 14px;
+		font-size: 12px;
+		text-align: left;
 	}
-	.sponsors-close {
+	.notice-close {
 		width: 60px;
 		height: 60px;
 		border-radius: 100%;

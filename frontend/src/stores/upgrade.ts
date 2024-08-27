@@ -34,16 +34,50 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         // 如果所有部分都相等，则返回0
         return 0;
     }
-    async function checkUpdate() {
+    function systemMessage(){
+        const config = getSystemConfig();
+        const source = new EventSource(`${config.apiUrl}/system/message`);
+
+        source.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            //console.log(data)
+            handleMessage(data);
+        };
+        source.onerror = function(event) {
+            console.error('EventSource error:', event);
+        };
+    }
+    async function handleMessage(message:any) {
+        switch (message.type) {
+            case 'update':
+                checkUpdate(message.data.data)
+                break;
+            default:
+                console.warn('Unknown message type:', message.type);
+        }
+    }
+    async function checkUpdate(res:any) {
+        console.log(res)
         const config = getSystemConfig();
         currentVersion.value = config.version;
-        const releaseRes = await fetch(`${config.apiUrl}/system/updateInfo`)
-        if (!releaseRes.ok) return;
-        const releaseData = await releaseRes.json()
-        if(releaseData.code !== 200){
-            return
+        let bottomList:any = []
+        let centerList:any = []
+        if (res.adlist && res.adlist.length > 0) {
+            bottomList = res.adlist[0]['bottom']
+            centerList = res.adlist[0]['center']
         }
-        const res = releaseData.data
+        if(bottomList && bottomList.length > 0){
+            hasNotice.value = true
+            noticeList.value = changeUrl(bottomList)
+        }
+        console.log(noticeList)
+        console.log(centerList)
+        if(centerList && centerList.length > 0){
+            hasAd.value = true
+            adList.value = changeUrl(centerList)
+        }
+        console.log(adList.value)
+
         if(!res.version || res.version == ""){
             return
         }
@@ -53,17 +87,14 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
             hasUpgrade.value = true
             updateUrl.value = res.url
         }
-        if (res.adList) {
-            if(res.adList.center && res.adList.center.length > 0){
-                hasNotice.value = true
-                noticeList.value = res.adList.center
+    }
+    function changeUrl(list : any){
+        list.forEach((item:any) => {
+            if(item.img && item.img.indexOf('http') == -1){
+                item.img = `https://godoos.com${item.img}`
             }
-            if(res.adList.bottom && res.adList.bottom.length > 0){
-                hasAd.value = true
-                adList.value = res.adList.bottom
-            }
-            
-        }
+        });
+        return list
     }
     async function update() {
         const apiUrl = getSystemKey('apiUrl')
@@ -116,6 +147,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         adList,
         progress,
         checkUpdate,
+        systemMessage,
         update
     }
 })
