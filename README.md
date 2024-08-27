@@ -30,19 +30,19 @@
 - 下载后启动服务端。访问地址为：http://localhost:56780/
 1. 💻 **Windows 用户**:
    
-- Windows (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_windows_amd64.zip)
-- Windows (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_windows_arm64.zip)
+- Windows (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_windows_amd64.zip) [**桌面版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos-amd64-installer.zip)
+- Windows (ARM64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_windows_arm64.zip) [**桌面版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos-arm64-installer.zip)
 
 
 2. 💼 **MacOS 用户**:
 
-- MacOS (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_amd64.zip)
-- MacOS (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_arm64.zip)
+- MacOS (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_amd64.zip)
+- MacOS (ARM64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_arm64.zip)
 
 3. 💽 **Linux 用户**:
 
-- Linux (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_amd64.zip)
-- Linux (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_arm64.zip)
+- Linux (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_amd64.zip)
+- Linux (ARM64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_arm64.zip)
 
 - 备注：如需桌面版请自行打包
 
