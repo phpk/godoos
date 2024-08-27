@@ -36,8 +36,8 @@
 
 2. 💼 **MacOS 用户**:
 
-- MacOS (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_amd64.zip)
-- MacOS (ARM64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_arm64.zip)
+- MacOS (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_amd64.zip) [**桌面版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos-darwin-amd64-installer.zip)
+- MacOS (ARM64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_arm64.zip) [**桌面版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos-darwin-arm64-installer.zip)
 
 3. 💽 **Linux 用户**:
 
@@ -46,9 +46,9 @@
 
 - 备注：如需桌面版请自行打包
 
-### 🚢 **Docker安装(v1.0.0)**
+### 🚢 **Docker安装(v1.0.1)**
 ```
-docker run -d -p 56780:56780 -p 8185:80 --name godoos godoos/godoos:latest
+docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 ```
 - 访问地址：http://localhost:8185/
 - 如果设置本地存储，存储地址为 /root/.godoos/os，设置成功后保存，点左下角win图标->关机图标->恢复->恢复出厂设置
@@ -61,7 +61,7 @@ docker run -d -p 56780:56780 -p 8185:80 --name godoos godoos/godoos:latest
 - ***无需联网使用，全开源***
 - ***零配置，无需注册，下载即用***
 - ***零污染，无插件依赖***
-- ***精小，打包后仅65M，却包含了所有的办公套件***
+- ***精小，打包后仅70M，却包含了所有的办公套件***
 - ***可无限扩展，支持自定义应用***
 - ***golang开发后端，低资源消耗和高性能***
 - ***支持多平台，Windows、Linux、MacOS***

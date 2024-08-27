@@ -103,13 +103,13 @@ export function initBuiltinFileOpener(system: System) {
       hiddenInChosen: true,
       func: (path: string, content: string) => {
         console.log(path)
-        console.log(content)
-        console.log(JSON.stringify(system._rootState.windowMap))
+        // console.log(content)
+        // console.log(JSON.stringify(system._rootState.windowMap))
         const exeContent = content.split("::");
         const winopt = system._rootState.windowMap[exeContent[1]].get(
           exeContent[2]
         );
-        console.log(winopt)
+        //console.log(winopt)
         if (winopt) {
           if (winopt.multiple ?? true) {
             const win = new BrowserWindow(winopt.window);
