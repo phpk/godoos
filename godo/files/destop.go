@@ -34,7 +34,6 @@ var RootAppList = []map[string]string{
 	{"name": "calendar", "icon": "calendar", "position": "Menulist"},
 	{"name": "musicStore", "icon": "music", "position": "Menulist"},
 	{"name": "gallery", "icon": "gallery", "position": "Menulist"},
-	{"name": "process.title", "icon": "progress", "position": "Menulist"},
 }
 
 // GetInitRootList constructs the initial root list.

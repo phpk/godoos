@@ -283,7 +283,7 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: false,
-        isMenuList: true,
+        isMenuList: false,
         ext: ['mp3']
     },
     {
@@ -308,7 +308,7 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: false,
-        isMenuList: true,
+        isMenuList: false,
         ext: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'],
     },
     {
@@ -320,7 +320,7 @@ export const appList = [
         height: 600,
         center: true,
         isDeskTop: false,
-        isMenuList: true,
+        isMenuList: false,
         ext: ['mp4']
     },
     {

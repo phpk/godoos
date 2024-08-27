@@ -107,10 +107,10 @@ let zipFile: File | undefined = undefined;
 const zipFileInput = ref();
 const fileName: any = ref("");
 const storeList = [
-  {
-    title: "浏览器存储",
-    value: "browser",
-  },
+  // {
+  //   title: "浏览器存储",
+  //   value: "browser",
+  // },
   {
     title: "本地存储",
     value: "local",

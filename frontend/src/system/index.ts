@@ -91,11 +91,10 @@ export class System {
    */
   private async initSystem() {
     this._rootState.state = SystemStateEnum.opening;
-    initBuiltinFileOpener(this); // 注册内建文件打开器
     this.fs = useOsFile(); // 初始化文件系统
     initBuiltinApp(this); 
+    initBuiltinFileOpener(this); // 注册内建文件打开器
     await this.initSavedConfig(); // 初始化保存的配置
-    // 初始化内建应用
     // 判断是否登录
     this.isLogin();
     initEventListener(); // 初始化事件侦听
@@ -156,12 +155,8 @@ export class System {
    * @description: 初始化事件系统
    */
   private initEvent() {
-    /**
-     * 过程：监听事件，处理事件
-     */
     return initEventer();
   }
-
 
   refershAppList() {
     
@@ -189,8 +184,6 @@ export class System {
       }
     });
   }
-
- 
 
   replaceFileSystem(fs: OsFileInterface) {
     this.fs = fs;
@@ -242,13 +235,18 @@ export class System {
     return this._rootState.options[key];
   }
 
-  private addWindowSysLink(loc: string, options: WinAppOptions, force = false) {
+  private addWindowSysLink(loc: string, options: any, force = false) {
     if (force) {
       this.fs.writeFile(
         `${this._options.userLocation}${loc}/` + options.name + '.exe',
         `link::${loc}::${options.name}::${options.icon}`
       );
     }
+    if (typeof options.window.content !== 'string') {
+      options.window.content = markRaw(options.window.content);
+    }
+    // console.log(options.window)
+    // console.log(options.name)
     this._rootState.windowMap[loc].set(options.name, options);
   }
 
@@ -372,8 +370,10 @@ export class System {
       // 读取文件内容
       const fileContent = await this.fs.readFile(path);
       // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
+      const fileName = extname(fileStat?.name || '') || 'link'
+      //console.log(fileName)
       this._flieOpenerMap
-        .get(extname(fileStat?.path || '') || 'link')
+        .get(fileName)
         ?.func.call(this, path, fileContent || '');
     }
   }

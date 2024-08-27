@@ -1,16 +1,9 @@
 <template>
   <div class="magnet-group scroll-bar">
-    <div
-      @click.stop="handle(item)"
-      class="magnet-item"
-      :style="{
-        animationDelay: `${Math.floor(index / 4) * 0.02}s`,
-        animationDuration: `${Math.floor(index / 4) * 0.04 + 0.1}s`,
-      }"
-      v-for="(item, index) in appList"
-      v-glowing
-      :key="basename(item.path)"
-    >
+    <div @click.stop="handle(item)" class="magnet-item" :style="{
+      animationDelay: `${Math.floor(index / 4) * 0.02}s`,
+      animationDuration: `${Math.floor(index / 4) * 0.04 + 0.1}s`,
+    }" v-for="(item, index) in appList" v-glowing :key="basename(item.path)">
       <FileIcon class="magnet-item_img" :file="item" />
       <span class="magnet-item_title">{{ getName(item) }}</span>
     </div>
@@ -20,14 +13,27 @@
 import { useAppOpen } from "@/hook/useAppOpen";
 import { emitEvent } from "@/system/event";
 import { basename } from "@/system/core/Path";
-import { OsFileWithoutContent } from "@/system/core/FileSystem";
 import { vGlowing } from "@/util/glowingBorder";
 import { t } from "@/i18n";
+import { BrowserWindow, useSystem } from "@/system";
 
-const { openapp, appList } = useAppOpen("menulist");
-function handle(item: OsFileWithoutContent) {
+const { appList } = useAppOpen("menulist");
+function handle(item: any) {
   emitEvent("magnet.item.click", item);
-  openapp(item);
+  const sys = useSystem();
+  const winopt = sys._rootState.windowMap["Menulist"].get(item.title);
+  if (winopt) {
+    if (winopt._hasShow) {
+      return;
+    } else {
+      winopt._hasShow = true;
+      const win = new BrowserWindow(winopt.window);
+      win.show();
+      win.on("close", () => {
+        winopt._hasShow = false;
+      });
+    }
+  }
 }
 function getName(item: any) {
   const name = basename(item.path);
@@ -69,6 +75,7 @@ function getName(item: any) {
     transition: all 0.2s;
     animation: transin both;
     position: relative;
+
     .magnet-item_img {
       width: 40%;
       height: 40%;
@@ -89,10 +96,12 @@ function getName(item: any) {
       -webkit-line-clamp: 2;
     }
   }
+
   @keyframes transin {
     from {
       transform: translateY(40px);
     }
+
     to {
       transform: translateY(0px);
     }
