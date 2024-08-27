@@ -11,7 +11,6 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: false,
-        isMagnet: true,
         isMenuList: true
     },
     {
@@ -24,7 +23,6 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: true,
-        isMagnet: true,
         isMenuList: true,
         dir: '/',
     },
@@ -41,7 +39,6 @@ export const appList = [
         resizable: true,
         backgroundColor: '#ffffff00',
         isDeskTop: true,
-        isMagnet: true,
         isMenuList: true,
     },
     {
@@ -54,7 +51,6 @@ export const appList = [
         center: true,
         resizable: false,
         isDeskTop: false,
-        isMagnet: true,
         isMenuList: true,
     },
     {
@@ -67,7 +63,6 @@ export const appList = [
         center: true,
         resizable: false,
         isDeskTop: false,
-        isMagnet: true,
         isMenuList: true,
     },
     
@@ -80,7 +75,6 @@ export const appList = [
         resizable: true,
         center: true,
         isDeskTop: false,
-        isMagnet: false,
         isContext: true
     },
     {
@@ -176,7 +170,6 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: true,
-        isMagnet: false,
         ext: ['kb'],
         eventType: "exportKanban"
     },
@@ -190,7 +183,6 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: true,
-        isMagnet: false,
         ext: ['bb'],
         eventType: "exportBaiban"
     },
@@ -204,7 +196,6 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: true,
-        isMagnet: false,
     },
 
     {
@@ -217,7 +208,6 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: true,
-        isMagnet: false,
         ext: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'],
         eventType: "exportPhoto"
     },
@@ -231,7 +221,6 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: true,
-        isMagnet: false,
         ext: ['gant'],
         eventType: "exportGant"
     },
@@ -245,7 +234,7 @@ export const appList = [
         center: true,
         resizable: false,
         isDeskTop: false,
-        isMagnet: true,
+        isMenuList: true,
     },
     {
         name: 'calendar',
@@ -257,7 +246,7 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: false,
-        isMagnet: true,
+        isMenuList: true,
     },
     {
         name: "PDF",
@@ -269,7 +258,6 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: false,
-        isMagnet: false,
         isMaximize: true,
         ext: ['pdf']
     },
@@ -283,7 +271,7 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: false,
-        isMagnet: true
+        isMenuList: true,
     },
     {
         name: "music",
@@ -295,7 +283,7 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: false,
-        isMagnet: false,
+        isMenuList: true,
         ext: ['mp3']
     },
     {
@@ -308,7 +296,7 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: false,
-        isMagnet: true,
+        isMenuList: true,
     },
     {
         name: "gallery",
@@ -320,7 +308,7 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: false,
-        isMagnet: false,
+        isMenuList: true,
         ext: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'],
     },
     {
@@ -332,7 +320,7 @@ export const appList = [
         height: 600,
         center: true,
         isDeskTop: false,
-        isMagnet: false,
+        isMenuList: true,
         ext: ['mp4']
     },
     {
@@ -345,23 +333,6 @@ export const appList = [
         center: true,
         resizable: true,
         isDeskTop: true,
-        isMagnet: true
+        isMenuList: true,
     },
-
-
-    // {
-    //     name: "备份与恢复",
-    //     appIcon: "backup",
-    //     content: ZipBackup,
-    //     view: ZipBackup,
-    //     width: 300,
-    //     height: 200,
-    //     center: true,
-    //     resizable: false,
-    //     isDeskTop: false,
-    //     isMagnet: false,
-    //     isMenuList: false,
-    //     isSetting: true
-    // }
-
 ];

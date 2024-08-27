@@ -16,7 +16,7 @@ export function dealExeIcon(content: string | null | undefined) {
   }
 }
 export async function dealIcon(
-  file: OsFileWithoutContent | null | undefined,
+  file: any,
   system: System,
   stopCircle = false
 ) {
@@ -39,8 +39,12 @@ export async function dealIcon(
   }
   const ext = file.ext;
   if (ext === 'exe' || ext === 'url') {
-    const content = await system?.fs.readFile(file.path);
-    return dealExeIcon(content);
+    //console.log(file)
+    if(!file.content){
+      file.content = await system?.fs.readFile(file.path);
+    }
+    
+    return dealExeIcon(file.content);
   }
   if (ext === 'ln') {
     if (stopCircle) {

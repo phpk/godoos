@@ -60,6 +60,7 @@ export class System {
   isFirstRun = true;
   rootRef: HTMLElement | undefined = undefined;
   fs!: any;
+  isReadyUpdateAppList = false;
 
   constructor(options?: SystemOptions) {
 
@@ -89,30 +90,26 @@ export class System {
    * @description: 初始化系统
    */
   private async initSystem() {
-    //await startApp();
-    /**
-     * 过程：激活屏幕，桥接事件。
-     */
     this._rootState.state = SystemStateEnum.opening;
     initBuiltinFileOpener(this); // 注册内建文件打开器
-    await this.initFileSystem(); // 初始化文件系统
+    this.fs = useOsFile(); // 初始化文件系统
+    initBuiltinApp(this); 
     await this.initSavedConfig(); // 初始化保存的配置
-    initBuiltinApp(this); // 初始化内建应用
-    //this.initApp(); // 初始化配置应用到app文件夹中
-    //this.initAppList(); // 刷新app文件夹，展示应用
+    // 初始化内建应用
     // 判断是否登录
     this.isLogin();
     initEventListener(); // 初始化事件侦听
 
-    this._ready && this._ready(this);
-    //this.runPlugin(this); // 运行fs中插件
+    
     this.initBackground(); // 初始化壁纸
-    this.emit('start');
-
+    this.refershAppList();
+    
     setTimeout(() => {
       const upgradeStore = useUpgradeStore();
       upgradeStore.checkUpdate()
     }, 6000);
+    this.emit('start');
+    this._ready && this._ready(this);
 
   }
   /**
@@ -154,7 +151,6 @@ export class System {
     } else {
       this._rootState.options.background = background.color;
     }
-    // this._rootState.options.background = '/image/bg/bg5.jpg';
   }
   /**
    * @description: 初始化事件系统
@@ -165,32 +161,7 @@ export class System {
      */
     return initEventer();
   }
-  private initApp() {
-    const fileUrl = getFileUrl();
-    if (!fileUrl) return;
-    fetch(`${fileUrl}/desktop`).then(res => res.json()).then(res => {
-      if (res && res.code == 0) {
-        this._rootState.apps = res.data.apps;
-        this._rootState.menulist = res.data.menulist;
-        res.data.apps.forEach((item: any) => {
-          this._rootState.windowMap['Desktop'].set(item.name, item);
-        })
-        res.data.apps.forEach((item: any) => {
-          this._rootState.windowMap['Menulist'].set(item.name, item);
-        })
-        // this._rootState.windowMap[loc].set(options.name, options);
-        // useSystem()._rootState.apps = res.data.apps;
-        // useSystem()._rootState.menulist = res.data.menulist;
-      }
-    })
-    // this._rootState.options.desktop?.forEach((item) => {
-    //   this.addApp(item);
-    // });
-    // this._rootState.options.menulist?.forEach((item) => {
-    //   this.addMenuList(item);
-    // });
 
-  }
 
   refershAppList() {
     
@@ -206,73 +177,25 @@ export class System {
         system._rootState.menulist.splice(0, system._rootState.menulist.length, ...res.data.menulist);
       }
     })
-    //const APP_TYPE = ['apps', 'menulist'];
-    // console.log('refresh')
-    /*
-    for (let i = 0; i < APP_TYPE.length; i++) {
-      const element = APP_TYPE[i];
-      system?.fs
-        .readdir(
-          `${system._options.userLocation}${{
-            apps: 'Desktop',
-            menulist: 'Menulist',
-          }[element]
-          }`
-        )
-        .then((res: any) => {
-          if (res) {
-            const list = res;
-            const tempList: any = [];
-            for (let j = 0; j < list.length; j++) {
-              const item = list[j];
-
-              tempList.push(item);
-            }
-
-            switch (element) {
-              case 'apps':
-                useSystem()._rootState.apps.splice(0, useSystem()._rootState.apps.length, ...tempList);
-                break;
-              case 'magnet':
-                useSystem()._rootState.magnet.splice(0, useSystem()._rootState.magnet.length, ...tempList);
-                break;
-              case 'menulist':
-                useSystem()._rootState.menulist.splice(
-                  0,
-                  useSystem()._rootState.menulist.length,
-                  ...tempList
-                );
-                break;
-              default:
-                break;
-            }
-          }
-        });
-    }
-    */
   }
 
-  isReadyUpdateAppList = false;
-  initAppList() {
-    this.isReadyUpdateAppList = true;
-    nextTick(() => {
-      if (this.isReadyUpdateAppList) {
-        this.isReadyUpdateAppList = false;
-        this.refershAppList();
-      }
-    });
-  }
+  
+  // initAppList() {
+  //   this.isReadyUpdateAppList = true;
+  //   nextTick(() => {
+  //     if (this.isReadyUpdateAppList) {
+  //       this.isReadyUpdateAppList = false;
+  //       this.refershAppList();
+  //     }
+  //   });
+  // }
 
-  private async initFileSystem() {
-    this.fs = useOsFile();
-    // this.fs.registerWatcher(new RegExp(`^${this._options.userLocation}`), () => {
-    //   this.initAppList();
-    // });
-  }
+ 
 
   replaceFileSystem(fs: OsFileInterface) {
     this.fs = fs;
-    this.initAppList();
+    //this.initAppList();
+    this.refershAppList();
   }
   mountVolume(path: string, fs: OsFileInterface) {
     if (this.fs instanceof OsFileSystem) {
@@ -307,11 +230,6 @@ export class System {
   setConfig<T extends keyof SystemOptionsCertainly>(key: string, value: SystemOptionsCertainly[T]) {
     this._rootState.options[key] = value;
     if (Saveablekey.includes(key as any)) {
-      // return this.fs.writeFile(
-      //   join(this._options.systemLocation || '', 'os/config.json'),
-
-      //   JSON.stringify(pick(this._rootState.options, ...Saveablekey))
-      // );
       return setSystemConfig(pick(this._rootState.options, ...Saveablekey))
     } else {
       return Promise.resolve();
@@ -325,18 +243,11 @@ export class System {
   }
 
   private addWindowSysLink(loc: string, options: WinAppOptions, force = false) {
-    if (this.isFirstRun || force) {
+    if (force) {
       this.fs.writeFile(
         `${this._options.userLocation}${loc}/` + options.name + '.exe',
         `link::${loc}::${options.name}::${options.icon}`
       );
-    } else {
-      this.initAppList();
-    }
-    if (typeof options.window.content === 'string') {
-      // TODO: 当content是string的时候
-    } else {
-      options.window.content = markRaw(options.window.content);
     }
     this._rootState.windowMap[loc].set(options.name, options);
   }
