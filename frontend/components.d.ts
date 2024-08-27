@@ -114,7 +114,6 @@ declare module 'vue' {
     SetSystem: typeof import('./src/components/setting/SetSystem.vue')['default']
     Setting: typeof import('./src/components/setting/Setting.vue')['default']
     SetUpdate: typeof import('./src/components/setting/SetUpdate.vue')['default']
-    Sponsors: typeof import('./src/components/desktop/Sponsors.vue')['default']
     StartMenu: typeof import('./src/components/taskbar/StartMenu.vue')['default']
     StartOption: typeof import('./src/components/taskbar/StartOption.vue')['default']
     StateIcon: typeof import('./src/components/taskbar/StateIcon.vue')['default']

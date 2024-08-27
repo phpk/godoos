@@ -15,47 +15,29 @@
 
 </div>
 
-### 👇 桌面版下载安装
 
+### 📥 下载安装(v1.0.1)
 
+- 下载后启动服务端。访问地址为：http://localhost:56780/
 1. 💻 **Windows 用户**:
    
-- Windows (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-amd64-installer.exe) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-amd64-installer.exe)
-
-- Windows (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-arm64-installer.exe) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-arm64-installer.exe)
+- Windows (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_windows_amd64.zip)
+- Windows (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_windows_arm64.zip)
 
 
 2. 💼 **MacOS 用户**:
 
-- MacOS (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-amd64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-amd64.zip)
-
-- MacOS (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip)
-
-3. 💽 **Linux 用户**:
-
-- Linux (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos-linux-amd64.zip) | [**github下载**](https://github.com/phpk/godoos/releases/download/v1.0.0/godoos-macos-arm64.zip)
-
-### 📥 WEB版下载安装
-- **首先下载**[**dist静态包**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/dist.zip)解压到程序安装目录./dist。
-- 其次下载对应系统的服务端。放到程序安装目录./。
-- 最后启动服务端。访问地址为：http://localhost:8215/
-1. 💻 **Windows 用户**:
-   
-- Windows (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos_windows_amd64.exe)
-- Windows (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos_windows_arm64.exe)
-
-
-2. 💼 **MacOS 用户**:
-
-- MacOS (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos_darwin_amd64)
-- MacOS (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos_darwin_arm64)
+- MacOS (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_amd64.zip)
+- MacOS (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_arm64.zip)
 
 3. 💽 **Linux 用户**:
 
-- Linux (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos_linux_amd64)
-- Linux (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/v1.0.0/godoos_linux_arm64)
+- Linux (AMD64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_amd64.zip)
+- Linux (ARM64) [**国内下载**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_arm64.zip)
 
-### 🚢 **Docker安装**
+- 备注：如需桌面版请自行打包
+
+### 🚢 **Docker安装(v1.0.0)**
 ```
 docker run -d -p 56780:56780 -p 8185:80 --name godoos godoos/godoos:latest
 ```

@@ -1,4 +1,4 @@
-import { OsFileSystem, OsFileWithoutContent } from '@/system/core/FileSystem';
+import { OsFileSystem } from '@/system/core/FileSystem';
 
 import { System } from '@/system';
 import unknownicon from "@/assets/unknown.png"
