@@ -57,7 +57,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         }
     }
     async function checkUpdate(res:any) {
-        console.log(res)
+        //console.log(res)
         const config = getSystemConfig();
         currentVersion.value = config.version;
         let bottomList:any = []
@@ -70,13 +70,13 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
             hasNotice.value = true
             noticeList.value = changeUrl(bottomList)
         }
-        console.log(noticeList)
-        console.log(centerList)
+        //console.log(noticeList)
+        //console.log(centerList)
         if(centerList && centerList.length > 0){
             hasAd.value = true
             adList.value = changeUrl(centerList)
         }
-        console.log(adList.value)
+        //console.log(adList.value)
 
         if(!res.version || res.version == ""){
             return

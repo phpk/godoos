@@ -176,6 +176,10 @@ func HandleUnlink(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	err := CheckDeleteDesktop(path)
+	if err != nil {
+		log.Printf("Error deleting file from desktop: %s", err.Error())
+	}
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
@@ -230,6 +234,10 @@ func HandleRename(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
+	err = CheckAddDesktop(newPath)
+	if err != nil {
+		log.Printf("Error adding file to desktop: %s", err.Error())
+	}
 	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully renamed to '%s'.", oldPath, newPath)}
 	json.NewEncoder(w).Encode(res)
 }
@@ -251,6 +259,10 @@ func HandleMkdir(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
+	err = CheckAddDesktop(dirPath)
+	if err != nil {
+		log.Printf("Error adding file to desktop: %s", err.Error())
+	}
 	res := libs.APIResponse{Message: fmt.Sprintf("Directory '%s' created successfully.", dirPath)}
 	json.NewEncoder(w).Encode(res)
 }
@@ -266,6 +278,10 @@ func HandleRmdir(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
+	}
+	err = CheckDeleteDesktop(dirPath)
+	if err != nil {
+		log.Printf("Error deleting file from desktop: %s", err.Error())
 	}
 	err = Rmdir(basePath, dirPath)
 	if err != nil {
@@ -294,6 +310,10 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
+	err = CheckAddDesktop(dstPath)
+	if err != nil {
+		log.Printf("Error adding file to desktop: %s", err.Error())
+	}
 	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully copied to '%s'.", srcPath, dstPath)}
 	json.NewEncoder(w).Encode(res)
 }
@@ -306,6 +326,7 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+
 	// 获取文件内容
 	fileContent, _, err := r.FormFile("content")
 	if err != nil {
@@ -314,7 +335,7 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer fileContent.Close()
 	// 输出到控制台进行调试
-	fmt.Printf("Body content: %v\n", fileContent)
+	//fmt.Printf("Body content: %v\n", fileContent)
 	file, err := os.Create(filepath.Join(basePath, filePath))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -326,6 +347,10 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
+	}
+	err = CheckAddDesktop(filePath)
+	if err != nil {
+		log.Printf("Error adding file to desktop: %s", err.Error())
 	}
 	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully written.", filePath)}
 	json.NewEncoder(w).Encode(res)

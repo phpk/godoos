@@ -242,11 +242,14 @@ const chosenView = ref("icon");
 /**------树状列表打开------ */
 const chosenTreePath = ref("");
 async function onTreeOpen(path: string) {
+ 
   chosenTreePath.value = path;
   const file = await system.fs.stat(path);
   if (file) {
     openFolder(file);
   }
+  console.log(path)
+  router_url.value = path;
 }
 
 /**------框选--------- */

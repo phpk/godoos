@@ -175,14 +175,13 @@ func WriteDesktop(rootInfo RootObject) error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal reqBodies to JSON: %w", err)
 	}
-	basePath, err := libs.GetOsDir()
+	desktoppath, err := GetDeskTopPath()
 	if err != nil {
-		return fmt.Errorf("GetOsDir error: %v", err)
+		return fmt.Errorf("GetDeskTopPath error: %v", err)
 	}
-	desktoppath := filepath.Join(basePath, "C", "System", "desktop.json")
 	return os.WriteFile(desktoppath, content, 0644)
 }
-func AddDesktop(app AppInfo, position string) error {
+func AddDesktop(app OsFileInfo, position string) error {
 	applist, err := GetDesktop()
 	if err != nil {
 		return fmt.Errorf("GetDesktop error: %v", err)
@@ -198,6 +197,7 @@ func AddDesktop(app AppInfo, position string) error {
 	} else {
 		return fmt.Errorf("position error")
 	}
+	//log.Printf("add app to desktop %v", applist)
 	return WriteDesktop(applist)
 }
 func DeleteDesktop(name string) error {
@@ -221,7 +221,7 @@ func DeleteDesktop(name string) error {
 	}
 	return WriteDesktop(rootInfo)
 }
-func checkHasApp(list []AppInfo, app AppInfo) bool {
+func checkHasApp(list []OsFileInfo, app OsFileInfo) bool {
 	for _, item := range list {
 		if item.Name == app.Name {
 			return true

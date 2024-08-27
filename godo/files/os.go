@@ -255,3 +255,59 @@ func GetFileInfo(entry interface{}, basePath, parentPath string) (*OsFileInfo, e
 
 	return osFileInfo, nil
 }
+func GetDesktopPath() string {
+	return filepath.Join("C", "Users", "Desktop")
+}
+
+// RemoveFirstSlashOrBackslash 检查字符串的第一个字符是否为 '/' 或 '\'
+// 如果是，则返回去掉该字符的剩余部分；如果不是，则返回原字符串。
+func RemoveFirstSlashOrBackslash(s string) string {
+	if len(s) > 0 && (s[0] == '/' || s[0] == '\\') {
+		return s[1:]
+	}
+	return s
+}
+func CheckAddDesktop(filePath string) error {
+	checkPath := RemoveFirstSlashOrBackslash(filepath.Dir(filePath))
+	if checkPath != GetDesktopPath() {
+		return fmt.Errorf("文件不在桌面目录下")
+	}
+	basePath, err := libs.GetOsDir()
+	if err != nil {
+		return fmt.Errorf("获取系统目录失败")
+	}
+	if !Exists(basePath, filePath) {
+		return fmt.Errorf("文件不存在")
+	}
+	osFileInfo, err := GetFileInfo(filePath, basePath, "")
+	if err != nil {
+		return fmt.Errorf("获取文件信息失败")
+	}
+	err = AddDesktop(*osFileInfo, "Desktop")
+	if err != nil {
+		return fmt.Errorf("添加桌面失败")
+	}
+	return nil
+}
+func CheckDeleteDesktop(filePath string) error {
+	checkPath := RemoveFirstSlashOrBackslash(filepath.Dir(filePath))
+	if checkPath != GetDesktopPath() {
+		return fmt.Errorf("文件不在桌面目录下")
+	}
+	basePath, err := libs.GetOsDir()
+	if err != nil {
+		return fmt.Errorf("获取系统目录失败")
+	}
+	if !Exists(basePath, filePath) {
+		return fmt.Errorf("文件不存在")
+	}
+	osFileInfo, err := GetFileInfo(filePath, basePath, "")
+	if err != nil {
+		return fmt.Errorf("获取文件信息失败")
+	}
+	err = DeleteDesktop(osFileInfo.Name)
+	if err != nil {
+		return fmt.Errorf("添加桌面失败")
+	}
+	return nil
+}

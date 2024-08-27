@@ -361,7 +361,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
           }
           chosenIndexs.value = [];
           props.onRefresh();
-          if (item.parentPath == '/C/Users/Desktop') {
+          if (item.path.indexOf('Desktop') > -1) {
             sys.refershAppList()
           }
         },

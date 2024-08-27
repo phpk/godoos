@@ -140,7 +140,7 @@ func GetUpdateInfo() (ServerRes, error) {
 		return updateInfo, fmt.Errorf("update error get info:" + err.Error())
 	}
 	updateUrl := "https://godoos.com/version?info=" + info
-	log.Printf("updateUrl:%v", updateUrl)
+	//log.Printf("updateUrl:%v", updateUrl)
 	res, err := http.Get(updateUrl)
 	if err != nil {
 		return updateInfo, fmt.Errorf("update error get url:" + err.Error())
@@ -154,7 +154,7 @@ func GetUpdateInfo() (ServerRes, error) {
 		return updateInfo, fmt.Errorf("update error read body:" + err.Error())
 	}
 	err = json.Unmarshal(body, &updateInfo)
-	log.Printf("updateInfo:%v", updateInfo)
+	//log.Printf("updateInfo:%v", updateInfo)
 	if err != nil {
 		fmt.Println("Error unmarshalling JSON:", err)
 		return updateInfo, fmt.Errorf("update error unmarshal:" + err.Error())

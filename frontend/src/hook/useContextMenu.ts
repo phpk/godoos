@@ -162,6 +162,7 @@ function useContextMenu() {
       }
       newFilePath = fspath.join(path, `${title}(${i})${ext}`);
     }
+    
     const content = '';
     return await system.fs.writeFile(newFilePath, content);
   }
@@ -179,7 +180,6 @@ function useContextMenu() {
     }
     return await system.fs.mkdir(newFilePath);
   }
-
   function openPropsWindow(path: string) {
     new BrowserWindow({
       title: t('props'),

@@ -5,32 +5,11 @@ import (
 	"time"
 )
 
-type AppInfo struct {
-	Name        string    `json:"name"`
-	Path        string    `json:"path"`
-	OldPath     string    `json:"oldPath"`
-	ParentPath  string    `json:"parentPath"`
-	Content     string    `json:"content"`
-	Ext         string    `json:"ext"`
-	Title       string    `json:"title"`
-	IsSys       int       `json:"isSys"`
-	ID          int       `json:"id"`
-	IsFile      bool      `json:"isFile"`
-	IsDirectory bool      `json:"isDirectory"`
-	IsSymlink   bool      `json:"isSymlink"`
-	Size        int       `json:"size"`
-	Mtime       time.Time `json:"mtime"`     // Modified time
-	Atime       time.Time `json:"atime"`     // Access time
-	Birthtime   time.Time `json:"birthtime"` // Creation time
-	Mode        int       `json:"mode"`
-	Rdev        int       `json:"rdev"`
-}
-
 // RootObject represents the root object in the JSON data.
 type RootObject struct {
-	UpdateTime time.Time `json:"updatetime"`
-	Desktop    []AppInfo `json:"apps"`
-	Menulist   []AppInfo `json:"menulist"`
+	UpdateTime time.Time    `json:"updatetime"`
+	Desktop    []OsFileInfo `json:"apps"`
+	Menulist   []OsFileInfo `json:"menulist"`
 }
 
 var RootAppList = []map[string]string{
@@ -60,8 +39,8 @@ var RootAppList = []map[string]string{
 
 // GetInitRootList constructs the initial root list.
 func GetInitRootList() RootObject {
-	var desktopApps []AppInfo
-	var menulistApps []AppInfo
+	var desktopApps []OsFileInfo
+	var menulistApps []OsFileInfo
 	nowtime := time.Now()
 	var id = 1
 	for _, app := range RootAppList {
@@ -70,47 +49,43 @@ func GetInitRootList() RootObject {
 		for _, pos := range positions {
 			switch pos {
 			case "Desktop":
-				newApp := AppInfo{
-					Name:        app["name"] + ".exe",
-					Path:        "/C/Users/Desktop/" + app["name"] + ".exe",
-					OldPath:     "/C/Users/Desktop/" + app["name"] + ".exe",
-					ParentPath:  "/C/Users/Desktop",
-					Content:     content,
-					Ext:         "exe",
-					Title:       app["name"],
-					IsSys:       1,
-					ID:          id,
-					IsFile:      true,
-					IsDirectory: false,
-					IsSymlink:   false,
-					Size:        len(content), // Size can be set to any value
-					Mtime:       nowtime,
-					Atime:       nowtime,
-					Birthtime:   nowtime,
-					Mode:        511,
-					Rdev:        0,
+				newApp := OsFileInfo{
+					Name:       app["name"] + ".exe",
+					Path:       "/C/Users/Desktop/" + app["name"] + ".exe",
+					OldPath:    "/C/Users/Desktop/" + app["name"] + ".exe",
+					ParentPath: "/C/Users/Desktop",
+					Content:    content,
+					Ext:        "exe",
+					Title:      app["name"],
+					ID:         id,
+					IsFile:     true,
+					IsDir:      false,
+					IsSymlink:  false,
+					Size:       int64(len(content)), // Size can be set to any value
+					ModTime:    nowtime,
+					AccessTime: nowtime,
+					CreateTime: nowtime,
+					Mode:       511,
 				}
 				desktopApps = append(desktopApps, newApp)
 			case "Menulist":
-				newApp := AppInfo{
-					Name:        app["name"] + ".exe",
-					Path:        "/C/Users/Menulist/" + app["name"] + ".exe",
-					OldPath:     "/C/Users/Menulist/" + app["name"] + ".exe",
-					ParentPath:  "/C/Users/Menulist",
-					Content:     content,
-					Ext:         "exe",
-					Title:       app["name"],
-					IsSys:       1,
-					ID:          id,
-					IsFile:      true,
-					IsDirectory: false,
-					IsSymlink:   false,
-					Size:        len(content),
-					Mtime:       nowtime,
-					Atime:       nowtime,
-					Birthtime:   nowtime,
-					Mode:        511,
-					Rdev:        0,
+				newApp := OsFileInfo{
+					Name:       app["name"] + ".exe",
+					Path:       "/C/Users/Menulist/" + app["name"] + ".exe",
+					OldPath:    "/C/Users/Menulist/" + app["name"] + ".exe",
+					ParentPath: "/C/Users/Menulist",
+					Content:    content,
+					Ext:        "exe",
+					Title:      app["name"],
+					ID:         id,
+					IsFile:     true,
+					IsDir:      false,
+					IsSymlink:  false,
+					Size:       int64(len(content)), // Size can be set to any value
+					ModTime:    nowtime,
+					AccessTime: nowtime,
+					CreateTime: nowtime,
+					Mode:       511,
 				}
 				menulistApps = append(menulistApps, newApp)
 			}
