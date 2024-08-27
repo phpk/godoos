@@ -27,7 +27,6 @@
 
 ### 📥 下载安装(v1.0.1)
 
-- 下载后启动服务端。访问地址为：http://localhost:56780/
 1. 💻 **Windows 用户**:
    
 - Windows (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_windows_amd64.zip) [**桌面版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos-amd64-installer.zip)
@@ -44,14 +43,14 @@
 - Linux (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_amd64.zip)
 - Linux (ARM64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_arm64.zip)
 
-- 备注：如需桌面版请自行打包
+- 备注：web版下载后启动服务端。访问地址为：http://localhost:56780/。如需linux桌面版请自行打包
 
 ### 🚢 **Docker安装(v1.0.1)**
 ```
 docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 ```
 - 访问地址：http://localhost:8185/
-- 如果设置本地存储，存储地址为 /root/.godoos/os，设置成功后保存，点左下角win图标->关机图标->恢复->恢复出厂设置
+- 如果设置本地存储，存储地址为 /root/.godoos/os，设置成功后保存
 
 <!-- 图标和链接 -->
 [license-image]: ./docs/img/license_%20MIT.svg
