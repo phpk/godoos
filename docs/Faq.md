@@ -31,3 +31,44 @@ daemon.json文件配置:
 
 ```
 
+### linux版本如何做守护进程
+- 下载web版
+- 假设运行目录为/root/godoos
+```
+chmod a+x /root/godoos
+vim /etc/systemd/system/godoos.service
+```
+- 编辑服务文件
+```
+[Unit]
+Description=Godoos Service
+After=network.target
+
+[Service]
+ExecStart=/root/godoos
+Restart=on-failure
+User=myuser
+Environment=ENV_VAR=value
+
+[Install]
+WantedBy=multi-user.target
+```
+- 加载服务文件
+```
+systemctl daemon-reload
+systemctl enable godoos
+```
+- 启动服务
+```
+systemctl start godoos
+```
+- 查看服务状态
+```
+systemctl status godoos
+```
+- 停止服务
+```
+systemctl stop godoos
+```
+
+
