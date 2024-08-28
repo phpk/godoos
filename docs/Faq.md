@@ -70,5 +70,7 @@ systemctl status godoos
 ```
 systemctl stop godoos
 ```
+### docker部署或web部署在虚拟机上不知道配置反向代理
 
+左下角，系统设置，选远程存储，添加docker的ip或虚拟机的ip地址（例子：http://192.168.1.16:56780）
 
