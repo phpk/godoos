@@ -26,11 +26,13 @@ export const getSystemConfig = (ifset = false) => {
     if (!config.apiUrl) {
         config.apiUrl = 'http://localhost:56780';
     }
-
+    if(!config.userType){
+        config.userType = 'person'
+    }
     // 初始化用户信息，若本地存储中已存在则不进行覆盖
     if (!config.userInfo) {
         config.userInfo = {
-            serverUrl:'',
+            url:'',
             username: '',
             password: '',
             memberId: 0,
@@ -38,8 +40,9 @@ export const getSystemConfig = (ifset = false) => {
             avatar: '',
             email: '',
             mobile: '',
-            role: '',
-            department: ''
+            role: 0,
+            department: 0,
+            token:''
         };
     }
 

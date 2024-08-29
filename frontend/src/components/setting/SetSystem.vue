@@ -2,12 +2,8 @@
   <div class="container">
     <div class="nav">
       <ul>
-        <li
-          v-for="(item, index) in items"
-          :key="index"
-          @click="selectItem(index)"
-          :class="{ active: index === activeIndex }"
-        >
+        <li v-for="(item, index) in items" :key="index" @click="selectItem(index)"
+          :class="{ active: index === activeIndex }">
           {{ item }}
         </li>
       </ul>
@@ -17,38 +13,23 @@
         <div class="setting-item" style="margin-top: 60px">
           <label>存储方式</label>
           <el-select v-model="config.storeType">
-            <el-option
-              v-for="(item, key) in storeList"
-              :key="key"
-              :label="item.title"
-              :value="item.value"
-            />
+            <el-option v-for="(item, key) in storeList" :key="key" :label="item.title" :value="item.value" />
           </el-select>
         </div>
         <div class="setting-item" v-if="config.storeType === 'local'">
           <label>存储地址</label>
-          <el-input
-            v-model="config.storePath"
-            @click="selectFile()"
-            placeholder="可为空，为空则取系统默认存储地址"
-          />
+          <el-input v-model="config.storePath" @click="selectFile()" placeholder="可为空，为空则取系统默认存储地址" />
         </div>
         <template v-if="config.storeType === 'net'">
           <div class="setting-item">
             <label>服务器地址</label>
-            <el-input
-              v-model="config.storenet.url"
-              placeholder="http://192.168.1.16:56780 不要加斜杠"
-            />
+            <el-input v-model="config.storenet.url" placeholder="http://192.168.1.16:56780 不要加斜杠" />
           </div>
         </template>
         <template v-if="config.storeType === 'webdav'">
           <div class="setting-item">
             <label>服务器地址</label>
-            <el-input
-              v-model="config.webdavClient.url"
-              placeholder="https://godoos.com/webdav/"
-            />
+            <el-input v-model="config.webdavClient.url" placeholder="https://godoos.com/webdav 不要加斜杠" />
           </div>
           <div class="setting-item">
             <label>登陆用户名</label>
@@ -82,12 +63,35 @@
         <div class="setting-item">
           <label></label>
           <el-button @click="selectZipfile" type="primary"> 导入 </el-button>
-          <input
-            type="file"
-            accept=".zip"
-            style="display: none"
-            ref="zipFileInput"
-          />
+          <input type="file" accept=".zip" style="display: none" ref="zipFileInput" />
+        </div>
+      </div>
+      <div v-if="2 === activeIndex">
+        <div class="setting-item" style="margin-top: 60px">
+          <label>用户角色</label>
+          <el-select v-model="config.userType">
+            <el-option v-for="(item, key) in userTypes" :key="key" :label="item.title" :value="item.value" />
+          </el-select>
+        </div>
+        <template v-if="config.userType === 'member'">
+          <div class="setting-item">
+            <label>服务器地址</label>
+            <el-input v-model="config.userInfo.url" placeholder="网址或域名，例子：https://godoos.com 不要加斜杠" />
+          </div>
+          <div class="setting-item">
+            <label>用户名</label>
+            <el-input v-model="config.userInfo.username" placeholder="登录用户名" />
+          </div>
+          <div class="setting-item">
+            <label>密码</label>
+            <el-input v-model="config.userInfo.password" type="password" placeholder="登录密码" />
+          </div>
+        </template>
+        <div class="setting-item">
+          <label></label>
+          <el-button @click="saveUserInfo" type="primary">
+            {{ t("confirm") }}
+          </el-button>
         </div>
       </div>
     </div>
@@ -101,6 +105,8 @@ import JSZip from "jszip";
 import FileSaver from "file-saver";
 import { getSystemConfig, setSystemConfig } from "@/system/config";
 import { OpenDirDialog, RestartApp } from "@/util/goutil";
+import { notifyError, notifySuccess } from "@/util/msg";
+import { md5 } from 'js-md5';
 const config = ref(getSystemConfig());
 const sys = inject<System>("system")!;
 let zipFile: File | undefined = undefined;
@@ -125,8 +131,18 @@ const storeList = [
   },
 ];
 
-const items = ["个人存储", "备份还原"];
-
+const items = ["个人存储", "备份还原", "用户角色"];
+const urlRegex = /^(https?:\/\/)/;
+const userTypes = [
+  {
+    title: "独立用户",
+    value: "person",
+  },
+  {
+    title: "企业用户",
+    value: "member",
+  },
+]
 const activeIndex = ref(0);
 
 const selectItem = (index: number) => {
@@ -231,7 +247,53 @@ function submitOsInfo() {
       });
   }
 }
-
+async function saveUserInfo() {
+  const saveData = toRaw(config.value);
+  if (saveData.userType == 'person') {
+    setSystemConfig(saveData);
+    notifySuccess("保存成功");
+    return
+  }
+  if (!urlRegex.test(saveData.userInfo.url.trim())) {
+    Dialog.showMessageBox({
+      message: "服务器地址格式错误",
+      type: "error",
+    });
+    return;
+  }
+  if (saveData.userInfo.username === "" || saveData.userInfo.password === "") {
+    Dialog.showMessageBox({
+      message: "用户名或密码不能为空",
+      type: "error",
+    });
+    return;
+  }
+  const password = md5(saveData.userInfo.password)
+  const serverUrl = saveData.userInfo.url + '/api/v1/login'
+  const res = await fetch(serverUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: saveData.userInfo.username,
+      password: password,
+    }),
+  });
+  if (res.status === 200) {
+    const data = await res.json();
+    if (data.success) {
+      data.data.url = saveData.userInfo.url
+      data.data.password = password
+      saveData.userInfo = data.data
+      setSystemConfig(saveData);
+      notifySuccess("登录成功");
+      return
+    }
+  }
+  notifyError("登录失败");
+  return
+}
 async function exportBackup() {
   const { setProgress } = Dialog.showProcessDialog({
     message: `正在打包`,
@@ -334,6 +396,8 @@ async function importBackup(path = "") {
     }, 100);
   }
 }
+
+
 </script>
 <style scoped>
 @import "./setStyle.css";
