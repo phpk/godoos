@@ -22,7 +22,7 @@ import { Notify, NotifyConstructorOptions } from './notification/Notification';
 import { Dialog } from './window/Dialog';
 import { pick } from '../util/modash';
 import { Tray, TrayOptions } from './menu/Tary';
-import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig, getFileUrl } from './config'
+import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig, getFileUrl,fetchGet } from './config'
 import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
 
@@ -164,10 +164,9 @@ export class System {
     if (!system) return;
     const fileUrl = getFileUrl();
     if (!fileUrl) return;
-    fetch(`${fileUrl}/desktop`).then(res => res.json()).then(res => {
+    
+    fetchGet(`${fileUrl}/desktop`).then(res => res.json()).then(res => {
       if (res && res.code == 0) {
-        // system._rootState.apps = res.data.apps;
-        // system._rootState.menulist = res.data.menulist;
         system._rootState.apps.splice(0, system._rootState.apps.length, ...res.data.apps);
         system._rootState.menulist.splice(0, system._rootState.menulist.length, ...res.data.menulist);
       }

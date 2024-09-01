@@ -1,8 +1,8 @@
-import { getFileUrl } from "../config.ts";
+import { getFileUrl,fetchGet,fetchPost } from "../config.ts";
 const API_BASE_URL = getFileUrl()
 import { OsFileMode } from '../core/FileMode';
 export async function handleReadDir(path: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/read?path=${encodeURIComponent(path)}`);
+    const res = await fetchGet(`${API_BASE_URL}/read?path=${encodeURIComponent(path)}`);
     if (!res.ok) {
         return false;
     }
@@ -10,17 +10,14 @@ export async function handleReadDir(path: string): Promise<any> {
 }
 
 export async function handleStat(path: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/stat?path=${encodeURIComponent(path)}`);
+    const res = await fetchGet(`${API_BASE_URL}/stat?path=${encodeURIComponent(path)}`);
     if (!res.ok) {
         return false;
     }
     return await res.json();
 }
 export async function handleChmod(path: string, mode: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/chmod`, {
-        method: 'POST',
-        body: JSON.stringify({ path, mode }),
-    });
+    const res = await fetchPost(`${API_BASE_URL}/chmod`, JSON.stringify({ path, mode }));
     if (!res.ok) {
         return false;
     }
@@ -47,7 +44,7 @@ function osFileModeToOctal(mode: OsFileMode): string {
     }
 }
 export async function handleExists(path: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/exists?path=${encodeURIComponent(path)}`);
+    const res = await fetchGet(`${API_BASE_URL}/exists?path=${encodeURIComponent(path)}`);
     if (!res.ok) {
         return false;
     }
@@ -55,7 +52,7 @@ export async function handleExists(path: string): Promise<any> {
 }
 
 export async function handleReadFile(path: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/readfile?path=${encodeURIComponent(path)}`);
+    const res = await fetchGet(`${API_BASE_URL}/readfile?path=${encodeURIComponent(path)}`);
     if (!res.ok) {
         return false;
     }
@@ -63,7 +60,7 @@ export async function handleReadFile(path: string): Promise<any> {
 }
 
 export async function handleUnlink(path: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/unlink?path=${encodeURIComponent(path)}`);
+    const res = await fetchGet(`${API_BASE_URL}/unlink?path=${encodeURIComponent(path)}`);
     if (!res.ok) {
         return false;
     }
@@ -71,7 +68,7 @@ export async function handleUnlink(path: string): Promise<any> {
 }
 
 export async function handleClear(): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/clear`);
+    const res = await fetchGet(`${API_BASE_URL}/clear`);
     if (!res.ok) {
         return false;
     }
@@ -79,7 +76,7 @@ export async function handleClear(): Promise<any> {
 }
 
 export async function handleRename(oldPath: string, newPath: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/rename?oldPath=${encodeURIComponent(oldPath)}&newPath=${encodeURIComponent(newPath)}`);
+    const res = await fetchGet(`${API_BASE_URL}/rename?oldPath=${encodeURIComponent(oldPath)}&newPath=${encodeURIComponent(newPath)}`);
     if (!res.ok) {
         return false;
     }
@@ -87,7 +84,7 @@ export async function handleRename(oldPath: string, newPath: string): Promise<an
 }
 
 export async function handleMkdir(dirPath: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/mkdir?dirPath=${encodeURIComponent(dirPath)}`, { method: 'POST' });
+    const res = await fetchPost(`${API_BASE_URL}/mkdir?dirPath=${encodeURIComponent(dirPath)}`, {});
     if (!res.ok) {
         return false;
     }
@@ -95,7 +92,7 @@ export async function handleMkdir(dirPath: string): Promise<any> {
 }
 
 export async function handleRmdir(dirPath: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/rmdir?dirPath=${encodeURIComponent(dirPath)}`);
+    const res = await fetchGet(`${API_BASE_URL}/rmdir?dirPath=${encodeURIComponent(dirPath)}`);
     if (!res.ok) {
         return false;
     }
@@ -104,7 +101,7 @@ export async function handleRmdir(dirPath: string): Promise<any> {
 
 
 export async function handleCopyFile(srcPath: string, dstPath: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/copyfile?srcPath=${encodeURIComponent(srcPath)}&dstPath=${encodeURIComponent(dstPath)}`);
+    const res = await fetchGet(`${API_BASE_URL}/copyfile?srcPath=${encodeURIComponent(srcPath)}&dstPath=${encodeURIComponent(dstPath)}`);
     if (!res.ok) {
         return false;
     }
@@ -142,7 +139,7 @@ export async function handleWriteFile(filePath: string, content: any): Promise<a
     const formData = getFormData(content);
 
     const url = `${API_BASE_URL}/writefile?filePath=${encodeURIComponent(filePath)}`;
-    const res = await fetch(url, { method: 'POST', body: formData });
+    const res = await fetchPost(url, formData);
     if (!res.ok) {
         return false;
     }
@@ -152,7 +149,7 @@ export async function handleWriteFile(filePath: string, content: any): Promise<a
 export async function handleAppendFile(filePath: string, content: string | Blob): Promise<any> {
     const formData = getFormData(content);
     const url = `${API_BASE_URL}/appendfile?filePath=${encodeURIComponent(filePath)}`;
-    const res = await fetch(url, { method: 'POST', body: formData });
+    const res = await fetchPost(url, formData);
     if (!res.ok) {
         return false;
     }
@@ -179,14 +176,14 @@ export function handleWatch(path: string, callback: any, errback: any) {
     }
 }
 export async function handleZip(path: string, ext: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/zip?path=${encodeURIComponent(path)}&ext=${ext}`);
+    const res = await fetchGet(`${API_BASE_URL}/zip?path=${encodeURIComponent(path)}&ext=${ext}`);
     if (!res.ok) {
         return false;
     }
     return await res.json();
 }
 export async function handleUnZip(path: string): Promise<any> {
-    const res = await fetch(`${API_BASE_URL}/unzip?path=${encodeURIComponent(path)}`);
+    const res = await fetchGet(`${API_BASE_URL}/unzip?path=${encodeURIComponent(path)}`);
     if (!res.ok) {
         return false;
     }

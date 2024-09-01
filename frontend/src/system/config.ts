@@ -26,23 +26,30 @@ export const getSystemConfig = (ifset = false) => {
     if (!config.apiUrl) {
         config.apiUrl = 'http://localhost:56780';
     }
-    if(!config.userType){
+    if (!config.userType) {
         config.userType = 'person'
     }
     // 初始化用户信息，若本地存储中已存在则不进行覆盖
     if (!config.userInfo) {
         config.userInfo = {
-            url:'',
+            url: '',
             username: '',
             password: '',
-            memberId: 0,
+            id: 0,
             nickname: '',
             avatar: '',
             email: '',
-            mobile: '',
-            role: 0,
-            department: 0,
-            token:''
+            phone: '',
+            desc: '',
+            job_number: '',
+            work_place: '',
+            hired_date: '',
+            ding_id: '',
+            role_id: 0,
+            roleName: '',
+            dept_id: 0,
+            deptName: '',
+            token: ''
         };
     }
 
@@ -87,7 +94,6 @@ export const getSystemConfig = (ifset = false) => {
     // 初始化账户信息，若本地存储中已存在则不进行覆盖
     if (!config.account) {
         config.account = {
-            memberId: '',
             username: '',
             password: '',
         };
@@ -114,7 +120,7 @@ export const getSystemConfig = (ifset = false) => {
             dbname: ''
         };
     }
-  
+
     // 初始化桌面快捷方式列表，若本地存储中已存在则不进行覆盖
     if (!config.desktopList) {
         config.desktopList = [];
@@ -140,17 +146,55 @@ export function getApiUrl() {
 }
 export function getFileUrl() {
     const config = getSystemConfig();
-    if(config.storeType == 'net'){
-        return config.storenet.url + '/file'
-    }
-    else if (config.storeType == 'webdav') {
-        return config.apiUrl + '/webdav'
+    if (config.userType == 'person') {
+        if (config.storeType == 'net') {
+            return config.storenet.url + '/file'
+        }
+        else if (config.storeType == 'webdav') {
+            return config.apiUrl + '/webdav'
+        } else {
+            return config.apiUrl + '/file'
+        }
     }else{
-        return config.apiUrl + '/file'
+        return config.userInfo.url + '/files'
     }
-    
-}
 
+}
+export function fetchGet(url: string) {
+    const config = getSystemConfig();
+    if (config.userType == 'person') {
+        return fetch(url)
+    } else {
+        return fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                //'Content-Type': 'application/json',
+                'ClientID': getClientId(),
+                'Authorization': config.userInfo.token
+            }
+        })
+    }
+}
+export function fetchPost(url: string, data: any) {
+    const config = getSystemConfig();
+    if (config.userType == 'person') {
+        return fetch(url, {
+            method: 'POST',
+            body: data,
+        })
+    } else {
+        return fetch(url, {
+            method: 'POST',
+            credentials: 'include',
+            body: data,
+            headers: {
+                'ClientID': getClientId(),
+                'Authorization': config.userInfo.token
+            }
+        })
+    }
+}
 export function isWindowsOS() {
     return /win64|wow64|win32|win16|wow32/i.test(navigator.userAgent);
 }
@@ -203,3 +247,33 @@ export const clearSystemConfig = () => {
     localStorage.setItem('GodoOS-storeType', storetype)
     //localStorage.removeItem('GodoOS-config');
 };
+function bin2hex(s:string) {
+    s = encodeURI(s);//只会有0-127的ascii不转化
+    let m:any = s.match(/%[\dA-F]{2}/g), a:any = s.split(/%[\dA-F]{2}/), i, j, n, t;
+    m.push("")
+    for (i in a) {
+      if (a[i] === "") { a[i] = m[i]; continue }
+      n = ""
+      for (j in a[i]) {
+        t = a[i][j].charCodeAt().toString(16).toUpperCase()
+        if (t.length === 1) t = "0" + t
+        n += "%" + t
+      }
+      a[i] = n + m[i]
+    }
+    return a.join("").split("%").join("")
+  }
+  export const getClientId = () => {
+    let uuid:any = localStorage.getItem("godoosClientId");
+    if (!uuid) {
+      let canvas = document.createElement('canvas');
+      let ctx:any = canvas.getContext('2d');
+      ctx.fillStyle = '#FF0000';
+      ctx.fillRect(0, 0, 8, 10);
+      let b64 = canvas.toDataURL().replace("data:image/png;base64,", "");
+      let bin = window.atob(b64);
+      uuid = bin2hex(bin.slice(-16, -12));
+      localStorage.setItem("godoosClientId", uuid);
+    }
+    return uuid;
+  }

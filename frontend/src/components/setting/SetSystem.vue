@@ -103,10 +103,9 @@ import { inject, ref } from "vue";
 import { Dialog, join, System, t } from "@/system";
 import JSZip from "jszip";
 import FileSaver from "file-saver";
-import { getSystemConfig, setSystemConfig } from "@/system/config";
+import { getSystemConfig, setSystemConfig,getClientId } from "@/system/config";
 import { OpenDirDialog, RestartApp } from "@/util/goutil";
 import { notifyError, notifySuccess } from "@/util/msg";
-import { md5 } from 'js-md5';
 const config = ref(getSystemConfig());
 const sys = inject<System>("system")!;
 let zipFile: File | undefined = undefined;
@@ -268,16 +267,14 @@ async function saveUserInfo() {
     });
     return;
   }
-  const password = md5(saveData.userInfo.password)
-  const serverUrl = saveData.userInfo.url + '/api/v1/login'
+  const password = saveData.userInfo.password
+  const serverUrl = saveData.userInfo.url + '/member/login'
   const res = await fetch(serverUrl, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({
       username: saveData.userInfo.username,
       password: password,
+      clientId: getClientId(),
     }),
   });
   if (res.status === 200) {
@@ -288,10 +285,14 @@ async function saveUserInfo() {
       saveData.userInfo = data.data
       setSystemConfig(saveData);
       notifySuccess("登录成功");
+      RestartApp();
       return
+    }else{
+      notifyError(data.message)
     }
+  }else{
+    notifyError("登录失败");
   }
-  notifyError("登录失败");
   return
 }
 async function exportBackup() {
