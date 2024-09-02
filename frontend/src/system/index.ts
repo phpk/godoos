@@ -22,9 +22,10 @@ import { Notify, NotifyConstructorOptions } from './notification/Notification';
 import { Dialog } from './window/Dialog';
 import { pick } from '../util/modash';
 import { Tray, TrayOptions } from './menu/Tary';
-import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig, getFileUrl,fetchGet } from './config'
+import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig, getFileUrl, fetchGet, getClientId } from './config'
 import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
+import { notifyError, notifySuccess } from '@/util/msg';
 
 export type OsPlugin = (system: System) => void;
 export type FileOpener = {
@@ -92,17 +93,17 @@ export class System {
   private async initSystem() {
     this._rootState.state = SystemStateEnum.opening;
     this.fs = useOsFile(); // 初始化文件系统
-    initBuiltinApp(this); 
+    initBuiltinApp(this);
     initBuiltinFileOpener(this); // 注册内建文件打开器
     await this.initSavedConfig(); // 初始化保存的配置
     // 判断是否登录
-    this.isLogin();
+    await this.isLogin();
     initEventListener(); // 初始化事件侦听
 
-    
+
     this.initBackground(); // 初始化壁纸
     this.refershAppList();
-    
+
     setTimeout(() => {
       const upgradeStore = useUpgradeStore();
       upgradeStore.systemMessage()
@@ -114,29 +115,85 @@ export class System {
   /**
    * @description: 判断是否登录
    */
-  private isLogin() {
-    if (!this._options.login) {
-      this._rootState.state = SystemStateEnum.open;
-      return;
-    } else {
-      if (this._options.login.init?.()) {
+  private async isLogin() {
+    const config = getSystemConfig();
+    if (config.userType == 'person') {
+      if (!this._options.login) {
         this._rootState.state = SystemStateEnum.open;
         return;
-      }
-
-      this._rootState.state = SystemStateEnum.lock;
-      const tempCallBack = this._options.loginCallback;
-      if (!tempCallBack) {
-        throw new Error('没有设置登录回调函数');
-      }
-      this._options.loginCallback = async (username: string, password: string) => {
-        const res = await tempCallBack(username, password);
-        if (res) {
+      } else {
+        if (this._options.login.init?.()) {
           this._rootState.state = SystemStateEnum.open;
-          return true;
+          return;
         }
-        return false;
-      };
+
+        this._rootState.state = SystemStateEnum.lock;
+        const tempCallBack = this._options.loginCallback;
+        if (!tempCallBack) {
+          throw new Error('没有设置登录回调函数');
+        }
+        this._options.loginCallback = async (username: string, password: string) => {
+          const res = await tempCallBack(username, password);
+          if (res) {
+            this._rootState.state = SystemStateEnum.open;
+            return true;
+          }
+          return false;
+        };
+      }
+    } else {
+      const userInfo = config.userInfo;
+      if (userInfo.url == '') {
+        return true;
+      }
+      const res = await fetchGet(`${userInfo.url}/member/islogin`);
+      if (!res.ok) {
+        notifyError('登录失败，请检查网络连接或重新登录');
+        return true;
+      }
+      const data = await res.json();
+      //console.log(data)
+      if (data.success) {
+        this._rootState.state = SystemStateEnum.open;
+        return true;
+      } else {
+        //return true;
+        this._rootState.state = SystemStateEnum.lock;
+
+        this._options.loginCallback = async (username: string, password: string) => {
+          const serverUrl = config.userInfo.url + '/member/login'
+          const res: any = await fetch(serverUrl, {
+            method: "POST",
+            body: JSON.stringify({
+              username: username,
+              password: password,
+              clientId: getClientId(),
+            }),
+          });
+          if (!res.ok) {
+            return false
+          }
+          const jsondata = await res.json();
+          if (jsondata.success) {
+            jsondata.data.url = config.userInfo.url
+            jsondata.data.password = password
+            config.userInfo = jsondata.data
+            setSystemConfig(config);
+            this._rootState.state = SystemStateEnum.open;
+            this.refershAppList()
+            return true
+          } else {
+            notifyError(jsondata.message)
+            return false
+          }
+        };
+        // //const tmpCallBack = this._options.authCallback;
+        // this._options.authCallback = async (username: string, password: string, captcha :string) => {
+        //   //this._rootState.state = SystemStateEnum.open;
+        //     return false;
+        // };
+        // return false;
+      }
     }
   }
 
@@ -159,12 +216,12 @@ export class System {
   }
 
   refershAppList() {
-    
+
     const system = useSystem();
     if (!system) return;
     const fileUrl = getFileUrl();
     if (!fileUrl) return;
-    
+
     fetchGet(`${fileUrl}/desktop`).then(res => res.json()).then(res => {
       if (res && res.code == 0) {
         system._rootState.apps.splice(0, system._rootState.apps.length, ...res.data.apps);
@@ -173,7 +230,7 @@ export class System {
     })
   }
 
-  
+
   initAppList() {
     this.isReadyUpdateAppList = true;
     nextTick(() => {

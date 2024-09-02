@@ -18,7 +18,7 @@ import { onMounted, ref, watch } from "vue";
 import { useSystem } from "@/system";
 const rootState = useSystem()._rootState;
 const backgroundType = ref("color");
-const background = ref("#3A98CE");
+const background:any = ref("#3A98CE");
 const loaded = ref(false);
 
 function imgload() {
@@ -32,8 +32,8 @@ watch(rootState.options, (nv) => {
 });
 function refershBack(val: string | undefined) {
   background.value = val || "#3A98CE";
-
-  if (background.value.startsWith("/image/")) {
+  console.log(background.value)
+  if (background.value || background.value.startsWith("/image/")) {
     backgroundType.value = "image";
   } else {
     backgroundType.value = "color";

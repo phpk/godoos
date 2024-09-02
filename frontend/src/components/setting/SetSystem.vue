@@ -251,6 +251,7 @@ async function saveUserInfo() {
   if (saveData.userType == 'person') {
     setSystemConfig(saveData);
     notifySuccess("保存成功");
+    RestartApp();
     return
   }
   if (!urlRegex.test(saveData.userInfo.url.trim())) {
