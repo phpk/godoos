@@ -9,7 +9,7 @@
       </ul>
     </div>
     <div class="setting">
-      <div v-if="0 === activeIndex">
+      <div v-if="1 === activeIndex">
         <div class="setting-item" style="margin-top: 60px">
           <label>存储方式</label>
           <el-select v-model="config.storeType">
@@ -49,7 +49,7 @@
         </div>
       </div>
 
-      <div v-if="1 === activeIndex">
+      <div v-if="2 === activeIndex">
         <div class="setting-item">
           <h1 class="setting-title">备份</h1>
         </div>
@@ -66,7 +66,7 @@
           <input type="file" accept=".zip" style="display: none" ref="zipFileInput" />
         </div>
       </div>
-      <div v-if="2 === activeIndex">
+      <div v-if="0 === activeIndex">
         <div class="setting-item" style="margin-top: 60px">
           <label>用户角色</label>
           <el-select v-model="config.userType">
@@ -130,7 +130,7 @@ const storeList = [
   },
 ];
 
-const items = ["个人存储", "备份还原", "用户角色"];
+const items = ["用户角色","个人存储", "备份还原"];
 const urlRegex = /^(https?:\/\/)/;
 const userTypes = [
   {

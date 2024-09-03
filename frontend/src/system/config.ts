@@ -49,7 +49,9 @@ export const getSystemConfig = (ifset = false) => {
             roleName: '',
             dept_id: 0,
             deptName: '',
-            token: ''
+            token: '',
+            user_auths: '',
+            user_shares: ''
         };
     }
 
@@ -94,6 +96,7 @@ export const getSystemConfig = (ifset = false) => {
     // 初始化账户信息，若本地存储中已存在则不进行覆盖
     if (!config.account) {
         config.account = {
+            ad: true,
             username: '',
             password: '',
         };
@@ -155,7 +158,7 @@ export function getFileUrl() {
         } else {
             return config.apiUrl + '/file'
         }
-    }else{
+    } else {
         return config.userInfo.url + '/files'
     }
 
@@ -207,13 +210,7 @@ export function parseJson(str: string) {
 };
 export function getSplit() {
     if (isWindowsOS()) {
-        const storeType = getSystemKey('storeType')
-        //console.log(storeType)
-        if (storeType === 'browser') {
-            return "/"
-        } else {
-            return "\\"
-        }
+        return "\\"
     } else {
         return "/"
     }
@@ -242,38 +239,38 @@ export const setSystemConfig = (config: any) => {
 };
 
 export const clearSystemConfig = () => {
-    const storetype = localStorage.getItem('GodoOS-storeType') || 'browser';
+    const storetype = localStorage.getItem('GodoOS-storeType') || 'local';
     localStorage.clear()
     localStorage.setItem('GodoOS-storeType', storetype)
     //localStorage.removeItem('GodoOS-config');
 };
-function bin2hex(s:string) {
+function bin2hex(s: string) {
     s = encodeURI(s);//只会有0-127的ascii不转化
-    let m:any = s.match(/%[\dA-F]{2}/g), a:any = s.split(/%[\dA-F]{2}/), i, j, n, t;
+    let m: any = s.match(/%[\dA-F]{2}/g), a: any = s.split(/%[\dA-F]{2}/), i, j, n, t;
     m.push("")
     for (i in a) {
-      if (a[i] === "") { a[i] = m[i]; continue }
-      n = ""
-      for (j in a[i]) {
-        t = a[i][j].charCodeAt().toString(16).toUpperCase()
-        if (t.length === 1) t = "0" + t
-        n += "%" + t
-      }
-      a[i] = n + m[i]
+        if (a[i] === "") { a[i] = m[i]; continue }
+        n = ""
+        for (j in a[i]) {
+            t = a[i][j].charCodeAt().toString(16).toUpperCase()
+            if (t.length === 1) t = "0" + t
+            n += "%" + t
+        }
+        a[i] = n + m[i]
     }
     return a.join("").split("%").join("")
-  }
-  export const getClientId = () => {
-    let uuid:any = localStorage.getItem("godoosClientId");
+}
+export const getClientId = () => {
+    let uuid: any = localStorage.getItem("godoosClientId");
     if (!uuid) {
-      let canvas = document.createElement('canvas');
-      let ctx:any = canvas.getContext('2d');
-      ctx.fillStyle = '#FF0000';
-      ctx.fillRect(0, 0, 8, 10);
-      let b64 = canvas.toDataURL().replace("data:image/png;base64,", "");
-      let bin = window.atob(b64);
-      uuid = bin2hex(bin.slice(-16, -12));
-      localStorage.setItem("godoosClientId", uuid);
+        let canvas = document.createElement('canvas');
+        let ctx: any = canvas.getContext('2d');
+        ctx.fillStyle = '#FF0000';
+        ctx.fillRect(0, 0, 8, 10);
+        let b64 = canvas.toDataURL().replace("data:image/png;base64,", "");
+        let bin = window.atob(b64);
+        uuid = bin2hex(bin.slice(-16, -12));
+        localStorage.setItem("godoosClientId", uuid);
     }
     return uuid;
-  }
+}

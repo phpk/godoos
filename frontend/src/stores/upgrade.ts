@@ -36,6 +36,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     }
     function systemMessage(){
         const config = getSystemConfig();
+        
         const source = new EventSource(`${config.apiUrl}/system/message`);
 
         source.onmessage = function(event) {
@@ -59,6 +60,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     async function checkUpdate(res:any) {
         //console.log(res)
         const config = getSystemConfig();
+        if(!config.account.ad)return;
         currentVersion.value = config.version;
         let bottomList:any = []
         let centerList:any = []
@@ -68,13 +70,13 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         }
         if(bottomList && bottomList.length > 0){
             hasNotice.value = true
-            noticeList.value = changeUrl(bottomList)
+            noticeList.value = [...noticeList.value, ...changeUrl(bottomList)]
         }
         //console.log(noticeList)
         //console.log(centerList)
         if(centerList && centerList.length > 0){
             hasAd.value = true
-            adList.value = changeUrl(centerList)
+            adList.value = [...adList.value, ...changeUrl(centerList)]
         }
         //console.log(adList.value)
 

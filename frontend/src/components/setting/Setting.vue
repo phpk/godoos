@@ -86,7 +86,6 @@ const setList = ref([
     key: "system",
     title: t("system"),
     desc: "存储、备份还原、用户角色",
-    // desc: t('brightness'),
     icon: "system",
     content: "SetSystem",
   },
@@ -94,14 +93,14 @@ const setList = ref([
   {
     key: "custom",
     title: t("personalization"),
-    desc: t("background.lockscreen.color"),
+    desc: '壁纸',
     icon: "personal",
     content: "SetCustom",
   },
 
   {
     key: "language",
-    title: t("time.and.language"),
+    title: '语言',
     desc: t("language"),
     icon: "language",
     content: "SetLang",
@@ -109,8 +108,8 @@ const setList = ref([
 
   {
     key: "account",
-    title: t("account"),
-    desc: t("your.account"),
+    title: "屏幕",
+    desc: '锁屏/广告',
     icon: "account",
     content: "SetAccount",
   },

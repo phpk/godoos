@@ -228,12 +228,17 @@ func HandleRename(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	err = CheckDeleteDesktop(oldPath)
+	if err != nil {
+		log.Printf("Error deleting file from desktop: %s", err.Error())
+	}
 	err = Rename(basePath, oldPath, newPath)
 	if err != nil {
 		log.Printf("Error renaming file: %s", err.Error())
 		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
+
 	err = CheckAddDesktop(newPath)
 	if err != nil {
 		log.Printf("Error adding file to desktop: %s", err.Error())

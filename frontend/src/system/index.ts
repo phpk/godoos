@@ -25,7 +25,7 @@ import { Tray, TrayOptions } from './menu/Tary';
 import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig, getFileUrl, fetchGet, getClientId } from './config'
 import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
-import { notifyError, notifySuccess } from '@/util/msg';
+import { notifyError } from '@/util/msg';
 
 export type OsPlugin = (system: System) => void;
 export type FileOpener = {

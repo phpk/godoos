@@ -1,17 +1,12 @@
 <template>
   <div class="outer">
-    <input class="win-input" v-model="name" />
+    <el-input class="win-input" v-model="name" />
     <WinButton @click="confirm">{{ t("confirm") }}</WinButton>
   </div>
 </template>
 <script setup lang="ts">
 import { inject, ref } from "vue";
-// import { OsFileWithoutContent } from '@/system/core/FileSystem';
-// import { useSystem } from '../system';
-// import { BrowserWindow } from '../window/BrowserWindow';
 import { emitEvent } from "@/system/event";
-// import { join } from '../core/Path';
-// import { basename } from '@/system/core/Path';
 import {
   Dialog,
   t,
@@ -34,7 +29,7 @@ function confirm() {
     });
     return;
   }
-  const newPath = join(browserWindow.config.content.path, "..", name.value);
+  const newPath = join(browserWindow.config.content.path, name.value);
   useSystem()
     ?.fs.rename(browserWindow.config.content.path, newPath)
     .then(() => {

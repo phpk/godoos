@@ -64,7 +64,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { useSystem, basename, dirname, join, OsFileWithoutContent, Notify } from '@/system/index.ts';
+import { useSystem, basename, dirname, join, OsFileWithoutContent, Notify, BrowserWindow } from '@/system/index.ts';
 import { getSystemKey } from '@/system/config'
 import { emitEvent, mountEvent } from '@/system/event';
 import { useContextMenu } from '@/hook/useContextMenu.ts';
@@ -77,6 +77,7 @@ import { throttle } from '@/util/debounce';
 import { dealSize } from '@/util/file';
 import { Menu } from '@/system/menu/Menu';
 import { useChooseStore } from "@/stores/choose";
+import { log } from 'console';
 const { openPropsWindow, copyFile, createLink, deleteFile } = useContextMenu();
 const sys = useSystem();
 const { startDrag, folderDrop } = useFileDrag(sys);
@@ -161,11 +162,25 @@ const editName = ref<string>('');
 function onEditNameEnd() {
   const editEndName = editName.value.trim();
   if (editEndName && editIndex.value >= 0) {
+    const editpath: any = props.fileList[editIndex.value].path.toString()
+    let newPath: any;
+    let sp = "/"
+    if (editpath.indexOf("/") === -1) {
+      sp = "\\"
+    }
+    newPath = editpath?.split(sp);
+    newPath.pop()
+    newPath.push(editEndName)
+    newPath = newPath.join(sp)
     sys?.fs.rename(
-      props.fileList[editIndex.value].path,
-      join(dirname(props.fileList[editIndex.value].path), editEndName)
+      editpath,
+      newPath
     );
     props.onRefresh();
+    if(newPath.indexOf("Desktop") !== -1){
+      sys.refershAppList()
+    }
+    
   }
   editIndex.value = -1;
 }
@@ -368,6 +383,46 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
       },
 
     ];
+    const userType = sys.getConfig('userType');
+    if (userType == 'member') {
+
+      menuArr.push(
+        {
+          label: '分享给...',
+          click: () => {
+            const win = new BrowserWindow({
+              title: '分享',
+              content: "ShareFiles",
+              config: {
+                path: item.path,
+              },
+              width: 500,
+              height: 500,
+              center: true,
+            });
+            win.show();
+          },
+        }
+      )
+      menuArr.push(
+        {
+          label: '评论',
+          click: () => {
+            const win = new BrowserWindow({
+              title: '评论',
+              content: "CommentsFiles",
+              config: {
+                path: item.path,
+              },
+              width: 350,
+              height: 400,
+              center: true,
+            });
+            win.show();
+          },
+        }
+      )
+    }
     // eslint-disable-next-line prefer-spread
     menuArr.push.apply(menuArr, fileMenus)
   }

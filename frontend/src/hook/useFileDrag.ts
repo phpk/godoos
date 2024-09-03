@@ -40,7 +40,7 @@ export function useFileDrag(system: System) {
   async function writeFileToInner(
     path: string,
     name?: string,
-    content?: string,
+    content?: any,
     process?: (path: string) => void
   ) {
     console.log(content)
@@ -48,15 +48,6 @@ export function useFileDrag(system: System) {
       Dialog.showMessageBox({message:"上传失败", type:'error'})
       return;
     }
-    // let fileNameArr = name?.split(".")
-    // let ext = fileNameArr?.pop()
-    // let title = fileNameArr?.join(".")
-    // let save = {
-    //   title,
-    //   //blob: content?.replace(/data:.*?;base64,/, '') || ''
-    //   base64 : content || '',
-    //   ext
-    // }
     return await system?.fs
       .writeFile(FsPath.join(path, name || 'unkown'), content)
       .then(() => {
@@ -65,7 +56,8 @@ export function useFileDrag(system: System) {
   }
   // 外部文件拖到文件夹放下时
   async function outerFileDrop(path: string, list: FileList | undefined, process: (path: string) => void) {
-    const len = list?.length || 0;
+    if (!list) return;
+    const len = list.length
     const { setProgress } = Dialog.showProcessDialog({
       message: '正在写入到文件夹中',
     });
@@ -74,35 +66,32 @@ export function useFileDrag(system: System) {
       await new Promise((resolve) => {
         const item = list?.[i];
         console.log(item)
+        if (!item) return;
         // let oFile = null;
         const reader = new FileReader();
         //读取成功
         reader.onload = function () {
-          console.log(reader);
+          // console.log(reader);
+          //console.log(reader.result)
         };
         reader.onloadstart = function () {
-          console.log('读取开始');
+          //console.log('读取开始');
         };
         reader.onloadend = async function () {
-          //console.log(reader.result)
-          await writeFileToInner(path, item?.name, reader.result as string, process);
+          await writeFileToInner(path, item.name, reader.result as any, process);
           resolve(true);
         };
         reader.onabort = function () {
-          console.log('中断');
+          //console.log('中断');
         };
         reader.onerror = function () {
-          console.log('读取失败');
+          //console.log('读取失败');
         };
         reader.onprogress = function (ev) {
           const scale = ev.loaded / ev.total;
-          if (scale >= 0.5) {
-            reader.abort();
-          }
+          setProgress(scale);
         };
-        //reader.readAsDataURL(new Blob([item as BlobPart]));
-        //reader.readAsDataURL(item!);
-        reader.readAsArrayBuffer(item!);
+        reader.readAsArrayBuffer(item);
       });
     }
     setProgress(101);

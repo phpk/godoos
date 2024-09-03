@@ -12,12 +12,15 @@
             </el-icon>
 		</div>
 	</div>
+	<ShowNews />
 </template>
 
 <script setup lang="ts" name="layoutSponsors">
 import { reactive, computed } from 'vue';
 import { useUpgradeStore } from '@/stores/upgrade';
+import { useNotifyStore } from '@/stores/notify';
 const upgradeStore = useUpgradeStore();
+const notifyStore = useNotifyStore();
 
 // 定义变量内容
 const state = reactive({
@@ -41,10 +44,14 @@ const onCarouselChange = (e: number) => {
 };
 // 当前项内容点击
 const onSponsorsClick = () => {
-    const link = upgradeStore.adList[state.ad.index]?.link
+	const data = upgradeStore.adList[state.ad.index]
+    const link = data?.link
     if(link){
         window.open(link)
     }
+	if(data?.content){
+		notifyStore.viewContent(data)
+	}
 };
 </script>
 

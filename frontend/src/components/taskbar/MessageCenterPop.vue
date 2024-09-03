@@ -7,7 +7,7 @@
         </div>
         <div class="message-group scroll-bar">
           <div class="message-item" v-for="notify in store.notifyList" :key="notify.id">
-            <div class="message-item-title" @click="showDetail(notify)">
+            <div class="message-item-title" @click="store.viewContent(notify)">
               <span>{{ notify.title }}</span>
             </div>
           </div>
@@ -20,12 +20,7 @@
       </div>
     </div>
   </Transition>
-  <el-dialog v-model="showNews" :title="newsDetail.title" show-close="true" width="600">
-    <div class="new-content">
-      <div class="news-detail" v-html="newsDetail.content"></div>
-      <p class="new-time"><strong>发布时间:</strong> {{ newsDetail.showtime }}</p>
-    </div>
-  </el-dialog>
+  <ShowNews />
 </template>
 <script setup lang="ts">
 import { useNotifyStore } from '@/stores/notify';
@@ -33,8 +28,6 @@ import { ref } from 'vue';
 import { mountEvent } from '@/system/event';
 const store = useNotifyStore()
 const isPopShow = ref(false);
-const newsDetail: any = ref({})
-const showNews = ref(false)
 
 mountEvent('messagecenter.show', () => {
   isPopShow.value = !isPopShow.value;
@@ -46,13 +39,6 @@ onMounted(async () => {
   // store.init();
   await store.getList()
 });
-const showDetail = (notify: any) => {
-  const timestamp = notify.add_time * 1000; // 将 10 位时间戳转换为 13 位
-  const date = new Date(timestamp);
-  notify.showtime = date.toLocaleString();
-  newsDetail.value = notify
-  showNews.value = true
-}
 </script>
 <style lang="scss" scoped>
 @import '@/assets/main.scss';
@@ -166,34 +152,4 @@ const showDetail = (notify: any) => {
   transform: translateX(100%);
 }
 
-.new-content {
-  padding: 20px;
-  background-color: #F5F5F5;
-  border: 1px solid #E5E5E5;
-  border-radius: 4px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-  .new-time {
-    margin-bottom: 10px;
-    font-size: 14px;
-    color: #666;
-
-    strong {
-      font-weight: bold;
-      color: #333;
-    }
-  }
-
-  .news-detail {
-    font-size: 16px;
-    line-height: 1.5;
-    color: #333;
-    white-space: pre-wrap;
-  }
-  .news-detail:deep(img){
-    max-width: 90%;
-  }
-
-}
 </style>

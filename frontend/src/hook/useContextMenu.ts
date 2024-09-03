@@ -44,9 +44,9 @@ function useContextMenu() {
         callback?.();
       });
     }
-    
+
     //console.log(path)
-    let menuArr = [
+    let menuArr: any = [
       {
         label: t('refresh'),
         click: () => {
@@ -100,29 +100,7 @@ function useContextMenu() {
           },
         ],
       },
-      
-      // {
-      //   label: '新建报告',
-      //   submenu: [
 
-      //     {
-      //       label: '日报(Day)',
-      //       click : () => clickFunc('day', '日报'),
-      //     },
-      //     {
-      //       label: '周报(Week)',
-      //       click : () => clickFunc('week', '周报'),
-      //     },
-      //     {
-      //       label: '季报(Quarter)',
-      //       click : () => clickFunc('quarter', '季报'),
-      //     },
-      //     {
-      //       label: '年报(Year)',
-      //       click: () => clickFunc('year', '年报'),
-      //     },
-      //   ],
-      // },
       {
         label: t('paste'),
         click: () => {
@@ -139,9 +117,26 @@ function useContextMenu() {
           });
         },
       },
-      ...(system._rootState.options.contextMenus || []),
     ];
-
+    const userInfo: any = system.getConfig('userInfo');
+    if (userInfo.user_auths && userInfo.user_auths.length > 0 && userInfo.user_auths != "") {
+      menuArr.push(
+        {
+          label: '安排任务',
+          click: () => {
+            const win = new BrowserWindow({
+              title: '安排任务',
+              content: "PlanTasks",
+              width: 600,
+              height: 600,
+              center: true,
+            });
+            win.show();
+          }
+        }
+      )
+    }
+    menuArr = [...menuArr, ...(system._rootState.options.contextMenus || [])]
     const menu = Menu.buildFromTemplate(
       uniqBy(
         menuArr,
@@ -162,7 +157,7 @@ function useContextMenu() {
       }
       newFilePath = fspath.join(path, `${title}(${i})${ext}`);
     }
-    
+
     const content = '';
     return await system.fs.writeFile(newFilePath, content);
   }
