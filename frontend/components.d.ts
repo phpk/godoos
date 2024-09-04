@@ -120,6 +120,7 @@ declare module 'vue' {
     SetSystem: typeof import('./src/components/setting/SetSystem.vue')['default']
     Setting: typeof import('./src/components/setting/Setting.vue')['default']
     SetUpdate: typeof import('./src/components/setting/SetUpdate.vue')['default']
+    ShareFiles: typeof import('./src/components/oa/ShareFiles.vue')['default']
     ShowNews: typeof import('./src/components/taskbar/ShowNews.vue')['default']
     StartMenu: typeof import('./src/components/taskbar/StartMenu.vue')['default']
     StartOption: typeof import('./src/components/taskbar/StartOption.vue')['default']
