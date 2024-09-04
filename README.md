@@ -213,6 +213,7 @@ wails build
 - [vditor](https://github.com/Vanessa219/vditor)
 - [mind-map](https://github.com/wanglin2/mind-map)
 - [canvas-editor](https://github.com/Hufe921/canvas-editor)
+- [Luckysheet](https://gitee.com/mengshukeji/Luckysheet/)
 
 ## 💕 关联项目
 - [godoai](https://gitee.com/ruitao_admin/godoai)
