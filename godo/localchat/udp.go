@@ -2,9 +2,11 @@ package localchat
 
 import (
 	"encoding/json"
+	"godo/libs"
 	"log"
 	"net"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -102,10 +104,10 @@ func ListenForBroadcast() {
 	defer conn.Close()
 
 	// 获取本地 IP 地址
-	// localIP, err := libs.GetIPAddress()
-	// if err != nil {
-	// 	log.Printf("Failed to get local IP address: %v", err)
-	// }
+	ips, err := libs.GetValidIPAddresses()
+	if err != nil {
+		log.Fatalf("Failed to get local IP addresses: %v", err)
+	}
 
 	// 开始监听多播消息
 	buffer := make([]byte, 1024)
@@ -122,19 +124,27 @@ func ListenForBroadcast() {
 			log.Printf("Error unmarshalling JSON: %v", err)
 			continue
 		}
-		// if udpMsg.IP == localIP {
-		// 	continue
-		// }
 		// 从 remoteAddr 获取 IP 地址
 		ip := remoteAddr.IP.String()
-		if !contains(OnlineUsers, ip) {
+		if containArr(ips, ip) {
+			continue
+		}
+		if !containIp(OnlineUsers, ip) {
 			OnlineUsers = append(OnlineUsers, UdpAddress{Hostname: udpMsg.Hostname, IP: ip})
 			log.Printf("在线用户: %v", OnlineUsers)
 		}
 		log.Printf("Received message from %s: %s", remoteAddr, udpMsg.Hostname)
 	}
 }
-func contains(slice []UdpAddress, element string) bool {
+func containArr(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+func containIp(slice []UdpAddress, element string) bool {
 	for _, v := range slice {
 		if v.IP == element {
 			return true
@@ -147,4 +157,8 @@ func GetOnlineUsers() []UdpAddress {
 }
 func GetBroadcastAddr() string {
 	return "224.0.0.251:20249"
+}
+func GetBroadcastPort() string {
+	addr := GetBroadcastAddr()
+	return addr[strings.LastIndex(addr, ":")+1:]
 }
