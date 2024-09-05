@@ -20,11 +20,13 @@ type UdpMessage struct {
 // 多播地址列表
 var multicastAddrs = []string{"239.255.255.250:2024", "239.255.255.251:2024", "224.0.0.251:1234", "224.0.0.1:1679"}
 var OnlineUsers = make(map[string]UdpMessage) // 全局map，key为IP，value为主机名
+
 // SendMulticast 发送多播消息
 func init() {
 	go InitMulticast()
 	go ListenForMulticast()
 }
+
 func InitMulticast() {
 	myIP, myHostname, err := GetMyIPAndHostname()
 	if err != nil {
@@ -38,6 +40,7 @@ func InitMulticast() {
 	}
 	SendMulticast(message)
 }
+
 func SendMulticast(message UdpMessage) error {
 	for _, addrStr := range multicastAddrs {
 		addr, err := net.ResolveUDPAddr("udp4", addrStr)
@@ -69,9 +72,20 @@ func SendMulticast(message UdpMessage) error {
 
 // ListenForMulticast 监听多播消息
 func ListenForMulticast() {
-	multicastGroup, err := net.ResolveUDPAddr("udp4", multicastAddrs[0])
-	if err != nil {
-		fmt.Println("Error resolving UDP address:", err)
+	// 选择一个可用的多播地址
+	var multicastGroup *net.UDPAddr
+	var err error
+	for _, addrStr := range multicastAddrs {
+		multicastGroup, err = net.ResolveUDPAddr("udp4", addrStr)
+		if err != nil {
+			fmt.Println("Error resolving UDP address:", err)
+			continue
+		}
+		break
+	}
+
+	if multicastGroup == nil {
+		fmt.Println("No available multicast address found")
 		return
 	}
 
@@ -81,8 +95,40 @@ func ListenForMulticast() {
 		return
 	}
 	defer conn.Close()
+
 	udpConn := ipv4.NewPacketConn(conn)
-	if err := udpConn.JoinGroup(nil, multicastGroup); err != nil {
+
+	// 获取本地网络接口
+	localIfaces, err := net.Interfaces()
+	if err != nil {
+		log.Fatalf("Failed to get local interfaces: %v", err)
+	}
+
+	// 选择一个可用的网络接口
+	var localInterface *net.Interface
+	for _, iface := range localIfaces {
+		addrs, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+		for _, addr := range addrs {
+			if ipNet, ok := addr.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
+				if ipNet.IP.To4() != nil {
+					localInterface = &iface
+					break
+				}
+			}
+		}
+		if localInterface != nil {
+			break
+		}
+	}
+
+	if localInterface == nil {
+		log.Fatal("No suitable network interface found")
+	}
+
+	if err := udpConn.JoinGroup(localInterface, multicastGroup); err != nil {
 		log.Fatalf("Failed to join multicast group: %v", err)
 	}
 
@@ -140,6 +186,7 @@ func SendToIP(ip string, message UdpMessage) error {
 func GetOnlineUsers() map[string]UdpMessage {
 	return OnlineUsers
 }
+
 func HandleMessage(w http.ResponseWriter, r *http.Request) {
 	var msg UdpMessage
 	decoder := json.NewDecoder(r.Body)
@@ -155,14 +202,11 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	msg.IP = preferredIP
-	//msg.Type = "text"
 	err = SendToIP(ip, msg)
 	if err != nil {
 		http.Error(w, "Failed to send message", http.StatusInternalServerError)
 		return
 	}
-	//log.Printf("Received text message from %s: %s", msg.SenderInfo.IP, msg.Content)
-	// 这里可以添加存储文本消息到数据库或其他处理逻辑
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Text message send successfully")
 }
