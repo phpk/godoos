@@ -1,23 +1,18 @@
 package localchat
 
-import (
-	"fmt"
-	"os"
-)
+// // 获取自己的IP地址和主机名
+// func GetMyIPAndHostname() (string, string, error) {
+// 	hostname, err := os.Hostname()
+// 	if err != nil {
+// 		return "", "", fmt.Errorf("failed to get hostname: %w", err)
+// 	}
+// 	preferredIP, err := GetLocalIP()
+// 	if err != nil {
+// 		return "", "", fmt.Errorf("failed to get IP address: %w", err)
+// 	}
 
-// 获取自己的IP地址和主机名
-func GetMyIPAndHostname() (string, string, error) {
-	hostname, err := os.Hostname()
-	if err != nil {
-		return "", "", fmt.Errorf("failed to get hostname: %w", err)
-	}
-	preferredIP, err := GetLocalIP()
-	if err != nil {
-		return "", "", fmt.Errorf("failed to get IP address: %w", err)
-	}
-
-	return preferredIP, hostname, nil
-}
+// 	return preferredIP, hostname, nil
+// }
 
 // func GetLocalIP() (string, error) {
 // 	addrs, err := net.Interfaces()
