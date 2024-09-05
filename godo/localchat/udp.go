@@ -6,6 +6,13 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"time"
+)
+
+const (
+	BroadcastIP   = "255.255.255.255"
+	BroadcastPort = 20249
 )
 
 type UdpMessage struct {
@@ -15,7 +22,7 @@ type UdpMessage struct {
 	Message  interface{} `json:"message"`
 }
 
-var broadcastAddr = "255.255.255.255:20249"
+var broadcastAddr = fmt.Sprintf("%s:%d", BroadcastIP, BroadcastPort)
 var OnlineUsers = make(map[string]UdpMessage)
 
 // SendBroadcast 发送广播消息
@@ -25,18 +32,25 @@ func init() {
 }
 
 func InitBroadcast() {
-	myIP, myHostname, err := GetMyIPAndHostname()
-	if err != nil {
-		log.Println("Failed to get IP and hostname:", err)
-		return
+	ticker := time.NewTicker(5 * time.Second) // 每 5 秒发送一次广播消息
+	defer ticker.Stop()
+
+	for range ticker.C {
+		hostname, err := os.Hostname()
+		if err != nil {
+			log.Printf("Failed to get hostname: %v", err)
+			continue
+		}
+		message := UdpMessage{
+			Type:     "online",
+			Hostname: hostname,
+			Message:  "",
+		}
+		err = SendBroadcast(message)
+		if err != nil {
+			log.Println("Failed to send broadcast message:", err)
+		}
 	}
-	message := UdpMessage{
-		Type:     "online",
-		IP:       myIP,
-		Hostname: myHostname,
-		Message:  "online",
-	}
-	SendBroadcast(message)
 }
 
 func SendBroadcast(message UdpMessage) error {
@@ -60,6 +74,14 @@ func SendBroadcast(message UdpMessage) error {
 	}
 	defer conn.Close()
 
+	// 获取本地 IP 地址
+	localIP, err := getLocalIP(conn)
+	if err != nil {
+		log.Printf("Failed to get local IP address: %v", err)
+		return err
+	}
+	message.IP = localIP
+
 	data, err := json.Marshal(message)
 	if err != nil {
 		log.Printf("Failed to marshal JSON for %s: %v", broadcastAddr, err)
@@ -79,7 +101,7 @@ func SendBroadcast(message UdpMessage) error {
 // ListenForBroadcast 监听广播消息
 func ListenForBroadcast() {
 	// 使用本地地址监听
-	localAddr, err := net.ResolveUDPAddr("udp4", ":20249")
+	localAddr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf(":%d", BroadcastPort))
 	if err != nil {
 		log.Fatalf("Failed to resolve local UDP address: %v", err)
 	}
@@ -89,6 +111,12 @@ func ListenForBroadcast() {
 		log.Fatalf("Failed to listen on UDP address: %v", err)
 	}
 	defer conn.Close()
+
+	// 获取本地 IP 地址
+	localIP, err := getLocalIP(conn)
+	if err != nil {
+		log.Printf("Failed to get local IP address: %v", err)
+	}
 
 	// 开始监听广播消息
 	buffer := make([]byte, 1024)
@@ -105,7 +133,9 @@ func ListenForBroadcast() {
 			log.Printf("Error unmarshalling JSON: %v", err)
 			continue
 		}
-
+		if udpMsg.IP == localIP {
+			continue
+		}
 		OnlineUsers[udpMsg.IP] = udpMsg
 		if udpMsg.Type == "file" {
 			RecieveFile(udpMsg)
@@ -115,10 +145,11 @@ func ListenForBroadcast() {
 }
 
 // SendToIP 向指定的 IP 地址发送 UDP 消息
-func SendToIP(ip string, message UdpMessage) error {
-	addr, err := net.ResolveUDPAddr("udp4", ip)
+func SendToIP(message UdpMessage) error {
+	toIp := message.IP
+	addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%d", toIp, BroadcastPort))
 	if err != nil {
-		log.Printf("Failed to resolve UDP address %s: %v", ip, err)
+		log.Printf("Failed to resolve UDP address %s:%d: %v", toIp, BroadcastPort, err)
 		return err
 	}
 
@@ -131,24 +162,29 @@ func SendToIP(ip string, message UdpMessage) error {
 
 	conn, err := net.ListenUDP("udp4", localAddr)
 	if err != nil {
-		log.Printf("Failed to listen on UDP address %s: %v", ip, err)
+		log.Printf("Failed to listen on UDP address %s: %v", toIp, err)
 		return err
 	}
 	defer conn.Close()
-
+	// 获取本地 IP 地址
+	localIP, err := getLocalIP(conn)
+	if err != nil {
+		log.Printf("Failed to get local IP address: %v", err)
+	}
+	message.IP = localIP
 	data, err := json.Marshal(message)
 	if err != nil {
-		log.Printf("Failed to marshal JSON for %s: %v", ip, err)
+		log.Printf("Failed to marshal JSON for %s: %v", toIp, err)
 		return err
 	}
 
 	_, err = conn.WriteToUDP(data, addr)
 	if err != nil {
-		log.Printf("Failed to write to UDP address %s: %v", ip, err)
+		log.Printf("Failed to write to UDP address %s: %v", toIp, err)
 		return err
 	}
 
-	log.Printf("发送 UDP 消息到 %s 成功", ip)
+	log.Printf("发送 UDP 消息到 %s 成功", toIp)
 	return nil
 }
 
@@ -157,6 +193,13 @@ func GetOnlineUsers() map[string]UdpMessage {
 	return OnlineUsers
 }
 
+// getLocalIP 获取本地 IP 地址
+func getLocalIP(conn *net.UDPConn) (string, error) {
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	return localAddr.IP.String(), nil
+}
+
+// HandleMessage 处理 HTTP 请求
 func HandleMessage(w http.ResponseWriter, r *http.Request) {
 	var msg UdpMessage
 	decoder := json.NewDecoder(r.Body)
@@ -165,14 +208,7 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	ip := msg.IP
-	preferredIP, err := GetMyIp()
-	if err != nil {
-		http.Error(w, "Failed to get preferred IP", http.StatusInternalServerError)
-		return
-	}
-	msg.IP = preferredIP
-	err = SendToIP(ip, msg)
+	err := SendToIP(msg)
 	if err != nil {
 		http.Error(w, "Failed to send message", http.StatusInternalServerError)
 		return
