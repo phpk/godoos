@@ -29,6 +29,11 @@ func InitServer() error {
 			Value: info,
 		}
 		SetConfig(osInfo)
+		udpAddr := ReqBody{
+			Name:  "udpAddr",
+			Value: "224.0.0.251:20249",
+		}
+		SetConfig(udpAddr)
 	}
 
 	return nil
@@ -51,7 +56,13 @@ func GetOsDir() (string, error) {
 	}
 	return osDir.(string), nil
 }
-
+func GetUdpAddr() string {
+	udp, ok := GetConfig("udpAddr")
+	if !ok {
+		return "224.0.0.251:20249"
+	}
+	return udp.(string)
+}
 func GetAppDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {

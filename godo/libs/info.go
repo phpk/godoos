@@ -9,6 +9,8 @@ import (
 	"net"
 	"os"
 	"runtime"
+	"strconv"
+	"strings"
 )
 
 // UserOsInfo 定义系统信息结构体
@@ -60,17 +62,38 @@ func GenerateSystemInfo() UserOsInfo {
 // GetIPAddress 获取本机IP地址
 func GetIPAddress() (string, error) {
 	ips, err := GetValidIPAddresses()
-	//log.Printf("ips: %v", ips)
 	if err != nil {
 		return "", err
 	}
+
+	// 优先选择 192.168 开头的 IP 地址，并且第三个数字最小
+	var bestIP string
+	minThirdOctet := 256 // 初始化为最大值，表示还没有找到合适的 IP 地址
+
 	for _, ipStr := range ips {
 		ip := net.ParseIP(ipStr)
 		if ip != nil && ip.To4() != nil && ip.String()[:7] == "192.168" {
-			return ipStr, nil
+			octets := strings.Split(ip.String(), ".")
+			if len(octets) == 4 {
+				thirdOctet, _ := strconv.Atoi(octets[2])
+				if thirdOctet < minThirdOctet {
+					minThirdOctet = thirdOctet
+					bestIP = ipStr
+				}
+			}
 		}
 	}
-	return "", fmt.Errorf("no valid IP addresses found")
+
+	// 如果没有找到 192.168 开头的 IP 地址，则选择第一个有效的全局单播 IP 地址
+	if bestIP == "" && len(ips) > 0 {
+		bestIP = ips[0]
+	}
+
+	if bestIP == "" {
+		return "", fmt.Errorf("no valid IP addresses found")
+	}
+
+	return bestIP, nil
 }
 
 // GetValidIPAddresses 获取所有有效 IP 地址

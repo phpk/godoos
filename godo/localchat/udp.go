@@ -3,16 +3,12 @@ package localchat
 import (
 	"encoding/json"
 	"fmt"
+	"godo/libs"
 	"log"
 	"net"
-	"net/http"
 	"os"
+	"strings"
 	"time"
-)
-
-const (
-	BroadcastIP   = "255.255.255.255"
-	BroadcastPort = 20249
 )
 
 type UdpMessage struct {
@@ -22,7 +18,6 @@ type UdpMessage struct {
 	Message  interface{} `json:"message"`
 }
 
-var broadcastAddr = fmt.Sprintf("%s:%d", BroadcastIP, BroadcastPort)
 var OnlineUsers = make(map[string]UdpMessage)
 
 // SendBroadcast 发送广播消息
@@ -54,6 +49,7 @@ func InitBroadcast() {
 }
 
 func SendBroadcast(message UdpMessage) error {
+	broadcastAddr := GetBroadcastAddr()
 	addr, err := net.ResolveUDPAddr("udp4", broadcastAddr)
 	if err != nil {
 		log.Printf("Failed to resolve UDP address %s: %v", broadcastAddr, err)
@@ -101,13 +97,13 @@ func SendBroadcast(message UdpMessage) error {
 
 // ListenForBroadcast 监听广播消息
 func ListenForBroadcast() {
-	// 使用本地地址监听
-	localAddr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf(":%d", BroadcastPort))
+	broadcastAddr := GetBroadcastAddr()
+	addr, err := net.ResolveUDPAddr("udp4", broadcastAddr)
 	if err != nil {
-		log.Fatalf("Failed to resolve local UDP address: %v", err)
+		log.Fatalf("Failed to resolve UDP address: %v", err)
 	}
-
-	conn, err := net.ListenUDP("udp4", localAddr)
+	// 使用 ListenMulticastUDP 创建多播连接
+	conn, err := net.ListenMulticastUDP("udp4", nil, addr)
 	if err != nil {
 		log.Fatalf("Failed to listen on UDP address: %v", err)
 	}
@@ -148,9 +144,10 @@ func ListenForBroadcast() {
 // SendToIP 向指定的 IP 地址发送 UDP 消息
 func SendToIP(message UdpMessage) error {
 	toIp := message.IP
-	addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%d", toIp, BroadcastPort))
+	port := GetBroadcastPort()
+	addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%s", toIp, port))
 	if err != nil {
-		log.Printf("Failed to resolve UDP address %s:%d: %v", toIp, BroadcastPort, err)
+		log.Printf("Failed to resolve UDP address %s:%s: %v", toIp, port, err)
 		return err
 	}
 
@@ -167,12 +164,15 @@ func SendToIP(message UdpMessage) error {
 		return err
 	}
 	defer conn.Close()
+
 	// 获取本地 IP 地址
 	localIP, err := GetLocalIP()
 	if err != nil {
 		log.Printf("Failed to get local IP address: %v", err)
+		return err
 	}
 	message.IP = localIP
+
 	data, err := json.Marshal(message)
 	if err != nil {
 		log.Printf("Failed to marshal JSON for %s: %v", toIp, err)
@@ -193,21 +193,13 @@ func SendToIP(message UdpMessage) error {
 func GetOnlineUsers() map[string]UdpMessage {
 	return OnlineUsers
 }
-
-// HandleMessage 处理 HTTP 请求
-func HandleMessage(w http.ResponseWriter, r *http.Request) {
-	var msg UdpMessage
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&msg); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-	err := SendToIP(msg)
-	if err != nil {
-		http.Error(w, "Failed to send message", http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Text message send successfully")
+func GetLocalIP() (string, error) {
+	return libs.GetIPAddress()
+}
+func GetBroadcastAddr() string {
+	return libs.GetUdpAddr()
+}
+func GetBroadcastPort() string {
+	addr := GetBroadcastAddr()
+	return addr[strings.LastIndex(addr, ":")+1:]
 }

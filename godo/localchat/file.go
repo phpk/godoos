@@ -25,7 +25,25 @@ type FileChunk struct {
 	Filename   string    `json:"filename"`
 }
 
-func FileHandler(w http.ResponseWriter, r *http.Request) {
+// HandleMessage 处理 HTTP 请求
+func HandleMessage(w http.ResponseWriter, r *http.Request) {
+	var msg UdpMessage
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&msg); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+	err := SendToIP(msg)
+	if err != nil {
+		http.Error(w, "Failed to send message", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "Text message send successfully")
+}
+
+func HandlerFile(w http.ResponseWriter, r *http.Request) {
 	// 初始化多播地址
 	var msg UdpMessage
 	decoder := json.NewDecoder(r.Body)
