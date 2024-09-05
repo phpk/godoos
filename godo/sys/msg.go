@@ -61,12 +61,13 @@ func HandleSystemEvents(w http.ResponseWriter, r *http.Request) {
 		if r.Context().Err() != nil {
 			return
 		}
-		onlineUsers := localchat.GetOnlineUsers()
+		userMessages := localchat.GetMessages()
 		msg := Message{
 			Type: "localchat",
-			Data: onlineUsers,
+			Data: userMessages,
 		}
 		Broadcast(msg)
+		localchat.ClearAllUserMessages()
 	}
 }
 

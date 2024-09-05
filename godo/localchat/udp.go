@@ -24,6 +24,10 @@ type UdpAddress struct {
 type Messages struct {
 	Messages []UdpMessage `json:"messages"`
 }
+type UserMessage struct {
+	Messages map[string]*Messages `json:"messages"`
+	Onlines  []UdpAddress         `json:"onlines"`
+}
 
 var OnlineUsers []UdpAddress
 var UserMessages = make(map[string]*Messages) // 使用指针类型
@@ -122,11 +126,11 @@ func ClearAllUserMessages() {
 		UserMessages[ip] = msg        // 更新映射中的值
 	}
 }
-func GetUserMessages() map[string]*Messages {
-	return UserMessages
-}
-func GetOnlineUsers() []UdpAddress {
-	return OnlineUsers
+func GetMessages() UserMessage {
+	return UserMessage{
+		Messages: UserMessages,
+		Onlines:  OnlineUsers,
+	}
 }
 func GetBroadcastAddr() string {
 	return libs.GetUdpAddr()

@@ -27,8 +27,19 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
   const chatTargetId = ref(0)
   const chatTargetIp = ref("")
   const showAddUser = ref(false)
-  const handlerMessage = (message : any) => {
-    console.log(message)
+  const handlerMessage = (data : any) => {
+    //console.log(data)
+    if(data.onlines && data.onlines.length > 0){
+      setUserList(data.onlines);
+    }
+    if(data.messages){
+      for(let i = 0; i < data.messages.length; i++){
+        const msg = data.messages[i];
+        if(msg.type == 'text'){
+          addText(msg);
+        }
+      }
+    }
   }
   const handleSelect = (key: number) => {
     navId.value = key;
@@ -185,8 +196,6 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     if (data.length < 1) {
       return
     }
-    hostInfo.value = data[0]
-    data.shift()
     const existingIps = new Set(userList.value.map((d : any) => d.ip));
     const updates: any[] = [];
     const newEntries: any[] = [];
@@ -284,13 +293,13 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     }
   }
   const getTargetUser = async (data: any) => {
-    let targetUser: any = userList.value.find((d: any) => d.ip === data.senderInfo.ip)
+    let targetUser: any = userList.value.find((d: any) => d.ip === data.ip)
     if (!targetUser) {
       targetUser = {
         isOnline: true,
-        ip: data.senderInfo.ip,
-        hostname: data.senderInfo.hostname,
-        username: data.senderInfo.hostname,
+        ip: data.ip,
+        hostname: data.hostname,
+        username: data.hostname,
         createdAt: Date.now(),
         updatedAt: Date.now()
       }
@@ -306,8 +315,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       type: 'text',
       targetId: targetUser.id,
       targetIp: targetUser.ip,
-      content: data.content,
-      reciperInfo: data.senderInfo,
+      content: data.message,
       createdAt: Date.now(),
       isMe: false,
       isRead: false,
@@ -334,7 +342,6 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       targetId: chatTargetId.value,
       targetIp: chatTargetIp.value,
       content: sendInfo.value.trim(),
-      senderInfo: toRaw(hostInfo.value),
       createdAt: Date.now(),
       isMe: true,
       isRead: false,
