@@ -35,7 +35,7 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 	toIp := msg.IP
-	preferredIP, err := GetMyIp()
+	preferredIP, err := GetLocalIP()
 	if err != nil {
 		http.Error(w, "Failed to get preferred IP", http.StatusInternalServerError)
 		return

@@ -12,14 +12,14 @@ func GetMyIPAndHostname() (string, string, error) {
 	if err != nil {
 		return "", "", fmt.Errorf("failed to get hostname: %w", err)
 	}
-	preferredIP, err := GetMyIp()
+	preferredIP, err := GetLocalIP()
 	if err != nil {
 		return "", "", fmt.Errorf("failed to get IP address: %w", err)
 	}
 
 	return preferredIP, hostname, nil
 }
-func GetMyIp() (string, error) {
+func GetLocalIP() (string, error) {
 	addrs, err := net.Interfaces()
 	if err != nil {
 		return "", fmt.Errorf("failed to get network interfaces: %w", err)

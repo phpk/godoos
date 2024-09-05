@@ -75,7 +75,8 @@ func SendBroadcast(message UdpMessage) error {
 	defer conn.Close()
 
 	// 获取本地 IP 地址
-	localIP, err := getLocalIP(conn)
+	localIP, err := GetLocalIP()
+	log.Printf("本地 IP 地址: %s", localIP)
 	if err != nil {
 		log.Printf("Failed to get local IP address: %v", err)
 		return err
@@ -113,7 +114,7 @@ func ListenForBroadcast() {
 	defer conn.Close()
 
 	// 获取本地 IP 地址
-	localIP, err := getLocalIP(conn)
+	localIP, err := GetLocalIP()
 	if err != nil {
 		log.Printf("Failed to get local IP address: %v", err)
 	}
@@ -167,7 +168,7 @@ func SendToIP(message UdpMessage) error {
 	}
 	defer conn.Close()
 	// 获取本地 IP 地址
-	localIP, err := getLocalIP(conn)
+	localIP, err := GetLocalIP()
 	if err != nil {
 		log.Printf("Failed to get local IP address: %v", err)
 	}
@@ -191,12 +192,6 @@ func SendToIP(message UdpMessage) error {
 // 获取 OnlineUsers 的最新状态
 func GetOnlineUsers() map[string]UdpMessage {
 	return OnlineUsers
-}
-
-// getLocalIP 获取本地 IP 地址
-func getLocalIP(conn *net.UDPConn) (string, error) {
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	return localAddr.IP.String(), nil
 }
 
 // HandleMessage 处理 HTTP 请求
