@@ -15,7 +15,7 @@ type UdpMessage struct {
 	Message  interface{} `json:"message"`
 }
 
-var broadcastAddr = "255.255.255.255:2024"
+var broadcastAddr = "255.255.255.255:20249"
 var OnlineUsers = make(map[string]UdpMessage)
 
 // SendBroadcast 发送广播消息
@@ -79,7 +79,7 @@ func SendBroadcast(message UdpMessage) error {
 // ListenForBroadcast 监听广播消息
 func ListenForBroadcast() {
 	// 使用本地地址监听
-	localAddr, err := net.ResolveUDPAddr("udp4", ":56780")
+	localAddr, err := net.ResolveUDPAddr("udp4", ":20249")
 	if err != nil {
 		log.Fatalf("Failed to resolve local UDP address: %v", err)
 	}
