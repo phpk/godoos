@@ -56,7 +56,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
                 checkUpdate(message.data.data)
                 break;
             case 'localchat':
-                localChatStore.handlerMessage(message)
+                localChatStore.handlerMessage(message.data)
                 break;
             default:
                 console.warn('Unknown message type:', message.type);
