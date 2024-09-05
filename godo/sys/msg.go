@@ -3,6 +3,7 @@ package sys
 import (
 	"encoding/json"
 	"fmt"
+	"godo/localchat"
 	"net/http"
 	"sync"
 	"time"
@@ -52,12 +53,20 @@ func HandleSystemEvents(w http.ResponseWriter, r *http.Request) {
 		mutex.Unlock()
 	}()
 
-	// 读取客户端请求直到关闭
-	for {
-		select {
-		case <-r.Context().Done():
+	// 使用定时器轮询客户端请求
+	ticker := time.NewTicker(1 * time.Second)
+	defer ticker.Stop()
+	for range ticker.C {
+		// 检查客户端是否已断开连接
+		if r.Context().Err() != nil {
 			return
 		}
+		onlineUsers := localchat.GetOnlineUsers()
+		msg := Message{
+			Type: "localchat",
+			Data: onlineUsers,
+		}
+		Broadcast(msg)
 	}
 }
 

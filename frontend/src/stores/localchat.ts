@@ -27,6 +27,9 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
   const chatTargetId = ref(0)
   const chatTargetIp = ref("")
   const showAddUser = ref(false)
+  const handlerMessage = (message : any) => {
+    console.log(message)
+  }
   const handleSelect = (key: number) => {
     navId.value = key;
   };
@@ -344,10 +347,15 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     const targetUser = userList.value.find((d: any) => d.ip === chatTargetIp.value)
     //console.log(targetUser)
     if (targetUser.isOnline) {
-      const postUrl = `http://${targetUser.ip}:56780/localchat/message`
+      const postUrl = `${config.apiUrl}/localchat/message`
+      const messages = {
+        type: 'text',
+        message: saveMsg.content,
+        ip: saveMsg.targetIp
+      }
       const completion = await fetch(postUrl, {
         method: "POST",
-        body: JSON.stringify(saveMsg),
+        body: JSON.stringify(messages),
       })
       if (!completion.ok) {
         console.log(completion)
@@ -507,7 +515,8 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     moreMsgList,
     refreshUserList,
     clearMsg,
-    addUser
+    addUser,
+    handlerMessage
   }
 }, {
   persist: {

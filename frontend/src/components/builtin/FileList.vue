@@ -124,15 +124,8 @@ function getName(item: any) {
   }
 }
 function handleOnOpen(item: OsFileWithoutContent) {
-  chosenIndexs.value = [];
-  if (choose.ifShow && !item.isDirectory) {
-    choose.path.push(item.path)
-    choose.close()
-  } else {
     props.onOpen(item);
     emitEvent('desktop.app.open');
-  }
-
 }
 function hadnleDrop(mouse: DragEvent, path: string) {
   hoverIndex.value = -1;
@@ -325,22 +318,10 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
   }
   if (choose.ifShow) {
     menuArr.push({
-      label: t('selected'),
+      label: "选中发送",
       click: () => {
-        const paths: any = []
-        chosenIndexs.value.forEach((index) => {
-          const item = props.fileList[index];
-          if (!item.isDirectory) {
-            paths.push(item.path)
-          }
-        })
-        if (paths.length > 0) {
-          choose.path = paths
-          choose.close()
-        }
-        chosenIndexs.value = [];
-
-
+        choose.path = item.path
+        choose.close()
       },
     })
   }

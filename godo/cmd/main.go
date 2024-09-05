@@ -79,10 +79,10 @@ func OsStart() {
 	fileRouter.HandleFunc("/watch", files.WatchHandler).Methods(http.MethodGet)
 
 	localchatRouter := router.PathPrefix("/localchat").Subrouter()
-	localchatRouter.HandleFunc("/sse", localchat.SseHandler).Methods(http.MethodGet)
+	// localchatRouter.HandleFunc("/sse", localchat.SseHandler).Methods(http.MethodGet)
 	localchatRouter.HandleFunc("/message", localchat.HandleMessage).Methods(http.MethodPost)
-	localchatRouter.HandleFunc("/upload", localchat.MultiUploadHandler).Methods(http.MethodPost)
-	localchatRouter.HandleFunc("/check", localchat.CheckUserHanlder).Methods(http.MethodGet)
+	// localchatRouter.HandleFunc("/upload", localchat.MultiUploadHandler).Methods(http.MethodPost)
+	// localchatRouter.HandleFunc("/check", localchat.CheckUserHanlder).Methods(http.MethodGet)
 
 	// 注册 WebDAV 路由
 	webdavRouter := router.PathPrefix("/webdav").Subrouter()

@@ -28,12 +28,14 @@
 import { emitEvent } from "@/system/event";
 import { useSystem, Dialog, t, Menu, BrowserWindow } from "@/system";
 import { vGlowing } from "@/util/glowingBorder";
+import { fetchGet } from "@/system/config";
+import { RestartApp } from "@/util/goutil";
 
 const sys = useSystem();
 function handleClick(key: number, ev: MouseEvent) {
   switch (key) {
     case 0:
-      Menu.buildFromTemplate([
+      const actions = [
         {
           label: t("startMenu.shutdown"),
           click: () => {
@@ -55,7 +57,19 @@ function handleClick(key: number, ev: MouseEvent) {
             });
           },
         },
-      ]).popup(ev);
+      ]
+      if(sys.getConfig('userType') == 'member'){
+        actions.push({
+          label: '退出',
+          click: () => {
+            const userInfo:any = sys.getConfig('userInfo')
+            fetchGet(userInfo.url + "/member/loginout").then(() => {
+              RestartApp()
+            })
+          },
+        })
+      }
+      Menu.buildFromTemplate(actions).popup(ev);
 
       break;
     case 1: {

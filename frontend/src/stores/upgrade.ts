@@ -4,6 +4,7 @@ import { getSystemKey, setSystemKey, parseJson, getSystemConfig } from '@/system
 import { RestartApp } from '@/util/goutil';
 import { ElMessage } from 'element-plus'
 import { t } from '@/i18n';
+import { useLocalChatStore } from "./localchat";
 export const useUpgradeStore = defineStore('upgradeStore', () => {
     const hasUpgrade = ref(false);
     const hasNotice = ref(false);
@@ -15,6 +16,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     const progress = ref(0)
     const noticeList:any = ref([])
     const adList:any = ref([])
+    const localChatStore = useLocalChatStore()
     function compareVersions(version1:string, version2:string) {
         // 将版本号字符串按"."分割成数组
         const parts1 = version1.split('.').map(Number);
@@ -52,6 +54,9 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         switch (message.type) {
             case 'update':
                 checkUpdate(message.data.data)
+                break;
+            case 'localchat':
+                localChatStore.handlerMessage(message)
                 break;
             default:
                 console.warn('Unknown message type:', message.type);

@@ -3,7 +3,7 @@ import { BrowserWindow } from "@/system";
 import { ref } from 'vue';
 export const useChooseStore = defineStore('chooseStore', () => {
     const win:any = ref()
-    const path:any = ref([])
+    const path:any = ref("")
     const ifShow = ref(false)
     const select = (title = '选择文件', fileExt:any) => {
        win.value = new BrowserWindow({
