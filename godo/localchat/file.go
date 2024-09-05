@@ -25,24 +25,6 @@ type FileChunk struct {
 	Filename   string    `json:"filename"`
 }
 
-// HandleMessage 处理 HTTP 请求
-func HandleMessage(w http.ResponseWriter, r *http.Request) {
-	var msg UdpMessage
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&msg); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-	err := SendToIP(msg)
-	if err != nil {
-		http.Error(w, "Failed to send message", http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Text message send successfully")
-}
-
 func HandlerFile(w http.ResponseWriter, r *http.Request) {
 	// 初始化多播地址
 	var msg UdpMessage
@@ -59,18 +41,29 @@ func HandlerFile(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	filePath := filepath.Join(basePath, msg.Message.(string))
-	// 处理单个文件或整个文件夹
-	if fileInfo, err := os.Stat(filePath); err == nil {
-		if fileInfo.IsDir() {
-			handleDirectory(filePath, toIp, msg)
-		} else {
-			handleFile(filePath, toIp, msg)
-		}
-	} else {
-		http.Error(w, "Failed to stat path", http.StatusInternalServerError)
+	paths, ok := msg.Message.([]string)
+	if !ok {
+		libs.HTTPError(w, http.StatusInternalServerError, "Invalid request body")
 		return
 	}
+	for _, p := range paths {
+		filePath := filepath.Join(basePath, p)
+		// 处理单个文件或整个文件夹
+		if fileInfo, err := os.Stat(filePath); err == nil {
+			if fileInfo.IsDir() {
+				handleDirectory(filePath, toIp, msg)
+			} else {
+				handleFile(filePath, toIp, msg)
+			}
+		} else {
+			continue
+		}
+	}
+	msg.Type = "text"
+	msg.Message = "文件发送完成"
+	SendToIP(msg)
+	libs.SuccessMsg(w, nil, "文件发送成功")
+
 }
 
 func handleFile(filePath string, toIp string, message UdpMessage) {

@@ -5,6 +5,7 @@ import (
 	"godo/deps"
 	"godo/files"
 	"godo/libs"
+	"godo/localchat"
 	"godo/store"
 	"godo/sys"
 	"godo/webdav"
@@ -77,11 +78,10 @@ func OsStart() {
 	fileRouter.HandleFunc("/unzip", files.HandleUnZip).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/watch", files.WatchHandler).Methods(http.MethodGet)
 
-	//localchatRouter := router.PathPrefix("/localchat").Subrouter()
-	// localchatRouter.HandleFunc("/sse", localchat.SseHandler).Methods(http.MethodGet)
-	// localchatRouter.HandleFunc("/message", localchat.HandleMessage).Methods(http.MethodPost)
-	// localchatRouter.HandleFunc("/file", localchat.HandlerFile).Methods(http.MethodPost)
-	// localchatRouter.HandleFunc("/check", localchat.CheckUserHanlder).Methods(http.MethodGet)
+	localchatRouter := router.PathPrefix("/localchat").Subrouter()
+	localchatRouter.HandleFunc("/message", localchat.HandleMessage).Methods(http.MethodPost)
+	localchatRouter.HandleFunc("/file", localchat.HandlerFile).Methods(http.MethodPost)
+	localchatRouter.HandleFunc("/udpaddr", localchat.HandleAddr).Methods(http.MethodGet)
 
 	// 注册 WebDAV 路由
 	webdavRouter := router.PathPrefix("/webdav").Subrouter()

@@ -5,16 +5,26 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 )
 
-// import (
-// 	"encoding/json"
-// 	"fmt"
-// 	"godo/libs"
-// 	"log"
-// 	"net"
-// 	"strings"
-// )
+// HandleMessage 处理 HTTP 请求
+func HandleMessage(w http.ResponseWriter, r *http.Request) {
+	var msg UdpMessage
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&msg); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+	err := SendToIP(msg)
+	if err != nil {
+		http.Error(w, "Failed to send message", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "Text message send successfully")
+}
 
 // SendToIP 向指定的 IP 地址发送 UDP 消息
 func SendToIP(message UdpMessage) error {
@@ -55,13 +65,3 @@ func SendToIP(message UdpMessage) error {
 	log.Printf("发送 UDP 消息到 %s 成功", toIp)
 	return nil
 }
-
-// // 获取 OnlineUsers 的最新状态
-//
-//	func GetOnlineUsers() map[string]UdpMessage {
-//		return OnlineUsers
-//	}
-//
-//	func GetLocalIP() (string, error) {
-//		return libs.GetIPAddress()
-//	}
