@@ -17,9 +17,12 @@ type UdpMessage struct {
 	Message  interface{} `json:"message"`
 }
 
-// 多播地址列表
-var multicastAddrs = []string{"239.255.255.250:2024", "239.255.255.251:2024", "224.0.0.251:1234", "224.0.0.1:1679"}
-var OnlineUsers = make(map[string]UdpMessage) // 全局map，key为IP，value为主机名
+var multicastAddrs = []string{
+	"239.255.255.250:2024",
+	"239.255.255.251:2024",
+	"224.0.0.251:1234",
+}
+var OnlineUsers = make(map[string]UdpMessage)
 
 // SendMulticast 发送多播消息
 func init() {
@@ -82,25 +85,8 @@ func SendMulticast(message UdpMessage) error {
 	return nil
 }
 
-// ListenForMulticast 监听多播消息
+// ListenForMulticast 监听所有多播消息
 func ListenForMulticast() {
-	// 选择一个可用的多播地址
-	var multicastGroup *net.UDPAddr
-	var err error
-	for _, addrStr := range multicastAddrs {
-		multicastGroup, err = net.ResolveUDPAddr("udp4", addrStr)
-		if err != nil {
-			log.Printf("Error resolving UDP address %s: %v", addrStr, err)
-			continue
-		}
-		break
-	}
-
-	if multicastGroup == nil {
-		log.Println("No available multicast address found")
-		return
-	}
-
 	// 使用本地地址进行监听
 	localAddr, err := net.ResolveUDPAddr("udp4", "0.0.0.0:2024")
 	if err != nil {
@@ -148,11 +134,23 @@ func ListenForMulticast() {
 		log.Fatal("No suitable network interface found")
 	}
 
-	if err := udpConn.JoinGroup(localInterface, multicastGroup); err != nil {
-		log.Printf("Failed to join multicast group %s: %v", multicastGroup.String(), err)
-		return
-	}
+	// 加入所有多播组
+	// for _, addrStr := range multicastAddrs {
+	// 	multicastGroup, err := net.ResolveUDPAddr("udp4", addrStr)
+	// 	if err != nil {
+	// 		log.Printf("Error resolving UDP address %s: %v", addrStr, err)
+	// 		continue
+	// 	}
 
+	// 	if err := udpConn.JoinGroup(localInterface, multicastGroup); err != nil {
+	// 		log.Printf("Failed to join multicast group %s: %v", multicastGroup.String(), err)
+	// 		continue
+	// 	}
+
+	// 	log.Printf("成功加入多播组 %s", addrStr)
+	// }
+
+	// 开始监听多播消息
 	buffer := make([]byte, 1024)
 	for {
 		n, _, src, err := udpConn.ReadFrom(buffer)
