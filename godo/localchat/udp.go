@@ -41,8 +41,12 @@ func InitBroadcast() {
 			Message:  "",
 		}
 		//发送多播消息
-
-		err = SendBroadcast(message)
+		//broadcastAddr := GetBroadcastAddr()
+		err = SendBroadcast("224.0.0.251:20249", message)
+		if err != nil {
+			log.Println("Failed to send broadcast message:", err)
+		}
+		err = SendBroadcast("255.255.255.255:20249", message)
 		if err != nil {
 			log.Println("Failed to send broadcast message:", err)
 		}

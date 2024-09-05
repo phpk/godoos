@@ -9,8 +9,8 @@ import (
 	"net"
 )
 
-func SendBroadcast(message UdpMessage) error {
-	broadcastAddr := GetBroadcastAddr()
+func SendBroadcast(broadcastAddr string, message UdpMessage) error {
+
 	addr, err := net.ResolveUDPAddr("udp4", broadcastAddr)
 	if err != nil {
 		log.Printf("Failed to resolve UDP address %s: %v", broadcastAddr, err)

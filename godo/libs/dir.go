@@ -7,6 +7,14 @@ import (
 	"runtime"
 )
 
+var UdpMap = map[string]any{
+	"port": "20249",
+	"ips": []string{
+		"224.0.0.251",
+		"255.255.255.255",
+	},
+}
+
 func InitServer() error {
 	err := LoadConfig()
 	if err != nil {
@@ -31,7 +39,7 @@ func InitServer() error {
 		SetConfig(osInfo)
 		udpAddr := ReqBody{
 			Name:  "udpAddr",
-			Value: "224.0.0.251:20249",
+			Value: UdpMap,
 		}
 		SetConfig(udpAddr)
 	}
@@ -56,12 +64,12 @@ func GetOsDir() (string, error) {
 	}
 	return osDir.(string), nil
 }
-func GetUdpAddr() string {
+func GetUdpAddr() map[string]any {
 	udp, ok := GetConfig("udpAddr")
 	if !ok {
-		return "224.0.0.251:20249"
+		return UdpMap
 	}
-	return udp.(string)
+	return udp.(map[string]any)
 }
 func GetAppDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
