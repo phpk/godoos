@@ -11,10 +11,10 @@ import (
 )
 
 type UdpMessage struct {
-	Type     string `json:"type"`
-	IP       string `json:"ip"`
-	Hostname string `json:"hostname"`
-	Message  any    `json:"message"`
+	Type     string      `json:"type"`
+	IP       string      `json:"ip"`
+	Hostname string      `json:"hostname"`
+	Message  interface{} `json:"message"`
 }
 
 // 多播地址列表
@@ -30,6 +30,7 @@ func init() {
 func InitMulticast() {
 	myIP, myHostname, err := GetMyIPAndHostname()
 	if err != nil {
+		log.Println("Failed to get IP and hostname:", err)
 		return
 	}
 	message := UdpMessage{
@@ -45,26 +46,37 @@ func SendMulticast(message UdpMessage) error {
 	for _, addrStr := range multicastAddrs {
 		addr, err := net.ResolveUDPAddr("udp4", addrStr)
 		if err != nil {
-			return err
+			log.Printf("Failed to resolve UDP address %s: %v", addrStr, err)
+			continue
 		}
 
-		conn, err := net.DialUDP("udp4", nil, addr)
+		// 使用本地地址进行连接
+		localAddr, err := net.ResolveUDPAddr("udp4", "0.0.0.0:0")
 		if err != nil {
-			return err
+			log.Printf("Failed to resolve local UDP address: %v", err)
+			continue
+		}
+
+		conn, err := net.ListenUDP("udp4", localAddr)
+		if err != nil {
+			log.Printf("Failed to listen on UDP address %s: %v", addrStr, err)
+			continue
 		}
 		defer conn.Close()
 
 		data, err := json.Marshal(message)
 		if err != nil {
-			return err
+			log.Printf("Failed to marshal JSON for %s: %v", addrStr, err)
+			continue
 		}
 
 		_, err = conn.WriteToUDP(data, addr)
 		if err != nil {
-			return err
+			log.Printf("Failed to write to UDP address %s: %v", addrStr, err)
+			continue
 		}
 
-		fmt.Printf("发送多播消息到 %s 成功\n", addrStr)
+		log.Printf("发送多播消息到 %s 成功", addrStr)
 	}
 
 	return nil
@@ -78,20 +90,27 @@ func ListenForMulticast() {
 	for _, addrStr := range multicastAddrs {
 		multicastGroup, err = net.ResolveUDPAddr("udp4", addrStr)
 		if err != nil {
-			fmt.Println("Error resolving UDP address:", err)
+			log.Printf("Error resolving UDP address %s: %v", addrStr, err)
 			continue
 		}
 		break
 	}
 
 	if multicastGroup == nil {
-		fmt.Println("No available multicast address found")
+		log.Println("No available multicast address found")
 		return
 	}
 
-	conn, err := net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4zero, Port: 2024})
+	// 使用本地地址进行监听
+	localAddr, err := net.ResolveUDPAddr("udp4", "0.0.0.0:2024")
 	if err != nil {
-		fmt.Println("Error listening on UDP address:", err)
+		log.Printf("Error resolving local UDP address: %v", err)
+		return
+	}
+
+	conn, err := net.ListenUDP("udp4", localAddr)
+	if err != nil {
+		log.Printf("Error listening on UDP address: %v", err)
 		return
 	}
 	defer conn.Close()
@@ -109,6 +128,7 @@ func ListenForMulticast() {
 	for _, iface := range localIfaces {
 		addrs, err := iface.Addrs()
 		if err != nil {
+			log.Printf("Failed to get addresses for interface %s: %v", iface.Name, err)
 			continue
 		}
 		for _, addr := range addrs {
@@ -129,7 +149,8 @@ func ListenForMulticast() {
 	}
 
 	if err := udpConn.JoinGroup(localInterface, multicastGroup); err != nil {
-		log.Fatalf("Failed to join multicast group: %v", err)
+		log.Printf("Failed to join multicast group %s: %v", multicastGroup.String(), err)
+		return
 	}
 
 	buffer := make([]byte, 1024)
@@ -143,7 +164,7 @@ func ListenForMulticast() {
 		var udpMsg UdpMessage
 		err = json.Unmarshal(buffer[:n], &udpMsg)
 		if err != nil {
-			fmt.Printf("Error unmarshalling JSON: %v\n", err)
+			log.Printf("Error unmarshalling JSON: %v", err)
 			continue
 		}
 
@@ -151,7 +172,7 @@ func ListenForMulticast() {
 		if udpMsg.Type == "file" {
 			RecieveFile(udpMsg)
 		}
-		fmt.Printf("Received message from %s: %s\n", udpMsg.IP, udpMsg.Hostname)
+		log.Printf("Received message from %s: %s", udpMsg.IP, udpMsg.Hostname)
 	}
 }
 
@@ -159,26 +180,37 @@ func ListenForMulticast() {
 func SendToIP(ip string, message UdpMessage) error {
 	addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:2024", ip))
 	if err != nil {
+		log.Printf("Failed to resolve UDP address %s: %v", ip, err)
 		return err
 	}
 
-	conn, err := net.DialUDP("udp4", nil, addr)
+	// 使用本地地址进行连接
+	localAddr, err := net.ResolveUDPAddr("udp4", "0.0.0.0:0")
 	if err != nil {
+		log.Printf("Failed to resolve local UDP address: %v", err)
+		return err
+	}
+
+	conn, err := net.ListenUDP("udp4", localAddr)
+	if err != nil {
+		log.Printf("Failed to listen on UDP address %s: %v", ip, err)
 		return err
 	}
 	defer conn.Close()
 
 	data, err := json.Marshal(message)
 	if err != nil {
+		log.Printf("Failed to marshal JSON for %s: %v", ip, err)
 		return err
 	}
 
 	_, err = conn.WriteToUDP(data, addr)
 	if err != nil {
+		log.Printf("Failed to write to UDP address %s: %v", ip, err)
 		return err
 	}
 
-	fmt.Printf("发送 UDP 消息到 %s 成功\n", ip)
+	log.Printf("发送 UDP 消息到 %s 成功", ip)
 	return nil
 }
 
