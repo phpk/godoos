@@ -24,6 +24,7 @@ var OnlineUsers = make(map[string]UdpMessage)
 func init() {
 	go InitBroadcast()
 	go ListenForBroadcast()
+	go ListenLocalBroadcast()
 }
 
 func InitBroadcast() {
@@ -41,15 +42,23 @@ func InitBroadcast() {
 			Hostname: hostname,
 			Message:  "",
 		}
-		err = SendBroadcast(message)
+		//发送多播消息
+		broadcastAddr := GetBroadcastAddr()
+		err = SendBroadcast(broadcastAddr, message)
 		if err != nil {
 			log.Println("Failed to send broadcast message:", err)
+		}
+		//发送广播播消息
+		moreAddr := "255.255.255.255:20249"
+		err = SendBroadcast(moreAddr, message)
+		if err != nil {
+			log.Println("Failed to send more broadcast message:", err)
 		}
 	}
 }
 
-func SendBroadcast(message UdpMessage) error {
-	broadcastAddr := GetBroadcastAddr()
+func SendBroadcast(broadcastAddr string, message UdpMessage) error {
+
 	addr, err := net.ResolveUDPAddr("udp4", broadcastAddr)
 	if err != nil {
 		log.Printf("Failed to resolve UDP address %s: %v", broadcastAddr, err)
@@ -91,11 +100,11 @@ func SendBroadcast(message UdpMessage) error {
 		return err
 	}
 
-	log.Printf("发送广播消息到 %s 成功", broadcastAddr)
+	log.Printf("发送消息到 %s 成功", broadcastAddr)
 	return nil
 }
 
-// ListenForBroadcast 监听广播消息
+// ListenForBroadcast 监听多播消息
 func ListenForBroadcast() {
 	broadcastAddr := GetBroadcastAddr()
 	addr, err := net.ResolveUDPAddr("udp4", broadcastAddr)
@@ -133,6 +142,44 @@ func ListenForBroadcast() {
 		if udpMsg.IP == localIP {
 			continue
 		}
+		OnlineUsers[udpMsg.IP] = udpMsg
+		if udpMsg.Type == "file" {
+			RecieveFile(udpMsg)
+		}
+		log.Printf("Received message from %s: %s", remoteAddr, udpMsg.Hostname)
+	}
+}
+
+// ListenLocalBroadcast 监听广播消息
+func ListenLocalBroadcast() {
+	// 使用本地地址监听
+	localAddr, err := net.ResolveUDPAddr("udp4", ":56780")
+	if err != nil {
+		log.Fatalf("Failed to resolve local UDP address: %v", err)
+	}
+
+	conn, err := net.ListenUDP("udp4", localAddr)
+	if err != nil {
+		log.Fatalf("Failed to listen on UDP address: %v", err)
+	}
+	defer conn.Close()
+
+	// 开始监听广播消息
+	buffer := make([]byte, 1024)
+	for {
+		n, remoteAddr, err := conn.ReadFromUDP(buffer)
+		if err != nil {
+			log.Printf("Error reading from UDP: %v", err)
+			continue
+		}
+
+		var udpMsg UdpMessage
+		err = json.Unmarshal(buffer[:n], &udpMsg)
+		if err != nil {
+			log.Printf("Error unmarshalling JSON: %v", err)
+			continue
+		}
+
 		OnlineUsers[udpMsg.IP] = udpMsg
 		if udpMsg.Type == "file" {
 			RecieveFile(udpMsg)
