@@ -3,9 +3,11 @@ package localchat
 import (
 	"encoding/json"
 	"fmt"
+	"godo/libs"
 	"log"
 	"net"
 	"net/http"
+	"os"
 )
 
 // HandleMessage 处理 HTTP 请求
@@ -17,7 +19,13 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	err := SendToIP(msg)
+	hostname, err := os.Hostname()
+	if err != nil {
+		libs.ErrorMsg(w, "HandleMessage error")
+		return
+	}
+	msg.Hostname = hostname
+	err = SendToIP(msg)
 	if err != nil {
 		http.Error(w, "Failed to send message", http.StatusInternalServerError)
 		return

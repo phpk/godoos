@@ -20,7 +20,7 @@
               <el-icon :size="12">
               <Place />
             </el-icon>
-              {{ msg.reciperInfo.hostname }}
+              {{ msg.reciperInfo ? msg.reciperInfo.hostname : '' }}
             </span>
             <span class="msg">{{ msg.content }}</span>
             

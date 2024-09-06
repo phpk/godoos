@@ -26,7 +26,6 @@ type FileChunk struct {
 }
 
 func HandlerFile(w http.ResponseWriter, r *http.Request) {
-	// 初始化多播地址
 	var msg UdpMessage
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&msg); err != nil {
@@ -36,6 +35,12 @@ func HandlerFile(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	toIp := msg.IP
 	msg.Type = "file"
+	hostname, err := os.Hostname()
+	if err != nil {
+		libs.ErrorMsg(w, "HandleMessage error")
+		return
+	}
+	msg.Hostname = hostname
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())

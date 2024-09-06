@@ -28,16 +28,25 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
   const chatTargetIp = ref("")
   const showAddUser = ref(false)
   const handlerMessage = (data : any) => {
-    //console.log(data)
+    console.log(data)
     if(data.onlines && data.onlines.length > 0){
       setUserList(data.onlines);
     }
     if(data.messages){
-      for(let i = 0; i < data.messages.length; i++){
-        const msg = data.messages[i];
-        if(msg.type == 'text'){
-          addText(msg);
-        }
+      for(let ip in data.messages){
+        const msgList:any = data.messages[ip].messages
+        if(!msgList || msgList.length < 1)return;
+        msgList.forEach((msg: any) => {
+          //console.log(msg)
+          if (msg.type === "text") {
+            msg.message = msg.message.replaceAll("\\n", "\n")
+            console.log(msg)
+            addText(msg)
+          }
+          //console.log(msg)
+          //console.log(msg.content)
+          //console.log(msg.content.length)
+        })
       }
     }
   }
@@ -316,6 +325,10 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       targetId: targetUser.id,
       targetIp: targetUser.ip,
       content: data.message,
+      reciperInfo:{
+        hostname: data.hostname,
+        username: data.hostname
+      },
       createdAt: Date.now(),
       isMe: false,
       isRead: false,
