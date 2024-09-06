@@ -26,3 +26,8 @@ func HandleAddr(w http.ResponseWriter, r *http.Request) {
 	go CheckOnline()
 	libs.SuccessMsg(w, nil, "success")
 }
+
+func HandleGetAddr(w http.ResponseWriter, r *http.Request) {
+	ipInfo := libs.GetChatIpSetting()
+	libs.SuccessMsg(w, ipInfo, "success")
+}

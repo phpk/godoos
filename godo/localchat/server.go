@@ -35,7 +35,7 @@ func init() {
 }
 
 func CheckOnlines() {
-	CheckOnline()
+	//CheckOnline()
 	chatIpSetting := libs.GetChatIpSetting()
 	checkTimeDuration := time.Duration(chatIpSetting.CheckTime) * time.Second
 

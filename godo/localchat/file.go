@@ -41,6 +41,7 @@ func HandlerFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	msg.Hostname = hostname
+	msg.Time = time.Now()
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
@@ -66,6 +67,7 @@ func HandlerFile(w http.ResponseWriter, r *http.Request) {
 	}
 	msg.Type = "text"
 	msg.Message = "文件发送完成"
+	msg.Time = time.Now()
 	SendToIP(msg)
 	libs.SuccessMsg(w, nil, "文件发送成功")
 

@@ -6,7 +6,9 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/exec"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -54,7 +56,12 @@ func concurrentGetIpInfo(ips []string) {
 		log.Printf("failed to get local IP addresses: %v", err)
 		return
 	}
-
+	// 获取 ARP 缓存中的 IP 地址
+	validIPs, err := getArpCacheIPs()
+	if err != nil {
+		log.Printf("failed to get ARP cache IPs: %v", err)
+		return
+	}
 	var wg sync.WaitGroup
 	maxConcurrency := runtime.NumCPU()
 
@@ -63,7 +70,7 @@ func concurrentGetIpInfo(ips []string) {
 	failedIPs := make(map[string]bool)
 
 	for _, ip := range ips {
-		if containArr(hostips, ip) || failedIPs[ip] {
+		if containArr(hostips, ip) || failedIPs[ip] || !containArr(validIPs, ip) {
 			continue
 		}
 
@@ -115,4 +122,42 @@ func UpdateUserStatus(ip string, hostname string) UserStatus {
 		Time:     time.Now(),
 	}
 	return OnlineUsers[ip]
+}
+
+// 获取 ARP 缓存中的 IP 地址
+func getArpCacheIPs() ([]string, error) {
+	var cmd *exec.Cmd
+	var out []byte
+	var err error
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("arp", "-a")
+	case "linux":
+		cmd = exec.Command("arp", "-n")
+	case "darwin": // macOS
+		cmd = exec.Command("arp", "-l", "-a")
+	default:
+		return nil, fmt.Errorf("unsupported operating system: %v", runtime.GOOS)
+	}
+
+	out, err = cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("error executing arp command: %v", err)
+	}
+
+	lines := strings.Split(string(out), "\n")
+	var ips []string
+
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) >= 2 {
+			ip := fields[0]
+			if ip != "<incomplete>" && net.ParseIP(ip) != nil {
+				ips = append(ips, ip)
+			}
+		}
+	}
+
+	return ips, nil
 }

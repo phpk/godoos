@@ -17,7 +17,7 @@ type UserChatIpSetting struct {
 
 func GetDefaultChatIpSetting() UserChatIpSetting {
 	return UserChatIpSetting{
-		CheckTime:   60,
+		CheckTime:   30,
 		First:       "192",
 		Second:      "168",
 		ThirdStart:  "1",

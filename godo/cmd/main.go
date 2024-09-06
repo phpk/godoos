@@ -82,6 +82,7 @@ func OsStart() {
 	localchatRouter.HandleFunc("/message", localchat.HandleMessage).Methods(http.MethodPost)
 	localchatRouter.HandleFunc("/file", localchat.HandlerFile).Methods(http.MethodPost)
 	localchatRouter.HandleFunc("/setting", localchat.HandleAddr).Methods(http.MethodPost)
+	localchatRouter.HandleFunc("/getsetting", localchat.HandleGetAddr).Methods(http.MethodGet)
 	// 注册 WebDAV 路由
 	webdavRouter := router.PathPrefix("/webdav").Subrouter()
 	webdavRouter.HandleFunc("/read", webdav.HandleReadDir).Methods(http.MethodGet)

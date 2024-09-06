@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"time"
 )
 
 // HandleMessage 处理 HTTP 请求
@@ -25,6 +26,7 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	msg.Hostname = hostname
+	msg.Time = time.Now()
 	err = SendToIP(msg)
 	if err != nil {
 		http.Error(w, "Failed to send message", http.StatusInternalServerError)
