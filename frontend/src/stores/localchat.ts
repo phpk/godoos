@@ -29,8 +29,15 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
   const showAddUser = ref(false)
   const handlerMessage = (data : any) => {
     console.log(data)
-    if(data.onlines && data.onlines.length > 0){
-      setUserList(data.onlines);
+    if(data.onlines){
+      const ips = []
+      for(let ip in data.onlines){
+        const info = data.onlines[ip]
+        if (info.ip && isValidIP(info.ip)) {
+          ips.push(info)
+        }
+      }
+      setUserList(ips);
     }
     if(data.messages){
       for(let ip in data.messages){

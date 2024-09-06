@@ -6,6 +6,7 @@ import (
 )
 
 type UserChatIpSetting struct {
+	CheckTime   int    `json:"CheckTime"`
 	First       string `json:"First"`
 	Second      string `json:"Second"`
 	ThirdStart  string `json:"ThirdStart"`
@@ -16,6 +17,7 @@ type UserChatIpSetting struct {
 
 func GetDefaultChatIpSetting() UserChatIpSetting {
 	return UserChatIpSetting{
+		CheckTime:   60,
 		First:       "192",
 		Second:      "168",
 		ThirdStart:  "1",

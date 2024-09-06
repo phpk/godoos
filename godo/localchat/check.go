@@ -23,5 +23,6 @@ func HandleAddr(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	libs.SetConfigByName("ChatIpSetting", ipStr)
+	go CheckOnline()
 	libs.SuccessMsg(w, nil, "success")
 }

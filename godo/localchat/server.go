@@ -2,6 +2,7 @@ package localchat
 
 import (
 	"encoding/json"
+	"godo/libs"
 	"log"
 	"net"
 	"time"
@@ -14,25 +15,31 @@ type UdpMessage struct {
 	IP       string    `json:"ip"`
 	Message  any       `json:"message"`
 }
-type Messages struct {
-	Messages []UdpMessage `json:"messages"`
-}
+
 type UserMessage struct {
-	Messages map[string]*Messages  `json:"messages"`
-	Onlines  map[string]UserStatus `json:"onlines"`
+	Messages map[string][]UdpMessage `json:"messages"`
+	Onlines  map[string]UserStatus   `json:"onlines"`
+}
+type UserStatus struct {
+	Hostname string    `json:"hostname"`
+	IP       string    `json:"ip"`
+	Time     time.Time `json:"time"`
 }
 
 var OnlineUsers = make(map[string]UserStatus)
-
-var UserMessages = make(map[string]*Messages)
+var UserMessages = make(map[string][]UdpMessage)
 
 func init() {
 	go UdpServer()
 	go CheckOnlines()
 }
+
 func CheckOnlines() {
 	CheckOnline()
-	ticker := time.NewTicker(60 * time.Second)
+	chatIpSetting := libs.GetChatIpSetting()
+	checkTimeDuration := time.Duration(chatIpSetting.CheckTime) * time.Second
+
+	ticker := time.NewTicker(checkTimeDuration)
 	defer ticker.Stop()
 	for range ticker.C {
 		// 检查客户端是否已断开连接
@@ -91,21 +98,25 @@ func UdpServer() {
 		}
 	}
 }
+
 func ClearAllUserMessages() {
-	for ip, msg := range UserMessages {
-		msg.Messages = []UdpMessage{} // 清空切片
-		UserMessages[ip] = msg        // 更新映射中的值
-	}
+	UserMessages = make(map[string][]UdpMessage)
 }
+
 func GetMessages() UserMessage {
 	return UserMessage{
 		Messages: UserMessages,
 		Onlines:  OnlineUsers,
 	}
 }
+
 func AddMessage(msg UdpMessage) {
+	// 检查 UserMessages 中是否已经有这个 IP 地址的消息列表
 	if _, ok := UserMessages[msg.IP]; !ok {
-		UserMessages[msg.IP] = &Messages{}
+		// 如果没有，则创建一个新的消息列表
+		UserMessages[msg.IP] = []UdpMessage{}
 	}
-	UserMessages[msg.IP].Messages = append(UserMessages[msg.IP].Messages, msg)
+
+	// 将新消息添加到对应 IP 地址的消息列表中
+	UserMessages[msg.IP] = append(UserMessages[msg.IP], msg)
 }

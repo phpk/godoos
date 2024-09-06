@@ -13,12 +13,6 @@ import (
 	"godo/libs"
 )
 
-type UserStatus struct {
-	Hostname string    `json:"hostname"`
-	IP       string    `json:"ip"`
-	Time     time.Time `json:"time"`
-}
-
 // 发送 UDP 包并忽略响应
 func sendUDPPacket(ip string) error {
 	hostname, err := os.Hostname()
