@@ -48,10 +48,10 @@ const handleDrop = (event:any) => {
   }
 };
 function send(){
-  if(!store.hostInfo || !store.hostInfo.ip){
-    notifyError("Please wait for a moment");
-    return;
-  }
+  // if(!store.hostInfo || !store.hostInfo.ip){
+  //   notifyError("Please wait for a moment");
+  //   return;
+  // }
   store.sendMsg()
 }
 

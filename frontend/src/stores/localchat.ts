@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import emojiList from "@/assets/emoji.json"
 import { ref, toRaw, inject } from "vue";
 import { db } from './db'
-import { System, dirname } from "@/system";
+import { System } from "@/system";
 import { getSystemConfig } from "@/system/config";
 import { isBase64, base64ToBuffer } from "@/util/file";
 import { isValidIP } from "@/util/common";
@@ -28,7 +28,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
   const chatTargetIp = ref("")
   const showAddUser = ref(false)
   const handlerMessage = (data : any) => {
-    console.log(data)
+    //console.log(data)
     if(data.onlines){
       const ips = []
       for(let ip in data.onlines){
@@ -41,18 +41,18 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     }
     if(data.messages){
       for(let ip in data.messages){
-        const msgList:any = data.messages[ip].messages
+        const msgList:any = data.messages[ip]
         if(!msgList || msgList.length < 1)return;
         msgList.forEach((msg: any) => {
           //console.log(msg)
           if (msg.type === "text") {
             msg.message = msg.message.replaceAll("\\n", "\n")
-            console.log(msg)
+            //console.log(msg)
             addText(msg)
           }
-          //console.log(msg)
-          //console.log(msg.content)
-          //console.log(msg.content.length)
+          if (msg.type === "fileSending"){
+
+          }
         })
       }
     }
@@ -287,27 +287,10 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     //await getMsgList()
 
     await updateContentList(saveMsg)
-    if (config.storeType === 'browser') {
-      await storeFile(files)
-    }
+
     handleSelect(1)
   }
-  const storeFile = async (fileList: any) => {
-    if (fileList.length < 1) return;
-    console.log(fileList)
-    for (let i = 0; i < fileList.length; i++) {
-      let content = fileList[i].content
-      if (typeof content === 'string') {
-        if (isBase64(content)) {
-          content = base64ToBuffer(content);
-        }
-        const path = dirname(fileList[i].path)
-        //console.log(path)
-        await sys?.fs.mkdir(path);
-        await sys?.fs.writeFile(fileList[i].path, content);
-      }
-    }
-  }
+ 
   const getTargetUser = async (data: any) => {
     let targetUser: any = userList.value.find((d: any) => d.ip === data.ip)
     if (!targetUser) {
@@ -341,7 +324,9 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       isRead: false,
       status: 'reciped'
     }
-    if (targetUser.id === chatTargetId.value) {
+    console.log(saveMsg)
+    console.log(chatTargetId.value)
+    if (targetUser.ip === chatTargetIp.value) {
       saveMsg.readAt = Date.now()
       saveMsg.isRead = true
       msgList.value.push(saveMsg)
