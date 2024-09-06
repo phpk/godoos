@@ -153,7 +153,7 @@ func SendFile(file *os.File, numChunks int, toIp string, message UdpMessage) {
 		fmt.Printf("发送文件块 %d 到 %s 成功\n", i, toIp)
 	}
 }
-func RecieveFile(msg UdpMessage) {
+func ReceiveFile(msg UdpMessage) {
 	chunk := msg.Message.(FileChunk)
 
 	// 验证校验和

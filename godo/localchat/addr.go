@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
+	"os"
 	"runtime"
 	"sync"
 	"time"
@@ -19,29 +19,16 @@ type UserStatus struct {
 	Time     time.Time `json:"time"`
 }
 
-var OnlineUsers = make(map[string]UserStatus)
-
-type UDPPayload struct {
-	Action string `json:"action"`
-	Data   string `json:"data"`
-}
-
-func getHostname(ip string) (string, error) {
-	hostname, err := net.LookupAddr(ip)
-	if err != nil {
-		return "", fmt.Errorf("error getting hostname: %v", err)
-	}
-	if len(hostname) > 0 {
-		return hostname[0], nil
-	}
-	return "", fmt.Errorf("no hostname found for IP: %s", ip)
-}
-
 // 发送 UDP 包并忽略响应
 func sendUDPPacket(ip string) error {
-	payload := UDPPayload{
-		Action: "check",
-		Data:   "",
+	hostname, err := os.Hostname()
+	if err != nil {
+		return fmt.Errorf("error getting hostname: %v", err)
+	}
+	payload := UdpMessage{
+		Type:     "heartbeat",
+		Hostname: hostname,
+		Time:     time.Now(),
 	}
 	log.Printf("sending ip: %+v", ip)
 	payloadBytes, err := json.Marshal(payload)
@@ -96,17 +83,6 @@ func concurrentGetIpInfo(ips []string) {
 			if err != nil {
 				log.Printf("Failed to send packet to IP %s: %v", ip, err)
 				failedIPs[ip] = true // 标记失败的 IP
-			} else {
-				hostname, err := getHostname(ip)
-				if err != nil {
-					log.Printf("Failed to get hostname for IP %s: %v", ip, err)
-				} else {
-					OnlineUsers[ip] = UserStatus{
-						Hostname: hostname,
-						IP:       ip,
-						Time:     time.Now(),
-					}
-				}
 			}
 		}(ip)
 	}
@@ -136,17 +112,6 @@ func containArr(s []string, str string) bool {
 		}
 	}
 	return false
-}
-
-func HandleHeartbeat(w http.ResponseWriter, r *http.Request) {
-	ip := r.RemoteAddr // 可以根据实际情况获取 IP
-	hostname, err := getHostname(ip)
-	if err != nil {
-		libs.HTTPError(w, http.StatusInternalServerError, "Failed to get hostname")
-		return
-	}
-	userStatus := UpdateUserStatus(ip, hostname)
-	libs.SuccessMsg(w, userStatus, "Heartbeat received")
 }
 
 func UpdateUserStatus(ip string, hostname string) UserStatus {

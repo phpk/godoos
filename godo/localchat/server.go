@@ -22,6 +22,8 @@ type UserMessage struct {
 	Onlines  map[string]UserStatus `json:"onlines"`
 }
 
+var OnlineUsers = make(map[string]UserStatus)
+
 var UserMessages = make(map[string]*Messages)
 
 func init() {
@@ -49,7 +51,7 @@ func UdpServer() {
 
 	log.Println("UDP server started on :56780")
 
-	// 无限循环，监听 UDP 请求
+	// 监听 UDP 请求
 	for {
 		buffer := make([]byte, 1024)
 
@@ -67,16 +69,26 @@ func UdpServer() {
 			log.Printf("error unmarshalling UDP message: %v", err)
 			continue
 		}
-		if udpMsg.Type == "heartbeat" {
-			UpdateUserStatus(udpMsg.IP, udpMsg.Hostname)
-			continue
+		// 从 remoteAddr 获取 IP 地址
+		if udpAddr, ok := remoteAddr.(*net.UDPAddr); ok {
+			ip := udpAddr.IP.String()
+			udpMsg.IP = ip
+
+			if udpMsg.Type == "heartbeat" {
+				UpdateUserStatus(udpMsg.IP, udpMsg.Hostname)
+				continue
+			}
+
+			if udpMsg.Type == "file" {
+				ReceiveFile(udpMsg)
+				continue
+			}
+
+			// 添加消息到 UserMessages
+			AddMessage(udpMsg)
+		} else {
+			log.Printf("unexpected address type: %T", remoteAddr)
 		}
-		if udpMsg.Type == "file" {
-			RecieveFile(udpMsg)
-			continue
-		}
-		// 添加消息到 UserMessages
-		AddMessage(udpMsg)
 	}
 }
 func ClearAllUserMessages() {
