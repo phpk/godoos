@@ -26,6 +26,7 @@ package localchat
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"godo/libs"
 	"io"
@@ -168,7 +169,6 @@ func handleDirectory(dirPath string, toIp string, message UdpMessage) {
 }
 func SendFile(file *os.File, numChunks int, toIp string, fSize int64, message UdpMessage) {
 	var wg sync.WaitGroup
-	mu := &sync.Mutex{}
 
 	// 逐块读取文件并发送
 	for i := 0; i < numChunks; i++ {
@@ -182,6 +182,7 @@ func SendFile(file *os.File, numChunks int, toIp string, fSize int64, message Ud
 				log.Fatalf("Failed to read file chunk: %v", err)
 			}
 			encodedData := base64.StdEncoding.EncodeToString(chunkData[:n])
+
 			// 创建文件块
 			chunk := FileChunk{
 				ChunkIndex: index,
@@ -191,49 +192,70 @@ func SendFile(file *os.File, numChunks int, toIp string, fSize int64, message Ud
 				Filename:   filepath.Base(file.Name()),
 				Filesize:   fSize,
 			}
+
 			chunkJson, err := json.Marshal(chunk)
 			if err != nil {
 				log.Fatalf("Failed to marshal chunk: %v", err)
 			}
-			message.Message = base64.StdEncoding.EncodeToString(chunkJson)
 
-			// 将文件块转换为 JSON 格式
-			data, err := json.Marshal(message)
-			if err != nil {
-				log.Fatalf("Failed to marshal chunk: %v", err)
+			// 确保每个数据包的大小不超过限制
+			maxPacketSize := 65000
+			if len(chunkJson) > maxPacketSize {
+				// 分割数据包
+				chunks := splitChunkJson(chunkJson, maxPacketSize)
+				for _, subChunkJson := range chunks {
+					message.Message = base64.StdEncoding.EncodeToString(subChunkJson)
+					sendData(message, toIp)
+				}
+			} else {
+				message.Message = base64.StdEncoding.EncodeToString(chunkJson)
+				sendData(message, toIp)
 			}
 
-			// 发送文件块
-			port := "56780"
-			addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%s", toIp, port))
-			if err != nil {
-				log.Fatalf("Failed to resolve UDP address: %v", err)
-			}
-
-			conn, err := net.DialUDP("udp4", nil, addr)
-			if err != nil {
-				log.Fatalf("Failed to dial UDP address: %v", err)
-			}
-			defer conn.Close()
-
-			_, err = conn.Write(data)
-			if err != nil {
-				log.Printf("Failed to write data: %v", err)
-			}
-
-			mu.Lock()
 			fmt.Printf("发送文件块 %d 到 %s 成功\n", index, toIp)
-			mu.Unlock()
 		}(i)
 	}
 
 	wg.Wait()
 }
+
+func splitChunkJson(jsonData []byte, maxSize int) [][]byte {
+	var chunks [][]byte
+	for start := 0; start < len(jsonData); start += maxSize {
+		end := start + maxSize
+		if end > len(jsonData) {
+			end = len(jsonData)
+		}
+		chunks = append(chunks, jsonData[start:end])
+	}
+	return chunks
+}
+
+func sendData(message UdpMessage, toIp string) {
+	port := "56780"
+	addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%s", toIp, port))
+	if err != nil {
+		log.Fatalf("Failed to resolve UDP address: %v", err)
+	}
+
+	conn, err := net.DialUDP("udp4", nil, addr)
+	if err != nil {
+		log.Fatalf("Failed to dial UDP address: %v", err)
+	}
+	defer conn.Close()
+
+	data, _ := json.Marshal(message)
+	_, err = conn.Write(data)
+	if err != nil {
+		log.Printf("Failed to write data: %v", err)
+	}
+}
 func ReceiveFile(msg UdpMessage) (string, error) {
 	chunkStr, ok := msg.Message.(string)
 	if !ok {
-		return "", fmt.Errorf("invalid message type")
+		return "", errors.New("invalid message type")
 	}
+
 	// Base64解码
 	chunkJson, err := base64.StdEncoding.DecodeString(chunkStr)
 	if err != nil {
@@ -245,24 +267,25 @@ func ReceiveFile(msg UdpMessage) (string, error) {
 	if err := json.Unmarshal(chunkJson, &chunk); err != nil {
 		return "", fmt.Errorf("failed to unmarshal FileChunk: %v", err)
 	}
+
+	// 验证校验和
 	chunkData, err := base64.StdEncoding.DecodeString(chunk.Data)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode base64 chunk data: %v", err)
 	}
-	// 验证校验和
 	calculatedChecksum := calculateChecksum(chunkData)
 	if calculatedChecksum != chunk.Checksum {
 		fmt.Printf("Checksum mismatch for chunk %d from %s\n", chunk.ChunkIndex, msg.IP)
 		return "", fmt.Errorf("checksum mismatch")
 	}
 
+	// 创建接收文件的目录
 	baseDir, err := libs.GetOsDir()
 	if err != nil {
 		log.Printf("Failed to get OS directory: %v", err)
 		return "", fmt.Errorf("failed to get OS directory")
 	}
 
-	// 创建接收文件的目录
 	resPath := filepath.Join("C", "Users", "Reciv", time.Now().Format("2006-01-02"))
 	receiveDir := filepath.Join(baseDir, resPath)
 	if !libs.PathExists(receiveDir) {
@@ -293,12 +316,6 @@ func ReceiveFile(msg UdpMessage) (string, error) {
 		return "", fmt.Errorf("failed to open file")
 	}
 	defer file.Close()
-
-	// 写入数据前检查 Data 是否为空
-	if len(chunkData) == 0 {
-		fmt.Println("Chunk data is empty.")
-		return "", fmt.Errorf("chunk data is empty")
-	}
 
 	// 写入数据
 	n, err := file.Write(chunkData)
