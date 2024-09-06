@@ -24,6 +24,7 @@
 package localchat
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"godo/libs"
@@ -38,12 +39,12 @@ import (
 )
 
 const (
-	fileSize = 1024 // 每个数据包的大小
+	fileSize = 512 // 每个数据包的大小
 )
 
 type FileChunk struct {
 	ChunkIndex int       `json:"chunk_index"`
-	Data       []byte    `json:"data"`
+	Data       string    `json:"data"`
 	Checksum   uint32    `json:"checksum"`
 	Timestamp  time.Time `json:"timestamp"`
 	Filename   string    `json:"filename"`
@@ -180,17 +181,21 @@ func SendFile(file *os.File, numChunks int, toIp string, fSize int64, message Ud
 			if err != nil && err != io.EOF {
 				log.Fatalf("Failed to read file chunk: %v", err)
 			}
-
+			encodedData := base64.StdEncoding.EncodeToString(chunkData[:n])
 			// 创建文件块
 			chunk := FileChunk{
 				ChunkIndex: index,
-				Data:       chunkData[:n],
+				Data:       encodedData,
 				Checksum:   calculateChecksum(chunkData[:n]),
 				Timestamp:  time.Now(),
 				Filename:   filepath.Base(file.Name()),
 				Filesize:   fSize,
 			}
-			message.Message = chunk
+			chunkJson, err := json.Marshal(chunk)
+			if err != nil {
+				log.Fatalf("Failed to marshal chunk: %v", err)
+			}
+			message.Message = base64.StdEncoding.EncodeToString(chunkJson)
 
 			// 将文件块转换为 JSON 格式
 			data, err := json.Marshal(message)
@@ -225,10 +230,27 @@ func SendFile(file *os.File, numChunks int, toIp string, fSize int64, message Ud
 	wg.Wait()
 }
 func ReceiveFile(msg UdpMessage) (string, error) {
-	chunk := msg.Message.(FileChunk)
+	chunkStr, ok := msg.Message.(string)
+	if !ok {
+		return "", fmt.Errorf("invalid message type")
+	}
+	// Base64解码
+	chunkJson, err := base64.StdEncoding.DecodeString(chunkStr)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode base64 message: %v", err)
+	}
 
+	// 从 map 中提取 FileChunk 字段
+	var chunk FileChunk
+	if err := json.Unmarshal(chunkJson, &chunk); err != nil {
+		return "", fmt.Errorf("failed to unmarshal FileChunk: %v", err)
+	}
+	chunkData, err := base64.StdEncoding.DecodeString(chunk.Data)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode base64 chunk data: %v", err)
+	}
 	// 验证校验和
-	calculatedChecksum := calculateChecksum(chunk.Data)
+	calculatedChecksum := calculateChecksum(chunkData)
 	if calculatedChecksum != chunk.Checksum {
 		fmt.Printf("Checksum mismatch for chunk %d from %s\n", chunk.ChunkIndex, msg.IP)
 		return "", fmt.Errorf("checksum mismatch")
@@ -265,19 +287,30 @@ func ReceiveFile(msg UdpMessage) (string, error) {
 	}
 
 	// 打开或追加到现有文件
-	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Printf("Failed to open file: %v", err)
 		return "", fmt.Errorf("failed to open file")
 	}
 	defer file.Close()
 
+	// 写入数据前检查 Data 是否为空
+	if len(chunkData) == 0 {
+		fmt.Println("Chunk data is empty.")
+		return "", fmt.Errorf("chunk data is empty")
+	}
+
 	// 写入数据
-	_, err = file.Write(chunk.Data)
+	n, err := file.Write(chunkData)
 	if err != nil {
 		log.Printf("Failed to write data to file: %v", err)
 		return "", fmt.Errorf("failed to write data to file")
 	}
+	if n != len(chunkData) {
+		log.Printf("Incomplete write: wrote %d bytes, expected %d bytes", n, len(chunkData))
+		return "", fmt.Errorf("incomplete write")
+	}
+
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
 		log.Printf("Failed to stat file: %v", err)
