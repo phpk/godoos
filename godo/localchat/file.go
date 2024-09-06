@@ -33,6 +33,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
@@ -46,6 +47,7 @@ type FileChunk struct {
 	Checksum   uint32    `json:"checksum"`
 	Timestamp  time.Time `json:"timestamp"`
 	Filename   string    `json:"filename"`
+	Filesize   int64     `json:"filesize"`
 }
 
 func HandlerApplySendFile(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +148,7 @@ func handleFile(filePath string, toIp string, message UdpMessage) {
 	numChunks := (fileSize + fileSize - 1) / fileSize
 
 	// 发送文件
-	SendFile(file, int(numChunks), toIp, message)
+	SendFile(file, int(numChunks), toIp, fileSize, message)
 }
 
 func handleDirectory(dirPath string, toIp string, message UdpMessage) {
@@ -163,75 +165,89 @@ func handleDirectory(dirPath string, toIp string, message UdpMessage) {
 		log.Fatalf("Failed to walk directory: %v", err)
 	}
 }
-func SendFile(file *os.File, numChunks int, toIp string, message UdpMessage) {
+func SendFile(file *os.File, numChunks int, toIp string, fSize int64, message UdpMessage) {
+	var wg sync.WaitGroup
+	mu := &sync.Mutex{}
+
 	// 逐块读取文件并发送
 	for i := 0; i < numChunks; i++ {
-		var chunkData [fileSize]byte
-		n, err := file.Read(chunkData[:])
-		if err != nil && err != io.EOF {
-			log.Fatalf("Failed to read file chunk: %v", err)
-		}
+		wg.Add(1)
+		go func(index int) {
+			defer wg.Done()
 
-		// 创建文件块
-		chunk := FileChunk{
-			ChunkIndex: i,
-			Data:       chunkData[:n],
-			Checksum:   calculateChecksum(chunkData[:n]),
-			Timestamp:  time.Now(),
-			Filename:   filepath.Base(file.Name()),
-		}
-		message.Message = chunk
-		// 将文件块转换为 JSON 格式
-		data, err := json.Marshal(message)
-		if err != nil {
-			log.Fatalf("Failed to marshal chunk: %v", err)
-		}
+			var chunkData [fileSize]byte
+			n, err := file.Read(chunkData[:])
+			if err != nil && err != io.EOF {
+				log.Fatalf("Failed to read file chunk: %v", err)
+			}
 
-		// 发送文件块
-		//addr, err := net.ResolveUDPAddr("udp4", toIp+":56780")
-		port := "56780"
-		addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%s", toIp, port))
-		if err != nil {
-			log.Fatalf("Failed to resolve UDP address: %v", err)
-		}
+			// 创建文件块
+			chunk := FileChunk{
+				ChunkIndex: index,
+				Data:       chunkData[:n],
+				Checksum:   calculateChecksum(chunkData[:n]),
+				Timestamp:  time.Now(),
+				Filename:   filepath.Base(file.Name()),
+				Filesize:   fSize,
+			}
+			message.Message = chunk
 
-		conn, err := net.DialUDP("udp4", nil, addr)
-		if err != nil {
-			log.Fatalf("Failed to dial UDP address: %v", err)
-		}
-		defer conn.Close()
+			// 将文件块转换为 JSON 格式
+			data, err := json.Marshal(message)
+			if err != nil {
+				log.Fatalf("Failed to marshal chunk: %v", err)
+			}
 
-		_, err = conn.Write(data)
-		if err != nil {
-			log.Printf("Failed to write data: %v", err)
-		}
+			// 发送文件块
+			port := "56780"
+			addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%s", toIp, port))
+			if err != nil {
+				log.Fatalf("Failed to resolve UDP address: %v", err)
+			}
 
-		fmt.Printf("发送文件块 %d 到 %s 成功\n", i, toIp)
+			conn, err := net.DialUDP("udp4", nil, addr)
+			if err != nil {
+				log.Fatalf("Failed to dial UDP address: %v", err)
+			}
+			defer conn.Close()
+
+			_, err = conn.Write(data)
+			if err != nil {
+				log.Printf("Failed to write data: %v", err)
+			}
+
+			mu.Lock()
+			fmt.Printf("发送文件块 %d 到 %s 成功\n", index, toIp)
+			mu.Unlock()
+		}(i)
 	}
+
+	wg.Wait()
 }
-func ReceiveFile(msg UdpMessage) {
+func ReceiveFile(msg UdpMessage) (string, error) {
 	chunk := msg.Message.(FileChunk)
 
 	// 验证校验和
 	calculatedChecksum := calculateChecksum(chunk.Data)
 	if calculatedChecksum != chunk.Checksum {
 		fmt.Printf("Checksum mismatch for chunk %d from %s\n", chunk.ChunkIndex, msg.IP)
-		return
+		return "", fmt.Errorf("checksum mismatch")
 	}
 
 	baseDir, err := libs.GetOsDir()
 	if err != nil {
 		log.Printf("Failed to get OS directory: %v", err)
-		return
+		return "", fmt.Errorf("failed to get OS directory")
 	}
 
 	// 创建接收文件的目录
-	receiveDir := filepath.Join(baseDir, "C", "Users", "Reciv", time.Now().Format("2006-01-02"))
+	resPath := filepath.Join("C", "Users", "Reciv", time.Now().Format("2006-01-02"))
+	receiveDir := filepath.Join(baseDir, resPath)
 	if !libs.PathExists(receiveDir) {
 		err := os.MkdirAll(receiveDir, 0755)
 		if err != nil {
 			log.Printf("Failed to create receive directory: %v", err)
-			return
+			return "", fmt.Errorf("failed to create receive directory")
 		}
 	}
 
@@ -243,7 +259,7 @@ func ReceiveFile(msg UdpMessage) {
 		file, err := os.Create(filePath)
 		if err != nil {
 			log.Printf("Failed to create file: %v", err)
-			return
+			return "", fmt.Errorf("failed to create file")
 		}
 		defer file.Close()
 	}
@@ -252,7 +268,7 @@ func ReceiveFile(msg UdpMessage) {
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Printf("Failed to open file: %v", err)
-		return
+		return "", fmt.Errorf("failed to open file")
 	}
 	defer file.Close()
 
@@ -260,10 +276,20 @@ func ReceiveFile(msg UdpMessage) {
 	_, err = file.Write(chunk.Data)
 	if err != nil {
 		log.Printf("Failed to write data to file: %v", err)
-		return
+		return "", fmt.Errorf("failed to write data to file")
 	}
-
-	fmt.Printf("接收到文件块 %d 从 %s 成功\n", chunk.ChunkIndex, msg.IP)
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		log.Printf("Failed to stat file: %v", err)
+		return "", fmt.Errorf("failed to stat file")
+	}
+	if fileInfo.Size() == chunk.Filesize {
+		fmt.Println("文件接收完成且大小一致")
+		return filePath, nil
+	} else {
+		fmt.Println("文件大小不一致")
+		return "", fmt.Errorf("file size mismatch")
+	}
 }
 func calculateChecksum(data []byte) uint32 {
 	checksum := uint32(0)

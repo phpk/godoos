@@ -118,7 +118,7 @@ func UdpServer() {
 				continue
 			}
 			if udpMsg.Type == "image" {
-				filePath, err := ReceiveImg(udpMsg)
+				filePath, err := ReceiveFile(udpMsg)
 				if err != nil {
 					log.Printf("error receiving image: %v", err)
 					continue

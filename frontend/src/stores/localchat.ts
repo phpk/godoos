@@ -50,7 +50,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
             addText(msg)
           }
           if (msg.type === "image"){
-
+            console.log(msg)
           }
           if (msg.type === "fileSending"){
 
@@ -403,123 +403,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     await updateContentList(saveMsg)
   }
 
-  //上传文件资源
-  // async function uploadFile(paths: any) {
-  //   if (chatTargetId.value < 1) {
-  //     return
-  //   }
-  //   const targetUser = userList.value.find((d: any) => d.ip === chatTargetIp.value)
-  //   if (!targetUser.isOnline) {
-  //     notifyError("The user is not online!");
-  //     return;
-  //   }
-  //   if (!hostInfo.value || !hostInfo.value.ip) {
-  //     notifyError("Please wait for a moment");
-  //     return;
-  //   }
-  //   //console.log(paths)
-  //   const formData = new FormData();
-  //   const errstr: any = []
-  //   const files: any = []
-  //   for (let i = 0; i < paths.length; i++) {
-  //     const content = await sys?.fs.readFile(paths[i]);
-  //     let blobContent;
-  //     if (!content || content == '') {
-  //       errstr.push(paths[i] + " is empty")
-  //       continue
-  //     }
-  //     if (content instanceof ArrayBuffer) {
-  //       blobContent = new Blob([content]);
-  //     }
-  //     else if (typeof content === 'string') {
-  //       if (isBase64(content)) {
-  //         const base64 = base64ToBuffer(content);
-  //         blobContent = new Blob([base64]);
-  //       } else {
-  //         blobContent = new Blob([content], { type: "text/plain;charset=utf-8" });
-  //       }
-  //     }
-  //     else {
-  //       errstr.push(paths[i] + " type is error")
-  //       continue
-  //     }
-  //     const fileName = paths[i].split("/").pop()
-  //     files.push({
-  //       name: fileName,
-  //       path: paths[i],
-  //       ext: fileName.split(".").pop(),
-  //     })
-  //     //files.push(blobContent);
-  //     formData.append(`files`, blobContent, fileName);
-  //   }
-  //   if (errstr.length > 0) {
-  //     errstr.forEach((d: any) => {
-  //       notifyError(d);
-  //     })
-  //     return
-  //   }
-  //   //formData.append("files", files);
-  //   formData.append("ip", hostInfo.value.ip);
-  //   formData.append("hostname", hostInfo.value.hostname);
-  //   //console.log(formData)
-  //   const postUrl = `http://${targetUser.ip}:56780/localchat/upload`
-  //   const res = await fetch(postUrl, {
-  //     method: "POST",
-  //     body: formData,
-  //   });
-  //   if (!res.ok) {
-  //     console.log(res);
-  //     notifyError("Upload error!");
-  //     return;
-  //   }
-  //   const saveMsg: any = {
-  //     type: 'file',
-  //     targetId: targetUser.id,
-  //     targetIp: targetUser.ip,
-  //     content: files,
-  //     reciperInfo: toRaw(targetUser),
-  //     createdAt: Date.now(),
-  //     isMe: false,
-  //     isRead: true,
-  //     status: 'reciped'
-  //   }
-  //   //console.log(saveMsg)
-  //   await db.addOne('chatmsg', saveMsg)
-  //   msgList.value.push(saveMsg)
 
-  //   notifySuccess("upload success!");
-  // }
-  
-
-  //async function addUser(ip: string) {
-    // if (!isValidIP(ip)) {
-    //   notifyError("请输入正确的IP地址");
-    //   return
-    // }
-    // const postUrl = `http://${ip}:56780/localchat/check`
-    // const completion = await fetch(postUrl)
-    // if (!completion.ok) {
-    //   notifyError('用户不在线')
-    // } else {
-    //   const res = await completion.json()
-    //   const data = res.data
-    //   data.createdAt = Date.now()
-    //   data.updatedAt = Date.now()
-    //   data.isOnline = true
-    //   data.username = data.hostname
-    //   if(ip != data.ip){
-    //     notifyError(`IP地址不一致，可能会存在不通的问题`)
-    //   }
-    //   data.ip = ip
-    //   if (!OutUserList.value.some((item: any) => item.ip === data.ip)) {
-    //     OutUserList.value.push(data);
-    //     await getUserList()
-    //   }
-    //   showAddUser.value = false
-
-    // }
-
-  //}
   return {
     userList,
     navList,
