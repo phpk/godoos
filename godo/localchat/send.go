@@ -37,7 +37,7 @@ func HandleMessage(w http.ResponseWriter, r *http.Request) {
 // SendToIP 向指定的 IP 地址发送 UDP 消息
 func SendToIP(message UdpMessage) error {
 	toIp := message.IP
-	port := GetBroadcastPort()
+	port := "56780"
 	addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%s", toIp, port))
 	if err != nil {
 		log.Printf("Failed to resolve UDP address %s:%s: %v", toIp, port, err)

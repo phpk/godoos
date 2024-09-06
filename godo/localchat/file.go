@@ -132,7 +132,9 @@ func SendFile(file *os.File, numChunks int, toIp string, message UdpMessage) {
 		}
 
 		// 发送文件块
-		addr, err := net.ResolveUDPAddr("udp4", toIp)
+		//addr, err := net.ResolveUDPAddr("udp4", toIp+":56780")
+		port := "56780"
+		addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%s", toIp, port))
 		if err != nil {
 			log.Fatalf("Failed to resolve UDP address: %v", err)
 		}

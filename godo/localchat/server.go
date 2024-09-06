@@ -4,68 +4,96 @@ import (
 	"encoding/json"
 	"log"
 	"net"
-	"os"
 	"time"
 )
 
-func InitBroadcast() {
-	ticker := time.NewTicker(5 * time.Second) // 每 5 秒发送一次广播消息
-	defer ticker.Stop()
+type UdpMessage struct {
+	Hostname string    `json:"hostname"`
+	Type     string    `json:"type"`
+	Time     time.Time `json:"time"`
+	IP       string    `json:"ip"`
+	Message  any       `json:"message"`
+}
+type Messages struct {
+	Messages []UdpMessage `json:"messages"`
+}
+type UserMessage struct {
+	Messages map[string]*Messages  `json:"messages"`
+	Onlines  map[string]UserStatus `json:"onlines"`
+}
 
+var UserMessages = make(map[string]*Messages)
+
+func init() {
+	go UdpServer()
+	go CheckOnlines()
+}
+func CheckOnlines() {
+	CheckOnline()
+	ticker := time.NewTicker(60 * time.Second)
+	defer ticker.Stop()
 	for range ticker.C {
-		hostname, err := os.Hostname()
-		if err != nil {
-			log.Printf("Failed to get hostname: %v", err)
-			continue
-		}
-		message := UdpMessage{
-			Type:     "online",
-			Hostname: hostname,
-			Message:  "",
-			Time:     time.Now(),
-		}
-		//发送多播消息
-		broadcastAddr := GetBroadcastAddr()
-		err = SendBroadcast(broadcastAddr, message)
-		if err != nil {
-			log.Println("Failed to send broadcast message:", err)
-		}
+		// 检查客户端是否已断开连接
+		CheckOnline()
 	}
 }
-func SendBroadcast(broadcastAddr string, message UdpMessage) error {
 
-	addr, err := net.ResolveUDPAddr("udp4", broadcastAddr)
+// UDP 服务器端逻辑
+func UdpServer() {
+	// 监听 UDP 端口
+	listener, err := net.ListenPacket("udp", ":56780")
 	if err != nil {
-		log.Printf("Failed to resolve UDP address %s: %v", broadcastAddr, err)
-		return err
+		log.Fatalf("error setting up listener: %v", err)
 	}
+	defer listener.Close()
 
-	// 使用本地地址进行连接
-	localAddr, err := net.ResolveUDPAddr("udp4", "0.0.0.0:0")
-	if err != nil {
-		log.Printf("Failed to resolve local UDP address: %v", err)
-		return err
+	log.Println("UDP server started on :56780")
+
+	// 无限循环，监听 UDP 请求
+	for {
+		buffer := make([]byte, 1024)
+
+		n, remoteAddr, err := listener.ReadFrom(buffer)
+		if err != nil {
+			log.Printf("error reading from UDP: %v", err)
+			continue
+		}
+
+		log.Printf("Received UDP packet from %v: %s", remoteAddr, buffer[:n])
+		// 解析 UDP 数据
+		var udpMsg UdpMessage
+		err = json.Unmarshal(buffer[:n], &udpMsg)
+		if err != nil {
+			log.Printf("error unmarshalling UDP message: %v", err)
+			continue
+		}
+		if udpMsg.Type == "heartbeat" {
+			UpdateUserStatus(udpMsg.IP, udpMsg.Hostname)
+			continue
+		}
+		if udpMsg.Type == "file" {
+			RecieveFile(udpMsg)
+			continue
+		}
+		// 添加消息到 UserMessages
+		AddMessage(udpMsg)
 	}
-
-	conn, err := net.ListenUDP("udp4", localAddr)
-	if err != nil {
-		log.Printf("Failed to listen on UDP address %s: %v", broadcastAddr, err)
-		return err
+}
+func ClearAllUserMessages() {
+	for ip, msg := range UserMessages {
+		msg.Messages = []UdpMessage{} // 清空切片
+		UserMessages[ip] = msg        // 更新映射中的值
 	}
-	defer conn.Close()
-
-	data, err := json.Marshal(message)
-	if err != nil {
-		log.Printf("Failed to marshal JSON for %s: %v", broadcastAddr, err)
-		return err
+}
+func GetMessages() UserMessage {
+	return UserMessage{
+		Messages: UserMessages,
+		Onlines:  OnlineUsers,
 	}
-
-	_, err = conn.WriteToUDP(data, addr)
-	if err != nil {
-		log.Printf("Failed to write to UDP address %s: %v", broadcastAddr, err)
-		return err
+}
+func AddMessage(msg UdpMessage) {
+	if _, ok := UserMessages[msg.IP]; !ok {
+		UserMessages[msg.IP] = &Messages{}
 	}
-
-	log.Printf("发送消息到 %s 成功", broadcastAddr)
-	return nil
+	UserMessages[msg.IP].Messages = append(UserMessages[msg.IP].Messages, msg)
 }

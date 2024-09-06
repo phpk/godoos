@@ -1,103 +1,159 @@
 package localchat
 
 import (
+	"encoding/json"
+	"fmt"
+	"log"
 	"net"
 	"net/http"
-	"strconv"
+	"runtime"
+	"sync"
+	"time"
 
 	"godo/libs"
 )
 
-func HandleAddr(w http.ResponseWriter, r *http.Request) {
-	addr := r.URL.Query().Get("addr")
-	if addr == "" {
-		libs.ErrorMsg(w, "addr is empty")
-		return
-	}
-
-	udpAddr := libs.GetUdpAddr()
-	if addr == udpAddr {
-		libs.ErrorMsg(w, "addr is same as current addr")
-		return
-	}
-
-	// 检查是否为多播地址
-	if !IsValidMulticastAddr(addr) {
-		libs.ErrorMsg(w, "addr is not a valid multicast address")
-		return
-	}
-	// 验证可访问性
-	if IsMulticastAddrAccessible(addr) {
-		save := libs.ReqBody{
-			Value: addr,
-			Name:  "udpAddr",
-		}
-		libs.SetConfig(save)
-		libs.SuccessMsg(w, nil, "addr is a valid multicast address and accessible")
-	} else {
-		libs.ErrorMsg(w, "addr is a valid multicast address but not accessible")
-	}
+type UserStatus struct {
+	Hostname string    `json:"hostname"`
+	IP       string    `json:"ip"`
+	Time     time.Time `json:"time"`
 }
 
-// 检查是否为多播地址
-func IsValidMulticastAddr(addr string) bool {
-	host, port, err := net.SplitHostPort(addr)
-	if err != nil {
-		return false
-	}
+var OnlineUsers = make(map[string]UserStatus)
 
-	ip := net.ParseIP(host)
-	if ip == nil || !isMulticastIP(ip) {
-		return false
-	}
-
-	_, err = strconv.Atoi(port)
-	return err == nil
+type UDPPayload struct {
+	Action string `json:"action"`
+	Data   string `json:"data"`
 }
 
-// 检查 IP 是否为多播地址
-func isMulticastIP(ip net.IP) bool {
-	if ip.To4() != nil {
-		return ip[0]&0xF0 == 0xE0 // 检查 IPv4 多播地址范围 224.0.0.0 - 239.255.255.255
+func getHostname(ip string) (string, error) {
+	hostname, err := net.LookupAddr(ip)
+	if err != nil {
+		return "", fmt.Errorf("error getting hostname: %v", err)
 	}
-	return ip[0]&0xF0 == 0xE0 // 检查 IPv6 多播地址范围 FF00::/8
+	if len(hostname) > 0 {
+		return hostname[0], nil
+	}
+	return "", fmt.Errorf("no hostname found for IP: %s", ip)
 }
 
-// 验证多播地址的可访问性
-func IsMulticastAddrAccessible(addr string) bool {
-	host, port, err := net.SplitHostPort(addr)
+// 发送 UDP 包并忽略响应
+func sendUDPPacket(ip string) error {
+	payload := UDPPayload{
+		Action: "check",
+		Data:   "",
+	}
+	log.Printf("sending ip: %+v", ip)
+	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
-		return false
+		log.Printf("error marshalling payload: %v", err)
+		return fmt.Errorf("error marshalling payload: %v", err)
 	}
 
-	udpAddr, err := net.ResolveUDPAddr("udp4", net.JoinHostPort(host, port))
+	conn, err := net.Dial("udp", fmt.Sprintf("%s:56780", ip))
 	if err != nil {
-		return false
-	}
-
-	conn, err := net.ListenMulticastUDP("udp4", nil, udpAddr)
-	if err != nil {
-		return false
+		log.Printf("error dialing UDP: %v", err)
+		return fmt.Errorf("error dialing UDP: %v", err)
 	}
 	defer conn.Close()
 
-	// 发送一条测试消息
-	testMsg := []byte("Test message")
-	_, err = conn.WriteToUDP(testMsg, udpAddr)
+	_, err = conn.Write(payloadBytes)
 	if err != nil {
-		return false
+		log.Printf("error writing UDP payload: %v", err)
+		return fmt.Errorf("error writing UDP payload: %v", err)
 	}
 
-	// 接收一条测试消息
-	buffer := make([]byte, 1024)
-	n, _, err := conn.ReadFromUDP(buffer)
+	return nil
+}
+
+func concurrentGetIpInfo(ips []string) {
+	// 获取本地 IP 地址
+	hostips, err := libs.GetValidIPAddresses()
 	if err != nil {
-		return false
+		log.Printf("failed to get local IP addresses: %v", err)
+		return
 	}
 
-	if n > 0 && string(buffer[:n]) == "Test message" {
-		return true
+	var wg sync.WaitGroup
+	maxConcurrency := runtime.NumCPU()
+
+	semaphore := make(chan struct{}, maxConcurrency)
+
+	failedIPs := make(map[string]bool)
+
+	for _, ip := range ips {
+		if containArr(hostips, ip) || failedIPs[ip] {
+			continue
+		}
+
+		wg.Add(1)
+		semaphore <- struct{}{}
+
+		go func(ip string) {
+			defer wg.Done()
+			defer func() { <-semaphore }()
+			err := sendUDPPacket(ip)
+			if err != nil {
+				log.Printf("Failed to send packet to IP %s: %v", ip, err)
+				failedIPs[ip] = true // 标记失败的 IP
+			} else {
+				hostname, err := getHostname(ip)
+				if err != nil {
+					log.Printf("Failed to get hostname for IP %s: %v", ip, err)
+				} else {
+					OnlineUsers[ip] = UserStatus{
+						Hostname: hostname,
+						IP:       ip,
+						Time:     time.Now(),
+					}
+				}
+			}
+		}(ip)
 	}
 
+	wg.Wait()
+}
+
+func CheckOnline() {
+	// 清除 OnlineUsers 映射表
+	CleanOnlineUsers()
+
+	ips := libs.GetChatIPs()
+	// 启动并发处理
+	concurrentGetIpInfo(ips)
+
+	log.Printf("online users: %v", OnlineUsers)
+}
+
+func CleanOnlineUsers() {
+	OnlineUsers = make(map[string]UserStatus)
+}
+
+func containArr(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
 	return false
+}
+
+func HandleHeartbeat(w http.ResponseWriter, r *http.Request) {
+	ip := r.RemoteAddr // 可以根据实际情况获取 IP
+	hostname, err := getHostname(ip)
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, "Failed to get hostname")
+		return
+	}
+	userStatus := UpdateUserStatus(ip, hostname)
+	libs.SuccessMsg(w, userStatus, "Heartbeat received")
+}
+
+func UpdateUserStatus(ip string, hostname string) UserStatus {
+	OnlineUsers[ip] = UserStatus{
+		Hostname: hostname,
+		IP:       ip,
+		Time:     time.Now(),
+	}
+	return OnlineUsers[ip]
 }
