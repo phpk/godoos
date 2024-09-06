@@ -25,15 +25,14 @@
 package localchat
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"godo/libs"
-	"image"
 	"io"
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -61,21 +60,25 @@ func HandlerSendImg(w http.ResponseWriter, r *http.Request) {
 		log.Printf("GetOsDir error: %v", err)
 		return
 	}
-	paths, ok := msg.Message.([]string)
+	log.Printf("send image to %v", msg.Message)
+	log.Printf("Type of msg.Message: %T", msg.Message)
+	paths, ok := msg.Message.([]interface{})
+	log.Printf("paths: %v", paths)
 	if !ok {
-		log.Printf("invalid message type")
+		libs.ErrorMsg(w, "HandleMessage message error")
 		return
 	}
-	for _, p := range paths {
+
+	for _, v := range paths {
+		p, ok := v.(string)
+		if !ok {
+			continue
+		}
 		filePath := filepath.Join(basePath, p)
 		// 处理多张图片
 		if fileInfo, err := os.Stat(filePath); err == nil {
 			if !fileInfo.IsDir() {
-				if isImage(filePath) { // 检查是否为图片
-					sendImage(filePath, toIp, msg)
-				} else {
-					log.Printf("文件 %s 不是图片", filePath)
-				}
+				sendImage(filePath, toIp, msg)
 			}
 		} else {
 			continue
@@ -83,14 +86,7 @@ func HandlerSendImg(w http.ResponseWriter, r *http.Request) {
 	}
 	libs.SuccessMsg(w, nil, "图片发送成功")
 }
-func isImage(filePath string) bool {
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return false
-	}
-	img, _, err := image.DecodeConfig(bytes.NewReader(data))
-	return err == nil && img.Width > 0 && img.Height > 0
-}
+
 func sendImage(filePath string, toIp string, message UdpMessage) {
 	// 打开文件
 	file, err := os.Open(filePath)
@@ -212,15 +208,20 @@ func HandleViewImg(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "img is empty")
 		return
 	}
+	decodedImgParam, err := url.QueryUnescape(img)
+	if err != nil {
+		log.Fatalf("Error unescaping image parameter: %v", err)
+	}
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		log.Printf("GetOsDir error: %v", err)
 		return
 	}
-	filePath := filepath.Join(basePath, img)
+	filePath := filepath.Join(basePath, decodedImgParam)
+	log.Printf("filePath: %s", filePath)
 	// 检查文件是否存在
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		http.NotFound(w, r)
+		libs.ErrorMsg(w, "file not found")
 		return
 	}
 

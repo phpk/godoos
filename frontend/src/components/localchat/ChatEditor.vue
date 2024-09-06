@@ -12,7 +12,7 @@
     @keydown.enter="keyDown($event)"
     v-model="store.sendInfo" />
       <el-tooltip placement="top" content="按enter键发送，按ctrl+enter键换行">
-        <el-icon :size="22" class="win11-chat-send-button" @click="store.sendMsg()">
+        <el-icon :size="22" class="win11-chat-send-button" @click="store.sendMsg('text')">
           <Promotion />
         </el-icon>
       </el-tooltip>
@@ -22,17 +22,18 @@
 
 <script setup lang="ts">
 import { useLocalChatStore } from "@/stores/localchat"
-import { notifyError } from "@/util/msg";
+//import { notifyError } from "@/util/msg";
 
 const store = useLocalChatStore()
 // 按下回车键
 function keyDown(event: any) {
+  if(store.sendInfo == '')return
   if (event.ctrlKey && event.keyCode === 13) {
     store.sendInfo = store.sendInfo + "\n"
     
   } else if (event.keyCode === 13) {
     event.preventDefault() // 阻止浏览器默认换行操作
-    send()
+    store.sendMsg('text')
     return false
   }
 }
@@ -42,18 +43,13 @@ const handleDrop = (event:any) => {
   const files = JSON.parse(frompathArrStr) as string[];
   if (files && files.length > 0) {
     // 处理拖放的文件，例如上传
-    console.log('Files dropped:', files);
-    store.uploadFile(files)
+    //console.log('Files dropped:', files);
+    store.sendInfo = files;
+    //store.uploadFile(files)
+    store.sendMsg('applyfile')
 
   }
 };
-function send(){
-  // if(!store.hostInfo || !store.hostInfo.ip){
-  //   notifyError("Please wait for a moment");
-  //   return;
-  // }
-  store.sendMsg()
-}
 
 </script>
 

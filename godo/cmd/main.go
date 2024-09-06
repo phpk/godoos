@@ -106,7 +106,7 @@ func OsStart() {
 	localchatRouter.HandleFunc("/applyfile", localchat.HandlerApplySendFile).Methods(http.MethodPost)
 	localchatRouter.HandleFunc("/accessfile", localchat.HandlerAccessFile).Methods(http.MethodPost)
 	localchatRouter.HandleFunc("/sendimage", localchat.HandlerSendImg).Methods(http.MethodPost)
-	localchatRouter.HandleFunc("/viewimage", localchat.HandleViewImg).Methods(http.MethodPost)
+	localchatRouter.HandleFunc("/viewimage", localchat.HandleViewImg).Methods(http.MethodGet)
 	localchatRouter.HandleFunc("/setting", localchat.HandleAddr).Methods(http.MethodPost)
 	localchatRouter.HandleFunc("/getsetting", localchat.HandleGetAddr).Methods(http.MethodGet)
 	// 注册 WebDAV 路由

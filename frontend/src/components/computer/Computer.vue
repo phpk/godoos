@@ -248,7 +248,7 @@ async function onTreeOpen(path: string) {
   if (file) {
     openFolder(file);
   }
-  console.log(path)
+  //console.log(path)
   router_url.value = path;
 }
 

@@ -77,7 +77,6 @@ import { throttle } from '@/util/debounce';
 import { dealSize } from '@/util/file';
 import { Menu } from '@/system/menu/Menu';
 import { useChooseStore } from "@/stores/choose";
-import { log } from 'console';
 const { openPropsWindow, copyFile, createLink, deleteFile } = useContextMenu();
 const sys = useSystem();
 const { startDrag, folderDrop } = useFileDrag(sys);
@@ -124,8 +123,16 @@ function getName(item: any) {
   }
 }
 function handleOnOpen(item: OsFileWithoutContent) {
+  // props.onOpen(item);
+  // emitEvent('desktop.app.open');
+  chosenIndexs.value = [];
+  if (choose.ifShow && !item.isDirectory) {
+    choose.path.push(item.path)
+    choose.close()
+  } else {
     props.onOpen(item);
     emitEvent('desktop.app.open');
+  }
 }
 function hadnleDrop(mouse: DragEvent, path: string) {
   hoverIndex.value = -1;
@@ -170,10 +177,10 @@ function onEditNameEnd() {
       newPath
     );
     props.onRefresh();
-    if(newPath.indexOf("Desktop") !== -1){
+    if (newPath.indexOf("Desktop") !== -1) {
       sys.refershAppList()
     }
-    
+
   }
   editIndex.value = -1;
 }
@@ -320,8 +327,16 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
     menuArr.push({
       label: "选中发送",
       click: () => {
-        choose.path = item.path
-        choose.close()
+        const paths: any = []
+        chosenIndexs.value.forEach((index) => {
+          const item = props.fileList[index];
+          paths.push(item.path)
+        })
+        if (paths.length > 0) {
+          choose.path = paths
+          choose.close()
+        }
+        chosenIndexs.value = [];
       },
     })
   }

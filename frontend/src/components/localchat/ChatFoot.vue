@@ -64,16 +64,18 @@ const store = useLocalChatStore();
 const choose = useChooseStore();
 //const editor = ref(null)
 const imgExt = ["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"];
-
+const choosetype = ref('image')
 // 选择表情
 function selectIcon(icon: string) {
   store.sendInfo +=
     "{-" + icon.replace("/image/chat/emoji/", "").replace(".gif", "") + "-}";
 }
 function selectImg() {
+  choosetype.value = 'image'
   choose.select("选择图片", imgExt);
 }
 function selectFile() {
+  choosetype.value = 'applyfile'
   choose.select("选择文件", "*");
 }
 watch(
@@ -82,12 +84,10 @@ watch(
     //console.log("userList 变化了:", newVal);
     const paths = toRaw(newVal)
     if(paths.length > 0){
-      store.uploadFile(paths).then(() => {
-        choose.path = []
-      })
+      store.sendInfo = paths;
+      choose.path = []
+      store.sendMsg(choosetype.value)
     }
-    
-    
   },
   { deep: true } // 添加deep: true以深度监听数组或对象内部的变化
 );

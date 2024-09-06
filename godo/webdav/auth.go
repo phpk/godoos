@@ -47,35 +47,6 @@ type Authorizer interface {
 	AddAuthenticator(key string, fn AuthFactory)
 }
 
-// An Authenticator implements a specific way to authorize requests.
-// Each request is bound to a separate Authenticator instance.
-//
-// The authentication flow itself is broken down into `Authorize`
-// and `Verify` steps. The former method runs before, and the latter
-// runs after the `Request` is submitted.
-// This makes it easy to encapsulate and control complex
-// authentication challenges.
-//
-// Some authentication flows causing authentication round trips,
-// which can be archived by returning the `redo` of the Verify
-// method. `True` restarts the authentication process for the
-// current action: A new `Request` is spawned, which must be
-// authorized, sent, and re-verified again, until the action
-// is successfully submitted.
-// The preferred way is to handle the authentication ping-pong
-// within `Verify`, and then `redo` with fresh credentials.
-//
-// The result of the `Verify` method can also trigger an
-// `Authenticator` change by returning the `ErrAuthChanged`
-// as an error. Depending on the `Authorizer` this may trigger
-// an `Authenticator` negotiation.
-//
-// Set the `XInhibitRedirect` header to '1' in the `Authorize`
-// method to get control over request redirection.
-// Attention! You must handle the incoming request yourself.
-//
-// To store a shared session state the `Clone` method **must**
-// return a new instance, initialized with the shared state.
 type Authenticator interface {
 	// Authorizes a request. Usually by adding some authorization headers.
 	Authorize(c *http.Client, rq *http.Request, path string) error
