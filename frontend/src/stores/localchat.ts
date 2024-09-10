@@ -57,7 +57,11 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
           else if (msg.type === "fileSending"){
             addText(msg)
           }
-          else if( msg.type === "fileCannel" || msg.type === "fileAccessed") {
+          else if( msg.type === "fileCannel") {
+            changeMsg(msg)
+          }
+          else if( msg.type === "fileAccessed") {
+            msg.message = msg.message.msgId
             changeMsg(msg)
           }
         })

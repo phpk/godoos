@@ -24,25 +24,17 @@
 package localchat
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"godo/libs"
+	"io"
+	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 )
-
-const (
-	GlobalfileSize = 768 // 每个数据包的大小
-)
-
-type FileChunk struct {
-	ChunkIndex int       `json:"chunk_index"`
-	Data       []byte    `json:"data"`
-	Checksum   uint32    `json:"checksum"`
-	Timestamp  time.Time `json:"timestamp"`
-	Filename   string    `json:"filename"`
-	Filesize   int64     `json:"filesize"`
-}
 
 func HandlerApplySendFile(w http.ResponseWriter, r *http.Request) {
 	var msg UdpMessage
@@ -106,216 +98,151 @@ func HandlerAccessFile(w http.ResponseWriter, r *http.Request) {
 	}
 	libs.SuccessMsg(w, msg.Message, "接收文件中")
 }
+
 func downloadFiles(msg UdpMessage) error {
+	postUrl := fmt.Sprintf("http://%s:56780/localchat/getfiles", msg.IP)
+	postData, err := json.Marshal(msg.Message)
+	if err != nil {
+		return fmt.Errorf("failed to marshal post data: %v", err)
+	}
+
+	resp, err := http.Post(postUrl, "application/json", bytes.NewBuffer(postData))
+	if err != nil {
+		return fmt.Errorf("failed to make POST request: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("server returned status code: %v, body: %s", resp.StatusCode, body)
+	}
+
+	// 接收文件的目录
+	baseDir, err := libs.GetOsDir()
+	if err != nil {
+		log.Printf("Failed to get OS directory: %v", err)
+		return fmt.Errorf("failed to get OS directory")
+	}
+
+	resPath := filepath.Join("C", "Users", "Reciv", time.Now().Format("2006-01-02"))
+	receiveDir := filepath.Join(baseDir, resPath)
+	if !libs.PathExists(receiveDir) {
+		err := os.MkdirAll(receiveDir, 0755)
+		if err != nil {
+			log.Printf("Failed to create receive directory: %v", err)
+			return fmt.Errorf("failed to create receive directory")
+		}
+	}
+
+	err = saveFiles(resp.Body, receiveDir)
+	if err != nil {
+		return fmt.Errorf("failed to save files: %v", err)
+	}
+
+	fmt.Println("Files downloaded successfully")
+	return nil
+}
+
+func saveFiles(reader io.Reader, saveDir string) error {
+	body, err := io.ReadAll(reader)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %v", err)
+	}
+
+	var fileList FileList
+	err = json.Unmarshal(body, &fileList)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal file list: %v", err)
+	}
+
+	for _, filePath := range fileList.Files {
+		err := saveFileOrFolder(filePath, saveDir)
+		if err != nil {
+			return fmt.Errorf("failed to serve file or folder: %v", err)
+		}
+	}
 
 	return nil
 }
 
-// func HandlerSendFile(msg UdpMessage) {
-// 	toIp := msg.IP
-// 	hostname, err := os.Hostname()
-// 	if err != nil {
-// 		log.Printf("HandleMessage error: %v", err)
-// 		return
-// 	}
-// 	msg.Hostname = hostname
-// 	msg.Time = time.Now()
-// 	msg.Type = "file"
-// 	basePath, err := libs.GetOsDir()
-// 	if err != nil {
-// 		log.Printf("GetOsDir error: %v", err)
-// 		return
-// 	}
-// 	paths, ok := msg.Message.([]string)
-// 	if !ok {
-// 		log.Printf("invalid message type")
-// 		return
-// 	}
-// 	for _, p := range paths {
-// 		filePath := filepath.Join(basePath, p)
-// 		// 处理单个文件或整个文件夹
-// 		if fileInfo, err := os.Stat(filePath); err == nil {
-// 			if fileInfo.IsDir() {
-// 				handleDirectory(filePath, toIp, msg)
-// 			} else {
-// 				handleFile(filePath, toIp, msg)
-// 			}
-// 		} else {
-// 			continue
-// 		}
-// 	}
-// 	msg.Type = "fileSended"
-// 	msg.Message = ""
-// 	msg.Time = time.Now()
-// 	SendToIP(msg)
-// }
+func saveFileOrFolder(filePath string, saveDir string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open file or folder: %v", err)
+	}
+	defer file.Close()
 
-// func handleFile(filePath string, toIp string, message UdpMessage) {
-// 	// 打开文件
-// 	file, err := os.Open(filePath)
-// 	if err != nil {
-// 		log.Fatalf("Failed to open file: %v", err)
-// 	}
-// 	defer file.Close()
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to stat file or folder: %v", err)
+	}
 
-// 	// 获取文件大小
-// 	fileInfo, err := file.Stat()
-// 	if err != nil {
-// 		log.Fatalf("Failed to get file info: %v", err)
-// 	}
-// 	fileSize := fileInfo.Size()
+	if fileInfo.IsDir() {
+		return saveFolder(fileInfo.Name(), filePath, saveDir)
+	}
 
-// 	// 计算需要发送的数据包数量
-// 	numChunks := fileSize / GlobalfileSize
-// 	if fileSize%GlobalfileSize != 0 {
-// 		numChunks++
-// 	}
-// 	// 发送文件
-// 	SendFile(file, int(numChunks), toIp, fileSize, message)
-// }
+	return saveFile(filePath, saveDir)
+}
 
-// func handleDirectory(dirPath string, toIp string, message UdpMessage) {
-// 	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
-// 		if err != nil {
-// 			return err
-// 		}
-// 		if !info.IsDir() {
-// 			handleFile(path, toIp, message)
-// 		}
-// 		return nil
-// 	})
-// 	if err != nil {
-// 		log.Fatalf("Failed to walk directory: %v", err)
-// 	}
-// }
-// func SendFile(file *os.File, numChunks int, toIp string, fSize int64, message UdpMessage) {
-// 	var wg sync.WaitGroup
+func saveFolder(folderName string, folderPath string, saveDir string) error {
+	localFolderPath := filepath.Join(saveDir, folderName)
+	err := os.MkdirAll(localFolderPath, 0755)
+	if err != nil {
+		return fmt.Errorf("failed to create directory: %v", err)
+	}
 
-// 	// 逐块读取文件并发送
-// 	for i := 0; i < numChunks; i++ {
-// 		wg.Add(1)
-// 		go func(index int) {
-// 			defer wg.Done()
-// 			idStr := message.Type + "@" + message.Hostname + "@" + filepath.Base(file.Name()) + "@" + fmt.Sprintf("%d", fSize) + "@"
-// 			chunkData := make([]byte, GlobalfileSize)
-// 			n, err := file.Read(chunkData[:])
-// 			if err != nil && err != io.EOF {
-// 				log.Fatalf("Failed to read file chunk: %v", err)
-// 			}
-// 			sendBinaryData(idStr, chunkData[:n], toIp)
-// 			fmt.Printf("发送文件块 %d 到 %s 成功\n", index, toIp)
-// 		}(i)
-// 	}
+	files, err := os.ReadDir(folderPath)
+	if err != nil {
+		return fmt.Errorf("failed to read directory: %v", err)
+	}
 
-// 	wg.Wait()
-// }
-// func sendBinaryData(idStr string, data []byte, toIp string) {
-// 	port := "56780"
-// 	addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%s", toIp, port))
-// 	if err != nil {
-// 		log.Fatalf("Failed to resolve UDP address: %v", err)
-// 	}
+	for _, file := range files {
+		subPath := filepath.Join(folderPath, file.Name())
+		subSavePath := filepath.Join(localFolderPath, file.Name())
 
-// 	conn, err := net.DialUDP("udp4", nil, addr)
-// 	if err != nil {
-// 		log.Fatalf("Failed to dial UDP address: %v", err)
-// 	}
-// 	defer conn.Close()
+		if file.IsDir() {
+			err := saveFolder(file.Name(), subPath, localFolderPath)
+			if err != nil {
+				return fmt.Errorf("failed to save folder: %v", err)
+			}
+		} else {
+			err := saveFile(subPath, subSavePath)
+			if err != nil {
+				return fmt.Errorf("failed to save file: %v", err)
+			}
+		}
+	}
 
-// 	// 添加长度前缀
-// 	identifier := []byte(idStr)
-// 	lengthPrefix := make([]byte, 4)
-// 	binary.BigEndian.PutUint32(lengthPrefix, uint32(len(data)))
+	return nil
+}
 
-// 	// 发送长度前缀和数据
-// 	_, err = conn.Write(append(append(identifier, lengthPrefix...), data...))
-// 	if err != nil {
-// 		log.Printf("Failed to write data: %v", err)
-// 	}
-// }
+func saveFile(filePath string, saveDir string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %v", err)
+	}
+	defer file.Close()
 
-// var fileLocks = make(map[string]*sync.Mutex)
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to stat file: %v", err)
+	}
 
-// func ReceiveFiles(parts []string) (string, error) {
-// 	fileName := parts[2]
-// 	fileSize, err := strconv.ParseInt(parts[3], 10, 64)
-// 	if err != nil {
-// 		return "", fmt.Errorf("failed to parse file size: %v", err)
-// 	}
+	localFilePath := filepath.Join(saveDir, fileInfo.Name())
+	err = os.MkdirAll(filepath.Dir(localFilePath), 0755)
+	if err != nil {
+		return fmt.Errorf("failed to create directory: %v", err)
+	}
 
-// 	// 创建接收文件的目录
-// 	baseDir, err := libs.GetOsDir()
-// 	if err != nil {
-// 		log.Printf("Failed to get OS directory: %v", err)
-// 		return "", fmt.Errorf("failed to get OS directory")
-// 	}
+	out, err := os.Create(localFilePath)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %v", err)
+	}
+	defer out.Close()
 
-// 	resPath := filepath.Join("C", "Users", "Reciv", time.Now().Format("2006-01-02"))
-// 	receiveDir := filepath.Join(baseDir, resPath)
-// 	if !libs.PathExists(receiveDir) {
-// 		err := os.MkdirAll(receiveDir, 0755)
-// 		if err != nil {
-// 			log.Printf("Failed to create receive directory: %v", err)
-// 			return "", fmt.Errorf("failed to create receive directory")
-// 		}
-// 	}
+	_, err = io.Copy(out, file)
+	if err != nil {
+		return fmt.Errorf("failed to copy file: %v", err)
+	}
 
-// 	// 确定文件路径
-// 	filePath := filepath.Join(receiveDir, fileName)
-
-// 	// 如果文件不存在，则创建新文件
-// 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-// 		file, err := os.Create(filePath)
-// 		if err != nil {
-// 			log.Printf("Failed to create file: %v", err)
-// 			return "", fmt.Errorf("failed to create file")
-// 		}
-// 		defer file.Close()
-// 	}
-
-// 	// 锁定文件
-// 	lock, ok := fileLocks[fileName]
-// 	if !ok {
-// 		lock = &sync.Mutex{}
-// 		fileLocks[fileName] = lock
-// 	}
-// 	lock.Lock()
-// 	defer lock.Unlock()
-
-// 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-// 	if err != nil {
-// 		log.Printf("Failed to open file: %v", err)
-// 		return "", fmt.Errorf("failed to open file")
-// 	}
-// 	defer file.Close()
-
-// 	// 提取实际数据
-// 	data := strings.Join(parts[4:], "")
-// 	if len(data) < 1 {
-// 		return "", fmt.Errorf("empty data")
-// 	}
-
-// 	n, err := file.Write([]byte(data))
-// 	if err != nil {
-// 		log.Printf("Failed to write data to file: %v", err)
-// 		return "", fmt.Errorf("failed to write data to file")
-// 	}
-// 	if n != len(data) {
-// 		log.Printf("Incomplete write: wrote %d bytes, expected %d bytes", n, len(data))
-// 		return "", fmt.Errorf("incomplete write")
-// 	}
-
-// 	fileInfo, err := os.Stat(filePath)
-// 	if err != nil {
-// 		log.Printf("Failed to stat file: %v", err)
-// 		return "", fmt.Errorf("failed to stat file")
-// 	}
-
-// 	if fileInfo.Size() == fileSize {
-// 		fmt.Println("文件接收完成且大小一致")
-// 		return filePath, nil
-// 	} else {
-// 		fmt.Printf("文件大小不一致,发送大小为%d,接收大小为%d\n", fileSize, fileInfo.Size())
-// 		return "", fmt.Errorf("file size mismatch")
-// 	}
-// }
+	return nil
+}
