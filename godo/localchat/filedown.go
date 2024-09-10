@@ -38,38 +38,38 @@ import (
 	"time"
 )
 
-func downloadFiles(msg UdpMessage) error {
+func downloadFiles(msg UdpMessage) (string, error) {
 	postUrl := fmt.Sprintf("http://%s:56780/localchat/getfiles", msg.IP)
 	postData, err := json.Marshal(msg.Message)
 	if err != nil {
-		return fmt.Errorf("failed to marshal post data: %v", err)
+		return "", fmt.Errorf("failed to marshal post data: %v", err)
 	}
 	log.Printf("Sending POST request to %s with data: %s", postUrl, string(postData))
 	resp, err := http.Post(postUrl, "application/json", bytes.NewBuffer(postData))
 	if err != nil {
-		return fmt.Errorf("failed to make POST request: %v", err)
+		return "", fmt.Errorf("failed to make POST request: %v", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("server returned status code: %v, body: %s", resp.StatusCode, body)
+		return "", fmt.Errorf("server returned status code: %v, body: %s", resp.StatusCode, body)
 	}
-
+	path, err := handleResponse(resp.Body, msg.IP)
 	// 处理响应中的文件
-	if err := handleResponse(resp.Body, msg.IP); err != nil {
+	if err != nil {
 		log.Fatalf("Failed to handle response: %v", err)
 	}
 
 	fmt.Println("Files downloaded successfully")
-	return nil
+	return path, nil
 }
 
-func handleResponse(reader io.Reader, ip string) error {
+func handleResponse(reader io.Reader, ip string) (string, error) {
 	// 接收文件的目录
 	baseDir, err := libs.GetOsDir()
 	if err != nil {
 		log.Printf("Failed to get OS directory: %v", err)
-		return fmt.Errorf("failed to get OS directory")
+		return "", fmt.Errorf("failed to get OS directory")
 	}
 
 	resPath := filepath.Join("C", "Users", "Reciv", time.Now().Format("2006-01-02"))
@@ -78,27 +78,36 @@ func handleResponse(reader io.Reader, ip string) error {
 		err := os.MkdirAll(receiveDir, 0755)
 		if err != nil {
 			log.Printf("Failed to create receive directory: %v", err)
-			return fmt.Errorf("failed to create receive directory")
+			return "", fmt.Errorf("failed to create receive directory")
+		}
+	}
+	timestamp := time.Now().Format("15-04-05")
+	revPath := filepath.Join(receiveDir, timestamp)
+	if !libs.PathExists(revPath) {
+		err := os.MkdirAll(revPath, 0755)
+		if err != nil {
+			log.Printf("Failed to create receive directory: %v", err)
+			return "", fmt.Errorf("failed to create receive directory")
 		}
 	}
 	body, err := io.ReadAll(reader)
 	if err != nil {
-		return fmt.Errorf("failed to read response body: %v", err)
+		return "", fmt.Errorf("failed to read response body: %v", err)
 	}
-	log.Printf("Received file list: %v", string(body))
+	//log.Printf("Received file list: %v", string(body))
 	// 解析文件列表
 	var fileList []FileItem
 	if err := json.Unmarshal(body, &fileList); err != nil {
-		return fmt.Errorf("failed to unmarshal file list: %v", err)
+		return "", fmt.Errorf("failed to unmarshal file list: %v", err)
 	}
 
-	log.Printf("Received file list: %v", fileList)
+	//log.Printf("Received file list: %v", fileList)
 
 	for _, file := range fileList {
 		if runtime.GOOS != "windows" && strings.Contains(file.WritePath, "\\") {
 			file.WritePath = strings.ReplaceAll(file.WritePath, "\\", "/")
 		}
-		checkpath := filepath.Join(receiveDir, file.WritePath)
+		checkpath := filepath.Join(revPath, file.WritePath)
 
 		if !libs.PathExists(checkpath) {
 			os.MkdirAll(checkpath, 0755)
@@ -109,7 +118,7 @@ func handleResponse(reader io.Reader, ip string) error {
 		}
 	}
 
-	return nil
+	return revPath, nil
 }
 
 // downloadFile 下载单个文件

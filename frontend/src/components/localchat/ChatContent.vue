@@ -95,8 +95,8 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
                       <span>对方发送文件</span>
                     </div>
                   </template>
-                  <div class="file-content" v-for="el in item.content.fileList">
-                    <div class="file-name">{{ el }}</div>
+                  <div class="file-content">
+                    <div class="file-name" @click="sys.openFile(item.content.path)">查看文件</div>
                   </div>
                   <template #footer>
                     <span v-if="item.content.status === 'apply'">
@@ -108,10 +108,10 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
                     <span v-if="item.content.status === 'cannel'">
                       已拒绝
                     </span>
-                    <span v-if="item.content.status === 'accessing'">
+                    <!-- <span v-if="item.content.status === 'accessing'">
                       接收中
-                    </span>
-                    <span v-if="item.content.status === 'confirm'">
+                    </span> -->
+                    <span v-if="item.content.status === 'accessed'">
                       已接收
                     </span>
                   </template>

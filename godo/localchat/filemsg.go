@@ -86,10 +86,14 @@ func HandlerAccessFile(w http.ResponseWriter, r *http.Request) {
 	msg.Time = time.Now()
 	msg.Type = "fileAccessed"
 	SendToIP(msg)
-	err = downloadFiles(msg)
+	path, err := downloadFiles(msg)
 	if err != nil {
 		libs.ErrorMsg(w, "HandleMessage error")
 		return
 	}
-	libs.SuccessMsg(w, msg.Message, "接收文件中")
+	res := map[string]interface{}{
+		"path": path,
+		"msg":  msg.Message,
+	}
+	libs.SuccessMsg(w, res, "接收文件成功")
 }

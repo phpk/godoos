@@ -430,6 +430,16 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       //console.log(coms)
       notifyError("确认失败!")
     } else {
+      const res = await coms.json()
+      if(res.code === 0){
+          item.content.path = res.data.path
+          item.content.status = 'accessed'
+        //console.log(item)
+          await db.update('chatmsg', res.data.msg.msgId, toRaw(item))
+          await getMsgList()
+      }else{
+        notifyError(res.message)
+      }
       // item.content.status = 'accessing'
       // //console.log(item)
       // await db.update('chatmsg', item.id, toRaw(item))
