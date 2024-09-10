@@ -370,7 +370,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     console.log(saveMsg)
     const msgId = await db.addOne('chatmsg', saveMsg)
     //await getMsgList()
-    msgList.value.push(saveMsg)
+    
     const targetUser = userList.value.find((d: any) => d.ip === chatTargetIp.value)
     //console.log(targetUser)
     const messages = {
@@ -401,23 +401,22 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
         console.log(completion)
         notifyError("发送失败!")
       } else {
+        saveMsg.content = messages.message
         saveMsg.isRead = true
         saveMsg.status = 'sended'
         saveMsg.readAt = Date.now()
         await db.update('chatmsg', msgId, saveMsg)
-        // if(type === 'applyfile'){
-        //   notifySuccess("发送成功!")
-        // }
-
       }
+     
       await updateContentList(saveMsg)
     }else{
       notifyError("对方不在线!")
     }
+    msgList.value.push(saveMsg)
     sendInfo.value = ""
     
   }
-  async function cannelFile(item:any){
+  async function cannelFile(item:any){   
     const messages = {
       type: 'cannelFile',
       message: item.content.msgId,
@@ -439,7 +438,8 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     }
   }
   async function changeMsg(msg:any){
-    const msgId = msg.content.msgId
+    console.log(msg)
+    const msgId = msg.message
     const item = await db.getOne('chatmsg', msgId)
     item.content.status = 'cannel'
     await db.update('chatmsg', item.id, item)

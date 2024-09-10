@@ -108,6 +108,12 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
                     <span v-if="item.content.status === 'cannel'">
                       已拒绝
                     </span>
+                    <span v-if="item.content.status === 'accessing'">
+                      接收中
+                    </span>
+                    <span v-if="item.content.status === 'accessed'">
+                      已接收
+                    </span>
                   </template>
                 </el-card>
               </div>
