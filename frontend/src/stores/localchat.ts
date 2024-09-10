@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
 import emojiList from "@/assets/emoji.json"
-import { ref, toRaw, inject } from "vue";
+import { ref, toRaw } from "vue";
 import { db } from './db'
-import { System } from "@/system";
 import { getSystemConfig } from "@/system/config";
 import { isValidIP } from "@/util/common";
 import { notifyError, notifySuccess } from "@/util/msg";
@@ -57,6 +56,9 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
           }
           else if (msg.type === "fileSending"){
             addText(msg)
+          }
+          else if( msg.type === "fileCannel") {
+            changeMsg(msg)
           }
         })
       }
@@ -371,19 +373,25 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     msgList.value.push(saveMsg)
     const targetUser = userList.value.find((d: any) => d.ip === chatTargetIp.value)
     //console.log(targetUser)
+    const messages = {
+      type: type,
+      message: content,
+      ip: saveMsg.targetIp
+    }
     if (targetUser.isOnline) {
       let postUrl = `${config.apiUrl}/localchat/message`
       if(type === 'applyfile'){
+        messages.message = {
+          fileList: messages.message,
+          msgId: msgId,
+          status: 'apply'
+        }
         postUrl = `${config.apiUrl}/localchat/applyfile`
       }
       if(type === 'image'){
         postUrl = `${config.apiUrl}/localchat/sendimage`
       }
-      const messages = {
-        type: type,
-        message: content,
-        ip: saveMsg.targetIp
-      }
+      
       const completion = await fetch(postUrl, {
         method: "POST",
         body: JSON.stringify(messages),
@@ -402,11 +410,44 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
         // }
 
       }
+      await updateContentList(saveMsg)
+    }else{
+      notifyError("对方不在线!")
     }
     sendInfo.value = ""
-    await updateContentList(saveMsg)
+    
   }
+  async function cannelFile(item:any){
+    const messages = {
+      type: 'cannelFile',
+      message: item.content.msgId,
+      ip: item.targetIp
+    }
+    const postUrl = `${config.apiUrl}/localchat/cannelfile`
+    const coms = await fetch(postUrl, {
+      method: "POST",
+      body: JSON.stringify(messages),
+    })
+    if (!coms.ok) {
+      console.log(coms)
+      notifyError("确认失败!")
+    } else {
+      item.content.status = 'cannel'
+      await db.update('chatmsg', item.id, item)
+      await updateContentList(item)
+      notifySuccess("确认成功!")
+    }
+  }
+  async function changeMsg(msg:any){
+    const msgId = msg.content.msgId
+    const item = await db.getOne('chatmsg', msgId)
+    item.content.status = 'cannel'
+    await db.update('chatmsg', item.id, item)
+    await updateContentList(item)
+  }
+  async function accessFile(item:any){
 
+  }
 
   return {
     userList,
@@ -436,6 +477,8 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     refreshUserList,
     clearMsg,
     //addUser,
-    handlerMessage
+    handlerMessage,
+    cannelFile,
+    accessFile
   }
 })

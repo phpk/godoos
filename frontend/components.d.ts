@@ -40,6 +40,7 @@ declare module 'vue' {
     DialogTemp: typeof import('./src/components/window/DialogTemp.vue')['default']
     EditFileName: typeof import('./src/components/builtin/EditFileName.vue')['default']
     EditType: typeof import('./src/components/builtin/EditType.vue')['default']
+    ElAlert: typeof import('element-plus/es')['ElAlert']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBadge: typeof import('element-plus/es')['ElBadge']
     ElButton: typeof import('element-plus/es')['ElButton']

@@ -88,12 +88,49 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
                   </div>
                 </div>
               </div>
-              <div v-if="item.type === 'applyfile'">
-                <div class="file-bubble">
-                  <div class="file-content" v-for="el in item.content" @click="sys.openFile(el)">
+              <div v-if="item.type === 'fileSending'">
+                <el-card style="max-width: 480px">
+                  <template #header>
+                    <div class="card-header">
+                      <span>对方发送文件</span>
+                    </div>
+                  </template>
+                  <div class="file-content" v-for="el in item.content.fileList">
                     <div class="file-name">{{ el }}</div>
                   </div>
-                </div>
+                  <template #footer>
+                    <span v-if="item.content.status === 'apply'">
+                      <el-button @click="store.cannelFile(item)">取消</el-button>
+                      <el-button type="primary" @click="store.accessFile(item)">
+                        接收
+                      </el-button>
+                    </span>
+                    <span v-if="item.content.status === 'cannel'">
+                      已拒绝
+                    </span>
+                  </template>
+                </el-card>
+              </div>
+              <div v-if="item.type === 'applyfile'">
+                <el-card style="max-width: 480px">
+                  <template #header>
+                    <div class="card-header">
+                      <span>发送文件</span>
+                    </div>
+                  </template>
+                  <div class="file-content" v-for="el in item.content.fileList" @click="sys.openFile(el)">
+                    <div class="file-name">{{ el }}</div>
+                  </div>
+                  <template #footer>
+                    <span v-if="item.content.status === 'apply'">对方确认中</span>
+                    <span v-if="item.content.status === 'confirm'">
+                      对方已接收
+                    </span>
+                    <span v-if="item.content.status === 'cannel'">
+                      对方已拒绝
+                    </span>
+                  </template>
+                </el-card>
               </div>
               <div v-if="item.type === 'image'">
                 <div class="file-bubble">
