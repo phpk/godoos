@@ -28,6 +28,7 @@ import (
 	"godo/libs"
 	"log"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -92,16 +93,34 @@ func UdpServer() {
 		}
 
 		log.Printf("Received UDP packet from %v: %s", remoteAddr, buffer[:n])
-		// 解析 UDP 数据
-		var udpMsg UdpMessage
-		err = json.Unmarshal(buffer[:n], &udpMsg)
-		if err != nil {
-			log.Printf("error unmarshalling UDP message: %v", err)
-			continue
-		}
 		// 从 remoteAddr 获取 IP 地址
 		if udpAddr, ok := remoteAddr.(*net.UDPAddr); ok {
 			ip := udpAddr.IP.String()
+
+			parts := strings.Split(string(buffer[:n]), "@") // 假设标识符不会超过256字节
+			if parts[0] == "file" || parts[0] == "image" {
+				filename, err := ReceiveFiles(parts)
+				if err != nil {
+					log.Printf("error receiving file: %v", err)
+					continue
+				}
+				msg := UdpMessage{
+					Hostname: parts[1],
+					Type:     "fileAccessed",
+					Time:     time.Now(),
+					IP:       ip,
+					Message:  filename,
+				}
+				AddMessage(msg)
+				continue
+			}
+			// 解析 UDP 数据
+			var udpMsg UdpMessage
+			err = json.Unmarshal(buffer[:n], &udpMsg)
+			if err != nil {
+				log.Printf("error unmarshalling UDP message: %v", err)
+				continue
+			}
 			udpMsg.IP = ip
 
 			if udpMsg.Type == "heartbeat" {
@@ -109,22 +128,22 @@ func UdpServer() {
 				continue
 			}
 
-			if udpMsg.Type == "file" {
-				ReceiveFile(udpMsg)
-				continue
-			}
+			// if udpMsg.Type == "file" {
+			// 	ReceiveFile(udpMsg)
+			// 	continue
+			// }
 			if udpMsg.Type == "fileAccessed" {
 				HandlerSendFile(udpMsg)
 				continue
 			}
-			if udpMsg.Type == "image" {
-				filePath, err := ReceiveFile(udpMsg)
-				if err != nil {
-					log.Printf("error receiving image: %v", err)
-					continue
-				}
-				udpMsg.Message = filePath
-			}
+			// if udpMsg.Type == "image" {
+			// 	filePath, err := ReceiveFile(udpMsg)
+			// 	if err != nil {
+			// 		log.Printf("error receiving image: %v", err)
+			// 		continue
+			// 	}
+			// 	udpMsg.Message = filePath
+			// }
 			// 添加消息到 UserMessages
 			AddMessage(udpMsg)
 		} else {
