@@ -119,7 +119,7 @@ func ReceiveImg(msg UdpMessage) ([]string, error) {
 		if !ok {
 			continue
 		}
-		imgUrl := fmt.Sprintf("http://%s/viewimg?img=%s", msg.IP, url.QueryEscape(p))
+		imgUrl := fmt.Sprintf("http://%s:56780/localchat/viewimage?img=%s", msg.IP, url.QueryEscape(p))
 		resp, err := http.Get(imgUrl)
 		if err != nil {
 			log.Printf("Failed to download image from URL %s: %v", imgUrl, err)
@@ -145,7 +145,8 @@ func ReceiveImg(msg UdpMessage) ([]string, error) {
 			log.Printf("Failed to save image to %s: %v", filePath, err)
 			continue
 		}
-		savedPaths = append(savedPaths, filePath)
+		receviePath := filepath.Join(resPath, fileName)
+		savedPaths = append(savedPaths, receviePath)
 
 	}
 	if len(savedPaths) > 0 {
@@ -158,13 +159,13 @@ func ReceiveImg(msg UdpMessage) ([]string, error) {
 
 // 生成随机文件名并保留扩展名
 func generateRandomFileNameWithExtension(originalFileName string) (string, error) {
-	fileNameWithoutExt, fileExt := filepath.Split(originalFileName)
+	_, fileExt := filepath.Split(originalFileName)
 	fileExt = strings.TrimPrefix(fileExt, ".")
 	if fileExt == "" {
 		fileExt = "png"
 	}
 
-	randomFileName := fmt.Sprintf("%s_%s.%s", fileNameWithoutExt, strconv.FormatInt(time.Now().UnixNano(), 10), fileExt)
+	randomFileName := fmt.Sprintf("%s.%s", strconv.FormatInt(time.Now().UnixNano(), 10), fileExt)
 	return randomFileName, nil
 }
 

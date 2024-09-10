@@ -88,6 +88,13 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
                   </div>
                 </div>
               </div>
+              <div v-if="item.type === 'applyfile'">
+                <div class="file-bubble">
+                  <div class="file-content" v-for="el in item.content" @click="sys.openFile(el)">
+                    <div class="file-name">{{ el }}</div>
+                  </div>
+                </div>
+              </div>
               <div v-if="item.type === 'image'">
                 <div class="file-bubble">
                   <div class="message-content" v-for="el in item.content">

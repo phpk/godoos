@@ -39,6 +39,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       setUserList(ips);
     }
     if(data.messages){
+      const apiUrl = `${config.apiUrl}/localchat/viewimage?img=`
       for(let ip in data.messages){
         const msgList:any = data.messages[ip]
         if(!msgList || msgList.length < 1)return;
@@ -49,11 +50,13 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
             //console.log(msg)
             addText(msg)
           }
-          if (msg.type === "image"){
-            console.log(msg)
+          else if (msg.type === "image"){
+            msg.message = msg.message.map((d: any) => `${apiUrl}${encodeURIComponent(d)}`)
+            //console.log(msg)
+            addText(msg)
           }
-          if (msg.type === "fileSending"){
-
+          else if (msg.type === "fileSending"){
+            addText(msg)
           }
         })
       }
@@ -313,7 +316,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     const targetUser: any = await getTargetUser(data)
 
     const saveMsg: any = {
-      type: 'text',
+      type: data.type,
       targetId: targetUser.id,
       targetIp: targetUser.ip,
       content: data.message,
@@ -326,8 +329,8 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       isRead: false,
       status: 'reciped'
     }
-    console.log(saveMsg)
-    console.log(chatTargetId.value)
+    // console.log(saveMsg)
+    // console.log(chatTargetId.value)
     if (targetUser.ip === chatTargetIp.value) {
       saveMsg.readAt = Date.now()
       saveMsg.isRead = true
@@ -362,6 +365,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       isRead: false,
       status: 'sending'
     }
+    console.log(saveMsg)
     const msgId = await db.addOne('chatmsg', saveMsg)
     //await getMsgList()
     msgList.value.push(saveMsg)
@@ -393,9 +397,9 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
         saveMsg.status = 'sended'
         saveMsg.readAt = Date.now()
         await db.update('chatmsg', msgId, saveMsg)
-        if(type === 'applyfile'){
-          notifySuccess("发送成功!")
-        }
+        // if(type === 'applyfile'){
+        //   notifySuccess("发送成功!")
+        // }
 
       }
     }
