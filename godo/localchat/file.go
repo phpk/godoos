@@ -35,12 +35,13 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
 
 const (
-	GlobalfileSize = 512 // 每个数据包的大小
+	GlobalfileSize = 768 // 每个数据包的大小
 )
 
 type FileChunk struct {
@@ -176,13 +177,12 @@ func SendFile(file *os.File, numChunks int, toIp string, fSize int64, message Ud
 		go func(index int) {
 			defer wg.Done()
 			idStr := message.Type + "@" + message.Hostname + "@" + filepath.Base(file.Name()) + "@" + fmt.Sprintf("%d", fSize) + "@"
-			fileLen := GlobalfileSize - len(idStr)
-			chunkData := make([]byte, fileLen)
+			//fileLen := GlobalfileSize - len(idStr)
+			chunkData := make([]byte, GlobalfileSize)
 			n, err := file.Read(chunkData[:])
 			if err != nil && err != io.EOF {
 				log.Fatalf("Failed to read file chunk: %v", err)
 			}
-			//sendData(message, toIp)
 			sendBinaryData(idStr, chunkData[:n], toIp)
 			fmt.Printf("发送文件块 %d 到 %s 成功\n", index, toIp)
 		}(i)
@@ -214,11 +214,16 @@ func sendBinaryData(idStr string, data []byte, toIp string) {
 		log.Printf("Failed to write data: %v", err)
 	}
 }
+
+var fileLocks = make(map[string]*sync.Mutex)
+
 func ReceiveFiles(parts []string) (string, error) {
-	//fileType := parts[0]
 	fileName := parts[2]
-	fileSize, _ := strconv.ParseInt(parts[3], 10, 64)
-	fileContent := []byte(parts[4])
+	fileSize, err := strconv.ParseInt(parts[3], 10, 64)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse file size: %v", err)
+	}
+
 	// 创建接收文件的目录
 	baseDir, err := libs.GetOsDir()
 	if err != nil {
@@ -235,6 +240,7 @@ func ReceiveFiles(parts []string) (string, error) {
 			return "", fmt.Errorf("failed to create receive directory")
 		}
 	}
+
 	// 确定文件路径
 	filePath := filepath.Join(receiveDir, fileName)
 
@@ -247,20 +253,36 @@ func ReceiveFiles(parts []string) (string, error) {
 		}
 		defer file.Close()
 	}
+
+	// 锁定文件
+	lock, ok := fileLocks[fileName]
+	if !ok {
+		lock = &sync.Mutex{}
+		fileLocks[fileName] = lock
+	}
+	lock.Lock()
+	defer lock.Unlock()
+
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Printf("Failed to open file: %v", err)
 		return "", fmt.Errorf("failed to open file")
 	}
 	defer file.Close()
-	// 写入数据
-	n, err := file.Write(fileContent)
+
+	// 提取实际数据
+	data := strings.Join(parts[4:], "")
+	if len(data) < 1 {
+		return "", fmt.Errorf("empty data")
+	}
+
+	n, err := file.Write([]byte(data))
 	if err != nil {
 		log.Printf("Failed to write data to file: %v", err)
 		return "", fmt.Errorf("failed to write data to file")
 	}
-	if n != len(fileContent) {
-		log.Printf("Incomplete write: wrote %d bytes, expected %d bytes", n, len(fileContent))
+	if n != len(data) {
+		log.Printf("Incomplete write: wrote %d bytes, expected %d bytes", n, len(data))
 		return "", fmt.Errorf("incomplete write")
 	}
 
@@ -269,11 +291,12 @@ func ReceiveFiles(parts []string) (string, error) {
 		log.Printf("Failed to stat file: %v", err)
 		return "", fmt.Errorf("failed to stat file")
 	}
+
 	if fileInfo.Size() == fileSize {
 		fmt.Println("文件接收完成且大小一致")
 		return filePath, nil
 	} else {
-		fmt.Println("文件大小不一致")
+		fmt.Printf("文件大小不一致,发送大小为%d,接收大小为%d\n", fileSize, fileInfo.Size())
 		return "", fmt.Errorf("file size mismatch")
 	}
 }
