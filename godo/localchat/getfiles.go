@@ -11,7 +11,7 @@ import (
 )
 
 type FileList struct {
-	Files []string `json:"files"`
+	Files []string `json:"fileList"`
 }
 
 func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +26,7 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
+	log.Printf("Received file list: %v", fileList)
 	defer r.Body.Close()
 	baseDir, err := libs.GetOsDir()
 	if err != nil {
