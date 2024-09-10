@@ -71,7 +71,7 @@ func downloadFiles(msg UdpMessage) error {
 	}
 
 	// 处理响应中的文件
-	if err := handleResponse(resp.Body, receiveDir); err != nil {
+	if err := handleResponse(resp.Body, receiveDir, msg.IP); err != nil {
 		log.Fatalf("Failed to handle response: %v", err)
 	}
 
@@ -79,80 +79,27 @@ func downloadFiles(msg UdpMessage) error {
 	return nil
 }
 
-func handleResponse(reader io.Reader, saveDir string) error {
+func handleResponse(reader io.Reader, saveDir string, ip string) error {
 	body, err := io.ReadAll(reader)
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %v", err)
 	}
 	log.Printf("Received file list: %v", string(body))
-	var fileList FileList
+	// 解析文件列表
+	var fileList []FileItem
 	if err := json.Unmarshal(body, &fileList); err != nil {
 		return fmt.Errorf("failed to unmarshal file list: %v", err)
 	}
-	log.Printf("Received file list: %v", fileList.Files)
-	for _, filePath := range fileList.Files {
-		err := saveFileOrFolder(filePath, saveDir)
-		if err != nil {
-			return fmt.Errorf("failed to save file or folder: %v", err)
-		}
-	}
+	log.Printf("Received file list: %v", fileList)
 
-	return nil
-}
-
-func saveFileOrFolder(filePath string, saveDir string) error {
-	relativePath := filePath
-	localFilePath := filepath.Join(saveDir, relativePath)
-
-	// 检查是否为文件夹
-	if _, err := os.Stat(localFilePath); os.IsNotExist(err) {
-		// 如果不存在，则创建文件夹
-		err := os.MkdirAll(localFilePath, 0755)
-		if err != nil {
+	for _, file := range fileList {
+		checkpath := filepath.Join(saveDir, file.WritePath)
+		if err := os.MkdirAll(checkpath, 0755); err != nil {
 			return fmt.Errorf("failed to create directory: %v", err)
 		}
-	} else if fileInfo, err := os.Stat(localFilePath); err == nil && fileInfo.IsDir() {
-		// 如果是文件夹，则递归处理
-		err := saveFolder(relativePath, saveDir)
-		if err != nil {
-			return fmt.Errorf("failed to save folder: %v", err)
-		}
-	} else {
-		// 如果是文件，则直接保存
-		err := saveFile(localFilePath)
-		if err != nil {
-			return fmt.Errorf("failed to save file: %v", err)
-		}
-	}
-
-	return nil
-}
-
-func saveFolder(folderName string, saveDir string) error {
-	localFolderPath := filepath.Join(saveDir, folderName)
-	err := os.MkdirAll(localFolderPath, 0755)
-	if err != nil {
-		return fmt.Errorf("failed to create directory: %v", err)
-	}
-
-	// 获取文件夹内容
-	folderPath := filepath.Join(saveDir, folderName)
-	files, err := os.ReadDir(folderPath)
-	if err != nil {
-		return fmt.Errorf("failed to read directory: %v", err)
-	}
-
-	for _, file := range files {
-		subPath := filepath.Join(folderName, file.Name())
-		if file.IsDir() {
-			err := saveFolder(subPath, localFolderPath)
-			if err != nil {
-				return fmt.Errorf("failed to save folder: %v", err)
-			}
-		} else {
-			err := saveFile(filepath.Join(localFolderPath, file.Name()))
-			if err != nil {
-				return fmt.Errorf("failed to save file: %v", err)
+		if !file.IsDir {
+			if err := downloadFile(file.Path, checkpath, ip); err != nil {
+				return fmt.Errorf("failed to download file: %v", err)
 			}
 		}
 	}
@@ -160,24 +107,35 @@ func saveFolder(folderName string, saveDir string) error {
 	return nil
 }
 
-func saveFile(filePath string) error {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return fmt.Errorf("failed to open file: %v", err)
-	}
-	defer file.Close()
+// downloadFile 下载单个文件
+func downloadFile(filePath string, checkpath string, ip string) error {
+	url := fmt.Sprintf("http://%s:56780/localchat/servefile?path=%s", ip, filePath)
 
-	// 创建本地文件
-	localFile, err := os.Create(filePath)
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to download file: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("unexpected status code: %v, body: %s", resp.StatusCode, body)
+	}
+
+	// 保存文件
+	fileName := filepath.Join(checkpath, filepath.Base(filePath))
+
+	out, err := os.Create(fileName)
 	if err != nil {
 		return fmt.Errorf("failed to create file: %v", err)
 	}
-	defer localFile.Close()
+	defer out.Close()
 
-	_, err = io.Copy(localFile, file)
+	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		return fmt.Errorf("failed to copy file: %v", err)
+		return fmt.Errorf("failed to write file: %v", err)
 	}
 
+	fmt.Printf("File downloaded: %s\n", fileName)
 	return nil
 }

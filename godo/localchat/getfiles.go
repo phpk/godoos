@@ -1,17 +1,45 @@
+// MIT License
+//
+// Copyright (c) 2024 godoos.com
+// Email: xpbb@qq.com
+// GitHub: github.com/phpk/godoos
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 package localchat
 
 import (
 	"encoding/json"
 	"fmt"
 	"godo/libs"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 )
 
-type FileList struct {
-	Files []string `json:"fileList"`
+// FileItem 表示文件或文件夹
+type FileItem struct {
+	Path      string `json:"path"`
+	IsDir     bool   `json:"isDir"`
+	Filename  string `json:"filename"`
+	WritePath string `json:"writePath"`
 }
 
 func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +48,7 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var fileList FileList
+	var fileList []string
 	err := json.NewDecoder(r.Body).Decode(&fileList)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -32,17 +60,41 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 	baseDir, err := libs.GetOsDir()
 	if err != nil {
 		log.Printf("Failed to get OS directory: %v", err)
+		http.Error(w, "Failed to get OS directory", http.StatusInternalServerError)
 		return
 	}
 
 	// 用于存储文件列表
-	var files []string
+	var files []FileItem
 
-	for _, filePath := range fileList.Files {
+	for _, filePath := range fileList {
 		fp := filepath.Join(baseDir, filePath)
-		if err := serveDirectory(w, r, fp, &files); err != nil {
-			http.Error(w, fmt.Sprintf("Failed to serve directory: %v", err), http.StatusInternalServerError)
+
+		fileInfo, err := os.Stat(fp)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Failed to stat file: %v", err), http.StatusInternalServerError)
 			return
+		}
+		writePath := calculateWritePath(fp, baseDir)
+		if fileInfo.IsDir() {
+			files = append(files, FileItem{
+				Path:      fp,
+				IsDir:     true,
+				Filename:  filepath.Base(fp),
+				WritePath: writePath,
+			})
+			if err := walkDirectory(fp, &files, writePath); err != nil {
+				http.Error(w, fmt.Sprintf("Failed to serve directory: %v", err), http.StatusInternalServerError)
+				return
+			}
+		} else {
+
+			files = append(files, FileItem{
+				Path:      fp,
+				IsDir:     false,
+				Filename:  filepath.Base(fp),
+				WritePath: writePath,
+			})
 		}
 	}
 
@@ -56,43 +108,75 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
 }
-
-func serveDirectory(w http.ResponseWriter, r *http.Request, dirPath string, files *[]string) error {
-	filesInDir, err := os.ReadDir(dirPath)
+func calculateWritePath(filePath, baseDir string) string {
+	relativePath, err := filepath.Rel(baseDir, filePath)
 	if err != nil {
-		return fmt.Errorf("failed to read directory: %v", err)
+		log.Printf("Failed to calculate relative path: %v", err)
+		return ""
 	}
-
-	for _, f := range filesInDir {
-		filePath := filepath.Join(dirPath, f.Name())
-		if f.IsDir() {
-			if err := serveDirectory(w, r, filePath, files); err != nil {
-				return err
-			}
-		} else {
-			*files = append(*files, filePath)
+	return filepath.Dir(relativePath)
+}
+func walkDirectory(rootPath string, files *[]FileItem, writePath string) error {
+	return filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("failed to walk directory: %v", err)
 		}
-	}
 
-	return nil
+		isDir := info.IsDir()
+		relativePath, err := filepath.Rel(rootPath, path)
+		if err != nil {
+			log.Printf("Failed to calculate relative path: %v", err)
+			return fmt.Errorf("Failed to calculate relative path")
+		}
+		currentWritePath := filepath.Join(writePath, filepath.Dir(relativePath))
+		*files = append(*files, FileItem{
+			Path:      path,
+			IsDir:     isDir,
+			Filename:  filepath.Base(path),
+			WritePath: currentWritePath,
+		})
+
+		return nil
+	})
 }
 
-func ServeFile(w http.ResponseWriter, r *http.Request, filePath string) error {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return fmt.Errorf("failed to open file: %v", err)
-	}
-	defer file.Close()
+func HandleServeFile(w http.ResponseWriter, r *http.Request) {
+	// 从 URL 中获取 filePath 参数
+	filePath := r.URL.Query().Get("path")
 
-	fileInfo, err := file.Stat()
+	if filePath == "" {
+		http.Error(w, "Missing filePath parameter", http.StatusBadRequest)
+		return
+	}
+
+	fileInfo, err := os.Stat(filePath)
 	if err != nil {
-		return fmt.Errorf("failed to stat file: %v", err)
+		http.Error(w, fmt.Sprintf("Failed to stat file: %v", err), http.StatusInternalServerError)
+		return
 	}
 
 	if fileInfo.IsDir() {
-		return serveDirectory(w, r, filePath, nil)
+		http.Error(w, "Cannot download a directory", http.StatusBadRequest)
+		return
 	}
 
-	http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
-	return nil
+	// 打开文件
+	file, err := os.Open(filePath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to open file: %v", err), http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	// 设置响应头
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileInfo.Name()))
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
+
+	// 复制文件内容到响应体
+	_, err = io.Copy(w, file)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to copy file content: %v", err), http.StatusInternalServerError)
+		return
+	}
 }

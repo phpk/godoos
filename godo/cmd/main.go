@@ -107,6 +107,7 @@ func OsStart() {
 	localchatRouter.HandleFunc("/cannelfile", localchat.HandlerCannelFile).Methods(http.MethodPost)
 	localchatRouter.HandleFunc("/accessfile", localchat.HandlerAccessFile).Methods(http.MethodPost)
 	localchatRouter.HandleFunc("/getfiles", localchat.HandleGetFiles).Methods(http.MethodPost)
+	localchatRouter.HandleFunc("/servefile", localchat.HandleServeFile).Methods(http.MethodGet)
 	localchatRouter.HandleFunc("/sendimage", localchat.HandlerSendImg).Methods(http.MethodPost)
 	localchatRouter.HandleFunc("/viewimage", localchat.HandleViewImg).Methods(http.MethodGet)
 	localchatRouter.HandleFunc("/setting", localchat.HandleAddr).Methods(http.MethodPost)
