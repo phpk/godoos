@@ -177,7 +177,6 @@ func SendFile(file *os.File, numChunks int, toIp string, fSize int64, message Ud
 		go func(index int) {
 			defer wg.Done()
 			idStr := message.Type + "@" + message.Hostname + "@" + filepath.Base(file.Name()) + "@" + fmt.Sprintf("%d", fSize) + "@"
-			//fileLen := GlobalfileSize - len(idStr)
 			chunkData := make([]byte, GlobalfileSize)
 			n, err := file.Read(chunkData[:])
 			if err != nil && err != io.EOF {
