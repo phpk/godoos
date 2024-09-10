@@ -57,7 +57,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
           else if (msg.type === "fileSending"){
             addText(msg)
           }
-          else if( msg.type === "fileCannel") {
+          else if( msg.type === "fileCannel" || msg.type === "fileAccessed") {
             changeMsg(msg)
           }
         })
@@ -261,42 +261,6 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     }
     await getUserList()
   }
-  const addFile = async (data: any) => {
-    const targetUser: any = await getTargetUser(data)
-    const files: any = []
-    data.fileList.forEach((d: any) => {
-      d.save_path = d.save_path.replace(/\\/g, "/");
-      files.push({
-        name: d.name,
-        path: d.save_path,
-        ext: d.save_path.split('.').pop(),
-        content: d.content
-      })
-    })
-    const saveMsg: any = {
-      type: 'file',
-      targetId: targetUser.id,
-      targetIp: targetUser.ip,
-      content: files,
-      reciperInfo: data.senderInfo,
-      createdAt: Date.now(),
-      isMe: false,
-      isRead: false,
-      status: 'reciped'
-    }
-    if (targetUser.id === chatTargetId.value) {
-      saveMsg.readAt = Date.now()
-      saveMsg.isRead = true
-      msgList.value.push(saveMsg)
-    }
-    //console.log(saveMsg)
-    await db.addOne('chatmsg', saveMsg)
-    //await getMsgList()
-
-    await updateContentList(saveMsg)
-
-    handleSelect(1)
-  }
  
   const getTargetUser = async (data: any) => {
     let targetUser: any = userList.value.find((d: any) => d.ip === data.ip)
@@ -432,21 +396,42 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       notifyError("确认失败!")
     } else {
       item.content.status = 'cannel'
-      await db.update('chatmsg', item.id, item)
+      console.log(item)
+      await db.update('chatmsg', item.id, toRaw(item))
       await updateContentList(item)
       notifySuccess("确认成功!")
     }
   }
   async function changeMsg(msg:any){
-    console.log(msg)
+    //console.log(msg)
     const msgId = msg.message
     const item = await db.getOne('chatmsg', msgId)
-    item.content.status = 'cannel'
+    //console.log(item)
+    item.content.status = msg.type
     await db.update('chatmsg', item.id, item)
-    await updateContentList(item)
+    await getMsgList()
   }
   async function accessFile(item:any){
-
+    const messages = {
+      type: 'accessFile',
+      message: item.content,
+      ip: item.targetIp
+    }
+    const postUrl = `${config.apiUrl}/localchat/accessfile`
+    const coms = await fetch(postUrl, {
+      method: "POST",
+      body: JSON.stringify(messages),
+    })
+    if (!coms.ok) {
+      //console.log(coms)
+      notifyError("确认失败!")
+    } else {
+      item.content.status = 'accessing'
+      //console.log(item)
+      await db.update('chatmsg', item.id, toRaw(item))
+      await getMsgList()
+      //notifySuccess("确认成功!")
+    }
   }
 
   return {
@@ -463,7 +448,6 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     showChooseFile,
     pageSize,
     showAddUser,
-    //OutUserList,
     init,
     setUserList,
     getUserList,
@@ -471,12 +455,9 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     setChatId,
     sendMsg,
     addText,
-    addFile,
-    //uploadFile,
     moreMsgList,
     refreshUserList,
     clearMsg,
-    //addUser,
     handlerMessage,
     cannelFile,
     accessFile

@@ -111,7 +111,7 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
                     <span v-if="item.content.status === 'accessing'">
                       接收中
                     </span>
-                    <span v-if="item.content.status === 'accessed'">
+                    <span v-if="item.content.status === 'confirm'">
                       已接收
                     </span>
                   </template>
@@ -129,10 +129,10 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
                   </div>
                   <template #footer>
                     <span v-if="item.content.status === 'apply'">对方确认中</span>
-                    <span v-if="item.content.status === 'confirm'">
-                      对方已接收
+                    <span v-if="item.content.status === 'fileAccessed'">
+                      对方已确认
                     </span>
-                    <span v-if="item.content.status === 'cannel'">
+                    <span v-if="item.content.status === 'fileCannel'">
                       对方已拒绝
                     </span>
                   </template>
