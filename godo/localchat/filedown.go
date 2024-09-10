@@ -34,6 +34,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -94,8 +95,8 @@ func handleResponse(reader io.Reader, ip string) error {
 	log.Printf("Received file list: %v", fileList)
 
 	for _, file := range fileList {
-		if runtime.GOOS != "windows" && containsBackslash(file.WritePath) {
-			file.WritePath = filepath.FromSlash(file.WritePath)
+		if runtime.GOOS != "windows" && strings.Contains(file.WritePath, "\\") {
+			file.WritePath = strings.ReplaceAll(file.WritePath, "\\", "/")
 		}
 		checkpath := filepath.Join(receiveDir, file.WritePath)
 
@@ -109,11 +110,6 @@ func handleResponse(reader io.Reader, ip string) error {
 	}
 
 	return nil
-}
-
-// containsBackslash 检查字符串中是否包含反斜杠
-func containsBackslash(s string) bool {
-	return filepath.Separator == '\\' && filepath.VolumeName(s) == ""
 }
 
 // downloadFile 下载单个文件
