@@ -33,6 +33,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 )
 
@@ -93,16 +94,26 @@ func handleResponse(reader io.Reader, ip string) error {
 	log.Printf("Received file list: %v", fileList)
 
 	for _, file := range fileList {
-		checkpath := filepath.Join(receiveDir, file.WritePath)
-		if err := os.MkdirAll(checkpath, 0755); err != nil {
-			return fmt.Errorf("failed to create directory: %v", err)
+		if runtime.GOOS != "windows" && containsBackslash(file.WritePath) {
+			file.WritePath = filepath.FromSlash(file.WritePath)
 		}
+		checkpath := filepath.Join(receiveDir, file.WritePath)
+
+		if !libs.PathExists(checkpath) {
+			os.MkdirAll(checkpath, 0755)
+		}
+
 		if !file.IsDir {
 			go downloadFile(file.Path, checkpath, ip)
 		}
 	}
 
 	return nil
+}
+
+// containsBackslash 检查字符串中是否包含反斜杠
+func containsBackslash(s string) bool {
+	return filepath.Separator == '\\' && filepath.VolumeName(s) == ""
 }
 
 // downloadFile 下载单个文件

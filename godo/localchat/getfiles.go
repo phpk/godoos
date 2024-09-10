@@ -107,14 +107,7 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
 }
-func calculateWritePath(filePath, baseDir string) string {
-	relativePath, err := filepath.Rel(baseDir, filePath)
-	if err != nil {
-		log.Printf("Failed to calculate relative path: %v", err)
-		return ""
-	}
-	return filepath.Dir(relativePath)
-}
+
 func walkDirectory(rootPath string, files *[]FileItem, writePath string) error {
 	return filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -128,6 +121,9 @@ func walkDirectory(rootPath string, files *[]FileItem, writePath string) error {
 			return fmt.Errorf("failed to calculate relative path")
 		}
 		currentWritePath := filepath.Join(writePath, filepath.Base(relativePath))
+		if !isDir {
+			currentWritePath = filepath.Join(writePath, filepath.Dir(relativePath))
+		}
 		*files = append(*files, FileItem{
 			Path:      path,
 			IsDir:     isDir,
