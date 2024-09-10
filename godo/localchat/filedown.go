@@ -118,7 +118,7 @@ func handleResponse(reader io.Reader, ip string) (string, error) {
 		}
 	}
 
-	return revPath, nil
+	return filepath.Join(resPath, timestamp), nil
 }
 
 // downloadFile 下载单个文件

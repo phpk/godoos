@@ -73,7 +73,7 @@ func HandlerAccessFile(w http.ResponseWriter, r *http.Request) {
 	var msg UdpMessage
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&msg); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		libs.ErrorMsg(w, "Invalid request body")
 		return
 	}
 	defer r.Body.Close()

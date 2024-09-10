@@ -90,19 +90,14 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
               </div>
               <div v-if="item.type === 'fileSending'">
                 <el-card style="max-width: 480px">
-                  <template #header>
-                    <div class="card-header">
-                      <span>对方发送文件</span>
-                    </div>
-                  </template>
-                  <div class="file-content">
+                  <div class="file-content" v-if="item.content.status === 'accessed'">
                     <div class="file-name" @click="sys.openFile(item.content.path)">查看文件</div>
                   </div>
                   <template #footer>
                     <span v-if="item.content.status === 'apply'">
-                      <el-button @click="store.cannelFile(item)">取消</el-button>
+                      <el-button @click="store.cannelFile(item)">拒绝</el-button>
                       <el-button type="primary" @click="store.accessFile(item)">
-                        接收
+                        接收文件
                       </el-button>
                     </span>
                     <span v-if="item.content.status === 'cannel'">
