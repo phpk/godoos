@@ -41,20 +41,24 @@ type FileItem struct {
 	Filename  string `json:"filename"`
 	WritePath string `json:"writePath"`
 }
+type FileList struct {
+	Files []string `json:"fileList"`
+}
 
 func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
+	//log.Printf("=====Received request: %v", r)
 	if r.Method != "POST" {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	var fileList []string
+	var fileList FileList
 	err := json.NewDecoder(r.Body).Decode(&fileList)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	log.Printf("Received file list: %v", fileList)
+	//log.Printf("=====Received file list: %v", fileList)
 	defer r.Body.Close()
 
 	baseDir, err := libs.GetOsDir()
@@ -67,7 +71,7 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 	// 用于存储文件列表
 	var files []FileItem
 
-	for _, filePath := range fileList {
+	for _, filePath := range fileList.Files {
 		fp := filepath.Join(baseDir, filePath)
 
 		fileInfo, err := os.Stat(fp)
@@ -75,15 +79,9 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("Failed to stat file: %v", err), http.StatusInternalServerError)
 			return
 		}
-		writePath := calculateWritePath(fp, baseDir)
+		//writePath := calculateWritePath(fp, baseDir)
 		if fileInfo.IsDir() {
-			files = append(files, FileItem{
-				Path:      fp,
-				IsDir:     true,
-				Filename:  filepath.Base(fp),
-				WritePath: writePath,
-			})
-			if err := walkDirectory(fp, &files, writePath); err != nil {
+			if err := walkDirectory(fp, &files, filepath.Base(fp)); err != nil {
 				http.Error(w, fmt.Sprintf("Failed to serve directory: %v", err), http.StatusInternalServerError)
 				return
 			}
@@ -93,7 +91,7 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 				Path:      fp,
 				IsDir:     false,
 				Filename:  filepath.Base(fp),
-				WritePath: writePath,
+				WritePath: "",
 			})
 		}
 	}
@@ -104,6 +102,7 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to marshal file list", http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Sending file list: %v", string(jsonData))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonData)
@@ -126,9 +125,9 @@ func walkDirectory(rootPath string, files *[]FileItem, writePath string) error {
 		relativePath, err := filepath.Rel(rootPath, path)
 		if err != nil {
 			log.Printf("Failed to calculate relative path: %v", err)
-			return fmt.Errorf("Failed to calculate relative path")
+			return fmt.Errorf("failed to calculate relative path")
 		}
-		currentWritePath := filepath.Join(writePath, filepath.Dir(relativePath))
+		currentWritePath := filepath.Join(writePath, filepath.Base(relativePath))
 		*files = append(*files, FileItem{
 			Path:      path,
 			IsDir:     isDir,

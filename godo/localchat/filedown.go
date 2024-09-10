@@ -53,6 +53,16 @@ func downloadFiles(msg UdpMessage) error {
 		return fmt.Errorf("server returned status code: %v, body: %s", resp.StatusCode, body)
 	}
 
+	// 处理响应中的文件
+	if err := handleResponse(resp.Body, msg.IP); err != nil {
+		log.Fatalf("Failed to handle response: %v", err)
+	}
+
+	fmt.Println("Files downloaded successfully")
+	return nil
+}
+
+func handleResponse(reader io.Reader, ip string) error {
 	// 接收文件的目录
 	baseDir, err := libs.GetOsDir()
 	if err != nil {
@@ -69,17 +79,6 @@ func downloadFiles(msg UdpMessage) error {
 			return fmt.Errorf("failed to create receive directory")
 		}
 	}
-
-	// 处理响应中的文件
-	if err := handleResponse(resp.Body, receiveDir, msg.IP); err != nil {
-		log.Fatalf("Failed to handle response: %v", err)
-	}
-
-	fmt.Println("Files downloaded successfully")
-	return nil
-}
-
-func handleResponse(reader io.Reader, saveDir string, ip string) error {
 	body, err := io.ReadAll(reader)
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %v", err)
@@ -90,17 +89,16 @@ func handleResponse(reader io.Reader, saveDir string, ip string) error {
 	if err := json.Unmarshal(body, &fileList); err != nil {
 		return fmt.Errorf("failed to unmarshal file list: %v", err)
 	}
+
 	log.Printf("Received file list: %v", fileList)
 
 	for _, file := range fileList {
-		checkpath := filepath.Join(saveDir, file.WritePath)
+		checkpath := filepath.Join(receiveDir, file.WritePath)
 		if err := os.MkdirAll(checkpath, 0755); err != nil {
 			return fmt.Errorf("failed to create directory: %v", err)
 		}
 		if !file.IsDir {
-			if err := downloadFile(file.Path, checkpath, ip); err != nil {
-				return fmt.Errorf("failed to download file: %v", err)
-			}
+			go downloadFile(file.Path, checkpath, ip)
 		}
 	}
 
