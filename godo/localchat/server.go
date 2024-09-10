@@ -28,6 +28,7 @@ import (
 	"godo/libs"
 	"log"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -60,7 +61,11 @@ func init() {
 func CheckOnlines() {
 	//CheckOnline()
 	chatIpSetting := libs.GetChatIpSetting()
-	checkTimeDuration := time.Duration(chatIpSetting.CheckTime) * time.Second
+	cktime, err := strconv.Atoi(chatIpSetting.CheckTime)
+	if err != nil {
+		cktime = 15
+	}
+	checkTimeDuration := time.Duration(cktime) * time.Second
 
 	ticker := time.NewTicker(checkTimeDuration)
 	defer ticker.Stop()

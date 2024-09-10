@@ -123,7 +123,17 @@ export const getSystemConfig = (ifset = false) => {
             dbname: ''
         };
     }
-
+    if (!config.chatConf) {
+        config.chatConf = {
+            'checkTime': '15',
+            'first': '192',
+            'second': '168',
+            'thirdStart': '1',
+            'thirdEnd': '1',
+            'fourthStart': '2',
+            'fourthEnd': '254'
+        }
+    }
     // 初始化桌面快捷方式列表，若本地存储中已存在则不进行覆盖
     if (!config.desktopList) {
         config.desktopList = [];

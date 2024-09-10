@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import emojiList from "@/assets/emoji.json"
 import { ref, toRaw } from "vue";
 import { db } from './db'
-import { getSystemConfig } from "@/system/config";
+import { getSystemConfig, setSystemKey } from "@/system/config";
 import { isValidIP } from "@/util/common";
 import { notifyError, notifySuccess } from "@/util/msg";
 export const useLocalChatStore = defineStore('localChatStore', () => {
@@ -449,6 +449,24 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       //notifySuccess("确认成功!")
     }
   }
+  async function saveConfig(conf:any){
+    conf = toRaw(conf)
+    //console.log(conf)
+    const postUrl = `${config.apiUrl}/localchat/setting`
+    const coms = await fetch(postUrl, {
+      method: "POST",
+      body: JSON.stringify(conf),
+    })
+    if (!coms.ok) {
+      //console.log(coms)
+      notifyError("保存失败!")
+    } else {
+      setSystemKey('chatConf', conf)
+      notifySuccess("保存成功!")
+      showAddUser.value = false
+    }
+
+  }
 
   return {
     userList,
@@ -476,6 +494,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     clearMsg,
     handlerMessage,
     cannelFile,
-    accessFile
+    accessFile,
+    saveConfig
   }
 })

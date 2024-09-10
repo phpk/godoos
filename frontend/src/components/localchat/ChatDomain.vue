@@ -2,57 +2,48 @@
   <div class="win11-msg-container">
     <el-scrollbar>
       <div v-if="store.navId < 2" class="user-list-area">
-        <el-row
-          class="user-list"
-          justify="space-around"
-          v-for="(msg, key) in store.contentList"
-          :key="key"
-          v-if="store.contentList.length > 0"
-        >
+        <el-row class="user-list" justify="space-around" v-for="(msg, key) in store.contentList" :key="key"
+          v-if="store.contentList.length > 0">
           <!-- <el-col :span="5" class="avatar-col">
             <el-icon :size="22" class="avatar">
               <Place />
             </el-icon>
           </el-col> -->
-          <el-col :span="22" :class="msg.targetIp == store.chatTargetIp ? 'user-item active' : 'user-item'" @click="store.setChatId(msg.targetIp)">
+          <el-col :span="22" :class="msg.targetIp == store.chatTargetIp ? 'user-item active' : 'user-item'"
+            @click="store.setChatId(msg.targetIp)">
             <span class="username">
-              
+
               <el-icon :size="12">
-              <Place />
-            </el-icon>
+                <Place />
+              </el-icon>
               {{ msg.reciperInfo ? msg.reciperInfo.hostname : '' }}
             </span>
             <span class="msg">{{ msg.content }}</span>
-            
+
             <span class="userip" v-if="msg.readNum > 0">
-            <el-badge :value="msg.readNum" :offset="[-3,8]">
-            {{ formatChatTime(msg.createdAt) }}</el-badge>
+              <el-badge :value="msg.readNum" :offset="[-3, 8]">
+                {{ formatChatTime(msg.createdAt) }}</el-badge>
             </span>
             <span class="userip" v-else>
               {{ formatChatTime(msg.createdAt) }}
             </span>
-        
+
           </el-col>
         </el-row>
         <el-empty v-else :image-size="100" description="消息列表为空" />
       </div>
-      
+
       <div v-else class="user-list-area">
         <el-row justify="space-between">
-        <el-icon :size="18" @click="store.refreshUserList">
-          <RefreshRight />
-        </el-icon>
-        <el-icon :size="18" @click="store.showAddUser = true">
-          <CirclePlusFilled />
-        </el-icon>
+          <el-icon :size="18" @click="store.refreshUserList">
+            <RefreshRight />
+          </el-icon>
+          <el-icon :size="18" @click="store.showAddUser = true">
+            <Tools />
+          </el-icon>
         </el-row>
-        <el-row
-          class="user-list"
-          justify="space-around"
-          v-for="(user, key) in store.userList"
-          :key="key"
-          v-if="store.userList.length > 0"
-        >
+        <el-row class="user-list" justify="space-around" v-for="(user, key) in store.userList" :key="key"
+          v-if="store.userList.length > 0">
           <el-col :span="5" class="avatar-col">
             <el-icon :size="22" class="avatar">
               <Monitor />
@@ -73,16 +64,45 @@
       </div>
     </el-scrollbar>
   </div>
-  <el-dialog v-model="store.showAddUser" title="添加用户" width="500">
+  <el-dialog v-model="store.showAddUser" title="系统设置" width="500">
     <el-form>
-      <el-form-item :label-width="0">
-        <el-input v-model="userIp" autocomplete="off" placeholder="输入用户IP 例如：192.168.1.16"/>
+     
+      <el-form-item label="IP段第一位">
+        <el-input v-model="conf.first" autocomplete="off" placeholder="输入ip段第一位 例如：192" />
+      </el-form-item>
+      <el-form-item label="IP段第二位">
+        <el-input v-model="conf.second" autocomplete="off" placeholder="输入IP段第二位 例如：168" />
+      </el-form-item>
+      <el-form-item label="IP段第三位">
+        <el-col :span="11">
+          <el-input v-model="conf.thirdStart" placeholder="第三位开始" style="width: 100%" />
+        </el-col>
+        <el-col :span="2" class="text-center">
+          <span class="text-gray-500">-</span>
+        </el-col>
+        <el-col :span="11">
+          <el-input v-model="conf.thirdEnd" placeholder="第三位结束" style="width: 100%" />
+        </el-col>
+      </el-form-item>
+      <el-form-item label="IP段第四位">
+        <el-col :span="11">
+          <el-input v-model="conf.fourthStart" placeholder="第四位开始" style="width: 100%" />
+        </el-col>
+        <el-col :span="2" class="text-center">
+          <span class="text-gray-500">-</span>
+        </el-col>
+        <el-col :span="11">
+          <el-input v-model="conf.fourthEnd" placeholder="第四位结束" style="width: 100%" />
+        </el-col>
+      </el-form-item>
+      <el-form-item label="扫描间隔（秒）">
+        <el-input v-model="conf.checkTime" autocomplete="off" placeholder="输入扫描间隔 例如：30" />
       </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button type="primary" @click="store.addUser(userIp)">
-          添加
+        <el-button type="primary" @click="store.saveConfig(conf)">
+          保存
         </el-button>
       </div>
     </template>
@@ -92,66 +112,84 @@
 <script setup lang="ts">
 import { useLocalChatStore } from "@/stores/localchat";
 import { formatChatTime } from "@/util/common";
-
+import { getSystemKey } from "@/system/config";
 const store = useLocalChatStore();
-const userIp = ref('')
+const conf = ref(getSystemKey('chatConf'))
 </script>
 <style scoped lang="scss">
 .win11-msg-container {
-  height: 100vh; /* 假设顶部有100px的导航栏 */
+  height: 100vh;
+  /* 假设顶部有100px的导航栏 */
   width: 100%;
-  border-right: 1px solid rgba(238, 238, 238, 0.5); /* 更柔和的边框 */
+  border-right: 1px solid rgba(238, 238, 238, 0.5);
+  /* 更柔和的边框 */
   border-top: 1px solid rgba(238, 238, 238, 0.5);
-  border-radius: 0 12px 0 0; /* Win11风格的圆角 */
-  background-color: #f8f8f8; /* 使用更亮的淡灰色背景 */
-  overflow: hidden; /* 清除滚动条溢出 */
+  border-radius: 0 12px 0 0;
+  /* Win11风格的圆角 */
+  background-color: #f8f8f8;
+  /* 使用更亮的淡灰色背景 */
+  overflow: hidden;
+  /* 清除滚动条溢出 */
 }
 
 .el-scrollbar__wrap {
-  padding: 16px; /* 内容区域的内边距 */
+  padding: 16px;
+  /* 内容区域的内边距 */
 }
 
 .message-item {
   display: flex;
   align-items: flex-start;
+
   &.self {
-    justify-content: flex-end; /* 自身消息右对齐 */
+    justify-content: flex-end;
+    /* 自身消息右对齐 */
   }
 }
 
 .bubble {
   padding: 8px 12px;
-  border-radius: 12px; /* 圆角 */
+  border-radius: 12px;
+  /* 圆角 */
   max-width: 75%;
   background-color: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
   &.bubble--right {
-    background-color: #e8eaed; /* 更接近Win11的发送方消息背景色 */
+    background-color: #e8eaed;
+    /* 更接近Win11的发送方消息背景色 */
   }
 }
+
 .user-list-area {
   width: 94%;
   margin: 3%;
 }
+
 .user-list {
   background-color: #f8f8f8; // 淡灰色背景，与容器区分
   border-radius: 8px; // 圆角边缘，更柔和的外观
   margin-bottom: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // 温和的阴影效果，增加深度感
+
   .avatar-col {
     display: flex;
     justify-content: center;
     align-items: center; // 确保图标垂直居中
   }
-  .active{
+
+  .active {
     background-color: #e8eaed;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
+
   .user-item {
     display: flex;
     align-items: flex-start;
-    flex-direction: column; /* 改变为列方向布局 */
-    gap: 4px; /* 行间间距 */
+    flex-direction: column;
+    /* 改变为列方向布局 */
+    gap: 4px;
+    /* 行间间距 */
     padding: 4px 0;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -161,7 +199,8 @@ const userIp = ref('')
     }
 
     .avatar {
-      border-radius: 50%; /* 头像圆角 */
+      border-radius: 50%;
+      /* 头像圆角 */
     }
 
     .username {
@@ -169,16 +208,17 @@ const userIp = ref('')
       font-size: 12px;
       color: #333;
       overflow: hidden;
-      width:95%;
+      width: 95%;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
     .msg {
       text-align: left; // 设置username左对齐
       font-size: 11px;
       color: #666;
       overflow: hidden;
-      width:95%;
+      width: 95%;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -195,9 +235,10 @@ const userIp = ref('')
       white-space: nowrap;
     }
   }
+
   .status-icon {
     margin-left: 2px; // 与头像保持一定距离
-    margin-top:12px;
+    margin-top: 12px;
   }
 
   .online {
@@ -212,5 +253,8 @@ const userIp = ref('')
 /* 空状态调整 */
 .el-empty {
   margin: auto;
+}
+.text-center{
+  text-align: center;
 }
 </style>

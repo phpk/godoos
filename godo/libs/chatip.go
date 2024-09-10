@@ -29,18 +29,18 @@ import (
 )
 
 type UserChatIpSetting struct {
-	CheckTime   int    `json:"CheckTime"`
-	First       string `json:"First"`
-	Second      string `json:"Second"`
-	ThirdStart  string `json:"ThirdStart"`
-	ThirdEnd    string `json:"ThirdEnd"`
-	FourthStart string `json:"FourthStart"`
-	FourthEnd   string `json:"FourthEnd"`
+	CheckTime   string `json:"checkTime"`
+	First       string `json:"first"`
+	Second      string `json:"second"`
+	ThirdStart  string `json:"thirdStart"`
+	ThirdEnd    string `json:"thirdEnd"`
+	FourthStart string `json:"fourthStart"`
+	FourthEnd   string `json:"fourthEnd"`
 }
 
 func GetDefaultChatIpSetting() UserChatIpSetting {
 	return UserChatIpSetting{
-		CheckTime:   30,
+		CheckTime:   "15",
 		First:       "192",
 		Second:      "168",
 		ThirdStart:  "1",
