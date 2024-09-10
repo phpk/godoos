@@ -28,25 +28,56 @@ func HandleGetFiles(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Received file list: %v", fileList)
 	defer r.Body.Close()
+
 	baseDir, err := libs.GetOsDir()
 	if err != nil {
 		log.Printf("Failed to get OS directory: %v", err)
 		return
 	}
+
+	// 用于存储文件列表
+	var files []string
+
 	for _, filePath := range fileList.Files {
 		fp := filepath.Join(baseDir, filePath)
-		err := ServeFile(w, r, fp)
-		if err != nil {
-			http.Error(w, fmt.Sprintf("Failed to serve file: %v", err), http.StatusInternalServerError)
+		if err := serveDirectory(w, r, fp, &files); err != nil {
+			http.Error(w, fmt.Sprintf("Failed to serve directory: %v", err), http.StatusInternalServerError)
 			return
 		}
 	}
 
-	fmt.Fprintf(w, "Files served successfully")
+	// 将文件列表编码为 JSON 并返回
+	jsonData, err := json.Marshal(files)
+	if err != nil {
+		http.Error(w, "Failed to marshal file list", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonData)
+}
+
+func serveDirectory(w http.ResponseWriter, r *http.Request, dirPath string, files *[]string) error {
+	filesInDir, err := os.ReadDir(dirPath)
+	if err != nil {
+		return fmt.Errorf("failed to read directory: %v", err)
+	}
+
+	for _, f := range filesInDir {
+		filePath := filepath.Join(dirPath, f.Name())
+		if f.IsDir() {
+			if err := serveDirectory(w, r, filePath, files); err != nil {
+				return err
+			}
+		} else {
+			*files = append(*files, filePath)
+		}
+	}
+
+	return nil
 }
 
 func ServeFile(w http.ResponseWriter, r *http.Request, filePath string) error {
-
 	file, err := os.Open(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %v", err)
@@ -59,33 +90,9 @@ func ServeFile(w http.ResponseWriter, r *http.Request, filePath string) error {
 	}
 
 	if fileInfo.IsDir() {
-		return serveDirectory(w, r, filePath)
+		return serveDirectory(w, r, filePath, nil)
 	}
 
 	http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
-	return nil
-}
-
-func serveDirectory(w http.ResponseWriter, r *http.Request, dirPath string) error {
-	files, err := os.ReadDir(dirPath)
-	if err != nil {
-		return fmt.Errorf("failed to read directory: %v", err)
-	}
-
-	for _, f := range files {
-		filePath := filepath.Join(dirPath, f.Name())
-		if f.IsDir() {
-			err := serveDirectory(w, r, filePath)
-			if err != nil {
-				return err
-			}
-		} else {
-			err := ServeFile(w, r, filePath)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
 	return nil
 }

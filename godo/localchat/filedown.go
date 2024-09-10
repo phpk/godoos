@@ -42,7 +42,7 @@ func downloadFiles(msg UdpMessage) error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal post data: %v", err)
 	}
-
+	log.Printf("Sending POST request to %s with data: %s", postUrl, string(postData))
 	resp, err := http.Post(postUrl, "application/json", bytes.NewBuffer(postData))
 	if err != nil {
 		return fmt.Errorf("failed to make POST request: %v", err)
@@ -84,12 +84,12 @@ func handleResponse(reader io.Reader, saveDir string) error {
 	if err != nil {
 		return fmt.Errorf("failed to read response body: %v", err)
 	}
-
+	log.Printf("Received file list: %v", string(body))
 	var fileList FileList
 	if err := json.Unmarshal(body, &fileList); err != nil {
 		return fmt.Errorf("failed to unmarshal file list: %v", err)
 	}
-
+	log.Printf("Received file list: %v", fileList.Files)
 	for _, filePath := range fileList.Files {
 		err := saveFileOrFolder(filePath, saveDir)
 		if err != nil {
