@@ -8,7 +8,6 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/minio/selfupdate v0.6.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
 )
 
 require (

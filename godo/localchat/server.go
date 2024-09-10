@@ -28,7 +28,6 @@ import (
 	"godo/libs"
 	"log"
 	"net"
-	"strings"
 	"time"
 )
 
@@ -100,24 +99,6 @@ func UdpServer() {
 			continue
 		}
 		ip := udpAddr.IP.String()
-
-		parts := strings.Split(string(buffer[:n]), "@") // 假设标识符不会超过256字节
-		if len(parts) >= 5 {
-			filename, err := ReceiveFiles(parts)
-			if err != nil {
-				log.Printf("error receiving file: %v", err)
-				continue
-			}
-			msg := UdpMessage{
-				Hostname: parts[1],
-				Type:     parts[0],
-				Time:     time.Now(),
-				IP:       ip,
-				Message:  filename,
-			}
-			AddMessage(msg)
-			continue
-		}
 		// 解析 UDP 数据
 		var udpMsg UdpMessage
 		err = json.Unmarshal(buffer[:n], &udpMsg)
@@ -140,14 +121,14 @@ func UdpServer() {
 			HandlerSendFile(udpMsg)
 			continue
 		}
-		// if udpMsg.Type == "image" {
-		// 	filePath, err := ReceiveFile(udpMsg)
-		// 	if err != nil {
-		// 		log.Printf("error receiving image: %v", err)
-		// 		continue
-		// 	}
-		// 	udpMsg.Message = filePath
-		// }
+		if udpMsg.Type == "image" {
+			filePath, err := ReceiveImg(udpMsg)
+			if err != nil {
+				log.Printf("error receiving image: %v", err)
+				continue
+			}
+			udpMsg.Message = filePath
+		}
 		// 添加消息到 UserMessages
 		AddMessage(udpMsg)
 

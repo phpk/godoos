@@ -26,6 +26,7 @@ package localchat
 
 import (
 	"encoding/json"
+	"fmt"
 	"godo/libs"
 	"io"
 	"log"
@@ -33,6 +34,8 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -52,7 +55,6 @@ func HandlerSendImg(w http.ResponseWriter, r *http.Request) {
 	msg.Hostname = hostname
 	msg.Time = time.Now()
 	msg.Type = "image"
-	toIp := msg.IP
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		log.Printf("GetOsDir error: %v", err)
@@ -66,7 +68,7 @@ func HandlerSendImg(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "HandleMessage message error")
 		return
 	}
-
+	sendPath := []string{}
 	for _, v := range paths {
 		p, ok := v.(string)
 		if !ok {
@@ -76,74 +78,111 @@ func HandlerSendImg(w http.ResponseWriter, r *http.Request) {
 		// 处理多张图片
 		if fileInfo, err := os.Stat(filePath); err == nil {
 			if !fileInfo.IsDir() {
-				handleFile(filePath, toIp, msg)
+				//handleFile(filePath, toIp, msg)
+				sendPath = append(sendPath, p)
 			}
 		} else {
 			continue
 		}
 	}
+	msg.Message = sendPath
+	SendToIP(msg)
 	libs.SuccessMsg(w, nil, "图片发送成功")
 }
 
-// func ReceiveImg(msg UdpMessage) (string, error) {
-// 	chunk := msg.Message.(FileChunk)
+func ReceiveImg(msg UdpMessage) ([]string, error) {
+	res := []string{}
+	baseDir, err := libs.GetOsDir()
+	if err != nil {
+		log.Printf("Failed to get OS directory: %v", err)
+		return res, err
+	}
 
-// 	// 验证校验和
-// 	calculatedChecksum := calculateChecksum(chunk.Data)
-// 	if calculatedChecksum != chunk.Checksum {
-// 		fmt.Printf("Checksum mismatch for image from %s\n", msg.IP)
-// 		return "", fmt.Errorf("checksum mismatch")
-// 	}
+	// 创建接收文件的目录
+	resPath := filepath.Join("C", "Users", "Reciv", time.Now().Format("2006-01-02"))
+	receiveDir := filepath.Join(baseDir, resPath)
+	if !libs.PathExists(receiveDir) {
+		err := os.MkdirAll(receiveDir, 0755)
+		if err != nil {
+			log.Printf("Failed to create receive directory: %v", err)
+			return res, err
+		}
+	}
+	paths, ok := msg.Message.([]interface{})
+	//log.Printf("paths: %v", paths)
+	if !ok {
+		return res, fmt.Errorf("HandleMessage message error")
+	}
+	var savedPaths []string
+	for _, v := range paths {
+		p, ok := v.(string)
+		if !ok {
+			continue
+		}
+		imgUrl := fmt.Sprintf("http://%s/viewimg?img=%s", msg.IP, url.QueryEscape(p))
+		resp, err := http.Get(imgUrl)
+		if err != nil {
+			log.Printf("Failed to download image from URL %s: %v", imgUrl, err)
+			continue
+		}
+		defer resp.Body.Close()
 
-// 	baseDir, err := libs.GetOsDir()
-// 	if err != nil {
-// 		log.Printf("Failed to get OS directory: %v", err)
-// 		return "", err
-// 	}
+		if resp.StatusCode != http.StatusOK {
+			log.Printf("Failed to download image from URL %s: %v", imgUrl, resp.Status)
+			continue
+		}
+		// 生成随机文件名
+		// 生成随机文件名并保留扩展名
+		fileName, err := generateRandomFileNameWithExtension(p)
+		if err != nil {
+			log.Printf("Failed to generate random file name: %v", err)
+			continue
+		}
+		filePath := filepath.Join(receiveDir, fileName)
+		// 保存图片
+		err = saveImage(resp.Body, filePath)
+		if err != nil {
+			log.Printf("Failed to save image to %s: %v", filePath, err)
+			continue
+		}
+		savedPaths = append(savedPaths, filePath)
 
-// 	// 创建接收文件的目录
-// 	resPath := filepath.Join("C", "Users", "Reciv", time.Now().Format("2006-01-02"))
-// 	receiveDir := filepath.Join(baseDir, resPath)
-// 	if !libs.PathExists(receiveDir) {
-// 		err := os.MkdirAll(receiveDir, 0755)
-// 		if err != nil {
-// 			log.Printf("Failed to create receive directory: %v", err)
-// 			return "", err
-// 		}
-// 	}
+	}
+	if len(savedPaths) > 0 {
+		return savedPaths, nil
+	}
 
-// 	// 确定文件路径
-// 	filePath := filepath.Join(receiveDir, chunk.Filename)
+	return res, fmt.Errorf("no images were saved")
 
-// 	// 如果文件不存在，则创建新文件
-// 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-// 		file, err := os.Create(filePath)
-// 		if err != nil {
-// 			log.Printf("Failed to create file: %v", err)
-// 			return "", err
-// 		}
-// 		defer file.Close()
-// 	}
+}
 
-// 	// 打开或追加到现有文件
-// 	file, err := os.OpenFile(filePath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
-// 	if err != nil {
-// 		log.Printf("Failed to open file: %v", err)
-// 		return "", err
-// 	}
-// 	defer file.Close()
+// 生成随机文件名并保留扩展名
+func generateRandomFileNameWithExtension(originalFileName string) (string, error) {
+	fileNameWithoutExt, fileExt := filepath.Split(originalFileName)
+	fileExt = strings.TrimPrefix(fileExt, ".")
+	if fileExt == "" {
+		fileExt = "png"
+	}
 
-// 	// 写入数据
-// 	_, err = file.Write(chunk.Data)
-// 	if err != nil {
-// 		log.Printf("Failed to write data to file: %v", err)
-// 		return "", err
-// 	}
+	randomFileName := fmt.Sprintf("%s_%s.%s", fileNameWithoutExt, strconv.FormatInt(time.Now().UnixNano(), 10), fileExt)
+	return randomFileName, nil
+}
 
-//		fmt.Printf("接收到图片 %s 从 %s 成功\n", filePath, msg.IP)
-//		resFilePath := filepath.Join(resPath, chunk.Filename)
-//		return resFilePath, nil
-//	}
+// 保存图片到本地文件
+func saveImage(reader io.Reader, filePath string) error {
+	file, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %v", err)
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, reader)
+	if err != nil {
+		return fmt.Errorf("failed to write image data to file: %v", err)
+	}
+
+	return nil
+}
 func HandleViewImg(w http.ResponseWriter, r *http.Request) {
 	img := r.URL.Query().Get("img")
 	if img == "" {

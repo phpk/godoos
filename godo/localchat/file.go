@@ -148,8 +148,10 @@ func handleFile(filePath string, toIp string, message UdpMessage) {
 	fileSize := fileInfo.Size()
 
 	// 计算需要发送的数据包数量
-	numChunks := (fileSize + GlobalfileSize - 1) / GlobalfileSize
-
+	numChunks := fileSize / GlobalfileSize
+	if fileSize%GlobalfileSize != 0 {
+		numChunks++
+	}
 	// 发送文件
 	SendFile(file, int(numChunks), toIp, fileSize, message)
 }
