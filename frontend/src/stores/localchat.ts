@@ -2,11 +2,12 @@ import { defineStore } from 'pinia'
 import emojiList from "@/assets/emoji.json"
 import { ref, toRaw } from "vue";
 import { db } from './db'
-import { getSystemConfig, setSystemKey } from "@/system/config";
+import { fetchPost, getChatUrl, getUrl, setSystemKey } from "@/system/config";
 import { isValidIP } from "@/util/common";
 import { notifyError, notifySuccess } from "@/util/msg";
 export const useLocalChatStore = defineStore('localChatStore', () => {
-  const config = getSystemConfig();
+  //const config = getSystemConfig();
+  const chatUrl = getChatUrl();
   //const sys = inject<System>("system");
   const userList: any = ref([])
   const msgList: any = ref([])
@@ -38,7 +39,6 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       setUserList(ips);
     }
     if(data.messages){
-      const apiUrl = `${config.apiUrl}/localchat/viewimage?img=`
       for(let ip in data.messages){
         const msgList:any = data.messages[ip]
         if(!msgList || msgList.length < 1)return;
@@ -50,7 +50,10 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
             addText(msg)
           }
           else if (msg.type === "image"){
-            msg.message = msg.message.map((d: any) => `${apiUrl}${encodeURIComponent(d)}`)
+            msg.message = msg.message.map((d: any) => {
+              const url = `/localchat/viewimage?img=${encodeURIComponent(d)}`
+              return getUrl(url)
+            })
             //console.log(msg)
             addText(msg)
           }
@@ -318,18 +321,21 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       return
     }
     const content = toRaw(sendInfo.value)
-    let saves:any
+    let saveContent:any
     if (type === 'image') {
-      const apiUrl = `${config.apiUrl}/localchat/viewimage?img=`
-      saves = content.map((d: any) => `${apiUrl}${encodeURIComponent(d)}`)
+      saveContent = content.map((d: any) => {
+        const url = `/localchat/viewimage?img=${encodeURIComponent(d)}`
+        return getUrl(url)
+      })
     }else{
-      saves = content
+      saveContent = content
     }
+    console.log(saveContent)
     const saveMsg: any = {
       type: type,
       targetId: chatTargetId.value,
       targetIp: chatTargetIp.value,
-      content: saves,
+      content: saveContent,
       createdAt: Date.now(),
       isMe: true,
       isRead: false,
@@ -347,23 +353,20 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       ip: saveMsg.targetIp
     }
     if (targetUser.isOnline) {
-      let postUrl = `${config.apiUrl}/localchat/message`
+      let postUrl = `${chatUrl}/message`
       if(type === 'applyfile'){
         messages.message = {
           fileList: messages.message,
           msgId: msgId,
           status: 'apply'
         }
-        postUrl = `${config.apiUrl}/localchat/applyfile`
+        postUrl = `${chatUrl}/applyfile`
       }
       if(type === 'image'){
-        postUrl = `${config.apiUrl}/localchat/sendimage`
+        postUrl = `${chatUrl}/sendimage`
       }
       
-      const completion = await fetch(postUrl, {
-        method: "POST",
-        body: JSON.stringify(messages),
-      })
+      const completion = await fetchPost(postUrl, JSON.stringify(messages))
       //console.log(completion)
       if (!completion.ok) {
         console.log(completion)
@@ -390,11 +393,8 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       message: item.content.msgId,
       ip: item.targetIp
     }
-    const postUrl = `${config.apiUrl}/localchat/cannelfile`
-    const coms = await fetch(postUrl, {
-      method: "POST",
-      body: JSON.stringify(messages),
-    })
+    const postUrl = `${chatUrl}/cannelfile`
+    const coms = await fetchPost(postUrl, JSON.stringify(messages))
     if (!coms.ok) {
       console.log(coms)
       notifyError("确认失败!")
@@ -421,11 +421,8 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       message: item.content,
       ip: item.targetIp
     }
-    const postUrl = `${config.apiUrl}/localchat/accessfile`
-    const coms = await fetch(postUrl, {
-      method: "POST",
-      body: JSON.stringify(messages),
-    })
+    const postUrl = `${chatUrl}/accessfile`
+    const coms = await fetchPost(postUrl, JSON.stringify(messages))
     if (!coms.ok) {
       //console.log(coms)
       notifyError("确认失败!")
@@ -452,11 +449,8 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
   async function saveConfig(conf:any){
     conf = toRaw(conf)
     //console.log(conf)
-    const postUrl = `${config.apiUrl}/localchat/setting`
-    const coms = await fetch(postUrl, {
-      method: "POST",
-      body: JSON.stringify(conf),
-    })
+    const postUrl = `${chatUrl}/setting`
+    const coms = await fetchPost(postUrl, JSON.stringify(conf))
     if (!coms.ok) {
       //console.log(coms)
       notifyError("保存失败!")

@@ -2,7 +2,7 @@
 	<div class="upgrade-dialog">
 		<el-dialog
 			v-model="state.isUpgrade"
-			width="300px"
+			width="350px"
 			destroy-on-close
 			:show-close="false"
 			:close-on-click-modal="false"
@@ -15,12 +15,7 @@
 				</div>
 			</div>
 			<div class="upgrade-content">
-				GodoOS {{ upgradeStore.upgradeDesc }}
-				<div class="mt5">
-					<el-link type="primary" class="font12" href="https://godoos.com/home/blog/godoos/" target="_black">
-						查看详情
-					</el-link>
-				</div>
+				<div class="upgrade-content-txt" v-html="upgradeStore.upgradeDesc"></div>
 				<div class="upgrade-content-desc mt5">{{ $t('upgrade.desc') }}</div>
 				<div class="upgrade-content-desc" v-if="upgradeStore.progress > 0">
 					<el-progress :text-inside="true" :stroke-width="20" :percentage="upgradeStore.progress" />
@@ -124,6 +119,10 @@ onMounted(() => {
 		.upgrade-content {
 			padding: 20px;
 			line-height: 22px;
+			.upgrade-content-txt{
+				max-height: 300px;
+				overflow-y: auto;
+			}
 			.upgrade-content-desc {
 				color: rgba(255, 255, 255, 0.7);
 				font-size: 12px;

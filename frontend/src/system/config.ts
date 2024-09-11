@@ -14,7 +14,7 @@ export const getSystemConfig = (ifset = false) => {
 
     // 初始化配置对象的各项属性，若本地存储中已存在则不进行覆盖
     if (!config.version) {
-        config.version = '1.0.1';
+        config.version = '1.0.2';
     }
     if (!config.isFirstRun) {
         config.isFirstRun = false;
@@ -155,7 +155,12 @@ export const getSystemConfig = (ifset = false) => {
 };
 
 export function getApiUrl() {
-    return getSystemKey('apiUrl')
+    const config = getSystemConfig();
+    if (config.userType == 'person') {
+        return config.apiUrl
+    }else{
+        return config.userInfo.url
+    }
 }
 export function getFileUrl() {
     const config = getSystemConfig();
@@ -172,6 +177,27 @@ export function getFileUrl() {
         return config.userInfo.url + '/files'
     }
 
+}
+export function getChatUrl() {
+    const config = getSystemConfig();
+    if (config.userType == 'person') {
+        return config.apiUrl + '/localchat'
+    } else {
+        return config.userInfo.url + '/localchat'
+    }
+}
+export function getUrl(url: string, islast = true) {
+    const config = getSystemConfig();
+    if (config.userType == 'person') {
+        return config.apiUrl + url
+    } else {
+        if(islast){
+            return config.userInfo.url + url + '&uuid=' + getClientId() + '&token=' + config.userInfo.token
+        }else{
+            return config.userInfo.url + url + '?uuid=' + getClientId() + '&token=' + config.userInfo.token
+        }
+        
+    }
 }
 export function fetchGet(url: string) {
     const config = getSystemConfig();

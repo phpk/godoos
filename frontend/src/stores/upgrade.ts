@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { getSystemKey, setSystemKey, parseJson, getSystemConfig } from '@/system/config'
+import { setSystemKey, parseJson, getSystemConfig, getUrl } from '@/system/config'
 import { RestartApp } from '@/util/goutil';
 import { ElMessage } from 'element-plus'
 import { t } from '@/i18n';
@@ -37,9 +37,9 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         return 0;
     }
     function systemMessage(){
-        const config = getSystemConfig();
-        
-        const source = new EventSource(`${config.apiUrl}/system/message`);
+        //const config = getSystemConfig();
+        const apiUrl = getUrl('/system/message',false)
+        const source = new EventSource(apiUrl);
 
         source.onmessage = function(event) {
             const data = JSON.parse(event.data);
@@ -53,7 +53,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     async function handleMessage(message:any) {
         switch (message.type) {
             case 'update':
-                checkUpdate(message.data.data)
+                checkUpdate(message.data)
                 break;
             case 'localchat':
                 localChatStore.handlerMessage(message.data)
@@ -64,6 +64,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     }
     async function checkUpdate(res:any) {
         //console.log(res)
+        if(!res)return
         const config = getSystemConfig();
         if(!config.account.ad)return;
         currentVersion.value = config.version;
@@ -96,17 +97,24 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         }
     }
     function changeUrl(list : any){
+        const config = getSystemConfig();
         list.forEach((item:any) => {
             if(item.img && item.img.indexOf('http') == -1){
-                item.img = `https://godoos.com${item.img}`
+                if(config.userType === 'person'){
+                    item.img = `https://godoos.com${item.img}`
+                }else{
+                    item.img = `${config.userInfo.url}${item.img}`
+                }
+                
             }
         });
         return list
     }
     async function update() {
-        const apiUrl = getSystemKey('apiUrl')
-        const upUrl = `${apiUrl}/system/update?url=${updateUrl.value}`
-        const upRes = await fetch(upUrl)
+        //const apiUrl = getApiUrl()
+        const upUrl = `/system/update?url=${updateUrl.value}`
+        const apiUrl = getUrl(upUrl,true)
+        const upRes = await fetch(apiUrl)
         if (!upRes.ok) return;
         const reader: any = upRes.body?.getReader();
         if (!reader) {
