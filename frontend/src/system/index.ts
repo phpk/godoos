@@ -24,6 +24,7 @@ import { pick } from '../util/modash';
 import { Tray, TrayOptions } from './menu/Tary';
 import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig, getFileUrl, fetchGet, getClientId } from './config'
 import { useUpgradeStore } from '@/stores/upgrade';
+import { useMessageStore } from '@/stores/message';
 import { RestartApp } from '@/util/goutil';
 import { notifyError } from '@/util/msg';
 
@@ -103,14 +104,25 @@ export class System {
 
     this.initBackground(); // 初始化壁纸
     this.refershAppList();
+    this.checkMessages();
 
+    this.emit('start');
+    this._ready && this._ready(this);
+
+  }
+  private checkMessages() {
+    const config = getSystemConfig();
+    if (config.userType == 'member') {
+      setTimeout(() => {
+        const messageStore = useMessageStore();
+        messageStore.systemMessage()
+      }, 3000);
+    }
     setTimeout(() => {
       const upgradeStore = useUpgradeStore();
       upgradeStore.systemMessage()
     }, 6000);
-    this.emit('start');
-    this._ready && this._ready(this);
-
+    
   }
   /**
    * @description: 判断是否登录

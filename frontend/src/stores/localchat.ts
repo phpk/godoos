@@ -2,12 +2,11 @@ import { defineStore } from 'pinia'
 import emojiList from "@/assets/emoji.json"
 import { ref, toRaw } from "vue";
 import { db } from './db'
-import { fetchPost, getChatUrl, getUrl, setSystemKey } from "@/system/config";
+import { getSystemConfig, setSystemKey } from "@/system/config";
 import { isValidIP } from "@/util/common";
 import { notifyError, notifySuccess } from "@/util/msg";
 export const useLocalChatStore = defineStore('localChatStore', () => {
-  //const config = getSystemConfig();
-  const chatUrl = getChatUrl();
+  const config = getSystemConfig();
   //const sys = inject<System>("system");
   const userList: any = ref([])
   const msgList: any = ref([])
@@ -39,6 +38,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       setUserList(ips);
     }
     if(data.messages){
+      const apiUrl = `${config.apiUrl}/localchat/viewimage?img=`
       for(let ip in data.messages){
         const msgList:any = data.messages[ip]
         if(!msgList || msgList.length < 1)return;
@@ -50,10 +50,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
             addText(msg)
           }
           else if (msg.type === "image"){
-            msg.message = msg.message.map((d: any) => {
-              const url = `/localchat/viewimage?img=${encodeURIComponent(d)}`
-              return getUrl(url)
-            })
+            msg.message = msg.message.map((d: any) => `${apiUrl}${encodeURIComponent(d)}`)
             //console.log(msg)
             addText(msg)
           }
@@ -321,27 +318,24 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       return
     }
     const content = toRaw(sendInfo.value)
-    let saveContent:any
+    let saves:any
     if (type === 'image') {
-      saveContent = content.map((d: any) => {
-        const url = `/localchat/viewimage?img=${encodeURIComponent(d)}`
-        return getUrl(url)
-      })
+      const apiUrl = `${config.apiUrl}/localchat/viewimage?img=`
+      saves = content.map((d: any) => `${apiUrl}${encodeURIComponent(d)}`)
     }else{
-      saveContent = content
+      saves = content
     }
-    console.log(saveContent)
     const saveMsg: any = {
       type: type,
       targetId: chatTargetId.value,
       targetIp: chatTargetIp.value,
-      content: saveContent,
+      content: saves,
       createdAt: Date.now(),
       isMe: true,
       isRead: false,
       status: 'sending'
     }
-    console.log(saveMsg)
+    //console.log(saveMsg)
     const msgId = await db.addOne('chatmsg', saveMsg)
     //await getMsgList()
     
@@ -353,20 +347,23 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       ip: saveMsg.targetIp
     }
     if (targetUser.isOnline) {
-      let postUrl = `${chatUrl}/message`
+      let postUrl = `${config.apiUrl}/localchat/message`
       if(type === 'applyfile'){
         messages.message = {
           fileList: messages.message,
           msgId: msgId,
           status: 'apply'
         }
-        postUrl = `${chatUrl}/applyfile`
+        postUrl = `${config.apiUrl}/localchat/applyfile`
       }
       if(type === 'image'){
-        postUrl = `${chatUrl}/sendimage`
+        postUrl = `${config.apiUrl}/localchat/sendimage`
       }
       
-      const completion = await fetchPost(postUrl, JSON.stringify(messages))
+      const completion = await fetch(postUrl, {
+        method: "POST",
+        body: JSON.stringify(messages),
+      })
       //console.log(completion)
       if (!completion.ok) {
         console.log(completion)
@@ -393,8 +390,11 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       message: item.content.msgId,
       ip: item.targetIp
     }
-    const postUrl = `${chatUrl}/cannelfile`
-    const coms = await fetchPost(postUrl, JSON.stringify(messages))
+    const postUrl = `${config.apiUrl}/localchat/cannelfile`
+    const coms = await fetch(postUrl, {
+      method: "POST",
+      body: JSON.stringify(messages),
+    })
     if (!coms.ok) {
       console.log(coms)
       notifyError("确认失败!")
@@ -421,8 +421,11 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       message: item.content,
       ip: item.targetIp
     }
-    const postUrl = `${chatUrl}/accessfile`
-    const coms = await fetchPost(postUrl, JSON.stringify(messages))
+    const postUrl = `${config.apiUrl}/localchat/accessfile`
+    const coms = await fetch(postUrl, {
+      method: "POST",
+      body: JSON.stringify(messages),
+    })
     if (!coms.ok) {
       //console.log(coms)
       notifyError("确认失败!")
@@ -439,18 +442,16 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       }else{
         notifyError(res.message)
       }
-      // item.content.status = 'accessing'
-      // //console.log(item)
-      // await db.update('chatmsg', item.id, toRaw(item))
-      // await getMsgList()
-      //notifySuccess("确认成功!")
     }
   }
   async function saveConfig(conf:any){
     conf = toRaw(conf)
     //console.log(conf)
-    const postUrl = `${chatUrl}/setting`
-    const coms = await fetchPost(postUrl, JSON.stringify(conf))
+    const postUrl = `${config.apiUrl}/localchat/setting`
+    const coms = await fetch(postUrl, {
+      method: "POST",
+      body: JSON.stringify(conf),
+    })
     if (!coms.ok) {
       //console.log(coms)
       notifyError("保存失败!")
@@ -461,7 +462,6 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     }
 
   }
-
   return {
     userList,
     navList,

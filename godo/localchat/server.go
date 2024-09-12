@@ -48,6 +48,7 @@ type UserStatus struct {
 	Hostname string    `json:"hostname"`
 	IP       string    `json:"ip"`
 	Time     time.Time `json:"time"`
+	Avatar   string    `json:"avatar"`
 }
 
 var OnlineUsers = make(map[string]UserStatus)

@@ -32,7 +32,7 @@ watch(rootState.options, (nv) => {
 });
 function refershBack(val: string | undefined) {
   background.value = val || "#3A98CE";
-  console.log(background.value)
+  //console.log(background.value)
   if (background.value || background.value.startsWith("/image/")) {
     backgroundType.value = "image";
   } else {

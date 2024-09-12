@@ -101,6 +101,9 @@ export const getSystemConfig = (ifset = false) => {
             password: '',
         };
     }
+    if(config.userType == 'member'){
+        config.account.ad = false
+    }
     if (!config.storenet) {
         config.storenet = {
             url: '',
@@ -183,7 +186,7 @@ export function getChatUrl() {
     if (config.userType == 'person') {
         return config.apiUrl + '/localchat'
     } else {
-        return config.userInfo.url + '/localchat'
+        return config.userInfo.url + '/chat'
     }
 }
 export function getUrl(url: string, islast = true) {
