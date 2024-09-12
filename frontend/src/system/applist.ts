@@ -189,7 +189,8 @@ export const appList = [
     {
         name: 'localchat',
         appIcon: "chat",
-        content: "Chat",
+        //content: "LocalChat",
+        content:"Chat",
         frame: true,
         width: 800,
         height: 600,

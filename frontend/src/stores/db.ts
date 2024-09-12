@@ -1,12 +1,13 @@
 import Dexie from 'dexie'
 
-export type ChatTable =  'chatuser' | 'chatmsg' | 'chatfile'
+export type ChatTable =  'chatuser' | 'chatmsg' | 'chatmessage' | 'groupmessage'
 
 export const dbInit:any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
   chatuser:'++id,ip,hostname,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
   chatmsg:'++id,targetId,targetIp,senderInfo,reciperInfo,content,type,status,isRead,isMe,readAt,createdAt',
-  chatfile:'++id,msgId,fileName,fileSize,fileType,fileUrl,filePath,fileExt'
+  chatmessage:'++id,userId,toUserId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
+  groupmessage:'++id,userId,groupId,senderInfo,isMe,isRead,content,type,readAt,createdAt'
 });
 export const db = {
 
