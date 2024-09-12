@@ -44,10 +44,11 @@ const store = useChatStore()
         </el-footer>
     </div>
     <div class="no-message-container" v-else>
-    <el-icon :size="180" color="#0078d7">
-      <ChatDotRound />
-    </el-icon>
-  </div>
+        <el-icon :size="180" color="#0078d7">
+            <ScaleToOriginal />
+        </el-icon>
+        <p>暂无内容</p>
+    </div>
 </template>
 <style scoped>
 .chatbox-main {
@@ -82,11 +83,12 @@ header-title {
     border-color: #D6D6D6;
     border-style: solid;
 }
+
 .msg-footer {
-  width: 100%;
-  /* 占据整个宽度 */
-  height: 30%;
-  padding: 0;
+    width: 100%;
+    /* 占据整个宽度 */
+    height: 30%;
+    padding: 0;
 }
 
 .input-option {
@@ -161,10 +163,11 @@ header-title {
     transform: translateY(1px);
     /* 微小下移，模拟按下 */
 }
+
 .no-message-container {
-  height: 100%;
-  margin: 120px auto;
-  text-align: center;
-  justify-content: center;
+    height: 100%;
+    margin: 120px auto;
+    text-align: center;
+    justify-content: center;
 }
 </style>

@@ -7,9 +7,16 @@ import { basename } from "./core/Path";
 import { Dialog } from "./window/Dialog";
 import { Tray } from "./menu/Tary";
 import { appList } from "./applist.ts";
+import { getSystemConfig } from './config'
+import { memberList } from "./member.ts";
 const unknownIcon = "unknown";
 export function initBuiltinApp(system: System) {
-  appList.forEach((d: any) => {
+  const config = getSystemConfig();
+  let sysList = appList;
+  if(config.userType == 'member') {
+    sysList = [...appList,...memberList]
+  }
+  sysList.forEach((d: any) => {
 
     let addSave = {
       name: d.name,

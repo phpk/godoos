@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "41842645",
+      "name": "workchat",
+      "font_class": "workchat",
+      "unicode": "100c2",
+      "unicode_decimal": 65730
+    },
+    {
       "icon_id": "39799840",
       "name": "progress",
       "font_class": "progress",

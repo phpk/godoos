@@ -46,7 +46,7 @@ onMounted(() => {
 }
 
 .menu {
-  width: 65px;
+  width: 55px;
   background-color: #2E2E2E;
   overflow-y: hidden;
   overflow-x: hidden;

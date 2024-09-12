@@ -62,11 +62,5 @@ const store = useChatStore()
   color: #07C160;
   cursor: pointer;
 }
-/* 新增样式 */
-.floating-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
-}
+
 </style>
