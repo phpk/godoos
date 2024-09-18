@@ -202,6 +202,12 @@ export function getUrl(url: string, islast = true) {
         
     }
 }
+export function getWorkflowUrl(){
+    const config = getSystemConfig();
+    if (config.userType == 'member') {
+        return config.userInfo.url + '/views/desktop/index.html' + '?uuid=' + getClientId() + '&token=' + config.userInfo.token
+    }
+}
 export function fetchGet(url: string) {
     const config = getSystemConfig();
     if (config.userType == 'person') {

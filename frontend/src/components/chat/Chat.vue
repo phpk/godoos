@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useChatStore } from '@/stores/chat';
 import { Search } from '@element-plus/icons-vue';
+import {getWorkflowUrl} from '@/system/config'
 const store = useChatStore()
+const workUrl = getWorkflowUrl()
 onMounted(() => {
   store.initChat()
 })
@@ -23,12 +25,15 @@ onMounted(() => {
         <el-scrollbar>
           <chat-msg-list v-if="store.currentNavId == 0" />
           <chat-user-list v-if="store.currentNavId == 1" />
-          <chat-work-list v-if="store.currentNavId == 2" />
+          <!-- <chat-work-list v-if="store.currentNavId == 2" /> -->
         </el-scrollbar>
       </el-main>
     </el-container>
     <el-container class="chat-box">
       <chat-box v-if="store.currentNavId < 2" />
+    </el-container>
+    <el-container class="chat-setting" v-if="store.currentNavId == 2">
+      <iframe class="workflow" :src="workUrl"></iframe>
     </el-container>
     <el-container class="chat-setting" v-if="store.currentNavId == 5">
       <ChatUserSetting />
@@ -101,5 +106,11 @@ onMounted(() => {
   /* 占据整个宽度 */
   height: 100%;
   overflow: hidden;
+}
+.workflow {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border: none;
 }
 </style>
