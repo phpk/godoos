@@ -160,6 +160,7 @@ const rules = {
   confirmPassword: [
     { required: true, message: '请再次输入密码', trigger: 'blur' },
     { validator: (rule:any, value:any, callback:any) => {
+      console.log(rule)
       if (value === '') {
         callback(new Error('请再次输入密码'));
       } else if (value !== regForm.value.password) {

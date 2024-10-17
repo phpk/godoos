@@ -64,7 +64,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { useSystem, basename, dirname, join, OsFileWithoutContent, Notify, BrowserWindow } from '@/system/index.ts';
+import { useSystem, basename, OsFileWithoutContent, Notify, BrowserWindow } from '@/system/index.ts';
 import { getSystemKey } from '@/system/config'
 import { emitEvent, mountEvent } from '@/system/event';
 import { useContextMenu } from '@/hook/useContextMenu.ts';

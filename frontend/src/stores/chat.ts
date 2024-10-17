@@ -46,11 +46,11 @@ export const useChatStore = defineStore('chatStore', () => {
         const max = innerRef.value.clientHeight
         scrollbarRef.value.setScrollTop(max)
     }
-    const changeChatList = async (item:any) => {
+    const changeChatList = async () => {
         // const res = await getChatList(id)
         // chatList.value = res.data
     }
-    const handleContextMenu = async (id: number) => {
+    const handleContextMenu = async () => {
         contextMenu.value.visible = false;
     }
     const showContextMenu = (event: any, id: number) => {
