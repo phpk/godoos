@@ -55,7 +55,11 @@ func GetChatIpSetting() UserChatIpSetting {
 	if !ok {
 		return GetDefaultChatIpSetting()
 	}
-	return ips.(UserChatIpSetting)
+
+	if ips, ok = ips.(UserChatIpSetting); !ok {
+		return GetDefaultChatIpSetting()
+	}
+	return UserChatIpSetting{}
 }
 
 // GenerateIPs 生成 IP 地址列表

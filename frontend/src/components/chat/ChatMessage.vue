@@ -67,7 +67,7 @@ const store = useChatStore()
   <div class="context-menu" v-if="store.contextMenu.visible"
     :style="{ top: `${store.contextMenu.y}px`, left: `${store.contextMenu.x}px` }">
     <div v-for="item in store.contextMenu.list" class="context-menu-item">
-      <div class="context-menu-item-font" @click="store.handleContextMenu(item.id)">
+      <div class="context-menu-item-font" @click="store.handleContextMenu()">
         {{ item.label }}
       </div>
     </div>
