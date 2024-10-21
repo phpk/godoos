@@ -311,6 +311,7 @@ export class System {
       );
     }
     if (typeof options.window.content !== 'string') {
+      //console.log('提交')
       options.window.content = markRaw(options.window.content);
     }
     // console.log(options.window)
