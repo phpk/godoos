@@ -18,7 +18,8 @@ export class Tray {
     if (typeof options.image === 'string') {
       this.image = options.image;
     } else {
-      this.image = markRaw(options.image);
+      //this.image = markRaw(options.image);
+      console.log('tary.ts:', options.image)
     }
     if (typeof options.component === 'string') {
       this.component = options.component;
