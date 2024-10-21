@@ -7,7 +7,7 @@ export const debounce = (func: Function, wait: number): Function => {
     timeout = setTimeout(() => func.apply(this, args), wait);
   };
 };
-
+     
 // Throttle
 export const throttle = (func: Function, wait: number): Function => {
   let timeout: any;
