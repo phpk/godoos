@@ -179,7 +179,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     const offset = (currentPage.value - 1) * pageSize.value
     const list = await db.table('chatmsg')
       .where({ targetIp: chatTargetIp.value })
-      .desc()
+      // .desc()
       .offset(offset)
       .limit(pageSize.value)
       .toArray();
@@ -192,7 +192,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
     const offset = currentPage.value * pageSize.value
     const list = await db.table('chatmsg')
       .where({ targetIp: chatTargetIp.value })
-      .desc()
+      // .desc()
       .offset(offset)
       .limit(pageSize.value)
       .toArray();

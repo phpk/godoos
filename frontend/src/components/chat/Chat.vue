@@ -8,7 +8,6 @@ onMounted(() => {
   store.initChat()
 })
 </script>
-
 <template>
   <el-container class="container">
     <!--菜单-->

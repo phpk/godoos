@@ -2,6 +2,7 @@
 import { onMounted, inject, ref, nextTick, watch } from "vue";
 import { useLocalChatStore } from "@/stores/localchat";
 import { formatChatTime } from "@/util/common";
+// import { orderBy } from "lodash-es";
 // import Vditor from "vditor";
 // import "vditor/dist/index.css";
 import { ElScrollbar } from "element-plus";
@@ -27,6 +28,7 @@ const scrollToBottom = () => {
 watch(
   () => store.msgList,
   (_) => {
+    // this.sortMsgList(); // 在监听器中排序
     if (!isScrool) {
       scrollToBottom();
     }
@@ -36,6 +38,7 @@ watch(
     deep: true,
   }
 );
+
 function replaceIconTags(text: any) {
   // 定义正则表达式，匹配 {*任意内容*} 的格式
   // console.log(text)
@@ -62,6 +65,7 @@ async function scroll({ scrollTop }: { scrollTop: number }) {
 </script>
 
 <template>
+  <!-- {{ store.msgLis }} -->
   <div class="chatContentContainer" v-if="store.chatTargetId > 0">
     <div class="message-area">
       <el-scrollbar max-height="100%" class="scrollbar-container" @scroll="scroll" ref="messageContainerRef">

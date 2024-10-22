@@ -20,6 +20,8 @@ import { emitEvent } from "@/system/event";
 const props = defineProps<{
   browserWindow: UnwrapNestedRefs<BrowserWindow>;
 }>();
+
+
 function handleEvent(event: string) {
   switch (event) {
     case "min":

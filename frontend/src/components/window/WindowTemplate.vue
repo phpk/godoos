@@ -15,9 +15,11 @@
     ref="$win_outer"
     v-dragable
   >
+    <!-- 窗口标题栏  -->
     <div class="wintmp_uper" @contextmenu.prevent>
       <MenuBar :browser-window="browserWindow"></MenuBar>
     </div>
+    
     <div
       class="wintmp_main"
       :class="{ resizeing: resizemode != 'null' }"
@@ -31,65 +33,20 @@
       ></div>
       <WindowInner :win="browserWindow"></WindowInner>
     </div>
+    <!-- 使用 v-for 生成拖拽边界 -->
     <div
-      class="right_border win_drag_border"
-      :class="{ isChoseMode: resizemode == 'r' }"
-      v-if="resizable"
-      @mousedown.stop.prevent="startScale($event, 'r')"
-      @touchstart.stop.passive="startScale($event, 'r')"
-    ></div>
-    <div
-      class="bottom_border win_drag_border"
-      :class="{ isChoseMode: resizemode == 'b' }"
-      v-if="resizable"
-      @mousedown.stop.prevent="startScale($event, 'b')"
-      @touchstart.stop.passive="startScale($event, 'b')"
-    ></div>
-    <div
-      class="left_border win_drag_border"
-      :class="{ isChoseMode: resizemode == 'l' }"
-      v-if="resizable"
-      @mousedown.stop.prevent="startScale($event, 'l')"
-      @touchstart.stop.passive="startScale($event, 'l')"
-    ></div>
-    <div
-      class="top_border win_drag_border"
-      :class="{ isChoseMode: resizemode == 't' }"
-      v-if="resizable"
-      @mousedown.stop.prevent="startScale($event, 't')"
-      @touchstart.stop.passive="startScale($event, 't')"
-    ></div>
-    <div
-      class="right_bottom_border win_drag_border"
-      :class="{ isChoseMode: resizemode == 'rb' }"
+      v-for="border in dragBorders"
+      :key="border.type"
+      :class="[
+        border.class,
+        'win_drag_border',
+        { isChoseMode: resizemode == border.type },
+        border.cursorClass
+      ]"
       v-if="resizable"
       draggable="false"
-      @mousedown.stop.prevent="startScale($event, 'rb')"
-      @touchstart.stop.passive="startScale($event, 'rb')"
-    ></div>
-    <div
-      class="left_bottom_border win_drag_border"
-      :class="{ isChoseMode: resizemode == 'lb' }"
-      v-if="resizable"
-      draggable="false"
-      @mousedown.stop.prevent="startScale($event, 'lb')"
-      @touchstart.stop.passive="startScale($event, 'lb')"
-    ></div>
-    <div
-      class="left_top_border win_drag_border"
-      :class="{ isChoseMode: resizemode == 'lt' }"
-      v-if="resizable"
-      draggable="false"
-      @mousedown.stop.prevent="startScale($event, 'lt')"
-      @touchstart.stop.passive="startScale($event, 'lt')"
-    ></div>
-    <div
-      class="right_top_border win_drag_border"
-      :class="{ isChoseMode: resizemode == 'rt' }"
-      v-if="resizable"
-      draggable="false"
-      @mousedown.stop.prevent="startScale($event, 'rt')"
-      @touchstart.stop.passive="startScale($event, 'rt')"
+      @mousedown.stop.prevent="startScale($event, border.type)"
+      @touchstart.stop.passive="startScale($event, border.type)"
     ></div>
   </div>
 </template>
@@ -133,9 +90,6 @@ function onFocus(e: MouseEvent | TouchEvent): void {
 
 const istop = computed(() => windowInfo.istop);
 
-/*
- *计算样式
- */
 onMounted(() => {
   customerStyle.value = {
     width: computed(() => windowInfo.width + "px"),
@@ -176,6 +130,7 @@ onMounted(() => {
   });
 });
 function startScale(e: MouseEvent | TouchEvent, dire: string) {
+  console.log(e);
   if (windowInfo.disable) {
     return;
   }
@@ -193,6 +148,18 @@ onUnmounted(() => {
   scaleAble.unMount();
   // dragAble.unMount();
 });
+
+// 定义拖拽边界类型
+const dragBorders = [
+  { type: 'r', class: 'right_border' },
+  { type: 'b', class: 'bottom_border' },
+  { type: 'l', class: 'left_border' },
+  { type: 't', class: 'top_border' },
+  { type: 'rb', class: 'right_bottom_border' },
+  { type: 'lb', class: 'left_bottom_border' },
+  { type: 'lt', class: 'left_top_border' },
+  { type: 'rt', class: 'right_top_border' },
+];
 </script>
 <style>
 .dragwin {
