@@ -1,7 +1,7 @@
 <template>
     <el-form :model="form" label-width="auto" style="max-width: 560px;margin-top:20px;padding: 20px;">
         <el-form-item label="分享给">
-            <el-select v-model="form.users" filterable multiple clearable collapse-tags placeholder="选择人员"
+            <el-select v-model="form.receverid" filterable multiple clearable collapse-tags placeholder="选择人员"
                 popper-class="custom-header" :max-collapse-tags="1" value-key="id" style="width: 240px" @change="checkUsers">
                 <template #header>
                     <el-checkbox v-model="checkAll" @change="handleCheckAll">
@@ -12,7 +12,7 @@
             </el-select>
         </el-form-item>
         <el-form-item label="编辑权限">
-            <el-switch v-model="form.canEditor" />
+            <el-switch v-model="form.iswrite" active-value="1" inactive-value="0" />
         </el-form-item>
         <div class="btn-group">
             <el-button type="primary" @click="onSubmit">发布分享</el-button>
@@ -21,22 +21,28 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { useSystem } from '@/system';
+import { ref, inject } from 'vue';
+import { useSystem, BrowserWindow } from '@/system';
+import { getSystemConfig, fetchPost } from "@/system/config";
+
+const window: BrowserWindow | undefined = inject("browserWindow");
 const sys = useSystem()
 const userInfo: any = sys.getConfig('userInfo')
 const userList = ref(userInfo.user_shares)
 const checkAll = ref(false)
 const form: any = ref({
-    users: [],
-    canEditor: false,
+    senderid: '',
+    receverid: [],
+    path: '',
+    iswrite: '0'
 })
+const config = ref(getSystemConfig())
 
 const handleCheckAll = (val: any) => {
     if (val) {
-        form.value.users = userList.value.map((d: any) => d.value)
+        form.value.receverid = userList.value.map((d: any) => d.value)
     } else {
-        form.value.users.value = []
+        form.value.receverid.value = []
     }
 }
 const checkUsers = (val: any) => {
@@ -46,10 +52,18 @@ const checkUsers = (val: any) => {
             res.push(item)
         }
     })
-    form.value.users = res
+    form.value.receverid = res
 }
-const onSubmit = () => {
-    console.log('submit!')
+const onSubmit = async () => {
+    const apiUrl = config.value.userInfo.url + '/files/share'
+    form.value.senderid = config.value.userInfo.id
+    form.value.path = window?.config.path || ''
+    const temp = {...form.value}
+    temp.senderid = temp.senderid.toString()
+    temp.receverid = temp.receverid.map((item:any) => item.toString())
+    console.log('temp:',new URLSearchParams(temp))
+    const res = await fetchPost(apiUrl, new URLSearchParams(temp))
+    console.log('res:',res);
 }
 </script>
 <style scoped>
