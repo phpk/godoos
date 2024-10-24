@@ -61,9 +61,7 @@ const onSubmit = async () => {
     const temp = {...form.value}
     temp.senderid = temp.senderid.toString()
     temp.receverid = temp.receverid.map((item:any) => item.toString())
-    console.log('temp:',new URLSearchParams(temp))
     const res = await fetchPost(apiUrl, new URLSearchParams(temp))
-    console.log('res:',res);
 }
 </script>
 <style scoped>
