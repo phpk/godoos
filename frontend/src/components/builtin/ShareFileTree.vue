@@ -34,7 +34,7 @@
       <span class="file-item_title">{{ getName(item) }}</span>
     </div>
     <div class="sub-tree">
-      <FileTree
+      <ShareFileTree
         v-if="item.isOpen"
         :level="level + 1"
         mode="list"
@@ -43,7 +43,7 @@
         :on-open="onSubOpen"
         :file-list="item.subFileList"
       >
-      </FileTree>
+      </ShareFileTree>
     </div>
   </div>
 </template>
@@ -51,9 +51,6 @@
 import { useSystem,OsFileWithoutContent,basename } from '@/system/index.ts';
 import { onMounted, ref } from 'vue';
 import { dealSystemName } from '@/i18n';
-// 分享
-// import { getSystemConfig } from "@/system/config";
-// const config = ref(getSystemConfig())
 
 const sys = useSystem();
 type FileWithOpen = OsFileWithoutContent & {
@@ -113,7 +110,7 @@ function onSubOpen(path: string) {
 }
 
 async function onSubRefresh(item: FileWithOpen) {
-  item.subFileList = (await sys.fs.readdir(item.path)).filter((file:any) => {
+  item.subFileList = (await sys.fs.sharedir(sys.getConfig('userInfo')?.id, item?.path)).filter((file:any) => {
     return file.isDirectory;
   });
 }
@@ -123,7 +120,7 @@ async function onOpenArrow(item: FileWithOpen) {
     return;
   }
   item.isOpen = !item.isOpen;
-  item.subFileList = (await sys.fs.readdir(item.path)).filter((file:any) => {
+  item.subFileList = (await sys.fs.sharedir(sys.getConfig('userInfo')?.id, item?.path)).filter((file:any) => {
     return file.isDirectory;
   });
 }

@@ -34,7 +34,7 @@
     @dragleave="handleDragLeave()" @dragstart.stop="startDragApp($event, item)" @click="handleClick(index)"
     @mousedown.stop :ref="(ref: any) => {
       if (ref) {
-        appPositions[index] = markRaw(ref as Element);
+        appPositions[indeíx] = markRaw(ref as Element);
       }
     }
       ">

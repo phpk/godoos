@@ -4,7 +4,7 @@
       <FileIconImg v-if="isSvg === true" :file="file" :icon="icon" />
       <FileIconIs v-else :file="file" :icon="icon" />
     </Suspense>
-    <div v-if="extname(file?.path || '') === '.ln'" class="ln-img">
+    <div v-if="extname(file?.path || '') === '.ln' || file?.isShare === true" class="ln-img">
       <img :src="lnicon" alt="ln" />
     </div>
   </div>
@@ -24,7 +24,6 @@ if(props.icon && props.icon.indexOf('.') !== -1){
   isSvg.value = false;
 }
 if(props.file && props.file.content) {
-  //console.log(props.file)
   if(typeof props.file.content === 'string') {
     const end = props.file.content.split("::").pop()
     if(end && end.indexOf('.') !== -1){
@@ -51,10 +50,10 @@ if(props.file && props.file.content) {
   }
   .ln-img {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 80%;
+    height: 80%;
   }
 }
 </style>

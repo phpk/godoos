@@ -426,25 +426,37 @@ export class System {
   }
   /**打开os 文件系统的文件 */
   async openFile(path: string) {
-    const fileStat = await this.fs.stat(path);
-    if (!fileStat) {
-      throw new Error('文件不存在');
-    }
-    // 如果fileStat为目录
-    if (fileStat?.isDirectory) {
-      // 从_fileOpenerMap中获取'link'对应的函数并调用
-      this._flieOpenerMap.get('dir')?.func.call(this, path, '');
-      return;
-    } else {
-      // 读取文件内容
-      const fileContent = await this.fs.readFile(path);
-      // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
-      const fileName = extname(fileStat?.name || '') || 'link'
-      //console.log(fileName)
+    //判断是否是共享文件
+    const pos = path.indexOf('data/userData')
+    if (pos !== -1) {
+      const arr = path.split('/')
+      const fileContent = await this.fs.readShareFile(path)
+      const fileName = extname(arr[arr.length-1] || '') || 'link'
       this._flieOpenerMap
         .get(fileName)
         ?.func.call(this, path, fileContent || '');
+    } else {
+      const fileStat = await this.fs.stat(path)
+      if (!fileStat) {
+        throw new Error('文件不存在');
+      }
+      // 如果fileStat为目录
+      if (fileStat?.isDirectory) {
+        // 从_fileOpenerMap中获取'link'对应的函数并调用
+        this._flieOpenerMap.get('dir')?.func.call(this, path, '');
+        return;
+      } else {
+        // 读取文件内容
+        const fileContent = await this.fs.readFile(path);
+        // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
+        const fileName = extname(fileStat?.name || '') || 'link'
+        //console.log(fileName)
+        this._flieOpenerMap
+          .get(fileName)
+          ?.func.call(this, path, fileContent || '');
+      }
     }
+    
   }
   // 插件系统
   use(func: OsPlugin): void {

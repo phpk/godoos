@@ -10,6 +10,7 @@ export const useComputer = (adpater: {
   rmdir: (path: RouterPath) => Promise<void>;
   mkdir: (path: RouterPath) => Promise<void>;
   readdir: (path: RouterPath) => Promise<OsFileWithoutContent[]>;
+  sharedir: (path: RouterPath) => Promise<OsFileWithoutContent[]>;
   exists: (path: RouterPath) => Promise<boolean>;
   isDirectory: (file: OsFileWithoutContent) => boolean;
   notify: (title: string, content: string) => void;
@@ -19,10 +20,12 @@ export const useComputer = (adpater: {
     if (path === '') path = '/';
     else if (path === '/') path = '/';
     else if (path.endsWith('/')) path = path.substr(0, path.length - 1);
-    const isExist = await adpater.exists(path);
-    if (!isExist) {
-      adpater.notify('路径不存在', path);
-      return false;
+    if(path.substring(0,2) !== '/F') {
+      const isExist = await adpater.exists(path);
+      if (!isExist) {
+        adpater.notify('路径不存在', path);
+        return false;
+      }
     }
     return true;
   };
@@ -37,8 +40,13 @@ export const useComputer = (adpater: {
     }
 
     if (!(await isVia(currentPath))) return;
-    const result = await adpater.readdir(currentPath);
-    console.log('refersh result:',result)
+    console.log('use computer refresh:', currentPath);
+    let result
+    if (currentPath.substring(0,2) == '/F') {
+      result = await adpater.sharedir(currentPath)
+    } else {
+      result = await adpater.readdir(currentPath);
+    }
     if (result) adpater.setFileList(result);
   };
   const createFolder = (path: RouterPath) => {
@@ -59,11 +67,9 @@ export const useComputer = (adpater: {
     refersh();
   };
   const openFolder = (file: OsFileWithoutContent) => {
-    console.log('打开：', file);
+    console.log('use computer openFolder 打开：', file);
     
     if (adpater.isDirectory(file)) {
-      console.log('走refresh');
-      
       adpater.setRouter(file.path);
       refersh();
     } else {

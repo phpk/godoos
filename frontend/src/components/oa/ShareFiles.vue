@@ -62,6 +62,8 @@ const onSubmit = async () => {
     temp.senderid = temp.senderid.toString()
     temp.receverid = temp.receverid.map((item:any) => item.toString())
     const res = await fetchPost(apiUrl, new URLSearchParams(temp))
+    console.log('分享文件：',res)
+    
 }
 </script>
 <style scoped>

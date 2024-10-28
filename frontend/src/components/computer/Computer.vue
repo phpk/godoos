@@ -42,8 +42,9 @@
         :key="random"
       >
       </FileTree>
-      <div class="showName">{{ t("share") }}</div>
-      <FileTree
+      <div class="showName" v-if="shareShow">{{ t("share") }}</div>
+      <ShareFileTree
+        v-if="shareShow"
         :chosen-path="chosenTreePath"
         mode="list"
         :on-open="onTreeOpen"
@@ -51,7 +52,7 @@
         :file-list="shareFileList"
         :key="random"
       >
-      </FileTree>
+      </ShareFileTree>
       <QuickLink :on-open="onTreeOpen"></QuickLink>
       <div class="left-handle" @mousedown="leftHandleDown"></div>
     </div>
@@ -162,6 +163,10 @@ const { refersh, createFolder, backFolder, openFolder, onComputerMount } = useCo
   readdir(path) {
     return system.fs.readdir(path);
   },
+  sharedir(path) {
+    const val:number = system.getConfig('userInfo')?.id
+    return system.fs.sharedir(val,path)
+  },
   exists(path) {
     return system.fs.exists(path);
   },
@@ -206,8 +211,44 @@ function leftHandleDown(e: MouseEvent) {
 }
 
 const rootFileList = ref<Array<OsFileWithoutContent>>([]);
-const shareFileList = ref<Array<OsFileWithoutContent>>([]);
+const shareFileList = ref<Array<OsFileWithoutContent>>([
+  {
+    ext: "",
+    isDirectory: true,
+    isFile: false,
+    isSymlink: false,
+    mode: 2147484141,
+    name: "myshare",
+    oldPath: "/F/myshare",
+    parentPath: "/F",
+    path: "/F/myshare",
+    title: "myshare",
+    size: 64,
+    mtime: "",
+    rdev: 0,
+    atime: "",
+    birthtime: ""
+  },
+  {
+    ext: "",
+    isDirectory: true,
+    isFile: false,
+    isSymlink: false,
+    mode: 2147484141,
+    name: "othershare",
+    oldPath: "/F/othershare",
+    parentPath: "/F",
+    path: "/F/othershare",
+    title: "othershare",
+    size: 64,
+    mtime: "",
+    rdev: 0,
+    atime: "",
+    birthtime: ""
+  }
+]);
 const random = ref(0);
+const shareShow = ref(false)
 onMounted(() => {
   if (config) {
     router_url.value = config.path;
@@ -227,24 +268,7 @@ onMounted(() => {
       random.value = random.value + 1;
     }
   });
-  shareFileList.value = [{
-    atime: "2024-10-21T18:25:12.936228381+08:00",
-    birthtime: "2024-10-21T18:25:12.936228381+08:00",
-    content: "",
-    ext: "",
-    isDirectory: true,
-    isFile: false,
-    isOpen: false,
-    isSymlink: false,
-    modTime: "2024-10-21T18:25:12.936228381+08:00",
-    mode: 2147484141,
-    name: "F",
-    oldPath: "/F",
-    parentPath: "/",
-    path: "/F",
-    size: 64,
-    title: "F"
-  }]
+  shareShow.value = system.getConfig('userType') === 'member' ? true : false
 });
 
 function handleOuterClick() {
@@ -271,17 +295,17 @@ const chosenView = ref("icon");
 /**------树状列表打开------ */
 const chosenTreePath = ref("");
 async function onTreeOpen(path: string) {
- 
   chosenTreePath.value = path;
-  const file = await system.fs.stat(path);
-  
-  if (file) {
-    console.log('此电脑：',file,path);
-    const temp = path.substr(0,2) == '/F' ? shareFileList.value[0] : file
-    openFolder(temp)
-    // openFolder(file);
+  let file:any
+  // const file = await system.fs.stat(path);
+  if (path.substring(0,2) == '/F') {
+    file = path.indexOf('/F/myshare') !== -1 ? shareFileList.value[0] : shareFileList.value[1]
+  } else {
+    file = await system.fs.stat(path)
   }
-  //console.log(path)
+  if (file) {
+    openFolder(file);
+  }
   router_url.value = path;
 }
 

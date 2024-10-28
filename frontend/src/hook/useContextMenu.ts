@@ -268,6 +268,8 @@ function useContextMenu() {
         if (file.isDirectory) {
           return system?.fs.rmdir(file.path);
         } else {
+          console.log('删除文件：',file);
+          
           return system?.fs.unlink(file.path);
         }
       }
@@ -275,6 +277,8 @@ function useContextMenu() {
       if (file.isDirectory) {
         return system?.fs.rmdir(file.path);
       } else {
+        console.log('删除文件：',file);
+        
         return system?.fs.unlink(file.path);
       }
     }
