@@ -24,7 +24,9 @@
 package files
 
 import (
+	"crypto/md5"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"godo/libs"
@@ -165,15 +167,20 @@ func HandleExists(w http.ResponseWriter, r *http.Request) {
 // HandleReadFile reads a file's content
 func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
+	fpwd := r.Header.Get("fpwd")
+	haspwd := IsHavePwd(fpwd)
+	// 校验文件路径
 	if err := validateFilePath(path); err != nil {
 		libs.HTTPError(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	// 获取文件路径
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	// 读取内容
 	fileContent, err := ReadFile(basePath, path)
 	if err != nil {
 		libs.HTTPError(w, http.StatusNotFound, err.Error())
@@ -184,11 +191,28 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	if !strings.HasPrefix(content, "link::") {
 		content = base64.StdEncoding.EncodeToString(fileContent)
 	}
-	res := libs.APIResponse{
-		Message: fmt.Sprintf("File '%s' read successfully.", path),
-		Data:    content, // Optionally, encode content as base64 for transmission
-		//Data: string(fileContent),
+
+	// 初始响应
+	res := libs.APIResponse{Code: 0, Message: "success"}
+	switch haspwd {
+	case true:
+		// 有密码检验密码
+		isreal := CheckFilePwd(fpwd)
+		// 密码正确返回原文，否则返回加密文本
+		if isreal {
+			res.Data = content
+		} else {
+			data, err := libs.EncryptData(fileContent, libs.EncryptionKey)
+			if err != nil {
+				libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			res.Data = base64.StdEncoding.EncodeToString(data)
+		}
+	case false:
+		res.Data = content
 	}
+
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -522,4 +546,27 @@ func HandleDesktop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	libs.SuccessMsg(w, rootInfo, "success")
+}
+
+// 设置文件密码
+func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
+	fpwd := r.Header.Get("filepwd")
+	// 密码最长16位
+	if fpwd == "" || len(fpwd) > 16 {
+		libs.ErrorMsg(w, "密码长度为空或者过长,最长为16位")
+		return
+	}
+	// 服务端存储
+	req := libs.ReqBody{
+		Name:  "filepwd",
+		Value: fpwd,
+	}
+	libs.SetConfig(req)
+	// 客户端加密
+	mhash := md5.New()
+	mhash.Write([]byte(fpwd))
+	v := mhash.Sum(nil)
+	pwdstr := hex.EncodeToString(v)
+	res := libs.APIResponse{Message: "success", Data: pwdstr}
+	json.NewEncoder(w).Encode(res)
 }

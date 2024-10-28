@@ -24,6 +24,8 @@
 package files
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"godo/libs"
 	"io"
@@ -333,4 +335,22 @@ func CheckDeleteDesktop(filePath string) error {
 		return fmt.Errorf("添加桌面失败")
 	}
 	return nil
+}
+
+// 校验文件密码
+func CheckFilePwd(fpwd string) bool {
+	mhash := md5.New()
+	mhash.Write([]byte(fpwd))
+	v := mhash.Sum(nil)
+	pwdstr := hex.EncodeToString(v)
+	oldpwd, _ := libs.GetConfig("filepwd")
+	return oldpwd == pwdstr
+}
+
+func IsHavePwd(pwd string) bool {
+	if len(pwd) > 0 {
+		return true
+	} else {
+		return false
+	}
 }
