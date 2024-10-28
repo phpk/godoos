@@ -58,7 +58,8 @@ export function dealSystemName(name: string) {
     "C": t('system'),
     "D": t('document'),
     "E": t('office'),
-    "B": t('recycle')
+    "B": t('recycle'),
+    "F": t('share')
   }
   if (sysNames[name]) {
     return sysNames[name];

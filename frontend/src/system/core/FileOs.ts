@@ -1,8 +1,19 @@
 import { getFileUrl,fetchGet,fetchPost } from "../config.ts";
 const API_BASE_URL = getFileUrl()
 import { OsFileMode } from '../core/FileMode';
+import { getSystemConfig } from "@/system/config";
+
 export async function handleReadDir(path: string): Promise<any> {
     const res = await fetchGet(`${API_BASE_URL}/read?path=${encodeURIComponent(path)}`);
+    if (!res.ok) {
+        return false;
+    }
+    return await res.json();
+}
+// 查看分享文件
+export async function handleReadShareDir(val: number): Promise<any> {
+    console.log('共享-用户ID：', val)
+    const res = await fetchGet(`${API_BASE_URL}/sharelist?id=${val}`);
     if (!res.ok) {
         return false;
     }
@@ -16,6 +27,7 @@ export async function handleStat(path: string): Promise<any> {
     }
     return await res.json();
 }
+
 export async function handleChmod(path: string, mode: string): Promise<any> {
     const res = await fetchPost(`${API_BASE_URL}/chmod`, JSON.stringify({ path, mode }));
     if (!res.ok) {
@@ -191,15 +203,30 @@ export async function handleUnZip(path: string): Promise<any> {
 }
 export const useOsFile = () => {
     return {
-        async readdir(path: string) {
-            const response = await handleReadDir(path);
+        // 分享
+        async sharedir(val: number) {
+            const response = await handleReadShareDir(val);
+            if (response && response.data) {
+                return response.data; 
+            }
+            return [];
+        },
+        async readdir(path: string) {console.log('raeddir path:',path,path.substring(0,2))
+            const api = path.substring(0,2) == '/F' ? handleReadShareDir : handleReadDir
+            const temp = path.substring(0,2) == '/F' ? getSystemConfig().userInfo.id : path
+            const response = await api(temp);
+            // const response = await handleReadDir(path);
             if (response && response.data) {
                 return response.data; 
             }
             return [];
         },
         async stat(path: string) {
-            const response = await handleStat(path);
+            console.log('stat path:',path,path.substring(0,2))
+            const api = path.substring(0,2) == '/F' ? handleReadShareDir : handleStat
+            const temp = path.substring(0,2) == '/F' ? getSystemConfig().userInfo.id : path
+            const response = await api(temp);
+            // const response = await handleStat(path);
             if (response && response.data) {
                 return response.data; 
             }
@@ -218,7 +245,9 @@ export const useOsFile = () => {
             if (response && response.data) {
                 return response.data; 
             }
-            return false;
+            // return false;
+            //分享
+            return true
         },
         async readFile(path: string) {
             // 注意：handleReadFile返回的是JSON，但通常readFile期望返回Buffer或字符串
@@ -278,7 +307,7 @@ export const useOsFile = () => {
             return false;
         },
         async search(path: string, options: any) {
-            console.log(path, options)
+            console.log('search:',path, options)
             return true;
         },
         async zip(path: string, ext: string) {

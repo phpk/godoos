@@ -37,9 +37,8 @@ export const useComputer = (adpater: {
     }
 
     if (!(await isVia(currentPath))) return;
-    //console.log(currentPath)
     const result = await adpater.readdir(currentPath);
-    //console.log(result)
+    console.log('refersh result:',result)
     if (result) adpater.setFileList(result);
   };
   const createFolder = (path: RouterPath) => {
@@ -60,7 +59,11 @@ export const useComputer = (adpater: {
     refersh();
   };
   const openFolder = (file: OsFileWithoutContent) => {
+    console.log('打开：', file);
+    
     if (adpater.isDirectory(file)) {
+      console.log('走refresh');
+      
       adpater.setRouter(file.path);
       refersh();
     } else {

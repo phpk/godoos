@@ -51,6 +51,10 @@
 import { useSystem,OsFileWithoutContent,basename } from '@/system/index.ts';
 import { onMounted, ref } from 'vue';
 import { dealSystemName } from '@/i18n';
+// 分享
+import { getSystemConfig } from "@/system/config";
+const config = ref(getSystemConfig())
+
 const sys = useSystem();
 type FileWithOpen = OsFileWithoutContent & {
   isOpen?: boolean;
@@ -119,7 +123,6 @@ async function onOpenArrow(item: FileWithOpen) {
     return;
   }
   item.isOpen = !item.isOpen;
-
   item.subFileList = (await sys.fs.readdir(item.path)).filter((file:any) => {
     return file.isDirectory;
   });

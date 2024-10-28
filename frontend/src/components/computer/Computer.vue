@@ -42,6 +42,16 @@
         :key="random"
       >
       </FileTree>
+      <div class="showName">{{ t("share") }}</div>
+      <FileTree
+        :chosen-path="chosenTreePath"
+        mode="list"
+        :on-open="onTreeOpen"
+        :on-refresh="onListRefresh"
+        :file-list="shareFileList"
+        :key="random"
+      >
+      </FileTree>
       <QuickLink :on-open="onTreeOpen"></QuickLink>
       <div class="left-handle" @mousedown="leftHandleDown"></div>
     </div>
@@ -125,7 +135,7 @@ const { refersh, createFolder, backFolder, openFolder, onComputerMount } = useCo
     return router_url.value;
   },
   setFileList(list) {
-    //console.log(list)
+    console.log('list:',list)
     //currentList.value = list;
     if(config.ext && config.ext instanceof Array && config.ext.length > 0) {
         const res:any = []
@@ -196,6 +206,7 @@ function leftHandleDown(e: MouseEvent) {
 }
 
 const rootFileList = ref<Array<OsFileWithoutContent>>([]);
+const shareFileList = ref<Array<OsFileWithoutContent>>([]);
 const random = ref(0);
 onMounted(() => {
   if (config) {
@@ -216,6 +227,24 @@ onMounted(() => {
       random.value = random.value + 1;
     }
   });
+  shareFileList.value = [{
+    atime: "2024-10-21T18:25:12.936228381+08:00",
+    birthtime: "2024-10-21T18:25:12.936228381+08:00",
+    content: "",
+    ext: "",
+    isDirectory: true,
+    isFile: false,
+    isOpen: false,
+    isSymlink: false,
+    modTime: "2024-10-21T18:25:12.936228381+08:00",
+    mode: 2147484141,
+    name: "F",
+    oldPath: "/F",
+    parentPath: "/",
+    path: "/F",
+    size: 64,
+    title: "F"
+  }]
 });
 
 function handleOuterClick() {
@@ -245,8 +274,12 @@ async function onTreeOpen(path: string) {
  
   chosenTreePath.value = path;
   const file = await system.fs.stat(path);
+  
   if (file) {
-    openFolder(file);
+    console.log('此电脑：',file,path);
+    const temp = path.substr(0,2) == '/F' ? shareFileList.value[0] : file
+    openFolder(temp)
+    // openFolder(file);
   }
   //console.log(path)
   router_url.value = path;

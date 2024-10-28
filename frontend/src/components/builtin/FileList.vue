@@ -196,6 +196,8 @@ function handleClick(index: number) {
   chosenIndexs.value = [index];
 }
 onMounted(() => {
+  console.log('filelist:',props.fileList)
+  
   chosenIndexs.value = [];
   props.onChosen(
     throttle((rect: Rect) => {
