@@ -1,9 +1,7 @@
 package files
 
 import (
-	"crypto/md5"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"godo/libs"
 	"net/http"
@@ -14,8 +12,8 @@ import (
 func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 	path := r.URL.Query().Get("path")
-	fpwd := r.Header.Get("fpwd")
-	haspwd := IsHavePwd(fpwd)
+	fPwd := r.Header.Get("fPwd")
+	hasPwd := IsHavePwd(fPwd)
 
 	// 获取salt值
 	salt := GetSalt(r)
@@ -27,8 +25,8 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 有密码校验密码
-	if haspwd {
-		if !CheckFilePwd(fpwd, salt) {
+	if hasPwd {
+		if !CheckFilePwd(fPwd, salt) {
 			libs.HTTPError(w, http.StatusBadRequest, "密码错误")
 			return
 		}
@@ -68,26 +66,15 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 // 设置文件密码
 func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
-	fpwd := r.Header.Get("filepwd")
+	fPwd := r.Header.Get("filepPwd")
 	salt := r.Header.Get("salt")
-	// 密码最长16位
-	if fpwd == "" || len(fpwd) > 16 {
-		libs.ErrorMsg(w, "密码长度为空或者过长,最长为16位")
-		return
-	}
-	// md5加密
-	mhash := md5.New()
-	mhash.Write([]byte(fpwd))
-	v := mhash.Sum(nil)
-	pwdstr := hex.EncodeToString(v)
-
 	// 服务端再hash加密
-	hashpwd := libs.HashPassword(pwdstr, salt)
+	hashPwd := libs.HashPassword(fPwd, salt)
 
 	// 服务端存储
 	req := libs.ReqBody{
-		Name:  "filepwd",
-		Value: hashpwd,
+		Name:  "filePwd",
+		Value: hashPwd,
 	}
 	libs.SetConfig(req)
 
@@ -97,6 +84,23 @@ func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
 		Value: salt,
 	}
 	libs.SetConfig(reqSalt)
-	res := libs.APIResponse{Message: "success", Data: pwdstr}
+	res := libs.APIResponse{Message: "密码设置成功"}
 	json.NewEncoder(w).Encode(res)
+}
+
+// 更改文件密码
+func HandleChangeFilePwd(w http.ResponseWriter, r *http.Request) {
+	filePwd := r.Header.Get("filePwd")
+	salt := r.Header.Get("salt")
+	if filePwd == "" || salt == "" {
+		libs.ErrorMsg(w, "密码为空")
+		return
+	}
+	newPwd := libs.HashPassword(filePwd, salt)
+	pwdReq := libs.ReqBody{
+		Name:  "filePwd",
+		Value: newPwd,
+	}
+	libs.SetConfig(pwdReq)
+	libs.SuccessMsg(w, "success", "The file password change success!")
 }
