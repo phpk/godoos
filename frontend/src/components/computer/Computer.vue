@@ -43,7 +43,7 @@
       >
       </FileTree>
       <div class="showName" v-if="shareShow">{{ t("share") }}</div>
-      <ShareFileTree
+      <FileTree
         v-if="shareShow"
         :chosen-path="chosenTreePath"
         mode="list"
@@ -52,7 +52,7 @@
         :file-list="shareFileList"
         :key="random"
       >
-      </ShareFileTree>
+      </FileTree>
       <QuickLink :on-open="onTreeOpen"></QuickLink>
       <div class="left-handle" @mousedown="leftHandleDown"></div>
     </div>
@@ -105,6 +105,7 @@ import { emitEvent, mountEvent } from "@/system/event";
 import { useFileDrag } from "@/hook/useFileDrag";
 import { useComputer } from "@/hook/useComputer";
 import { Rect, useRectChosen } from "@/hook/useRectChosen";
+import { getSystemConfig } from "@/system/config";
 
 const { choseStart, chosing, choseEnd, getRect, Chosen } = useRectChosen();
 
@@ -136,7 +137,7 @@ const { refersh, createFolder, backFolder, openFolder, onComputerMount } = useCo
     return router_url.value;
   },
   setFileList(list) {
-    console.log('list:',list)
+    // console.log('list:',list)
     //currentList.value = list;
     if(config.ext && config.ext instanceof Array && config.ext.length > 0) {
         const res:any = []
@@ -164,7 +165,7 @@ const { refersh, createFolder, backFolder, openFolder, onComputerMount } = useCo
     return system.fs.readdir(path);
   },
   sharedir(path) {
-    const val:number = system.getConfig('userInfo')?.id
+    const val:number = getSystemConfig().userInfo.id
     return system.fs.sharedir(val,path)
   },
   exists(path) {
@@ -269,6 +270,8 @@ onMounted(() => {
     }
   });
   shareShow.value = system.getConfig('userType') === 'member' ? true : false
+  // console.log('配置信息：', system.getConfig('userInfo').id);
+  
 });
 
 function handleOuterClick() {

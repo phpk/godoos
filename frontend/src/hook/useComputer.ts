@@ -40,7 +40,7 @@ export const useComputer = (adpater: {
     }
 
     if (!(await isVia(currentPath))) return;
-    console.log('use computer refresh:', currentPath);
+    // console.log('use computer refresh:', currentPath);
     let result
     if (currentPath.substring(0,2) == '/F') {
       result = await adpater.sharedir(currentPath)
@@ -67,8 +67,6 @@ export const useComputer = (adpater: {
     refersh();
   };
   const openFolder = (file: OsFileWithoutContent) => {
-    console.log('use computer openFolder 打开：', file);
-    
     if (adpater.isDirectory(file)) {
       adpater.setRouter(file.path);
       refersh();

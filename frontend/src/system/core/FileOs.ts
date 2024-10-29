@@ -1,7 +1,9 @@
 import { getFileUrl,fetchGet,fetchPost } from "../config.ts";
 const API_BASE_URL = getFileUrl()
 import { OsFileMode } from '../core/FileMode';
-// import { getSystemConfig } from "@/system/config";
+import { getSystemConfig } from "@/system/config";
+import { turnServePath, turnLocalPath } from "@/util/sharePath.ts";
+import { OsFile } from "./FileSystem.ts";
 
 export async function handleReadDir(path: any): Promise<any> {
     const res = await fetchGet(`${API_BASE_URL}/read?path=${encodeURIComponent(path)}`);
@@ -11,9 +13,9 @@ export async function handleReadDir(path: any): Promise<any> {
     return await res.json();
 }
 // 查看分享文件
-export async function handleReadShareDir(val: number,path: string): Promise<any> {
+export async function handleReadShareDir(id: number,path: string): Promise<any> {
     const url = path.indexOf('/F/myshare') !== -1 ? 'sharemylist' : 'sharelist'
-    const res = await fetchGet(`${API_BASE_URL}/${url}?id=${val}`);
+    const res = await fetchGet(`${API_BASE_URL}/${url}?id=${id}`);
     if (!res.ok) {
         return false;
     }
@@ -21,6 +23,7 @@ export async function handleReadShareDir(val: number,path: string): Promise<any>
 }
 // 查看分享文件
 export async function handleReadShareFile(path: string): Promise<any> {
+    path = turnServePath(path)
     const res = await fetchGet(`${API_BASE_URL}/shareread?path=${path}`);
     if (!res.ok) {
         return false;
@@ -29,18 +32,21 @@ export async function handleReadShareFile(path: string): Promise<any> {
 }
 // 删除分享文件
 export async function handleShareUnlink(path: string): Promise<any> {
-    const file = await handleShareDetail(path)
-    const res = await fetchGet(`${API_BASE_URL}/sharedelete?path=${path}`);
+    const config = getSystemConfig()
+    const file = await handleShareDetail(path,config.userInfo.id)
+    path = turnServePath(path)
+    const res = await fetchGet(`${API_BASE_URL}/sharedelete?senderid=${file.data.fs.sender}&path=${path}&receverid=${file.data.fs.recever}`);
     if (!res.ok) {
         return false;
     }
     return await res.json();
 }
 // 查看文件信息
-export async function handleShareDetail(path: string): Promise<any> {
-    const res = await fetchGet(`${API_BASE_URL}/shareinfo?path=${path}`);
-    console.log('文件详情：', res);
+export async function handleShareDetail(path: string, id: number): Promise<any> {
+    const sig = path.indexOf('/F/myshare') === 0 ? 0 : 1
+    path = turnServePath(path)
     
+    const res = await fetchGet(`${API_BASE_URL}/shareinfo?path=${path}&id=${id}&sig=${sig}`);
     if (!res.ok) {
         return false;
     }
@@ -137,7 +143,6 @@ export async function handleRmdir(dirPath: string): Promise<any> {
     return await res.json();
 }
 
-
 export async function handleCopyFile(srcPath: string, dstPath: string): Promise<any> {
     const res = await fetchGet(`${API_BASE_URL}/copyfile?srcPath=${encodeURIComponent(srcPath)}&dstPath=${encodeURIComponent(dstPath)}`);
     if (!res.ok) {
@@ -230,14 +235,12 @@ export async function handleUnZip(path: string): Promise<any> {
 export const useOsFile = () => {
     return {
         // 分享
-        async sharedir(val: number, path: string) {
-            const response = await handleReadShareDir(val, path);
+        async sharedir(id: number, path: string) {
+            const response = await handleReadShareDir(id, path);
             if (response && response.data) {
-                // return response.data;  
-                console.log('文件列表：',response.data.map(item => item.fi));
-                
-                return response.data.map(item => {
+                return response.data.map((item: {[key: string]: OsFile}) => {
                     item.fi.isShare = true
+                    item.fi.path = turnLocalPath(item.fi.path ,path)
                     return item.fi
                 })
             }
@@ -250,11 +253,14 @@ export const useOsFile = () => {
             }
             return [];
         },
+        async getShareInfo(path: string) {
+            const response = await handleShareDetail(path, getSystemConfig().userInfo.id);
+            if (response && response.data) {
+                return response.data; 
+            }
+            return [];
+        },
         async readdir(path: string) {
-            // console.log('raeddir path:',path,path.substring(0,2))
-            // const api = path.substring(0,2) == '/F' ? handleReadShareDir : handleReadDir
-            // const temp = path.substring(0,2) == '/F' ? getSystemConfig().userInfo.id : path
-            // const response = await api(temp);
             const response = await handleReadDir(path);
             if (response && response.data) {
                 return response.data; 
@@ -282,12 +288,8 @@ export const useOsFile = () => {
                 return response.data; 
             }
             return false;
-            //分享
-            // return true
         },
         async readFile(path: string) {
-            console.log('读文件：',path);
-            
             // 注意：handleReadFile返回的是JSON，但通常readFile期望返回Buffer或字符串
             const response = await handleReadFile(path);
             if (response && response.data) {
@@ -296,8 +298,7 @@ export const useOsFile = () => {
             return false;
         },
         async unlink(path: string) {
-            const fun = path.indexOf('data/userData') === 0 ? handleShareUnlink : handleUnlink
-            console.log('删除路径：',path,fun);
+            const fun = path.indexOf('/F') === 0 ? handleShareUnlink : handleUnlink
             const response = await fun(path);
             if (response) {
                 return response; 

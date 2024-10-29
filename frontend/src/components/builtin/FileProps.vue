@@ -29,7 +29,7 @@
       </div>
       <div class="propitem">
         <div class="propname">{{ t("location") }}：</div>
-        <div class="propvalue">{{ file?.path }}</div>
+        <div class="propvalue">{{ localName(file?.path) }}</div>
       </div>
       <div class="propitem">
         <div class="propname">{{ t("size") }}：</div>
@@ -72,10 +72,25 @@ import {
   t,
 } from "@/system";
 import { dealSize } from "@/util/file";
+import { isShareFile } from "@/util/sharePath";
 
 const window: BrowserWindow | undefined = inject("browserWindow");
 const file = ref<OsFileWithoutContent | null>();
-file.value = await useSystem()?.fs.stat(window?.config.content);
+const path = window?.config.content
+if(path.indexOf('/F') === 0) {
+  file.value = (await useSystem()?.fs.getShareInfo(path)).fi
+} else {
+  file.value = await useSystem()?.fs.stat(path);
+}
+// file.value = await useSystem()?.fs.stat(window?.config.content);
+function localName<T>(currentPath:T){
+  if(isShareFile(path)) {
+    const arr = path.split('/')
+    const url = '/' + arr[1] + '/' + arr[2] + '/' + arr[arr.length-1]
+    return arr.length >3 ? url : currentPath
+  }
+  return currentPath
+}
 function confirm() {
   window?.close();
 }

@@ -47,6 +47,7 @@
             {{ t("confirm") }}
           </el-button>
         </div>
+        <SetFilePwd></SetFilePwd>
       </div>
 
       <div v-if="2 === activeIndex">

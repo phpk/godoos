@@ -51,9 +51,8 @@
 import { useSystem,OsFileWithoutContent,basename } from '@/system/index.ts';
 import { onMounted, ref } from 'vue';
 import { dealSystemName } from '@/i18n';
-// 分享
-// import { getSystemConfig } from "@/system/config";
-// const config = ref(getSystemConfig())
+import { getSystemConfig } from "@/system/config";
+import { isShareFile } from '@/util/sharePath';
 
 const sys = useSystem();
 type FileWithOpen = OsFileWithoutContent & {
@@ -113,9 +112,15 @@ function onSubOpen(path: string) {
 }
 
 async function onSubRefresh(item: FileWithOpen) {
-  item.subFileList = (await sys.fs.readdir(item.path)).filter((file:any) => {
-    return file.isDirectory;
-  });
+  if(isShareFile(item.path)) {
+    item.subFileList = (await sys.fs.sharedir(getSystemConfig().userInfo.id, item?.path)).filter((file:any) => {
+      return file.isDirectory;
+    });
+  } else {
+    item.subFileList = (await sys.fs.readdir(item.path)).filter((file:any) => {
+      return file.isDirectory;
+    });
+  }
 }
 
 async function onOpenArrow(item: FileWithOpen) {
@@ -123,9 +128,15 @@ async function onOpenArrow(item: FileWithOpen) {
     return;
   }
   item.isOpen = !item.isOpen;
-  item.subFileList = (await sys.fs.readdir(item.path)).filter((file:any) => {
-    return file.isDirectory;
-  });
+  if(isShareFile(item.path)) {
+    item.subFileList = (await sys.fs.sharedir(getSystemConfig().userInfo.id, item?.path)).filter((file:any) => {
+      return file.isDirectory;
+    });
+  } else {
+    item.subFileList = (await sys.fs.readdir(item.path)).filter((file:any) => {
+      return file.isDirectory;
+    });
+  }
 }
 </script>
 <style lang="scss" scoped>

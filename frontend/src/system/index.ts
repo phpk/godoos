@@ -27,6 +27,7 @@ import { useUpgradeStore } from '@/stores/upgrade';
 import { useMessageStore } from '@/stores/message';
 import { RestartApp } from '@/util/goutil';
 import { notifyError } from '@/util/msg';
+import { isShareFile } from '@/util/sharePath';
 
 export type OsPlugin = (system: System) => void;
 export type FileOpener = {
@@ -427,8 +428,7 @@ export class System {
   /**打开os 文件系统的文件 */
   async openFile(path: string) {
     //判断是否是共享文件
-    const pos = path.indexOf('data/userData')
-    if (pos !== -1) {
+    if (isShareFile(path)) {
       const arr = path.split('/')
       const fileContent = await this.fs.readShareFile(path)
       const fileName = extname(arr[arr.length-1] || '') || 'link'
