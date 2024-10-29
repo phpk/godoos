@@ -24,12 +24,11 @@
 package files
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"godo/libs"
 	"io"
 	"io/fs"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -338,13 +337,13 @@ func CheckDeleteDesktop(filePath string) error {
 }
 
 // 校验文件密码
-func CheckFilePwd(fpwd string) bool {
-	mhash := md5.New()
-	mhash.Write([]byte(fpwd))
-	v := mhash.Sum(nil)
-	pwdstr := hex.EncodeToString(v)
-	oldpwd, _ := libs.GetConfig("filepwd")
-	return oldpwd == pwdstr
+func CheckFilePwd(fpwd, salt string) bool {
+	pwd := libs.HashPassword(fpwd, salt)
+	oldpwd, err := libs.GetConfig("filepwd")
+	if !err {
+		return false
+	}
+	return oldpwd == pwd
 }
 
 func IsHavePwd(pwd string) bool {
@@ -352,5 +351,17 @@ func IsHavePwd(pwd string) bool {
 		return true
 	} else {
 		return false
+	}
+}
+
+// salt值优先从server端获取，如果没有则从header获取
+func GetSalt(r *http.Request) string {
+	data, ishas := libs.GetConfig("salt")
+	salt := data.(string)
+	if ishas {
+		return salt
+	} else {
+		salt = r.Header.Get("salt")
+		return salt
 	}
 }

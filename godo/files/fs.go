@@ -24,9 +24,6 @@
 package files
 
 import (
-	"crypto/md5"
-	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"godo/libs"
@@ -161,58 +158,6 @@ func HandleExists(w http.ResponseWriter, r *http.Request) {
 		Message: message,
 		Data:    exists,
 	}
-	json.NewEncoder(w).Encode(res)
-}
-
-// HandleReadFile reads a file's content
-func HandleReadFile(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Query().Get("path")
-	fpwd := r.Header.Get("fpwd")
-	haspwd := IsHavePwd(fpwd)
-	// 校验文件路径
-	if err := validateFilePath(path); err != nil {
-		libs.HTTPError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	// 获取文件路径
-	basePath, err := libs.GetOsDir()
-	if err != nil {
-		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	// 读取内容
-	fileContent, err := ReadFile(basePath, path)
-	if err != nil {
-		libs.HTTPError(w, http.StatusNotFound, err.Error())
-		return
-	}
-	content := string(fileContent)
-	// 检查文件内容是否以"link::"开头
-	if !strings.HasPrefix(content, "link::") {
-		content = base64.StdEncoding.EncodeToString(fileContent)
-	}
-
-	// 初始响应
-	res := libs.APIResponse{Code: 0, Message: "success"}
-	switch haspwd {
-	case true:
-		// 有密码检验密码
-		isreal := CheckFilePwd(fpwd)
-		// 密码正确返回原文，否则返回加密文本
-		if isreal {
-			res.Data = content
-		} else {
-			data, err := libs.EncryptData(fileContent, libs.EncryptionKey)
-			if err != nil {
-				libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-				return
-			}
-			res.Data = base64.StdEncoding.EncodeToString(data)
-		}
-	case false:
-		res.Data = content
-	}
-
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -372,6 +317,7 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 
 // HandleWriteFile writes content to a file
 func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
+	// basepath = "/Users/sujia/.godoos/os"
 	filePath := r.URL.Query().Get("filePath")
 	basePath, err := libs.GetOsDir()
 	if err != nil {
@@ -386,8 +332,13 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer fileContent.Close()
-	// 输出到控制台进行调试
-	//fmt.Printf("Body content: %v\n", fileContent)
+	filedata, err := io.ReadAll(fileContent)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// 创建文件
 	file, err := os.Create(filepath.Join(basePath, filePath))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -395,15 +346,25 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	_, err = io.Copy(file, fileContent)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusConflict)
+	// 内容为空直接返回,不为空则加密
+	if len(filedata) == 0 {
+		CheckAddDesktop(filePath)
+		libs.SuccessMsg(w, "", "success")
 		return
 	}
-	err = CheckAddDesktop(filePath)
+	// 加密
+	data, err := libs.EncryptData(filedata, libs.EncryptionKey)
 	if err != nil {
-		log.Printf("Error adding file to desktop: %s", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+	_, err = file.Write(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// 判断下是否添加到桌面上
+	CheckAddDesktop(filePath)
 	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully written.", filePath)}
 	json.NewEncoder(w).Encode(res)
 }
@@ -546,27 +507,4 @@ func HandleDesktop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	libs.SuccessMsg(w, rootInfo, "success")
-}
-
-// 设置文件密码
-func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
-	fpwd := r.Header.Get("filepwd")
-	// 密码最长16位
-	if fpwd == "" || len(fpwd) > 16 {
-		libs.ErrorMsg(w, "密码长度为空或者过长,最长为16位")
-		return
-	}
-	// 服务端存储
-	req := libs.ReqBody{
-		Name:  "filepwd",
-		Value: fpwd,
-	}
-	libs.SetConfig(req)
-	// 客户端加密
-	mhash := md5.New()
-	mhash.Write([]byte(fpwd))
-	v := mhash.Sum(nil)
-	pwdstr := hex.EncodeToString(v)
-	res := libs.APIResponse{Message: "success", Data: pwdstr}
-	json.NewEncoder(w).Encode(res)
 }
