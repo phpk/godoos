@@ -3,6 +3,10 @@ import {ref} from "vue";
 import { useChatStore } from "@/stores/chat";
 import {Setting as SettingIcon} from "@element-plus/icons-vue";
 const store = useChatStore()
+const getOnline = () => {
+  store.getOnlineUsers()
+  store.setCurrentNavId(1)
+}
 </script>
 
 <template>
@@ -17,7 +21,7 @@ const store = useChatStore()
       <ChatRound />
     </el-icon>
   </el-row>
-  <el-row @click="store.setCurrentNavId(1)">
+  <el-row @click="getOnline">
     <el-icon v-if="store.currentNavId === 1" class="menu-icon-on">
       <UserFilled />
     </el-icon>
@@ -59,7 +63,7 @@ const store = useChatStore()
 .menu-icon-on {
   margin: 20px auto;
   font-size: 25px;
-  color: #07C160;
+  color: #0078d4;
   cursor: pointer;
 }
 

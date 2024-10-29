@@ -26,6 +26,7 @@ declare module 'vue' {
     ChatMessage: typeof import('./src/components/chat/ChatMessage.vue')['default']
     ChatMsgList: typeof import('./src/components/chat/ChatMsgList.vue')['default']
     ChatNav: typeof import('./src/components/localchat/ChatNav.vue')['default']
+    ChatUserInfo: typeof import('./src/components/chat/chatUserInfo.vue')['default']
     ChatUserList: typeof import('./src/components/chat/ChatUserList.vue')['default']
     ChatUserSetting: typeof import('./src/components/chat/ChatUserSetting.vue')['default']
     ChatWorkList: typeof import('./src/components/chat/ChatWorkList.vue')['default']

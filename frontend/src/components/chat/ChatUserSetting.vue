@@ -13,7 +13,6 @@ const onSubmit = () => {
 </script>
 <template>
     <el-form :model="form" label-width="160px" style="padding: 30px;">
-  
         <el-form-item label="头像">
             <el-avatar shape="square" :size="80" :src="store.userInfo.avatar"/>
         </el-form-item>
