@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { useChatStore } from '@/stores/chat';
-const store = useChatStore()
+const store = useChatStore();
 </script>
 
 <template>
-  <div v-for="item in store.msgList">
-  <!--聊天记录-用户-->
-  <div v-if="item.userInfo.id === store.targetUserId">
-    <div class="chat-item">
+  <div  v-for="item in store.chatHistory" :key="item.id">
+    <div v-if="!item.isme" class="chat-item">
       <el-row>
         <el-col :span="8" />
         <el-col :span="14">
@@ -30,10 +28,7 @@ const store = useChatStore()
         </el-col>
       </el-row>
     </div>
-  </div>
-  <!--聊天记录-好友-->
-  <div v-else>
-    <div class="chat-item">
+    <div v-else class="chat-item">
       <el-row>
         <el-col :span="2">
           <div class="chat-avatar">
@@ -56,19 +51,16 @@ const store = useChatStore()
         <el-col :span="8" />
       </el-row>
     </div>
-  </div>
-  <div v-if="item.type === 1">
-    <div class="withdraw">
+    <div v-if="item.type === 1" class="withdraw">
       {{ item.userInfo.id === store.targetUserId ? "你" : item.userInfo.username }}撤回了一条消息
     </div>
   </div>
-</div>
   <!--悬浮菜单-->
   <div class="context-menu" v-if="store.contextMenu.visible"
     :style="{ top: `${store.contextMenu.y}px`, left: `${store.contextMenu.x}px` }">
-    <div v-for="item in store.contextMenu.list" class="context-menu-item">
-      <div class="context-menu-item-font" @click="store.handleContextMenu()">
-        {{ item.label }}
+    <div v-for="contextItem in store.contextMenu.list" :key="contextItem.id" class="context-menu-item">
+      <div class="context-menu-item-font" @click="store.handleContextMenu(contextItem)">
+        {{ contextItem.label }}
       </div>
     </div>
   </div>
