@@ -11,14 +11,19 @@
 </script>
 
 <template>
-  	<el-collapse
-		v-model="store.activeNames"
-		@change="handleChange"
-	>
+	<el-collapse v-model="store.activeNames">
 		<el-collapse-item name="1">
 			<template #title>
-				<span v-if="store.userList.length > 0" class="title">同事（{{store.userList.length}}）</span>
-        <span v-else class="title">同事</span>
+				<span
+					v-if="store.userList.length > 0"
+					class="title"
+					>同事（{{ store.userList.length }}）</span
+				>
+				<span
+					v-else
+					class="title"
+					>同事</span
+				>
 			</template>
 			<div v-if="store.userList.length > 0">
 				<div
@@ -30,7 +35,7 @@
 						@click="store.changeChatList(item.id)"
 						:style="{
 							backgroundColor:
-								item.id === store.targetUserId ? '#C4C4C4' : '',
+								item.id === store.targetUserId ? '#bae7ff' : '',
 						}"
 					>
 						<el-row>
@@ -47,7 +52,10 @@
 									<el-col :span="18">
 										<div class="previewName">
 											{{ item.nickname }}
-											<el-icon class="online-icon" v-if="item.isOnline">
+											<el-icon
+												class="online-icon"
+												v-if="item.isOnline"
+											>
 												<CircleCheckFilled />
 											</el-icon>
 										</div>
@@ -72,8 +80,16 @@
 		</el-collapse-item>
 		<el-collapse-item name="2">
 			<template #title>
-				<span v-if="store.groupList.length > 0" class="title">部门（{{store.groupList.length}}）</span>
-        <span v-else class="title">部门</span>
+				<span
+					v-if="store.groupList.length > 0"
+					class="title"
+					>部门（{{ store.groupList.length }}）</span
+				>
+				<span
+					v-else
+					class="title"
+					>部门</span
+				>
 			</template>
 			<div v-if="store.groupList.length > 0">
 				<div
@@ -147,13 +163,16 @@
 		padding-left: 10px;
 	}
 	.list-item {
-		width: 100%;
+		width: 94%;
 		height: 60px;
-		border: 0.5px  solid #d0d0d0;
+		margin: 0 auto;
+		border-radius: 4px;
+		transition: all 0.5s;
+		margin-bottom: 5px;
 	}
 
 	.list-item:hover {
-		background-color: #d0d0d0;
+		background-color: #bae7ff;
 	}
 
 	.avatar {

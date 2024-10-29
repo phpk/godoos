@@ -4,7 +4,7 @@
       class="list-item"
       @click="store.changeChatList(item.id)"
       :style="{
-        backgroundColor: item.id === store.targetUserId ? '#C4C4C4' : '',
+        backgroundColor: item.id === store.targetUserId ? '#bae7ff' : '',
       }"
     >
       <el-row>
@@ -60,13 +60,17 @@ const id = ref("1");
 
 <style scoped>
 	.list-item {
-		width: 100%;
+		width: 94%;
 		height: 60px;
 		display: flex;
+    margin: 0 auto;  
+    border-radius: 4px; 
+    transition: all 0.5s;
+    margin-top: 5px;
 	}
 
 	.list-item:hover {
-		background-color: #d0d0d0;
+		background-color: #bae7ff;
 	}
 
 	.avatar {

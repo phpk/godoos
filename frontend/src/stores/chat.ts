@@ -1,9 +1,32 @@
 import emojiList from "@/assets/emoji.json";
-import { fetchGet, fetchPost, getSystemConfig } from '@/system/config';
+import { fetchPost, getSystemConfig } from '@/system/config';
 import { notifyError } from "@/util/msg";
 import { defineStore } from 'pinia';
 import { db } from "./db";
 import { useMessageStore } from "./message";
+
+interface ChatMessage {
+  type: string;
+  createdAt: number;
+  content: any;
+  targetUserId: any;
+  previewType: 0 | 1; // 消息类型，0表示正常消息，1表示撤回消息
+  previewMessage: any;
+  isMe: boolean;
+  isRead: boolean;
+  userInfo: {
+    id: any;
+    username: any;
+    avatar: any;
+  };
+}
+// 发起群聊对话框显示
+const groupChatDialogVisible = ref(false);
+
+// 设置发起群聊对话框状态
+const setGroupChatDialogVisible = (visible: boolean) => {
+  groupChatDialogVisible.value = visible;
+};
 
 export const useChatStore = defineStore('chatStore', () => {
   // 用户列表
@@ -29,10 +52,19 @@ export const useChatStore = defineStore('chatStore', () => {
       previewType: 1,
       previewMessage: "测试消息",
     },
+    {
+      id: 3,
+      nickname: '朋友2',
+      avatar: '/logo.png',
+      previewTimeFormat: "昨天",
+      previewType: 1,
+      previewMessage: "测试消息",
+    },
+
   ]);
 
   // 模拟数据 - 聊天消息列表
-  const chatHistory = ref([]);
+  const chatHistory = ref<ChatMessage[]>([]);
 
   // 群组数据
   const groupList = ref([
@@ -82,10 +114,8 @@ export const useChatStore = defineStore('chatStore', () => {
     visible: false,
     chatMessageId: 0,
     list: [
-      {
-        id: 2,
-        label: '撤回',
-      }
+      { id: 1, label: '复制' },
+      { id: 2, label: '删除' },
     ],
     x: 0,
     y: 0
@@ -96,6 +126,10 @@ export const useChatStore = defineStore('chatStore', () => {
       config.userInfo.avatar = '/logo.png';
     }
     userInfo.value = config.userInfo;
+    getUserList()
+    initUserList()
+    initOnlineUserList()
+    console.log(userList.value);
   };
 
   const setCurrentNavId = (id: number) => {
@@ -104,7 +138,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   const sendMessage = async () => {
     const chatSendUrl = apiUrl + '/chat/send';
-    const messageHistory = {
+    const messageHistory: ChatMessage = {
       type: 'text',
       createdAt: Date.now(),
       content: message.value,
@@ -165,7 +199,7 @@ export const useChatStore = defineStore('chatStore', () => {
       }
     } else {
       const targetUser = await db.getOne('workbenchusers', id);
-      const lastMessage = messageHistory;
+      const lastMessage: any = messageStore;
 
       const targetUserInfo = {
         id: targetUser.id,
@@ -177,7 +211,7 @@ export const useChatStore = defineStore('chatStore', () => {
       const now = new Date();
       const createdAt = new Date(lastMessage.createdAt);
       const diffTime = Math.abs(now.getTime() - createdAt.getTime());
-
+      console.log(diffTime);
       // 根据时间差格式化时间
       const previewTimeFormat = formatTime(Date.now());
 
@@ -220,39 +254,191 @@ export const useChatStore = defineStore('chatStore', () => {
     message.value = '';
   };
 
-  const initSSE = async () => {
-    console.log('initSSE');
-    const source = new EventSource(`${apiUrl}/chat/message`);
-
-    console.log(source);
-    source.onmessage = function (event) {
-      const data = JSON.parse(event.data);
-      console.log(data);
-      messageStore.handleMessage(data);
-    };
-
-    source.onerror = function (event) {
-      console.error('EventSource error:', event);
-    };
-  };
 
   const setScrollToBottom = async () => {
-    await nextTick(); // 确保 DOM 已经更新完毕
+    // await nextTick(); // 确保 DOM 已经更新完毕
 
-    // 检查 innerRef 是否存在
-    if (!innerRef.value) {
-      console.warn('innerRef is not defined.');
+    // // 检查 innerRef 是否存在
+    // if (!innerRef.value) {
+    //   console.warn('innerRef is not defined.');
+    //   return;
+    // }
+
+    // // 设置滚动条到底部
+    // const max = innerRef.value.clientHeight;
+    // if (scrollbarRef.value) {
+    //   scrollbarRef.value.setScrollTop(max);
+    // } else {
+    //   console.warn('scrollbarRef is not defined.');
+    // }
+  };
+
+  const handleUserData = async (data: any[]) => {
+    ;
+
+    // 创建一个用户数组，将所有在线的用户提取出来
+    const users: any[] = [];
+
+    // 遍历每个数据项
+    data.forEach((item: any) => {
+      if (item.id && item.login_ip) {
+        users.push({
+          id: item.id,
+          ip: item.login_ip,
+          avatar: item.avatar,
+          username: item.username,
+          nickname: item.nickname
+        });
+      }
+    });
+
+    console.log(users);
+
+    // 将提取到的用户数据传递给 setUserList
+    if (users.length > 0) {
+      await setUserList(users);
+    }
+  };
+
+
+  const setUserList = async (data: any[]) => {
+    if (data.length < 1) {
       return;
     }
 
-    // 设置滚动条到底部
-    const max = innerRef.value.clientHeight;
-    if (scrollbarRef.value) {
-      scrollbarRef.value.setScrollTop(max);
-    } else {
-      console.warn('scrollbarRef is not defined.');
+    // 从当前用户列表中获取已有用户的 IP 和完整用户映射
+    const existingIps = new Set(userList.value.map((d: any) => d.ip));
+    const userMap = new Map(
+      userList.value.map((user: any) => [user.ip, user])
+    );
+
+    const updates: any[] = [];
+    const newEntries: any[] = [];
+
+    // 遍历传入的 data，每个用户根据是否存在来更新或添加
+    data.forEach((d: any) => {
+      const existingUser = userMap.get(d.ip);
+      if (existingUser && existingIps.has(d.ip)) {
+        // 若用户已存在，添加到更新列表
+        updates.push({
+          key: existingUser.id,
+          changes: {
+            isOnline: true,
+            nickname: d.nickname,
+            username: d.usernmae,
+            updatedAt: Date.now()
+          }
+        });
+      } else {
+        // 若用户不存在，添加到新条目列表
+        newEntries.push({
+          id: d.id,
+          ip: d.ip,
+          isOnline: true,
+          nickname: d.nickname,
+          username: d.usernmae,
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        });
+      }
+    });
+
+    console.log(updates);
+    console.log(newEntries);
+
+    // 批量更新和添加用户数据
+    if (updates.length > 0) {
+      await db.table('workbenchusers').bulkUpdate(updates);
+    }
+    if (newEntries.length > 0) {
+      await db.table('workbenchusers').bulkPut(newEntries);
+    }
+
+    // 刷新用户列表
+    await getUserList();
+
+  };
+
+  const getUserList = async () => {
+    try {
+      // 从数据库中获取所有用户信息
+      const list = await db.getAll("workbenchusers");
+
+      // 创建一个 Map，用于存储每个用户的唯一 ID 地址
+      let uniqueIdMap = new Map<string, any>();
+
+      // 遍历用户列表，将每个用户添加到 Map 中（基于 ID 去重）
+      list.forEach((item: any) => {
+        uniqueIdMap.set(item.id, item); // 使用 ID 作为键，用户对象作为值
+      });
+
+      // 将 Map 的值转换为数组（去重后的用户列表）
+      const uniqueIdList = Array.from(uniqueIdMap.values());
+
+      // 按照 updatedAt 时间进行升序排序
+      uniqueIdList.sort((a: any, b: any) => a.updatedAt - b.updatedAt);
+
+      // 更新用户列表
+      userList.value = uniqueIdList;
+    } catch (error) {
+      console.error("获取用户列表失败:", error);
     }
   };
+
+  // 初始化统一用户列表状态
+  const initUserList = async () => {
+    // 检查用户列表是否为空
+    if (userList.value.length > 0) {
+      // 收集需要更新的用户数据
+      const updates = userList.value
+        .filter((d: any) => d.isOnline) // 过滤出在线的用户
+        .map((d: any) => ({
+          key: d.id,
+          changes: {
+            isOnline: false
+          }
+        }));
+
+      // 批量更新用户状态
+      if (updates.length > 0) {
+        await db.table('workbenchusers').bulkUpdate(updates);
+      }
+    }
+  };
+
+  const initOnlineUserList = async () => {
+    const msgAll = await db.getAll('workbenchusers');
+
+    const list = msgAll.reduce((acc: any, msg: any) => {
+      if (!msg.isMe) {
+        const targetId = msg.targetId;
+        if (!acc[targetId]) {
+          acc[targetId] = { chatArr: [], readNum: 0 };
+        }
+        acc[targetId].chatArr.push(msg);
+        // 计算未读消息数量
+        if (!msg.isRead) {
+          acc[targetId].readNum++;
+        }
+      }
+      return acc;
+    }, {});
+
+    const res = Object.keys(list).map(targetId => {
+      const { chatArr, readNum } = list[targetId];
+      const lastMessage = chatArr[chatArr.length - 1];
+      if (lastMessage) {
+        lastMessage.readNum = readNum;
+        return lastMessage;
+      }
+      return null; // 防止返回空值
+    }).filter(Boolean); // 过滤掉空值
+
+    userList.value = res.sort((a, b) => b.createdAt - a.createdAt);
+  };
+
+
+
 
   const changeChatList = async (id: number) => {
     // 设置 targetUserId
@@ -274,59 +460,6 @@ export const useChatStore = defineStore('chatStore', () => {
     contextMenu.value.visible = false;
   };
 
-  const getOnlineUsers = async () => {
-    const res = await fetchGet(apiUrl + '/chat/online?page=1');
-
-    if (!res.ok) {
-      notifyError("获取在线用户失败");
-      return;
-    }
-
-    const data = await res.json();
-    console.log(data);
-
-    const onlineUsers = data.data.list.map((item: any) => ({
-      id: item.id,
-      username: item.username,
-      nickname: item.nickname,
-      email: item.email,
-      phone: item.phone,
-      desc: item.desc,
-      jobNumber: item.job_number,
-      workPlace: item.work_place,
-      hiredDate: item.hired_date,
-      avatar: item.avatar || '/logo.png',
-      isOnline: true,
-      ip: item.login_ip,
-      updatedAt: item.updated_at,
-      createdAt: item.add_time,
-    }));
-
-    // 更新或添加用户
-    const existingUserIds = await db.getAll('workbenchusers').then(users => users.map(user => user.id));
-    const newUserIds = onlineUsers.filter(user => !existingUserIds.includes(user.id)).map(user => user.id);
-
-    // 更新现有用户的状态
-    const updatePromises = onlineUsers.filter(user => existingUserIds.includes(user.id)).map(user => {
-      return db.update('workbenchusers', user.id, {
-        isOnline: true,
-        updatedAt: user.updatedAt,
-        ip: user.ip,
-      });
-    });
-
-    // 添加新用户
-    const addPromises = onlineUsers.filter((user: { id: any }) => newUserIds.includes(user.id)).map((user: any) => {
-      return db.addOne('workbenchusers', user);
-    });
-
-    await Promise.all([...updatePromises, ...addPromises]);
-
-    // 更新 userList
-    userList.value = await db.getAll('workbenchusers');
-
-    console.log(userList.value);
-  };
 
   const showContextMenu = (event: any, id: number) => {
     contextMenu.value.visible = true;
@@ -354,14 +487,16 @@ export const useChatStore = defineStore('chatStore', () => {
     message,
     contextMenu,
     activeNames,
+    groupChatDialogVisible,
     initChat,
-    initSSE,
+    showContextMenu,
     setCurrentNavId,
     sendMessage,
     changeChatList,
     handleContextMenu,
-    showContextMenu,
-    getOnlineUsers,
-    updateConversationList
+    updateConversationList,
+    handleUserData,
+    initUserList,
+    setGroupChatDialogVisible
   };
 });
