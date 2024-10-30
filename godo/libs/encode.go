@@ -35,6 +35,7 @@ func pkcs7Unpad(data []byte) []byte {
 	return data[:length-padding]
 }
 
+// 加密实现
 func EncryptData(data []byte, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -66,7 +67,7 @@ func EncryptData(data []byte, key []byte) ([]byte, error) {
 	return result, nil
 }
 
-// DecryptData 使用 AES 解密数据，并验证 HMAC-SHA256 签名
+// 解密实现
 func DecryptData(ciphertext []byte, key []byte) ([]byte, error) {
 	// 检查 HMAC-SHA256 签名
 	expectedMacSize := sha256.Size

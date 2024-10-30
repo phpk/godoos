@@ -6,7 +6,6 @@ import (
 	"godo/libs"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 // 加密读
@@ -36,34 +35,31 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 没有加密 base64明文传输
+	// 无加密情况
 	if !hasPwd {
-		data := string(fileContent)
-		if !strings.HasPrefix(data, "link::") {
-			data = base64.StdEncoding.EncodeToString(fileContent)
-		}
+		// 直接base64编码原文返回
+		data := base64.StdEncoding.EncodeToString(fileContent)
 		resp := libs.APIResponse{Message: "success", Data: data}
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
 
-	// 有加密,先校验密码，再解密
+	// 加密情况
+	// 1. 验证文件密码
 	if !CheckFilePwd(fPwd, salt) {
 		libs.HTTPError(w, http.StatusBadRequest, "密码错误")
 		return
 	}
 
+	// 2. 解密文件内容
 	fileContent, err = libs.DecryptData(fileContent, libs.EncryptionKey)
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	content := string(fileContent)
-	// 检查文件内容是否以"link::"开头
-	if !strings.HasPrefix(content, "link::") {
-		content = base64.StdEncoding.EncodeToString(fileContent)
-	}
+	// 3. base64编码后返回
+	content := base64.StdEncoding.EncodeToString(fileContent)
 
 	// 初始响应
 	res := libs.APIResponse{Code: 0, Message: "success", Data: content}

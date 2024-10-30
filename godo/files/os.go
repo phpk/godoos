@@ -339,11 +339,14 @@ func CheckDeleteDesktop(filePath string) error {
 
 // 校验文件密码
 func CheckFilePwd(fpwd, salt string) bool {
+	// 1. 对输入的密码进行哈希
 	pwd := libs.HashPassword(fpwd, salt)
+	// 2. 获取存储的密码哈希
 	oldpwd, err := libs.GetConfig("filePwd")
 	if !err {
 		return false
 	}
+	// 3. 比对密码哈希
 	return oldpwd == pwd
 }
 
@@ -367,10 +370,11 @@ func GetSalt(r *http.Request) string {
 	}
 }
 
-// 获取密码标识位，没有添加上
+// 获取加密标志
 func GetPwdFlag() bool {
 	isPwd, has := libs.GetConfig("isPwd")
 	if !has {
+		// 默认不加密
 		req := libs.ReqBody{
 			Name:  "isPwd",
 			Value: false,
@@ -382,8 +386,9 @@ func GetPwdFlag() bool {
 	return isPwd.(bool)
 }
 
-// 判读一个目录下有没有同名隐藏文件
+// 检查文件是否加密
 func IsHaveHiddenFile(basePath, filePath string) bool {
+	// 通过查找同名隐藏文件判断
 	hiddenFilePath := filepath.Join(basePath, "."+filePath)
 	_, err := os.Stat(hiddenFilePath)
 	return err == nil

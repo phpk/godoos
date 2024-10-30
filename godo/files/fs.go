@@ -318,7 +318,6 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 // 带加密写
 func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	filePath := r.URL.Query().Get("filePath")
-	pwd := r.Header.Get("filePwd")
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
@@ -367,12 +366,6 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 		libs.SuccessMsg(w, "", "success")
 		return
 	}
-	// 校验密码
-	salt := GetSalt(r)
-	if !CheckFilePwd(pwd, salt) {
-		libs.HTTPError(w, http.StatusBadRequest, "密码错误")
-		return
-	}
 	// 加密
 	data, err := libs.EncryptData(filedata, libs.EncryptionKey)
 	if err != nil {
@@ -385,7 +378,7 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// 加密文件在同级目录下创建一个同名隐藏文件
-	hiddenFilePath := filepath.Join(basePath, "."+filePath)
+	hiddenFilePath := filepath.Join(basePath, filepath.Dir(filePath), "."+filepath.Base(filePath))
 	_, err = os.Create(hiddenFilePath)
 	if err != nil {
 		libs.ErrorMsg(w, "创建隐藏文件失败")
