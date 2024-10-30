@@ -368,17 +368,20 @@ func GetSalt(r *http.Request) string {
 }
 
 // 获取密码标识位，没有添加上
-func GetPwdFlag() int {
-	isPwd, has := libs.GetConfig("isPwd")
-	if !has {
-		req := libs.ReqBody{
-			Name:  "isPwd",
-			Value: 0,
-		}
-		libs.SetConfig(req)
-		libs.SaveConfig()
-	}
-	return isPwd.(int)
+func GetPwdFlag() bool {
+	// TODO@lzw:这里有一个bug，ispwd的值存储的是bool类型，但是读取的时候是float64类型，导致无法正确读取
+	// isPwd, has := libs.GetConfig("isPwd")
+	// if !has {
+	// 	req := libs.ReqBody{
+	// 		Name:  "isPwd",
+	// 		Value: false,
+	// 	}
+	// 	libs.SetConfig(req)
+	// 	libs.SaveConfig()
+	// 	return false
+	// }
+	// return isPwd.(bool)
+	return false
 }
 
 // 判读一个目录下有没有同名隐藏文件

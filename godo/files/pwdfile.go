@@ -37,14 +37,14 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 没有加密 base64明文传输
-	if hasPwd == 0 {
+	if !hasPwd {
 		data := string(fileContent)
 		if !strings.HasPrefix(data, "link::") {
 			data = base64.StdEncoding.EncodeToString(fileContent)
-			resp := libs.APIResponse{Message: "success", Data: data}
-			json.NewEncoder(w).Encode(resp)
-			return
 		}
+		resp := libs.APIResponse{Message: "success", Data: data}
+		json.NewEncoder(w).Encode(resp)
+		return
 	}
 
 	// 有加密,先校验密码，再解密
@@ -117,9 +117,15 @@ func HandleSetIsPwd(w http.ResponseWriter, r *http.Request) {
 	isPwd := r.URL.Query().Get("ispwd")
 	// 0非加密机器 1加密机器
 	isPwdValue, _ := strconv.Atoi(isPwd)
+	var isPwdBool bool
+	if isPwdValue == 0 {
+		isPwdBool = false
+	} else {
+		isPwdBool = true
+	}
 	pwdReq := libs.ReqBody{
 		Name:  "isPwd",
-		Value: isPwdValue,
+		Value: isPwdBool,
 	}
 	libs.SetConfig(pwdReq)
 	libs.SaveConfig()

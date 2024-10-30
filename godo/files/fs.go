@@ -357,7 +357,7 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	ispwd := GetPwdFlag()
 
 	// 没有加密写入明文
-	if ispwd == 0 {
+	if !ispwd {
 		_, err := io.Copy(file, fileContent)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
