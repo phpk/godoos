@@ -88,7 +88,7 @@ func HandleReadDir(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			osFileInfo.Content = string(content)
-
+			osFileInfo.IsPwd = IsHaveHiddenFile(basePath, osFileInfo.Path)
 			// 检查文件内容是否以"link::"开头
 			if strings.HasPrefix(osFileInfo.Content, "link::") {
 				osFileInfo.IsSymlink = true
@@ -129,7 +129,7 @@ func HandleStat(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusNotFound, err.Error())
 		return
 	}
-
+	osFileInfo.IsPwd = IsHaveHiddenFile(basePath, osFileInfo.Path)
 	res := libs.APIResponse{
 		Message: "File information retrieved successfully.",
 		Data:    osFileInfo,
@@ -318,6 +318,7 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 // 带加密写
 func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	filePath := r.URL.Query().Get("filePath")
+	pwd := r.Header.Get("filePwd")
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
@@ -366,6 +367,12 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 		libs.SuccessMsg(w, "", "success")
 		return
 	}
+	// 校验密码
+	salt := GetSalt(r)
+	if !CheckFilePwd(pwd, salt) {
+		libs.HTTPError(w, http.StatusBadRequest, "密码错误")
+		return
+	}
 	// 加密
 	data, err := libs.EncryptData(filedata, libs.EncryptionKey)
 	if err != nil {
@@ -376,6 +383,12 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+	// 加密文件在同级目录下创建一个同名隐藏文件
+	hiddenFilePath := filepath.Join(basePath, "."+filePath)
+	_, err = os.Create(hiddenFilePath)
+	if err != nil {
+		libs.ErrorMsg(w, "创建隐藏文件失败")
 	}
 	// 判断下是否添加到桌面上
 	CheckAddDesktop(filePath)

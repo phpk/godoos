@@ -54,6 +54,7 @@ type OsFileInfo struct {
 	Ext        string      `json:"ext"`          // 文件扩展名
 	Title      string      `json:"title"`        // 文件名（不包含扩展名）
 	ID         int         `json:"id,omitempty"` // 文件ID（可选）
+	IsPwd      bool        `json:"isPwd"`        // 是否加密
 }
 
 // validateFilePath 验证路径不为空
@@ -378,4 +379,11 @@ func GetPwdFlag() int {
 		libs.SaveConfig()
 	}
 	return isPwd.(int)
+}
+
+// 判读一个目录下有没有同名隐藏文件
+func IsHaveHiddenFile(basePath, filePath string) bool {
+	hiddenFilePath := filepath.Join(basePath, "."+filePath)
+	_, err := os.Stat(hiddenFilePath)
+	return err == nil
 }

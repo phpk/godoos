@@ -53,7 +53,6 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data []byte
 	fileContent, err = libs.DecryptData(fileContent, libs.EncryptionKey)
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
@@ -63,7 +62,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	content := string(fileContent)
 	// 检查文件内容是否以"link::"开头
 	if !strings.HasPrefix(content, "link::") {
-		content = base64.StdEncoding.EncodeToString(data)
+		content = base64.StdEncoding.EncodeToString(fileContent)
 	}
 
 	// 初始响应
@@ -74,7 +73,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 // 设置文件密码
 func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
 	fPwd := r.Header.Get("filepPwd")
-	salt := r.Header.Get("salt")
+	salt := GetSalt(r)
 
 	// 服务端再hash加密
 	hashPwd := libs.HashPassword(fPwd, salt)
@@ -99,7 +98,7 @@ func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
 // 更改文件密码
 func HandleChangeFilePwd(w http.ResponseWriter, r *http.Request) {
 	filePwd := r.Header.Get("filePwd")
-	salt := r.Header.Get("salt")
+	salt := GetSalt(r)
 	if filePwd == "" || salt == "" {
 		libs.ErrorMsg(w, "密码为空")
 		return
