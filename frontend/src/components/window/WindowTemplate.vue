@@ -54,12 +54,12 @@
 import { onUnmounted, provide, ref } from "vue";
 import { onMounted, computed, UnwrapNestedRefs } from "vue";
 import { WindowStateEnum } from "@/system/window/BrowserWindow";
-
 import { ScaleElement } from "@/system/window/dom/ScaleElement";
 import { BrowserWindow } from "@/system/window/BrowserWindow";
 import { emitEvent } from "@/system/event";
 import { useSystem } from "@/system";
 import { vDragable } from "@/system/window/MakeDragable";
+
 const sys = useSystem();
 const props = defineProps<{
   browserWindow: UnwrapNestedRefs<BrowserWindow>;
@@ -67,7 +67,6 @@ const props = defineProps<{
 
 const browserWindow = props.browserWindow;
 const windowInfo = browserWindow.windowInfo;
-// 传递windowid
 provide("browserWindow", browserWindow);
 provide("system", sys);
 
@@ -96,7 +95,6 @@ onMounted(() => {
     height: computed(() => windowInfo.height + "px"),
     left: computed(() => windowInfo.x + "px"),
     top: computed(() => windowInfo.y + "px"),
-
     zIndex: computed(() => {
       if (windowInfo.alwaysOnTop) {
         return 9999;
@@ -107,12 +105,10 @@ onMounted(() => {
   };
 });
 
-/*
-挂载缩放事件
-*/
 const resizable = ref(windowInfo.resizable);
 const resizemode = ref("null");
 let scaleAble: ScaleElement;
+
 onMounted(() => {
   scaleAble = new ScaleElement(
     resizemode,
@@ -129,6 +125,7 @@ onMounted(() => {
     browserWindow.emit("resize", windowInfo.width, windowInfo.height);
   });
 });
+
 function startScale(e: MouseEvent | TouchEvent, dire: string) {
   console.log(e);
   if (windowInfo.disable) {
@@ -146,19 +143,17 @@ function startScale(e: MouseEvent | TouchEvent, dire: string) {
 
 onUnmounted(() => {
   scaleAble.unMount();
-  // dragAble.unMount();
 });
 
-// 定义拖拽边界类型
 const dragBorders = [
-  { type: 'r', class: 'right_border' },
-  { type: 'b', class: 'bottom_border' },
-  { type: 'l', class: 'left_border' },
-  { type: 't', class: 'top_border' },
-  { type: 'rb', class: 'right_bottom_border' },
-  { type: 'lb', class: 'left_bottom_border' },
-  { type: 'lt', class: 'left_top_border' },
-  { type: 'rt', class: 'right_top_border' },
+  { type: 'r', class: 'right_border', cursorClass: 'ew-resize' },
+  { type: 'b', class: 'bottom_border', cursorClass: 'ns-resize' },
+  { type: 'l', class: 'left_border', cursorClass: 'ew-resize' },
+  { type: 't', class: 'top_border', cursorClass: 'ns-resize' },
+  { type: 'rb', class: 'right_bottom_border', cursorClass: 'nwse-resize' },
+  { type: 'lb', class: 'left_bottom_border', cursorClass: 'nesw-resize' },
+  { type: 'lt', class: 'left_top_border', cursorClass: 'nwse-resize' },
+  { type: 'rt', class: 'right_top_border', cursorClass: 'nesw-resize' },
 ];
 </script>
 <style>

@@ -26,7 +26,6 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
   const chatTargetIp = ref("")
   const showAddUser = ref(false)
   const handlerMessage = (data : any) => {
-    //console.log(data)
     if(data.onlines){
       const ips = []
       for(let ip in data.onlines){

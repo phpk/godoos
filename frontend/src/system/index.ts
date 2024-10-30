@@ -1,6 +1,10 @@
+import { markRaw, nextTick } from 'vue';
+import { version } from '../../package.json';
+import { useOsFile } from './core/FileOs';
+import { OsFileSystem } from './core/FileSystem';
+import { Eventer, initEventer, initEventListener } from './event';
 import { initRootState, RootState } from './root';
 import { SystemStateEnum } from './type/enum';
-import { markRaw, nextTick } from 'vue';
 import {
   Saveablekey,
   Setting,
@@ -8,26 +12,22 @@ import {
   SystemOptionsCertainly,
   WinAppOptions,
 } from './type/type';
-import { initEventer, Eventer, initEventListener } from './event';
-import { OsFileSystem } from './core/FileSystem';
-import { useOsFile } from './core/FileOs';
-import { version } from '../../package.json';
 import { BrowserWindow, BrowserWindowOption } from './window/BrowserWindow';
 
-import { extname } from './core/Path';
-import { initBuiltinApp, initBuiltinFileOpener } from './initBuiltin';
-import { defaultConfig } from './initConfig';
-import { OsFileInterface } from './core/FIleInterface';
-import { Notify, NotifyConstructorOptions } from './notification/Notification';
-import { Dialog } from './window/Dialog';
-import { pick } from '../util/modash';
-import { Tray, TrayOptions } from './menu/Tary';
-import { getSystemConfig, getSystemKey, setSystemKey, setSystemConfig, clearSystemConfig, getFileUrl, fetchGet, getClientId } from './config'
-import { useUpgradeStore } from '@/stores/upgrade';
 import { useMessageStore } from '@/stores/message';
+import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
 import { notifyError } from '@/util/msg';
 import { isShareFile } from '@/util/sharePath';
+import { pick } from '../util/modash';
+import { clearSystemConfig, fetchGet, getClientId, getFileUrl, getSystemConfig, getSystemKey, setSystemConfig, setSystemKey } from './config';
+import { OsFileInterface } from './core/FIleInterface';
+import { extname } from './core/Path';
+import { initBuiltinApp, initBuiltinFileOpener } from './initBuiltin';
+import { defaultConfig } from './initConfig';
+import { Tray, TrayOptions } from './menu/Tary';
+import { Notify, NotifyConstructorOptions } from './notification/Notification';
+import { Dialog } from './window/Dialog';
 
 export type OsPlugin = (system: System) => void;
 export type FileOpener = {
@@ -113,17 +113,19 @@ export class System {
   }
   private checkMessages() {
     const config = getSystemConfig();
+    const upgradeStore = useUpgradeStore();
     if (config.userType == 'member') {
       setTimeout(() => {
-        const messageStore = useMessageStore();
-        messageStore.systemMessage()
+        // const messageStore = useMessageStore();
+        // messageStore.systemMessage()
+        upgradeStore.onlineMessage();
+
       }, 3000);
     }
     setTimeout(() => {
-      const upgradeStore = useUpgradeStore();
-      upgradeStore.systemMessage()
+      // upgradeStore.systemMessage()
     }, 6000);
-    
+
   }
   /**
    * @description: 判断是否登录
@@ -431,6 +433,7 @@ export class System {
     if (isShareFile(path)) {
       const arr = path.split('/')
       const fileContent = await this.fs.readShareFile(path)
+<<<<<<< HEAD
       // console.log('阅读：', fileContent);
       if (fileContent !== false) {
         const fileName = extname(arr[arr.length-1] || '') || 'link'
@@ -438,6 +441,12 @@ export class System {
           .get(fileName)
           ?.func.call(this, path, fileContent || '');
       }
+=======
+      const fileName = extname(arr[arr.length - 1] || '') || 'link'
+      this._flieOpenerMap
+        .get(fileName)
+        ?.func.call(this, path, fileContent || '');
+>>>>>>> 89f84204e655e3df0824fe91c9b17bc8a9d6ad87
     } else {
       const fileStat = await this.fs.stat(path)
       if (!fileStat) {
@@ -517,16 +526,17 @@ export function useSystem() {
   return System.GLOBAL_SYSTEM!;
 }
 
-export * from './core/Path';
-export * from './core/FileSystem';
-export { BrowserWindow } from './window/BrowserWindow';
-export { Notify } from './notification/Notification';
-export { Dialog } from './window/Dialog';
-export type { SystemOptions, WinApp } from './type/type';
-export { vDragable } from './window/MakeDragable';
-export type { OsFileInterface } from './core/FIleInterface';
 export { t } from '../i18n';
-export { Tray } from './menu/Tary';
 export { dealIcon } from '../util/Icon';
+export type { OsFileInterface } from './core/FIleInterface';
+export * from './core/FileSystem';
+export * from './core/Path';
 export { Menu } from './menu/Menu';
 export { MenuItem } from './menu/MenuItem';
+export { Tray } from './menu/Tary';
+export { Notify } from './notification/Notification';
+export type { SystemOptions, WinApp } from './type/type';
+export { BrowserWindow } from './window/BrowserWindow';
+export { Dialog } from './window/Dialog';
+export { vDragable } from './window/MakeDragable';
+

@@ -6,8 +6,22 @@
 	const workUrl = getWorkflowUrl();
 	onMounted(() => {
 		store.initChat();
-		// store.initSSE();
 	});
+
+	const generateData = () => {
+		const data = [];
+		for (let i = 1; i <= 15; i++) {
+			data.push({
+				key: i,
+				label: ` ${i}`,
+				disabled: i % 4 === 0,
+			});
+		}
+		return data;
+	};
+
+	const data = generateData();
+	const value = ref([]);
 </script>
 <template>
 	<el-container class="container">
@@ -30,6 +44,13 @@
 					class="search-input"
 					v-model="store.search"
 				/>
+				<!-- 邀请群聊 -->
+				<button
+					class="inviteGroupChats"
+					@click="store.setGroupChatDialogVisible(true)"
+				>
+					<el-icon><Plus /></el-icon>
+				</button>
 			</el-header>
 			<!--好友列表-->
 			<el-main class="list">
@@ -42,7 +63,7 @@
 		</el-container>
 		<el-container class="chat-box">
 			<chat-box v-if="store.currentNavId < 1" />
-			<chat-user-info v-if="store.currentNavId ==1"></chat-user-info>
+			<chat-user-info v-if="store.currentNavId == 1"></chat-user-info>
 		</el-container>
 		<el-container
 			class="chat-setting"
@@ -60,6 +81,28 @@
 			<ChatUserSetting />
 		</el-container>
 	</el-container>
+	<!-- 群聊弹窗 -->
+	<el-dialog
+		v-model="store.groupChatDialogVisible"
+		title="发起群聊"
+		width="600px"
+	>
+		<div class="transfer">
+    <el-transfer class="transfer-box" v-model="value" :data="data" />
+    </div>
+		<template #footer>
+			<span class="dialog-footer">
+				<el-button @click="store.groupChatDialogVisible = false"
+					>取消</el-button
+				>
+				<el-button
+					type="primary"
+					@click="createGroupChat"
+					>确定</el-button
+				>
+			</span>
+		</template>
+	</el-dialog>
 </template>
 <style scoped>
 	.container {
@@ -73,7 +116,7 @@
 	.menu {
 		width: 55px;
 
-		background-color: white;
+		background-color: #f0f0f0;
 		overflow-y: hidden;
 		overflow-x: hidden;
 		-webkit-app-region: drag;
@@ -86,24 +129,42 @@
 		border-right: 1px solid #edebeb;
 		overflow-y: hidden;
 		overflow-x: hidden;
-		background-color: #f7f7f7;
 	}
 
 	.search {
-		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-evenly;
+		width: 90%;
 		/* 占据整个宽度 */
 		height: 50px;
 		padding: 0;
 		-webkit-app-region: drag;
 	}
+	.inviteGroupChats {
+		width: 40px;
+		height: 30px;
+		border: none;
+		border-radius: 4px;
+		background-color: #f0f0f0;
+	}
+
+
+  .transfer-box {
+    height: 220px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
 	.search-input {
 		width: calc(100% - 20px);
 		/* 减去左右边距 */
 		margin: 10px;
+		height: 32px;
 		-webkit-app-region: no-drag;
-		--el-input-placeholder-color: #818181 !important;
-		--el-input-icon-color: #5d5d5d !important;
+		--el-input-placeholder-color: #bfbfbf !important;
+		--el-input-icon-color: #bfbfbf !important;
 	}
 
 	.list {
@@ -134,11 +195,11 @@
 		border: none;
 	}
 
-  .no-message-container {
-    height: 100%;
-    margin: 120px auto;
-    text-align: center;
-    font-size:14px;
-    justify-content: center;
-}
+	.no-message-container {
+		height: 100%;
+		margin: 120px auto;
+		text-align: center;
+		font-size: 14px;
+		justify-content: center;
+	}
 </style>
