@@ -24,7 +24,7 @@
 import { ref, inject } from 'vue';
 import { useSystem, BrowserWindow } from '@/system';
 import { getSystemConfig, fetchPost } from "@/system/config";
-
+import { notifySuccess, notifyError } from "@/util/msg";
 const window: BrowserWindow | undefined = inject("browserWindow");
 const sys = useSystem()
 const userInfo: any = sys.getConfig('userInfo')
@@ -61,7 +61,12 @@ const onSubmit = async () => {
     const temp = {...form.value}
     temp.senderid = temp.senderid.toString()
     temp.receverid = temp.receverid.map((item:any) => item.toString())
-    await fetchPost(apiUrl, new URLSearchParams(temp))
+    const res = await fetchPost(apiUrl, new URLSearchParams(temp))
+    if (res.ok) {
+        notifySuccess("分享文件成功")
+    } else {
+        notifyError("分享文件失败")
+    }
 }
 </script>
 <style scoped>

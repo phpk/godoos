@@ -431,10 +431,13 @@ export class System {
     if (isShareFile(path)) {
       const arr = path.split('/')
       const fileContent = await this.fs.readShareFile(path)
-      const fileName = extname(arr[arr.length-1] || '') || 'link'
-      this._flieOpenerMap
-        .get(fileName)
-        ?.func.call(this, path, fileContent || '');
+      // console.log('阅读：', fileContent);
+      if (fileContent !== false) {
+        const fileName = extname(arr[arr.length-1] || '') || 'link'
+        this._flieOpenerMap
+          .get(fileName)
+          ?.func.call(this, path, fileContent || '');
+      }
     } else {
       const fileStat = await this.fs.stat(path)
       if (!fileStat) {
@@ -448,6 +451,8 @@ export class System {
       } else {
         // 读取文件内容
         const fileContent = await this.fs.readFile(path);
+        console.log('文件内容：', fileContent);
+        
         // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
         const fileName = extname(fileStat?.name || '') || 'link'
         //console.log(fileName)
