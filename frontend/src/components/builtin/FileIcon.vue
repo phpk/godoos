@@ -7,10 +7,14 @@
     <div v-if="extname(file?.path || '') === '.ln' || file?.isShare === true" class="ln-img">
       <img :src="lnicon" alt="ln" />
     </div>
+    <div v-if="extname(file?.path || '') === '.ln' || file?.isPwd === true" class="lock-img">
+      <img :src="lockImg" alt="ln" />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
 import lnicon from '@/assets/ln.png';
+import lockImg from '@/assets/lock.png'
 import { OsFileWithoutContent,extname } from '@/system';
 // import { extname } from '../core/Path';
 import { ref } from 'vue';
@@ -54,6 +58,13 @@ if(props.file && props.file.content) {
     left: 0;
     width: 80%;
     height: 80%;
+  }
+  .lock-img {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 35%;
+    height: 35%;
   }
 }
 </style>

@@ -29,6 +29,13 @@ export const getSystemConfig = (ifset = false) => {
     if (!config.userType) {
         config.userType = 'person'
     }
+    if (!config.file) {
+        config.file = {
+            ispwd: false,
+            pwd: '',
+            salt: 'vIf_wIUedciAd0nTm6qjJA=='
+        }
+    }
     // 初始化用户信息，若本地存储中已存在则不进行覆盖
     if (!config.userInfo) {
         config.userInfo = {
@@ -208,10 +215,13 @@ export function getWorkflowUrl(){
         return config.userInfo.url + '/views/desktop/index.html' + '?uuid=' + getClientId() + '&token=' + config.userInfo.token
     }
 }
-export function fetchGet(url: string) {
+export function fetchGet(url: string, headerConfig?: {[key: string]: string}) {
     const config = getSystemConfig();
     if (config.userType == 'person') {
-        return fetch(url)
+        return fetch(url, {
+            method: 'GET',
+            headers: headerConfig
+        })
     } else {
         return fetch(url, {
             method: 'GET',
@@ -229,7 +239,7 @@ export function fetchPost(url: string, data: any) {
     if (config.userType == 'person') {
         return fetch(url, {
             method: 'POST',
-            body: data,
+            body: data
         })
     } else {
         return fetch(url, {

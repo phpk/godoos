@@ -21,7 +21,7 @@ export async function handleReadShareDir(id: number,path: string): Promise<any> 
     }
     return await res.json();
 }
-// 查看分享文件
+// 读文件
 export async function handleReadShareFile(path: string): Promise<any> {
     path = turnServePath(path)
     const res = await fetchGet(`${API_BASE_URL}/shareread?path=${path}`);
@@ -32,8 +32,7 @@ export async function handleReadShareFile(path: string): Promise<any> {
 }
 // 删除分享文件
 export async function handleShareUnlink(path: string): Promise<any> {
-    const config = getSystemConfig()
-    const file = await handleShareDetail(path,config.userInfo.id)
+    const file = await handleShareDetail(path,getSystemConfig()?.userInfo.id)
     path = turnServePath(path)
     const res = await fetchGet(`${API_BASE_URL}/sharedelete?senderid=${file.data.fs.sender}&path=${path}&receverid=${file.data.fs.recever}`);
     if (!res.ok) {
@@ -247,6 +246,13 @@ export const useOsFile = () => {
             return [];
         },
         async readShareFile(path: string) {
+            const file = await handleShareDetail(path,getSystemConfig()?.userInfo.id)
+            console.log('文件信息：',file, file.data.fs.is_write);
+            if(!file.data.fs.is_write) {
+                alert('该文件不能编辑')
+                console.log('该文件不能编辑');
+                return false
+            }
             const response = await handleReadShareFile(path);
             if (response && response.data) {
                 return response.data; 
