@@ -315,9 +315,8 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
-// HandleWriteFile writes content to a file
+// 带加密写
 func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
-	// basepath = "/Users/sujia/.godoos/os"
 	filePath := r.URL.Query().Get("filePath")
 	basePath, err := libs.GetOsDir()
 	if err != nil {
@@ -346,8 +345,23 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// 内容为空直接返回,不为空则加密
+	// 内容为空直接返回
 	if len(filedata) == 0 {
+		CheckAddDesktop(filePath)
+		libs.SuccessMsg(w, "", "success")
+		return
+	}
+
+	// 判读是否加密
+	ispwd := GetPwdFlag()
+
+	// 没有加密写入明文
+	if ispwd == 0 {
+		_, err := io.Copy(file, fileContent)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		CheckAddDesktop(filePath)
 		libs.SuccessMsg(w, "", "success")
 		return
@@ -365,8 +379,7 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	}
 	// 判断下是否添加到桌面上
 	CheckAddDesktop(filePath)
-	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully written.", filePath)}
-	json.NewEncoder(w).Encode(res)
+	libs.SuccessMsg(w, "", "success")
 }
 
 // HandleAppendFile appends content to a file

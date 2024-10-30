@@ -5,31 +5,22 @@ import (
 	"encoding/json"
 	"godo/libs"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
-// 带加密读
+// 加密读
 func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
+	// 初始值
 	path := r.URL.Query().Get("path")
 	fPwd := r.Header.Get("fPwd")
-	hasPwd := IsHavePwd(fPwd)
-
-	// 获取salt值
 	salt := GetSalt(r)
-
+	hasPwd := GetPwdFlag()
 	// 校验文件路径
 	if err := validateFilePath(path); err != nil {
 		libs.HTTPError(w, http.StatusBadRequest, err.Error())
 		return
-	}
-
-	// 有密码校验密码
-	if hasPwd {
-		if !CheckFilePwd(fPwd, salt) {
-			libs.HTTPError(w, http.StatusBadRequest, "密码错误")
-			return
-		}
 	}
 
 	// 获取文件路径
@@ -45,14 +36,31 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 解密
-	data, err := libs.DecryptData(fileContent, libs.EncryptionKey)
+	// 没有加密 base64明文传输
+	if hasPwd == 0 {
+		data := string(fileContent)
+		if !strings.HasPrefix(data, "link::") {
+			data = base64.StdEncoding.EncodeToString(fileContent)
+			resp := libs.APIResponse{Message: "success", Data: data}
+			json.NewEncoder(w).Encode(resp)
+			return
+		}
+	}
+
+	// 有加密,先校验密码，再解密
+	if !CheckFilePwd(fPwd, salt) {
+		libs.HTTPError(w, http.StatusBadRequest, "密码错误")
+		return
+	}
+
+	var data []byte
+	fileContent, err = libs.DecryptData(fileContent, libs.EncryptionKey)
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	content := string(data)
+	content := string(fileContent)
 	// 检查文件内容是否以"link::"开头
 	if !strings.HasPrefix(content, "link::") {
 		content = base64.StdEncoding.EncodeToString(data)
@@ -60,7 +68,6 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 	// 初始响应
 	res := libs.APIResponse{Code: 0, Message: "success", Data: content}
-
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -68,6 +75,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
 	fPwd := r.Header.Get("filepPwd")
 	salt := r.Header.Get("salt")
+
 	// 服务端再hash加密
 	hashPwd := libs.HashPassword(fPwd, salt)
 
@@ -103,4 +111,18 @@ func HandleChangeFilePwd(w http.ResponseWriter, r *http.Request) {
 	}
 	libs.SetConfig(pwdReq)
 	libs.SuccessMsg(w, "success", "The file password change success!")
+}
+
+// 更改加密状态
+func HandleSetIsPwd(w http.ResponseWriter, r *http.Request) {
+	isPwd := r.URL.Query().Get("ispwd")
+	// 0非加密机器 1加密机器
+	isPwdValue, _ := strconv.Atoi(isPwd)
+	pwdReq := libs.ReqBody{
+		Name:  "isPwd",
+		Value: isPwdValue,
+	}
+	libs.SetConfig(pwdReq)
+	libs.SaveConfig()
+	libs.SuccessMsg(w, "success", "")
 }

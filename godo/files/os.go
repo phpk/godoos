@@ -339,7 +339,7 @@ func CheckDeleteDesktop(filePath string) error {
 // 校验文件密码
 func CheckFilePwd(fpwd, salt string) bool {
 	pwd := libs.HashPassword(fpwd, salt)
-	oldpwd, err := libs.GetConfig("filepwd")
+	oldpwd, err := libs.GetConfig("filePwd")
 	if !err {
 		return false
 	}
@@ -364,4 +364,18 @@ func GetSalt(r *http.Request) string {
 		salt = r.Header.Get("salt")
 		return salt
 	}
+}
+
+// 获取密码标识位，没有添加上
+func GetPwdFlag() int {
+	isPwd, has := libs.GetConfig("isPwd")
+	if !has {
+		req := libs.ReqBody{
+			Name:  "isPwd",
+			Value: 0,
+		}
+		libs.SetConfig(req)
+		libs.SaveConfig()
+	}
+	return isPwd.(int)
 }
