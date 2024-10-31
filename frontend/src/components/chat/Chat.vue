@@ -126,7 +126,7 @@
 				<el-button @click="store.groupChatInvitedDialogVisible = false"
 					>取消</el-button
 				>
-				<el-button @click="store.setGroupInfoDrawerVisible(true)"
+				<el-button @click="store.createGroupChats(true)"
 					>确定</el-button
 				>
 			</span>

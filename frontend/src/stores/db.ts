@@ -5,7 +5,7 @@ export type ChatTable = 'chatuser' | 'chatmsg' | 'chatmessage' | 'groupmessage' 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
   // 用户列表
-  workbenchusers: '++id,ip,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
+  workbenchusers: '++id,ip,userName,avatar,mobile,phone,nickName,isOnline,updatedAt,createdAt',
   // 聊天记录
   chatRecord: '++id,toUserId,messages,time,createdAt,userInfo',
   // 会话列表

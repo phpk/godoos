@@ -94,7 +94,8 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         chatChatStore.handleUserData(message.data)
         break;
       case 'user':
-        chatChatStore.userChatMessage
+        console.log(message.data)
+        chatChatStore.userChatMessage(message.data)
         break
       default:
         console.warn('Unknown message type:', message.type);
