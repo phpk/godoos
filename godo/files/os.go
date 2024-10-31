@@ -378,11 +378,7 @@ func GetPwdFlag() (bool, error) {
 	isPwd, has := libs.GetConfig("isPwd")
 	if !has {
 		// 默认不加密
-		req := libs.ReqBody{
-			Name:  "isPwd",
-			Value: false,
-		}
-		err := libs.SetConfig(req)
+		err := libs.SetConfigByName("isPwd", false)
 		if err != nil {
 			return false, err
 		}

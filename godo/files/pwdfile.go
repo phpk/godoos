@@ -18,7 +18,6 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	// 检查是否需要密码，如果需要，则从请求头中获取文件密码和盐值
 	var fPwd string
 	var salt string
@@ -89,34 +88,27 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 // 设置文件密码
 func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
-	fPwd := r.Header.Get("filepPwd")
+	fPwd := r.Header.Get("filePwd")
 	salt, err := GetSalt(r) // 获取盐值
 	// 处理获取盐值时的错误
-	if err != nil {
+	if err != nil || fPwd == "" {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	// 服务端再hash加密
+	// "Lqda0ez6DeBhKOHDUklSO1SDJ7QAwHLgUqFYFfN6kU4="
 	hashPwd := libs.HashPassword(fPwd, salt)
 
 	// 服务端存储
-	reqPwd := libs.ReqBody{
-		Name:  "filePwd",
-		Value: hashPwd,
-	}
-	err = libs.SetConfig(reqPwd)
+	err = libs.SetConfigByName("filePwd", hashPwd)
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	// salt值存储
-	reqSalt := libs.ReqBody{
-		Name:  "salt",
-		Value: salt,
-	}
-	err = libs.SetConfig(reqSalt)
+	err = libs.SetConfigByName("salt", salt)
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -134,11 +126,7 @@ func HandleChangeFilePwd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	newPwd := libs.HashPassword(filePwd, salt)
-	pwdReq := libs.ReqBody{
-		Name:  "filePwd",
-		Value: newPwd,
-	}
-	err = libs.SetConfig(pwdReq)
+	err = libs.SetConfigByName("filePwd", newPwd)
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -161,11 +149,7 @@ func HandleSetIsPwd(w http.ResponseWriter, r *http.Request) {
 	} else {
 		isPwdBool = true
 	}
-	pwdReq := libs.ReqBody{
-		Name:  "isPwd",
-		Value: isPwdBool,
-	}
-	err = libs.SetConfig(pwdReq)
+	err = libs.SetConfigByName("isPwd", isPwdBool)
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
