@@ -373,31 +373,35 @@ func GetSalt(r *http.Request) (string, error) {
 	return "", fmt.Errorf("无法获取salt")
 }
 
-// 获取加密标志
+// 该函数用于获取文件是否加密的标志
 func GetPwdFlag() (bool, error) {
+	// 从配置中获取加密标志
 	isPwd, has := libs.GetConfig("isPwd")
 	if !has {
-		// 默认不加密
+		// 如果没有设置加密标志，默认设置为不加密
 		err := libs.SetConfigByName("isPwd", false)
 		if err != nil {
-			return false, err
+			return false, err // 返回错误信息
 		}
 		return false, nil // 返回默认值和无错误
 	}
 
-	// 添加类型断言失败处理
+	// 尝试将获取的值转换为布尔类型
 	if pwdFlag, ok := isPwd.(bool); ok {
-		return pwdFlag, nil
+		return pwdFlag, nil // 返回加密标志和无错误
 	}
 
-	// 如果断言失败，返回默认值和错误信息
+	// 如果类型断言失败，返回默认值和错误信息
 	return false, fmt.Errorf("类型断言失败，期望类型为 bool")
 }
 
 // 检查文件是否加密
 func IsHaveHiddenFile(basePath, filePath string) bool {
 	// 通过查找同名隐藏文件判断
-	hiddenFilePath := filepath.Join(basePath, "."+filePath)
+	// 获取文件名和目录
+	dir := filepath.Dir(filePath)
+	fileName := filepath.Base(filePath)
+	hiddenFilePath := filepath.Join(basePath, dir, "."+fileName)
 	_, err := os.Stat(hiddenFilePath)
 	return err == nil
 }
