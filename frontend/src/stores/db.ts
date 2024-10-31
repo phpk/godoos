@@ -15,7 +15,9 @@ dbInit.version(1).stores({
   chatmessage: '++id,userId,toUserId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
   groupmessage: '++id,userId,groupId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
   // 群组表
-  group: '++id,name,description,owner_id,avatar_url,created_at,updated_at,member_count,max_members,is_public,join_policy,group_type,status'
+  group: '++id,name,creator,createdAt',
+  // 群成员表
+  group_members: '++id,userId,groupId,createdAt',
 
 }).upgrade((tx: {
   conversationList: any;

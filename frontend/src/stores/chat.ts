@@ -31,12 +31,6 @@ export const useChatStore = defineStore('chatStore', () => {
   const setGroupChatInvitedDialogVisible = (visible: boolean) => {
     groupChatInvitedDialogVisible.value = visible;
   };
-
-// 创建群聊
-  const createGroupChats = () => {
-    console.log('createGroupChats')
-  }
-  
   // 设置群信息抽屉状态
   const setGroupInfoDrawerVisible = (visible: boolean) => {
     groupInfoSettingDrawerVisible.value = visible
@@ -305,7 +299,6 @@ export const useChatStore = defineStore('chatStore', () => {
       if (!res.ok) {
         return false;
       }
-      console.log(res)
       const groupData = await res.json();
       console.log(groupData)
     } catch (error) {
@@ -611,7 +604,6 @@ export const useChatStore = defineStore('chatStore', () => {
     createGroupChat,
     userChatMessage,
     initOnlineUserList,
-    getDepartmentList,
-    createGroupChats
+    getDepartmentList
   };
 });
