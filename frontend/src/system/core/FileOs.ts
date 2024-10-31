@@ -94,8 +94,9 @@ export async function handleExists(path: string): Promise<any> {
     return await res.json();
 }
 
-export async function handleReadFile(path: string): Promise<any> {
-    const res = await fetchGet(`${API_BASE_URL}/readfile?path=${encodeURIComponent(path)}`);
+export async function handleReadFile(path: string , header?: {[key: string]: string}): Promise<any> {
+    // console.log('请求头：', header);
+    const res = await fetchGet(`${API_BASE_URL}/readfile?path=${encodeURIComponent(path)}`, header);
     if (!res.ok) {
         return false;
     }
@@ -295,9 +296,9 @@ export const useOsFile = () => {
             }
             return false;
         },
-        async readFile(path: string) {
+        async readFile(path: string, header?: {[key: string]: string}) {
             // 注意：handleReadFile返回的是JSON，但通常readFile期望返回Buffer或字符串
-            const response = await handleReadFile(path);
+            const response = await handleReadFile(path, header);
             if (response && response.data) {
                 return response.data; 
             }

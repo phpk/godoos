@@ -6,7 +6,7 @@
 import { BrowserWindow, Notify, System, Dialog } from "@/system";
 import { ref, onMounted, inject, onUnmounted, toRaw } from "vue";
 import { isBase64, base64ToBuffer } from "@/util/file";
-import { getSplit } from "@/system/config";
+import { getSplit, getSystemConfig } from "@/system/config";
 const SP = getSplit();
 
 const sys: any = inject<System>("system");
@@ -25,14 +25,15 @@ const props = defineProps({
     default: "md",
   },
 });
+//console.log('iframe: ', props);
+
 //console.log(props);
 //let path = win?.config?.path;
 const storeRef = ref<HTMLIFrameElement | null>(null);
 let hasInit = false;
 const eventHandler = async (e: MessageEvent) => {
   const eventData = e.data;
-  // console.log(path)
-  //console.log(eventData);
+  
   if (eventData.type == props.eventType) {
     let data = JSON.parse(eventData.data);
     let title = data.title;
@@ -102,7 +103,12 @@ const eventHandler = async (e: MessageEvent) => {
     title = title.split(SP).pop();
     //console.log(title);
     if (!content && win?.config.path) {
-      content = await sys?.fs.readFile(win?.config.path);
+      const file = getSystemConfig().file
+      const header = {
+        salt: file.salt,
+        filePwd: file.pwd
+      }
+      content = await sys?.fs.readFile(win?.config.path, header);
     }
     content = toRaw(content);
     // console.log(content);
@@ -126,7 +132,7 @@ const eventHandler = async (e: MessageEvent) => {
   }
 };
 onMounted(() => {
-  window.addEventListener("message", eventHandler);
+  window.addEventListener("message", eventHandler); 
 });
 
 onUnmounted(() => {

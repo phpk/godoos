@@ -450,8 +450,21 @@ export class System {
         this._flieOpenerMap.get('dir')?.func.call(this, path, '');
         return;
       } else {
+        const filePwd = getSystemConfig()
+        const header = {
+          salt: '',
+          filePwd: ''
+        }
+          header.salt = filePwd.file.salt ? filePwd.file.salt : 'vIf_wIUedciAd0nTm6qjJA=='
+          header.filePwd = filePwd.file.pwd
+        if(fileStat.isPwd && path.indexOf('.exe') === -1) {
+          const temp = await Dialog.showInputBox(filePwd.file.pwd)
+          if (temp.response !== 1) {
+            return
+          }
+        }
         // 读取文件内容
-        const fileContent = await this.fs.readFile(path);
+        const fileContent = await this.fs.readFile(path, header);
         // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
         const fileName = extname(fileStat?.name || '') || 'link'
         //console.log(fileName)
@@ -460,7 +473,6 @@ export class System {
           ?.func.call(this, path, fileContent || '');
       }
     }
-
   }
   // 插件系统
   use(func: OsPlugin): void {

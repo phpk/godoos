@@ -27,27 +27,31 @@ import { notifySuccess, notifyError } from "@/util/msg";
 const filePwd = ref('')
 const setPwd = ref(false)
 const params = {
-    ispwd: true,
-    pwd: md5(filePwd.value),
+    isPwd: 1,
+    pwd: '',
     salt: getSystemConfig().file.salt
 }
+// 设置文件密码
 async function toSetFilePwd() {
-    // console.log('密码:',filePwd.value,  md5(filePwd.value));
-    params.ispwd = filePwd.value === '' ? false : true
+    //console.log('密码aaa:',filePwd.value);
+    params.pwd = filePwd.value === '' ? '' : md5(filePwd.value)
+    params.isPwd = filePwd.value === '' ? 0 : 1
     const url = getApiUrl() + '/file/setfilepwd'
     const header = {
-        'Salt': params.salt,
+        'Salt': params.salt ? params.salt : 'vIf_wIUedciAd0nTm6qjJA==',
         'FilePwd': params.pwd
     }
-    await fetchGet(`${getApiUrl()}/file/ispwd?ispwd=${params.ispwd}`)
+    await fetchGet(`${getApiUrl()}/file/changeispwd?ispwd=${params.isPwd}`)
     const res = await fetchGet(url, header)
     if (res.ok){
         notifySuccess("设置文件密码成功");
     } else {
-        params.ispwd = false
+        params.isPwd = 0
         params.pwd = ''
         notifyError("设置文件密码失败")
     }
+    //console.log('密码：',params);
+    
     setSystemKey('file',params)
 }
 function clearPwd() {
@@ -56,7 +60,7 @@ function clearPwd() {
     toSetFilePwd()
 }
 onMounted(()=>{
-    setPwd.value = params.ispwd
+    setPwd.value = params.isPwd ? true : false
 })
 </script>
 

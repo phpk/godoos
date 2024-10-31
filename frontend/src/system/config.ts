@@ -31,7 +31,7 @@ export const getSystemConfig = (ifset = false) => {
     }
     if (!config.file) {
         config.file = {
-            ispwd: false,
+            isPwd: 0,
             pwd: '',
             salt: 'vIf_wIUedciAd0nTm6qjJA=='
         }
