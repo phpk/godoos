@@ -7,37 +7,24 @@
 	onMounted(() => {
 		store.initChat();
 	});
-  
-	const userList = ref([
-		{
-			id: 2,
-			nickname: "朋友2",
-			avatar: "/logo.png",
-			previewTimeFormat: "昨天",
-			previewType: 1,
-			previewMessage: "测试消息",
-		},
-		{
-			id: 3,
-			nickname: "朋友3",
-			avatar: "/logo.png",
-			previewTimeFormat: "昨天",
-			previewType: 1,
-			previewMessage: "测试消息",
-		},
-	]);
 
 	// 将用户列表转换为 el-transfer 组件所需的数据格式
 	const generateData = () => {
-		return userList.value.map((user) => ({
+		return store.allUserList.map((user) => ({
 			key: user.id,
 			label: user.nickname,
 			avatar: user.avatar, // 添加头像数据
 		}));
 	};
-  
+
 	const data = ref(generateData());
 	const users = ref([]);
+
+	watchEffect(() => {
+		if (store.allUserList.length > 0) {
+			data.value = generateData();
+		}
+	});
 </script>
 <template>
 	<el-container class="container">
@@ -104,6 +91,11 @@
 		width="80%"
 	>
 		<div class="dialog-body">
+			<!-- 添加输入部门名的输入框 -->
+			<el-input
+				v-model="store.departmentName"
+				placeholder="请输入群聊名称"
+			></el-input>
 			<el-transfer
 				v-model="users"
 				:data="data"
@@ -126,7 +118,9 @@
 				<el-button @click="store.groupChatInvitedDialogVisible = false"
 					>取消</el-button
 				>
-				<el-button @click="store.createGroupChat()"
+				<el-button
+					type="primary"
+					@click="store.createGroupChat(users)"
 					>确定</el-button
 				>
 			</span>

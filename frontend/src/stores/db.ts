@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'chatuser' | 'chatmsg' | 'chatmessage' | 'groupmessage' | 'chatRecord' | 'workbenchusers' | 'conversationList' | 'group';
+export type ChatTable = 'chatuser' | 'chatmsg' | 'chatmessage' | 'groupmessage' | 'chatRecord' | 'workbenchusers' | 'conversationList' | 'group' | 'groupMembers' | 'groupChatList';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
@@ -15,9 +15,11 @@ dbInit.version(1).stores({
   chatmessage: '++id,userId,toUserId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
   groupmessage: '++id,userId,groupId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
   // 群组表
-  group: '++id,name,creator,createdAt',
+  group: '++id,avatar,name,groupId,creator,createdAt',
   // 群成员表
-  group_members: '++id,userId,groupId,createdAt',
+  groupMembers: '++id,userId,groupTableId,groupId,createdAt',
+  // 群会话列表
+  groupChatList: '++id,groupId,name,message,previewMessage,avatar,createdAt',
 
 }).upgrade((tx: {
   conversationList: any;
@@ -27,7 +29,7 @@ dbInit.version(1).stores({
   // 手动添加索引
   tx.conversationList.addIndex('userId', (obj: { userId: any; }) => obj.userId);
   tx.chatRecord.addIndex('toUserId', (obj: { toUserId: any; }) => obj.toUserId);
-  tx.group.addIndex('owner_id', (obj: { owner_id: any }) => obj.owner_id);  // 添加索引: 群主 ID
+  tx.group.addIndex('groupId', (obj: { groupId: any }) => obj.groupId);  // 添加索引: 群主 ID
 });
 export const db = {
 
