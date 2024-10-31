@@ -353,7 +353,11 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 判读是否加密
-	ispwd := GetPwdFlag()
+	ispwd, err := GetPwdFlag()
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	// 没有加密写入明文
 	if !ispwd {

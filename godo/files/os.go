@@ -371,7 +371,7 @@ func GetSalt(r *http.Request) string {
 }
 
 // 获取加密标志
-func GetPwdFlag() bool {
+func GetPwdFlag() (bool, error) {
 	isPwd, has := libs.GetConfig("isPwd")
 	if !has {
 		// 默认不加密
@@ -381,9 +381,16 @@ func GetPwdFlag() bool {
 		}
 		libs.SetConfig(req)
 		libs.SaveConfig()
-		return false
+		return false, nil // 返回默认值和无错误
 	}
-	return isPwd.(bool)
+
+	// 添加类型断言失败处理
+	if pwdFlag, ok := isPwd.(bool); ok {
+		return pwdFlag, nil
+	}
+
+	// 如果断言失败，返回默认值和错误信息
+	return false, fmt.Errorf("类型断言失败，期望类型为 bool")
 }
 
 // 检查文件是否加密

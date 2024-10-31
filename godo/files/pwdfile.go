@@ -15,7 +15,11 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
 	fPwd := r.Header.Get("fPwd")
 	salt := GetSalt(r)
-	hasPwd := GetPwdFlag()
+	hasPwd, err := GetPwdFlag()
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 	// 校验文件路径
 	if err := validateFilePath(path); err != nil {
 		libs.HTTPError(w, http.StatusBadRequest, err.Error())
