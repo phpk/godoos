@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'chatuser' | 'chatmsg' | 'chatmessage' | 'groupmessage' | 'chatRecord' | 'workbenchusers' | 'conversationList' | 'group' | 'groupMembers' | 'groupChatList';
+export type ChatTable = 'chatuser' | 'chatmsg' | 'chatmessage' | 'groupmessage' | 'chatRecord' | 'workbenchusers' | 'conversationList' | 'group' | 'groupMembers' | 'groupChatList' | 'groupChatRecord';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
@@ -9,11 +9,11 @@ dbInit.version(1).stores({
   // 聊天记录
   chatRecord: '++id,toUserId,messages,time,createdAt,userInfo',
   // 会话列表
-  conversationList: '++id,avatar,username,nickname,userId,toUserId,previewMessage,messages,time,createdAt',
+  conversationList: '++id,avatar,chatId,username,nickname,userId,toUserId,previewMessage,messages,time,createdAt',
   chatuser: '++id,ip,hostname,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
   // chatmsg: '++id,toUserId,targetIp,senderInfo,reciperInfo,previewMessage,content,type,status,isRead,isMe,readAt,createdAt',
   chatmessage: '++id,userId,toUserId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
-  groupmessage: '++id,userId,groupId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
+  groupChatRecord: '++id,userId,groupId,senderInfo,message,time,type,createdAt',
   // 群组表
   group: '++id,avatar,name,groupId,creator,createdAt',
   // 群成员表

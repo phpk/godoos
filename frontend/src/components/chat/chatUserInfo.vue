@@ -1,6 +1,6 @@
 <template>
 	<div
-		v-if="store.targetUserId == null"
+		v-if="store.targetChatId == null"
 		class="no-message-container"
 	>
 		<el-icon
@@ -26,7 +26,7 @@
 		</div>
 		<el-button
 			type="primary"
-			@click="sendMessage(store.targetUserId)"
+			@click="sendMessage(store.targetChatId)"
 			>发送消息</el-button
 		>
 	</div>

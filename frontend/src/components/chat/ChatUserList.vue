@@ -64,12 +64,13 @@
 					v-for="item in store.userList"
 					:key="item.id"
 				>
+
 					<div
 						class="list-item"
-						@click="store.changeChatList(item.id)"
+						@click="store.changeChatList(item.id,'user')"
 						:style="{
 							backgroundColor:
-								item.id === store.targetUserId ? '#bae7ff' : '',
+								item.id === store.targetChatId ? '#bae7ff' : '',
 						}"
 					>
 						<el-row>

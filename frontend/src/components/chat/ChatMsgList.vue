@@ -2,9 +2,9 @@
   <div v-if="store.chatList.length > 0" v-for="item in store.chatList" :key="item.id">
     <div
       class="list-item"
-      @click="store.changeChatList(item.userId)"
+      @click="store.changeChatList(item.chatId,item.type)"
       :style="{
-        backgroundColor: item.userId == store.targetUserId ? '#bae7ff' : '',
+        backgroundColor: item.userId == store.targetChatId ? '#bae7ff' : '',
       }"
     >
       <el-row>

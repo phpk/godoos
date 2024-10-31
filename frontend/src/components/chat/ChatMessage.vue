@@ -1,6 +1,6 @@
 <template>
 	<div
-		v-if="store.chatHistory.length > 0"
+		v-if="store.chatHistory && store.chatHistory.length > 0"
 		v-for="item in store.chatHistory"
 		:key="item.time"
 	>

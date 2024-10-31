@@ -4,29 +4,33 @@
 </script>
 
 <template>
-  <div
-    class="chatbox-main"
-    v-if="store.targetUserId > 0"
-  >
-    <!--聊天顶部区-->
-    <el-header class="chat-header">
-      <div class="header-title" >
-        {{ store.targetUserInfo.nickname }}
-      </div>
+	<div
+		class="chatbox-main"
+		v-if="store.targetChatId"
+	>
+		<!--聊天顶部区-->
+		<el-header class="chat-header">
+			<div class="header-title">
+				<span v-if="store.targetUserInfo.nickname">{{
+					store.targetUserInfo.nickname
+				}}</span>
+				<span v-else-if="store.targetGroupInfo.name">{{
+					store.targetGroupInfo.name
+				}}</span>
+			</div>
+		</el-header>
 
-    </el-header>
+		<!--聊天主体区-->
+		<el-main class="msg-main">
+			<el-scrollbar ref="store.scrollbarRef">
+				<div ref="store.innerRef">
+					<ChatMessage />
+				</div>
+			</el-scrollbar>
+		</el-main>
 
-    <!--聊天主体区-->
-    <el-main class="msg-main">
-      <el-scrollbar ref="store.scrollbarRef">
-        <div ref="store.innerRef">
-          <ChatMessage />
-        </div>
-      </el-scrollbar>
-    </el-main>
-
-    <!--聊天输入区和发送按钮等-->
-    		<el-footer class="msg-footer">
+		<!--聊天输入区和发送按钮等-->
+		<el-footer class="msg-footer">
 			<!--聊天输入选项-->
 			<div class="input-option">
 				<el-icon
@@ -73,14 +77,14 @@
 				</el-icon>
 			</el-tooltip>
 		</el-footer>
-  </div>
+	</div>
 
-  <div class="no-message-container" v-else>
+	<!-- <div class="no-message-container" v-else>
     <el-icon :size="180" color="#0078d7">
       <ChatDotSquare />
     </el-icon>
     <p>欢迎使用GodoOS</p>
-  </div>
+  </div> -->
 </template>
 
 <style scoped>
