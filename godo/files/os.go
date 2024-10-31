@@ -28,6 +28,7 @@ import (
 	"godo/libs"
 	"io"
 	"io/fs"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -342,12 +343,13 @@ func CheckFilePwd(fpwd, salt string) bool {
 	// 1. 对输入的密码进行哈希
 	pwd := libs.HashPassword(fpwd, salt)
 	// 2. 获取存储的密码哈希
-	oldpwd, err := libs.GetConfig("filePwd")
-	if !err {
+	oldPwd, isHas := libs.GetConfig("filePwd")
+	if !isHas {
+		slog.Error("文件密码获取失败")
 		return false
 	}
 	// 3. 比对密码哈希
-	return oldpwd == pwd
+	return oldPwd == pwd
 }
 
 func IsHavePwd(pwd string) bool {
@@ -380,8 +382,10 @@ func GetPwdFlag() (bool, error) {
 			Name:  "isPwd",
 			Value: false,
 		}
-		libs.SetConfig(req)
-		libs.SaveConfig()
+		err := libs.SetConfig(req)
+		if err != nil {
+			return false, err
+		}
 		return false, nil // 返回默认值和无错误
 	}
 

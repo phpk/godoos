@@ -101,18 +101,26 @@ func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
 	hashPwd := libs.HashPassword(fPwd, salt)
 
 	// 服务端存储
-	req := libs.ReqBody{
+	reqPwd := libs.ReqBody{
 		Name:  "filePwd",
 		Value: hashPwd,
 	}
-	libs.SetConfig(req)
+	err = libs.SetConfig(reqPwd)
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	// salt值存储
 	reqSalt := libs.ReqBody{
 		Name:  "salt",
 		Value: salt,
 	}
-	libs.SetConfig(reqSalt)
+	err = libs.SetConfig(reqSalt)
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 	res := libs.APIResponse{Message: "密码设置成功"}
 	json.NewEncoder(w).Encode(res)
 }
@@ -130,7 +138,11 @@ func HandleChangeFilePwd(w http.ResponseWriter, r *http.Request) {
 		Name:  "filePwd",
 		Value: newPwd,
 	}
-	libs.SetConfig(pwdReq)
+	err = libs.SetConfig(pwdReq)
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 	libs.SuccessMsg(w, "success", "The file password change success!")
 }
 
@@ -153,7 +165,10 @@ func HandleSetIsPwd(w http.ResponseWriter, r *http.Request) {
 		Name:  "isPwd",
 		Value: isPwdBool,
 	}
-	libs.SetConfig(pwdReq)
-	libs.SaveConfig()
+	err = libs.SetConfig(pwdReq)
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 	libs.SuccessMsg(w, "success", "")
 }
