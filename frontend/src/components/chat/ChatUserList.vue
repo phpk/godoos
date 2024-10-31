@@ -122,29 +122,6 @@
 											{{ group.name }}
 										</div>
 									</el-col>
-									<el-col :span="6">
-										<div class="previewTime">
-											{{ group.previewTimeFormat }}
-										</div>
-									</el-col>
-								</el-row>
-								<el-row>
-									<div
-										v-if="group.previewType === 0"
-										class="previewChat"
-									>
-										{{ group.previewMessage }}
-									</div>
-									<div
-										v-if="group.previewType === 1"
-										class="previewChat"
-									>
-										{{
-											group.userId === id
-												? "你"
-												: '"' + group.name + '"'
-										}}撤回了一条消息
-									</div>
 								</el-row>
 							</el-col>
 						</el-row>

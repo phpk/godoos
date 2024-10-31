@@ -1,22 +1,31 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'chatuser' | 'chatmsg' | 'chatmessage' | 'groupmessage' | 'chatRecord' | 'workbenchusers' | 'conversationList';
+export type ChatTable = 'chatuser' | 'chatmsg' | 'chatmessage' | 'groupmessage' | 'chatRecord' | 'workbenchusers' | 'conversationList' | 'group';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
   // 用户列表
   workbenchusers: '++id,ip,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
   // 聊天记录
-  chatRecord: '++id,userId,targetUserId,senderInfo,previewType,previewMessage,isMe,isRead,content,type,readAt,createdAt',
+  chatRecord: '++id,toUserId,messages,time,createdAt,userInfo',
   // 会话列表
-  conversationList: '++id,userId,targetUserId,targetIp,senderInfo,previewMessage,previewType,isMe,isRead,content,type,createdAt',
+  conversationList: '++id,avatar,username,nickname,userId,toUserId,previewMessage,messages,time,createdAt',
   chatuser: '++id,ip,hostname,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
-  // chatmsg: '++id,targetUserId,targetIp,senderInfo,reciperInfo,previewMessage,previewType,content,type,status,isRead,isMe,readAt,createdAt',
-  chatmessage: '++id,userId,targetUserId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
+  // chatmsg: '++id,toUserId,targetIp,senderInfo,reciperInfo,previewMessage,content,type,status,isRead,isMe,readAt,createdAt',
+  chatmessage: '++id,userId,toUserId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
   groupmessage: '++id,userId,groupId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
-}).upgrade((tx: { chatRecord: { addIndex: (arg0: string, arg1: (obj: { targetUserId: any; }) => any) => void; }; }) => {
+  // 群组表
+  group: '++id,name,description,owner_id,avatar_url,created_at,updated_at,member_count,max_members,is_public,join_policy,group_type,status'
+
+}).upgrade((tx: {
+  conversationList: any;
+  group: any;
+  chatRecord: { addIndex: (arg0: string, arg1: (obj: { toUserId: any; }) => any) => void; };
+}) => {
   // 手动添加索引
-  tx.chatRecord.addIndex('targetUserId', (obj: { targetUserId: any; }) => obj.targetUserId);
+  tx.conversationList.addIndex('userId', (obj: { userId: any; }) => obj.userId);
+  tx.chatRecord.addIndex('toUserId', (obj: { toUserId: any; }) => obj.toUserId);
+  tx.group.addIndex('owner_id', (obj: { owner_id: any }) => obj.owner_id);  // 添加索引: 群主 ID
 });
 export const db = {
 

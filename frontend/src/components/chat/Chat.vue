@@ -7,21 +7,37 @@
 	onMounted(() => {
 		store.initChat();
 	});
+  
+	const userList = ref([
+		{
+			id: 2,
+			nickname: "朋友2",
+			avatar: "/logo.png",
+			previewTimeFormat: "昨天",
+			previewType: 1,
+			previewMessage: "测试消息",
+		},
+		{
+			id: 3,
+			nickname: "朋友3",
+			avatar: "/logo.png",
+			previewTimeFormat: "昨天",
+			previewType: 1,
+			previewMessage: "测试消息",
+		},
+	]);
 
+	// 将用户列表转换为 el-transfer 组件所需的数据格式
 	const generateData = () => {
-		const data = [];
-		for (let i = 1; i <= 15; i++) {
-			data.push({
-				key: i,
-				label: ` ${i}`,
-				disabled: i % 4 === 0,
-			});
-		}
-		return data;
+		return userList.value.map((user) => ({
+			key: user.id,
+			label: user.nickname,
+			avatar: user.avatar, // 添加头像数据
+		}));
 	};
-
-	const data = generateData();
-	const value = ref([]);
+  
+	const data = ref(generateData());
+	const users = ref([]);
 </script>
 <template>
 	<el-container class="container">
@@ -47,7 +63,7 @@
 				<!-- 邀请群聊 -->
 				<button
 					class="inviteGroupChats"
-					@click="store.setGroupChatDialogVisible(true)"
+					@click="store.setGroupChatInvitedDialogVisible(true)"
 				>
 					<el-icon><Plus /></el-icon>
 				</button>
@@ -57,7 +73,6 @@
 				<el-scrollbar>
 					<chat-msg-list v-if="store.currentNavId == 0" />
 					<chat-user-list v-if="store.currentNavId == 1" />
-					<!-- <chat-work-list v-if="store.currentNavId == 2" /> -->
 				</el-scrollbar>
 			</el-main>
 		</el-container>
@@ -81,29 +96,44 @@
 			<ChatUserSetting />
 		</el-container>
 	</el-container>
-	<!-- 群聊弹窗 -->
+
+	<!-- 邀请群聊弹窗 -->
 	<el-dialog
-		v-model="store.groupChatDialogVisible"
+		v-model="store.groupChatInvitedDialogVisible"
 		title="发起群聊"
-		width="600px"
+		width="80%"
 	>
-		<div class="transfer">
-    <el-transfer class="transfer-box" v-model="value" :data="data" />
-    </div>
+		<div class="dialog-body">
+			<el-transfer
+				v-model="users"
+				:data="data"
+			>
+				<!-- 义穿梭框 -->
+				<template #default="{ option }">
+					<div class="user-item">
+						<el-avatar
+							:size="20"
+							:src="option.avatar"
+							class="avatar"
+						/>
+						<span>{{ option.label }}</span>
+					</div>
+				</template>
+			</el-transfer>
+		</div>
 		<template #footer>
 			<span class="dialog-footer">
-				<el-button @click="store.groupChatDialogVisible = false"
+				<el-button @click="store.groupChatInvitedDialogVisible = false"
 					>取消</el-button
 				>
-				<el-button
-					type="primary"
-					@click="createGroupChat"
+				<el-button @click="store.setGroupInfoDrawerVisible(true)"
 					>确定</el-button
 				>
 			</span>
 		</template>
 	</el-dialog>
 </template>
+
 <style scoped>
 	.container {
 		display: flex;
@@ -149,13 +179,12 @@
 		background-color: #f0f0f0;
 	}
 
-
-  .transfer-box {
-    height: 220px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+	.user-item {
+		width: 100%;
+		height: 30px;
+		display: flex;
+		align-items: center;
+	}
 
 	.search-input {
 		width: calc(100% - 20px);
@@ -174,6 +203,21 @@
 		overflow-y: hidden;
 		overflow-x: hidden;
 	}
+	.dialog-body {
+		width: 100%;
+	}
+	.el-transfer {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* .el-transfer >>> .el-transfer-panel >>> .el-transfer__buttons {
+		width: 50px;
+	} */
+	/* .el-transfer__button {
+    width: 20px;;
+	} */
 
 	.chat-box {
 		flex: 3;

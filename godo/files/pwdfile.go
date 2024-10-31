@@ -6,14 +6,14 @@ import (
 	"godo/libs"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
-// 加密读
 func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 	// 初始值
 	path := r.URL.Query().Get("path")
-	fPwd := r.Header.Get("fPwd")
+	fPwd := r.Header.Get("filePwd")
 	salt := GetSalt(r)
 	hasPwd, err := GetPwdFlag()
 	if err != nil {
@@ -38,12 +38,14 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusNotFound, err.Error())
 		return
 	}
-
+	fileData := string(fileContent)
 	// 无加密情况
 	if !hasPwd {
-		// 直接base64编码原文返回
-		data := base64.StdEncoding.EncodeToString(fileContent)
-		resp := libs.APIResponse{Message: "success", Data: data}
+		// 判断文件开头是否以link:开头
+		if !strings.HasPrefix(fileData, "link::") {
+			fileData = base64.StdEncoding.EncodeToString(fileContent)
+		}
+		resp := libs.APIResponse{Message: "success", Data: fileData}
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
@@ -63,10 +65,14 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 3. base64编码后返回
-	content := base64.StdEncoding.EncodeToString(fileContent)
+	// 判断文件开头是否以link:开头
+	fileData = string(fileContent)
+	if !strings.HasPrefix(fileData, "link::") {
+		fileData = base64.StdEncoding.EncodeToString(fileContent)
+	}
 
 	// 初始响应
-	res := libs.APIResponse{Code: 0, Message: "success", Data: content}
+	res := libs.APIResponse{Code: 0, Message: "success", Data: fileData}
 	json.NewEncoder(w).Encode(res)
 }
 
@@ -116,7 +122,11 @@ func HandleChangeFilePwd(w http.ResponseWriter, r *http.Request) {
 func HandleSetIsPwd(w http.ResponseWriter, r *http.Request) {
 	isPwd := r.URL.Query().Get("ispwd")
 	// 0非加密机器 1加密机器
-	isPwdValue, _ := strconv.Atoi(isPwd)
+	isPwdValue, err := strconv.Atoi(isPwd)
+	if err != nil {
+		libs.HTTPError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 	var isPwdBool bool
 	if isPwdValue == 0 {
 		isPwdBool = false

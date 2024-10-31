@@ -2,9 +2,9 @@
   <div v-if="store.chatList.length > 0" v-for="item in store.chatList" :key="item.id">
     <div
       class="list-item"
-      @click="store.changeChatList(item.id)"
+      @click="store.changeChatList(item.userId)"
       :style="{
-        backgroundColor: item.id === store.targetUserId ? '#bae7ff' : '',
+        backgroundColor: item.userId == store.targetUserId ? '#bae7ff' : '',
       }"
     >
       <el-row>
@@ -21,14 +21,8 @@
             <el-col :span="18" class="preview-left">
               <div class="previewName">{{ item.nickname }}</div>
               <div class="previewChat">
-                <span v-if="item.previewType === 0">{{ item.previewMessage }}</span>
-                <span v-if="item.previewType === 1">
-                  {{
-                    item.targetUserId === id
-                      ? "你"
-                      : '"' + item.nickname + '"'
-                  }}撤回了一条消息
-                </span>
+                <span>{{ item.previewMessage }}</span>
+              
               </div>
             </el-col>
             <el-col :span="6" class="preview-right">
