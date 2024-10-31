@@ -359,15 +359,16 @@ func IsHavePwd(pwd string) bool {
 }
 
 // salt值优先从server端获取，如果没有则从header获取
-func GetSalt(r *http.Request) string {
+func GetSalt(r *http.Request) (string, error) {
 	data, ishas := libs.GetConfig("salt")
-	salt := data.(string)
 	if ishas {
-		return salt
-	} else {
-		salt = r.Header.Get("salt")
-		return salt
+		return data.(string), nil
 	}
+	salt := r.Header.Get("salt")
+	if salt != "" {
+		return salt, nil
+	}
+	return "", fmt.Errorf("无法获取salt")
 }
 
 // 获取加密标志
