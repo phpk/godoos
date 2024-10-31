@@ -37,9 +37,9 @@
 
 	const store = useChatStore();
 
-	const sendMessage = (id:number) => {
+	const sendMessage = (userId:number) => {
 		store.currentNavId = 0;
-    store.updateConversationList(id)
+    store.changeChatListAndGetChatHistory(userId)
 	};
 </script>
 

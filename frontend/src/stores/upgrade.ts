@@ -67,6 +67,20 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     };
   }
 
+  // 获取用户聊天消息
+  function userChatMessage() {
+    const url = getUrl('/chat/message', false)
+    const source = new EventSource(url);
+
+    source.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+
+      handleMessage(data);
+    };
+    source.onerror = function (event) {
+      console.error('EventSource error:', event);
+    };
+  }
 
   async function handleMessage(message: any) {
     switch (message.type) {
@@ -79,6 +93,9 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
       case 'online':
         chatChatStore.handleUserData(message.data)
         break;
+      case 'user':
+        chatChatStore.userChatMessage
+        break
       default:
         console.warn('Unknown message type:', message.type);
     }
@@ -180,6 +197,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     checkUpdate,
     systemMessage,
     onlineMessage,
+    userChatMessage,
     update
   }
 })

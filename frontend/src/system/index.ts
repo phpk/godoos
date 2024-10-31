@@ -14,7 +14,6 @@ import {
 } from './type/type';
 import { BrowserWindow, BrowserWindowOption } from './window/BrowserWindow';
 
-import { useMessageStore } from '@/stores/message';
 import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
 import { notifyError } from '@/util/msg';
@@ -435,7 +434,7 @@ export class System {
       const fileContent = await this.fs.readShareFile(path)
       // console.log('阅读：', fileContent);
       if (fileContent !== false) {
-        const fileName = extname(arr[arr.length-1] || '') || 'link'
+        const fileName = extname(arr[arr.length - 1] || '') || 'link'
         this._flieOpenerMap
           .get(fileName)
           ?.func.call(this, path, fileContent || '');
@@ -461,7 +460,7 @@ export class System {
           ?.func.call(this, path, fileContent || '');
       }
     }
-    
+
   }
   // 插件系统
   use(func: OsPlugin): void {
