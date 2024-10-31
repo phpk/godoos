@@ -13,77 +13,60 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 	// 初始值
 	path := r.URL.Query().Get("path")
-	hasPwd, err := GetPwdFlag()
-	if err != nil {
-		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	// 检查是否需要密码，如果需要，则从请求头中获取文件密码和盐值
-	var fPwd string
-	var salt string
-	if hasPwd {
-		fPwd = r.Header.Get("filePwd") // 获取文件密码
-		salt, err = GetSalt(r)         // 获取盐值
-		if err != nil {
-			libs.HTTPError(w, http.StatusInternalServerError, err.Error()) // 处理获取盐值时的错误
-			return
-		}
-	}
-
-	// 校验文件路径
-	if err := validateFilePath(path); err != nil {
-		libs.HTTPError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	// 获取文件路径
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	// 读取内容
+	// 非加密文件直接返回base64编码
+	isHide := IsHaveHiddenFile(basePath, path)
+	if !isHide {
+		fileContent, err := ReadFile(basePath, path)
+		if err != nil {
+			libs.HTTPError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		data := string(fileContent)
+		if !strings.HasPrefix(data, "link::") {
+			data = base64.StdEncoding.EncodeToString(fileContent)
+		}
+		resp := libs.APIResponse{Message: "success", Data: data}
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+	// 有隐藏文件说明这是一个加密过的文件,需要验证密码
+	fPwd := r.Header.Get("filePwd")
+	if fPwd == "" {
+		libs.HTTPError(w, http.StatusBadRequest, "密码不能为空")
+		return
+	}
+	salt, err := GetSalt(r)
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if !CheckFilePwd(fPwd, salt) {
+		libs.HTTPError(w, http.StatusBadRequest, "密码错误")
+		return
+	}
+	// 密码正确则读取内容并解密
 	fileContent, err := ReadFile(basePath, path)
 	if err != nil {
 		libs.HTTPError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	fileData := string(fileContent)
-	// 无加密情况
-	if !hasPwd {
-		// 判断文件开头是否以link:开头
-		if !strings.HasPrefix(fileData, "link::") {
-			fileData = base64.StdEncoding.EncodeToString(fileContent)
-		}
-		resp := libs.APIResponse{Message: "success", Data: fileData}
-		json.NewEncoder(w).Encode(resp)
-		return
-	}
-
-	// 加密情况
-	// 1. 验证文件密码
-	if !CheckFilePwd(fPwd, salt) {
-		libs.HTTPError(w, http.StatusBadRequest, "密码错误")
-		return
-	}
-
-	// 2. 解密文件内容
+	// 解密
 	fileContent, err = libs.DecryptData(fileContent, libs.EncryptionKey)
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	// 3. base64编码后返回
-	// 判断文件开头是否以link:开头
-	fileData = string(fileContent)
-	if !strings.HasPrefix(fileData, "link::") {
-		fileData = base64.StdEncoding.EncodeToString(fileContent)
+	data := string(fileContent)
+	if !strings.HasPrefix(data, "link::") {
+		data = base64.StdEncoding.EncodeToString(fileContent)
 	}
-
-	// 初始响应
-	res := libs.APIResponse{Code: 0, Message: "success", Data: fileData}
-	json.NewEncoder(w).Encode(res)
+	resp := libs.APIResponse{Message: "success", Data: data}
+	json.NewEncoder(w).Encode(resp)
 }
 
 // 设置文件密码
@@ -97,7 +80,6 @@ func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 服务端再hash加密
-	// "Lqda0ez6DeBhKOHDUklSO1SDJ7QAwHLgUqFYFfN6kU4="
 	hashPwd := libs.HashPassword(fPwd, salt)
 
 	// 服务端存储
