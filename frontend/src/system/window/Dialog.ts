@@ -1,7 +1,6 @@
 import { ElMessageBox } from 'element-plus'
 import {BrowserWindow} from "./BrowserWindow"
 import { md5 } from "js-md5"
-import { notifyError } from "@/util/msg"
 class Dialog {
   constructor() {
     // static class
@@ -103,31 +102,27 @@ class Dialog {
 
     return porm;
   }
-  public static showInputBox(correctPwd: string): Promise<{response: number}>{
-    let promres: (value: { response: number }) => void = () => {
+  public static showInputBox(): Promise<{response: number, inputPwd?: string}>{
+    let promres: (value: { response: number, inputPwd?: string }) => void = () => {
       // do nothing
     };
 
     const porm = new Promise<{
-      response: number;
+      response: number,
+      inputPwd?: string
     }>((resolve) => {
       promres = resolve;
     });
     ElMessageBox.prompt('请输入文件加密密码'   , '提示', {
+      inputType: 'password',
       confirmButtonText: '确定',
       cancelButtonText: '取消',
     }).then(({value}) => {
-      // console.log('正确否：', correctPwd === md5(value));
-      // console.log('正确密码：', correctPwd);
-      const isCorrect = md5(value) === correctPwd ? 1 : 0
-      if(!isCorrect) {
-        notifyError('密码错误')
-      }
       promres({
-        response: isCorrect,
+        response: 1,
+        inputPwd: md5(value)
       });
     }).catch(()=>{
-      console.log('取消');
       promres({
         response: -1,
       });

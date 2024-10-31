@@ -432,7 +432,6 @@ export class System {
     if (isShareFile(path)) {
       const arr = path.split('/')
       const fileContent = await this.fs.readShareFile(path)
-      // console.log('阅读：', fileContent);
       if (fileContent !== false) {
         const fileName = extname(arr[arr.length - 1] || '') || 'link'
         this._flieOpenerMap
@@ -455,19 +454,23 @@ export class System {
           salt: '',
           filePwd: ''
         }
-          header.salt = filePwd.file.salt ? filePwd.file.salt : 'vIf_wIUedciAd0nTm6qjJA=='
-          header.filePwd = filePwd.file.pwd
+        //判断文件是否需要输入密码
         if(fileStat.isPwd && path.indexOf('.exe') === -1) {
-          const temp = await Dialog.showInputBox(filePwd.file.pwd)
+          const temp = await Dialog.showInputBox()
           if (temp.response !== 1) {
             return
           }
+          header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
+          header.filePwd = temp?.inputPwd || ''
         }
         // 读取文件内容
         const fileContent = await this.fs.readFile(path, header);
+        if (!fileContent && fileStat.isPwd){
+          notifyError('密码错误')
+          return
+        }
         // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
         const fileName = extname(fileStat?.name || '') || 'link'
-        //console.log(fileName)
         this._flieOpenerMap
           .get(fileName)
           ?.func.call(this, path, fileContent || '');

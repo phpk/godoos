@@ -1,5 +1,6 @@
 import * as fspath from '../system/core/Path';
 import { OsFileWithoutContent } from '../system/core/FileSystem';
+import { turnFilePath } from "@/util/sharePath.ts";
 
 export type RouterPath = string;
 export const useComputer = (adpater: {
@@ -15,6 +16,7 @@ export const useComputer = (adpater: {
   isDirectory: (file: OsFileWithoutContent) => boolean;
   notify: (title: string, content: string) => void;
   search: (keyword: string) => Promise<OsFileWithoutContent[]>;
+  readShareDir: (path: RouterPath) => Promise<OsFileWithoutContent[]>;
 }) => {
   const isVia = async (path: RouterPath) => {
     if (path === '') path = '/';
@@ -42,8 +44,10 @@ export const useComputer = (adpater: {
     if (!(await isVia(currentPath))) return;
     // console.log('use computer refresh:', currentPath);
     let result
-    if (currentPath.substring(0,2) == '/F') {
+    if (currentPath === '/F/myshare' || currentPath === '/F/othershare') {
       result = await adpater.sharedir(currentPath)
+    } else if (currentPath.indexOf('/F') === 0) {
+      result = await adpater.readShareDir(currentPath)
     } else {
       result = await adpater.readdir(currentPath);
     }
@@ -68,7 +72,8 @@ export const useComputer = (adpater: {
   };
   const openFolder = (file: OsFileWithoutContent) => {
     if (adpater.isDirectory(file)) {
-      adpater.setRouter(file.path);
+      const path = file?.isShare ? turnFilePath(file) : file.path
+      adpater.setRouter(path);
       refersh();
     } else {
       adpater.openFile(file.path);

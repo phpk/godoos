@@ -33,8 +33,7 @@ const params = {
 }
 // 设置文件密码
 async function toSetFilePwd() {
-    //console.log('密码aaa:',filePwd.value);
-    params.pwd = filePwd.value === '' ? '' : md5(filePwd.value)
+    params.pwd = filePwd.value || md5(filePwd.value)
     params.isPwd = filePwd.value === '' ? 0 : 1
     const url = getApiUrl() + '/file/setfilepwd'
     const header = {
@@ -50,8 +49,6 @@ async function toSetFilePwd() {
         params.pwd = ''
         notifyError("设置文件密码失败")
     }
-    //console.log('密码：',params);
-    
     setSystemKey('file',params)
 }
 function clearPwd() {

@@ -165,14 +165,17 @@ const { refersh, createFolder, backFolder, openFolder, onComputerMount } = useCo
     return system.fs.readdir(path);
   },
   sharedir(path) {
-    const val:number = getSystemConfig().userInfo.id
-    return system.fs.sharedir(val,path)
+    return system.fs.sharedir(getSystemConfig().userInfo.id,path)
   },
   exists(path) {
     return system.fs.exists(path);
   },
   isDirectory(file) {
     return file.isDirectory;
+  },
+  // 读取分享文件夹
+  readShareDir(path){
+    return system.fs.readShareFileDir(getSystemConfig().userInfo.id, path)
   },
   notify(title, content) {
     new Notify({
