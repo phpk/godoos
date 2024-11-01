@@ -334,7 +334,7 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
       isRead: false,
       status: 'sending'
     }
-    //console.log(saveMsg)
+    console.log(saveMsg)
     const msgId = await db.addOne('chatmsg', saveMsg)
     //await getMsgList()
     

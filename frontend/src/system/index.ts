@@ -121,7 +121,7 @@ export class System {
       }, 3000);
     }
     setTimeout(() => {
-      // upgradeStore.systemMessage()
+      upgradeStore.systemMessage()
     }, 6000);
 
   }

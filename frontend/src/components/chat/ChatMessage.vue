@@ -28,8 +28,6 @@
 							{{ item.message }}
 						</div>
 					</div>
-					<!-- 时间显示在消息框外 -->
-					<div class="chat-time">{{ formatTime(item.time) }}</div>
 				</el-col>
 				<el-col :span="2">
 					<div class="chat-avatar">
@@ -73,8 +71,6 @@
 							{{ item.message }}
 						</div>
 					</div>
-					<!-- 时间显示在消息框外 -->
-					<div class="chat-time">{{ formatTime(item.time) }}</div>
 				</el-col>
 				<el-col :span="8" />
 			</el-row>
@@ -108,16 +104,6 @@
 <script setup lang="ts">
 	import { useChatStore } from "@/stores/chat";
 	const store = useChatStore();
-
-	const formatTime = (timestamp: number) => {
-		const date = new Date(timestamp);
-		const options: Intl.DateTimeFormatOptions = {
-			hour: "numeric",
-			minute: "numeric",
-			hour12: false,
-		};
-		return date.toLocaleString("default", options);
-	};
 </script>
 
 <style scoped>
@@ -152,16 +138,5 @@
 		font-size: 15px;
 		font-family: Arial, sans-serif;
 		line-height: 1.5;
-	}
-
-	.chat-time {
-		font-size: 12px;
-		color: #999;
-		height: 50px;
-		display: flex;
-		align-items: self-end;
-		justify-content: start;
-		padding-left: 10px;
-		text-align: left;
 	}
 </style>

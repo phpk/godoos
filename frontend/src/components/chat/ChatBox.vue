@@ -1,6 +1,56 @@
 <script setup lang="ts">
 	import { useChatStore } from "@/stores/chat";
-	const store:any = useChatStore();
+	const store: any = useChatStore();
+
+	// // 模拟 msgList 数据
+	// const mockMsgList = [
+	// 	{
+	// 		id: 1,
+	// 		isMe: true,
+	// 		type: "text",
+	// 		content: "你好，这是一个测试消息 {--smile--}",
+	// 		createdAt: new Date().toISOString(),
+	// 	},
+	// 	{
+	// 		id: 2,
+	// 		isMe: false,
+	// 		type: "file",
+	// 		content: [
+	// 			{
+	// 				name: "测试文件.pdf",
+	// 				path: "/path/to/file.pdf",
+	// 			},
+	// 		],
+	// 		createdAt: new Date().toISOString(),
+	// 	},
+	// 	{
+	// 		id: 3,
+	// 		isMe: true,
+	// 		type: "image",
+	// 		content: ["/path/to/image1.jpg", "/path/to/image2.jpg"],
+	// 		createdAt: new Date().toISOString(),
+	// 	},
+	// 	{
+	// 		id: 4,
+	// 		isMe: false,
+	// 		type: "fileSending",
+	// 		content: {
+	// 			status: "apply",
+	// 			path: "/path/to/file.pdf",
+	// 		},
+	// 		createdAt: new Date().toISOString(),
+	// 	},
+	// 	{
+	// 		id: 5,
+	// 		isMe: true,
+	// 		type: "applyfile",
+	// 		content: {
+	// 			status: "apply",
+	// 			fileList: ["/path/to/file1.pdf", "/path/to/file2.pdf"],
+	// 		},
+	// 		createdAt: new Date().toISOString(),
+	// 	},
+	// ];
 </script>
 
 <template>
@@ -79,12 +129,18 @@
 		</el-footer>
 	</div>
 
-	<!-- <div class="no-message-container" v-else>
-    <el-icon :size="180" color="#0078d7">
-      <ChatDotSquare />
-    </el-icon>
-    <p>欢迎使用GodoOS</p>
-  </div> -->
+	<div
+		class="no-message-container"
+		v-else
+	>
+		<el-icon
+			:size="180"
+			color="#0078d7"
+		>
+			<ChatDotSquare />
+		</el-icon>
+		<p>欢迎使用GodoOS</p>
+	</div>
 </template>
 
 <style scoped>

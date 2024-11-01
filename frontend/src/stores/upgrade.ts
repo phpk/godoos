@@ -38,8 +38,10 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     // 如果所有部分都相等，则返回0
     return 0;
   }
+
   function systemMessage() {
     const config = getSystemConfig();
+
     const source = new EventSource(`${config.apiUrl}/system/message`);
 
     source.onmessage = function (event) {
@@ -59,7 +61,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
 
     source.onmessage = function (event) {
       const data = JSON.parse(event.data);
-
+      console.log(data)
       handleMessage(data);
     };
     source.onerror = function (event) {
