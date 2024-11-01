@@ -94,9 +94,12 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         chatChatStore.handleUserData(message.data)
         break;
       case 'user':
-        console.log(message.data)
         chatChatStore.userChatMessage(message.data)
         break
+      case 'group':
+        console.log(message.data);
+        chatChatStore.groupChatMessage(message.data);
+        break;
       default:
         console.warn('Unknown message type:', message.type);
     }
@@ -144,6 +147,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     });
     return list
   }
+
   async function update() {
     const config = getSystemConfig();
     const upUrl = `${config.apiUrl}/system/update?url=${updateUrl.value}`

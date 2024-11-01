@@ -1,6 +1,6 @@
 <script setup lang="ts">
 	import { useChatStore } from "@/stores/chat";
-	const store = useChatStore();
+	const store:any = useChatStore();
 </script>
 
 <template>
@@ -11,11 +11,11 @@
 		<!--聊天顶部区-->
 		<el-header class="chat-header">
 			<div class="header-title">
-				<span v-if="store.targetUserInfo.nickname">{{
-					store.targetUserInfo.nickname
+				<span v-if="store.targetUserInfo.displayName">{{
+					store.targetUserInfo.displayName
 				}}</span>
-				<span v-else-if="store.targetGroupInfo.name">{{
-					store.targetGroupInfo.name
+				<span v-else-if="store.targetGroupInfo.displayName">{{
+					store.targetGroupInfo.displayName
 				}}</span>
 			</div>
 		</el-header>

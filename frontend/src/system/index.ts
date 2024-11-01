@@ -118,7 +118,6 @@ export class System {
         // const messageStore = useMessageStore();
         // messageStore.systemMessage()
         upgradeStore.onlineMessage();
-
       }, 3000);
     }
     setTimeout(() => {
@@ -455,7 +454,7 @@ export class System {
           filePwd: ''
         }
         //判断文件是否需要输入密码
-        if(fileStat.isPwd && path.indexOf('.exe') === -1) {
+        if (fileStat.isPwd && path.indexOf('.exe') === -1) {
           const temp = await Dialog.showInputBox()
           if (temp.response !== 1) {
             return
@@ -465,7 +464,7 @@ export class System {
         }
         // 读取文件内容
         const fileContent = await this.fs.readFile(path, header);
-        if (!fileContent && fileStat.isPwd){
+        if (!fileContent && fileStat.isPwd) {
           notifyError('密码错误')
           return
         }

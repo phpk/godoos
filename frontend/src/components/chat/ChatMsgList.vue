@@ -19,7 +19,7 @@
         <el-col :span="18" class="preview">
           <el-row class="preview-content">
             <el-col :span="18" class="preview-left">
-              <div class="previewName">{{ item.nickname || item.name }}</div>
+              <div class="previewName">{{ item.displayName }}</div>
               <div class="previewChat">
                 <span>{{ item.previewMessage }}</span>
               

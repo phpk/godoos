@@ -7,13 +7,13 @@ dbInit.version(1).stores({
   // 用户列表
   workbenchusers: '++id,ip,userName,avatar,mobile,phone,nickName,isOnline,updatedAt,createdAt',
   // 聊天记录
-  chatRecord: '++id,toUserId,messages,time,createdAt,userInfo',
+  chatRecord: '++id,toUserId,messages,messageType,time,createdAt,userInfo',
   // 会话列表
   conversationList: '++id,avatar,chatId,username,nickname,userId,toUserId,previewMessage,messages,time,createdAt',
   chatuser: '++id,ip,hostname,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
   // chatmsg: '++id,toUserId,targetIp,senderInfo,reciperInfo,previewMessage,content,type,status,isRead,isMe,readAt,createdAt',
   chatmessage: '++id,userId,toUserId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
-  groupChatRecord: '++id,userId,groupId,senderInfo,message,time,type,createdAt',
+  groupChatRecord: '++id,userId,groupId,messageType,userInfo,message,time,type,createdAt',
   // 群组表
   group: '++id,avatar,name,groupId,creator,createdAt',
   // 群成员表

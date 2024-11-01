@@ -10,7 +10,7 @@
 
 	// 将用户列表转换为 el-transfer 组件所需的数据格式
 	const generateData = () => {
-		return store.allUserList.map((user) => ({
+		return store.allUserList.map((user: any) => ({
 			key: user.id,
 			label: user.nickname,
 			avatar: user.avatar, // 添加头像数据
