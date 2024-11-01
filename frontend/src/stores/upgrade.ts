@@ -61,7 +61,6 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
 
     source.onmessage = function (event) {
       const data = JSON.parse(event.data);
-      console.log(data)
       handleMessage(data);
     };
     source.onerror = function (event) {
@@ -99,7 +98,6 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         chatChatStore.userChatMessage(message.data)
         break
       case 'group':
-        console.log(message.data);
         chatChatStore.groupChatMessage(message.data);
         break;
       default:

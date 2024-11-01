@@ -8,7 +8,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   interface ChatMessage {
     id?: any;
-    type: any;   
+    type: any;
     time?: any;
     message: any; // 消息内容
     userId: any; // 发送者id
@@ -19,6 +19,30 @@ export const useChatStore = defineStore('chatStore', () => {
     userInfo: { // 发送者信息
     }
   };
+
+  // 文件消息类型
+  interface ChatFileMessage {
+    type: string;
+    content_type: string;
+    time: Date | null;
+    userId: number;
+    toUserId: number;
+    message: string;
+    to_groupid: string,
+    userInfo: {};
+  }
+
+  // 文件发送模型
+  const fileMessage: ChatFileMessage = {
+    type: '',
+    content_type: '',
+    time: null,
+    userId: 0,
+    toUserId: 0,
+    message: '',
+    to_groupid: '',
+    userInfo: {},
+  }
 
   // 发起群聊对话框显示
   const groupChatInvitedDialogVisible = ref(false);
@@ -37,6 +61,8 @@ export const useChatStore = defineStore('chatStore', () => {
 
   // 群名
   const departmentName = ref('');
+
+  const sendInfo: any = ref()
 
   // 定义用户类型
   type User = {
@@ -135,7 +161,43 @@ export const useChatStore = defineStore('chatStore', () => {
     currentNavId.value = id;
   };
 
-  const sendMessage = async () => {
+  const sendMessage = async (messageType: string) => {
+    if (messageType == 'text') {
+      sendTextMessage()
+    }
+    // if (messageType == 'image') {
+    //   sendImageMessage()
+    // }
+
+    if (messageType == 'applyfile') {
+      fileMessage.type = "user"
+      fileMessage.content_type = 'file'
+      fileMessage.time = null
+      fileMessage.userId = userInfo.value.id
+      fileMessage.toUserId = targetChatId.value
+      fileMessage.message = sendInfo.value[0]
+      fileMessage.to_groupid = targetGroupInfo.value.group_id || ''
+      try {
+        await sendFileMessage()
+      } catch (error) {
+        notifyError('文件发送失败');
+      }
+    }
+  }
+
+  const sendFileMessage = async () => {
+
+    console.log(fileMessage)
+
+    const res = await fetchPost(config.userInfo.url + '/chat/send/file', JSON.stringify(fileMessage));
+    if (res.ok) {
+      const data = await res.json();
+      console.log(data)
+    }
+  }
+
+  // 发送文字消息 
+  const sendTextMessage = async () => {
     let messageHistory: ChatMessage;
 
     // 判断是群聊发送还是单聊发送
@@ -210,6 +272,7 @@ export const useChatStore = defineStore('chatStore', () => {
     }
 
   }
+
 
   // 更新聊天和聊天记录
   const changeChatListAndChatHistory = async (data: any) => {
@@ -399,7 +462,6 @@ export const useChatStore = defineStore('chatStore', () => {
     // 更新会话列表数据库
     // 更新chatlist
     // 更新聊天记录
-    console.log(data)
     const isPresence = await db.getByField('workbenchusers', 'id', data.userId)
     if (isPresence[0].id !== data.userId) {
       return
@@ -775,6 +837,7 @@ export const useChatStore = defineStore('chatStore', () => {
     allUserList,
     departmentName,
     targetGroupInfo,
+    sendInfo,
     initChat,
     showContextMenu,
     setCurrentNavId,

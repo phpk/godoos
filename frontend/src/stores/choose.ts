@@ -6,6 +6,7 @@ export const useChooseStore = defineStore('chooseStore', () => {
     const path:any = ref([])
     const ifShow = ref(false)
     const select = (title = '选择文件', fileExt:any) => {
+      
        win.value = new BrowserWindow({
             title,
             content: "Computer",

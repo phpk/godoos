@@ -1,58 +1,3 @@
-<script setup lang="ts">
-	import { useChatStore } from "@/stores/chat";
-	const store: any = useChatStore();
-
-	// // 模拟 msgList 数据
-	// const mockMsgList = [
-	// 	{
-	// 		id: 1,
-	// 		isMe: true,
-	// 		type: "text",
-	// 		content: "你好，这是一个测试消息 {--smile--}",
-	// 		createdAt: new Date().toISOString(),
-	// 	},
-	// 	{
-	// 		id: 2,
-	// 		isMe: false,
-	// 		type: "file",
-	// 		content: [
-	// 			{
-	// 				name: "测试文件.pdf",
-	// 				path: "/path/to/file.pdf",
-	// 			},
-	// 		],
-	// 		createdAt: new Date().toISOString(),
-	// 	},
-	// 	{
-	// 		id: 3,
-	// 		isMe: true,
-	// 		type: "image",
-	// 		content: ["/path/to/image1.jpg", "/path/to/image2.jpg"],
-	// 		createdAt: new Date().toISOString(),
-	// 	},
-	// 	{
-	// 		id: 4,
-	// 		isMe: false,
-	// 		type: "fileSending",
-	// 		content: {
-	// 			status: "apply",
-	// 			path: "/path/to/file.pdf",
-	// 		},
-	// 		createdAt: new Date().toISOString(),
-	// 	},
-	// 	{
-	// 		id: 5,
-	// 		isMe: true,
-	// 		type: "applyfile",
-	// 		content: {
-	// 			status: "apply",
-	// 			fileList: ["/path/to/file1.pdf", "/path/to/file2.pdf"],
-	// 		},
-	// 		createdAt: new Date().toISOString(),
-	// 	},
-	// ];
-</script>
-
 <template>
 	<div
 		class="chatbox-main"
@@ -86,12 +31,14 @@
 				<el-icon
 					:size="20"
 					class="input-option-icon"
+					@click="selectImg"
 				>
 					<Picture />
 				</el-icon>
 				<el-icon
 					:size="20"
 					class="input-option-icon"
+					@click="selectFile"
 				>
 					<Link />
 				</el-icon>
@@ -109,7 +56,7 @@
 					maxlength="1000"
 					resize="none"
 					class="textarea"
-					@keyup.enter.exact="store.sendMessage"
+					@keyup.enter.exact="store.sendMessage('text')"
 					v-model="store.message"
 				/>
 			</div>
@@ -119,7 +66,7 @@
 				content="按enter键发送，按ctrl+enter键换行"
 			>
 				<el-icon
-					@click="store.sendMessage"
+					@click="store.sendMessage('text')"
 					:size="22"
 					class="input-button"
 				>
@@ -142,6 +89,38 @@
 		<p>欢迎使用GodoOS</p>
 	</div>
 </template>
+
+<script setup lang="ts">
+	import { useChatStore } from "@/stores/chat";
+	import { useChooseStore } from "@/stores/choose";
+	const store: any = useChatStore();
+	const choose = useChooseStore();
+	const imgExt = ["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"];
+	const choosetype = ref("image");
+
+	function selectImg() {
+		choosetype.value = "image";
+		choose.select("选择图片", imgExt);
+	}
+	function selectFile() {
+		choosetype.value = "applyfile";
+		choose.select("选择文件", "*");
+	}
+
+	watch(
+		() => choose.path,
+		(newVal, _) => {
+			console.log("choose.path 变化了:", newVal);
+			const paths = toRaw(newVal);
+			if (paths.length > 0) {
+				store.sendInfo = paths;
+				choose.path = [];
+				store.sendMessage(choosetype.value);
+			}
+		},
+		{ deep: true } // 添加deep: true以深度监听数组或对象内部的变化
+	);
+</script>
 
 <style scoped>
 	.chatbox-main {

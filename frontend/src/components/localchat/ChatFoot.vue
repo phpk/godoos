@@ -83,7 +83,7 @@ function selectFile() {
 watch(
   () => choose.path,
   (newVal, _) => {
-    //console.log("userList 变化了:", newVal);
+    console.log("userList 变化了:", newVal);
     const paths = toRaw(newVal)
     if(paths.length > 0){
       store.sendInfo = paths;
