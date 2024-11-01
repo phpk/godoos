@@ -127,8 +127,14 @@ async function onOpenArrow(item: FileWithOpen) {
   if (item.isOpen && !item.subFileList?.length) {
     return;
   }
+  
   item.isOpen = !item.isOpen;
-  if(isShareFile(item.path)) {
+  // if (item.isShare) {
+  //   item.subFileList = (await sys.fs.readShareFileDir(getSystemConfig().userInfo.id, item?.path)).filter((file:any) => {
+  //     return file.isDirectory;
+  //   });
+  // } else
+   if(isShareFile(item.path)) {
     item.subFileList = (await sys.fs.sharedir(getSystemConfig().userInfo.id, item?.path)).filter((file:any) => {
       return file.isDirectory;
     });

@@ -130,6 +130,8 @@ function handleOnOpen(item: OsFileWithoutContent) {
     choose.path.push(item.path)
     choose.close()
   } else {
+    // console.log(' file list:',props.fileList);
+    
     props.onOpen(item);
     emitEvent('desktop.app.open');
   }
@@ -239,6 +241,7 @@ function startDragApp(mouse: DragEvent, item: OsFileWithoutContent) {
 }
 
 function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: number) {
+  
   if (chosenIndexs.value.length <= 1) {
     chosenIndexs.value = [props.fileList.findIndex((app) => app.path === item.path)];
   }
@@ -280,7 +283,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
     // },
 
   ];
-  if (item.isDirectory) {
+  if (item.isDirectory && !item.isShare) {
     if (getSystemKey('storeType') == 'local') {
       menuArr.push({
         label: t('zip'),
@@ -364,7 +367,10 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
           chosenIndexs.value = [];
         },
       },
-      {
+
+    ];
+    if (item.isShare && item.path.indexOf('/F/othershare') !== 0) {
+      fileMenus.push({
         label: t('delete'),
         click: async () => {
           for (let i = 0; i < chosenIndexs.value.length; i++) {
@@ -376,11 +382,10 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
             sys.refershAppList()
           }
         },
-      },
-
-    ];
+      })
+    }
     const userType = sys.getConfig('userType');
-    if (userType == 'member') {
+    if (userType == 'member' && !item.isShare) {
 
       menuArr.push(
         {

@@ -103,6 +103,7 @@ class OsFile extends OsFileInfo {
   isSys?: number; // 文件是否是系统文件（可选）
   isShare?: boolean; // 文件是否为共享文件
   isPwd?: boolean; //文件是否上锁
+  titleName?: string; // 文件原本路径
 
   /**
    * OsFile 类的构造函数。

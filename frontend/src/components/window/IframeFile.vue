@@ -7,6 +7,7 @@ import { BrowserWindow, Notify, System, Dialog } from "@/system";
 import { ref, onMounted, inject, onUnmounted, toRaw } from "vue";
 import { isBase64, base64ToBuffer } from "@/util/file";
 import { getSplit, getSystemConfig } from "@/system/config";
+import { isShareFile } from "@/util/sharePath.ts";
 const SP = getSplit();
 
 const sys: any = inject<System>("system");
@@ -61,8 +62,22 @@ const eventHandler = async (e: MessageEvent) => {
     } else {
       path = `${SP}C${SP}Users${SP}Desktop${SP}${title}.${ext}`;
     }
-
-    if (await sys?.fs.exists(path)) {
+    //判断是否共享文件，以及编辑权限
+    const isShare = ref(false)
+    const isWrite = ref(0)
+    if (isShareFile(path)) {
+      const file = await sys?.fs.getShareInfo(path)
+      console.log('文件信息：',file);
+      isShare.value = true
+      isWrite.value = file.fs.is_write
+      if (!isWrite.value) {
+        new Notify({
+          title: "提示",
+          content: "该文件没有编辑权限",
+        });
+        return;
+      }
+    }else if (await sys?.fs.exists(path)) {
       let res = await Dialog.showMessageBox({
         type: "info",
         title: "提示",
@@ -84,11 +99,11 @@ const eventHandler = async (e: MessageEvent) => {
         //console.log(data.content)
       }
     }
-    //console.log(data.content)
-    await sys?.fs.writeFile(path, data.content);
+    const res = isShare ? await sys?.fs.writeShareFile(path, data.content, isWrite.value) : await sys?.fs.writeFile(path, data.content);
+    console.log('编写文件：', res);
     new Notify({
       title: "提示",
-      content: "文件已保存",
+      content: res.code === 0 ? '文件已保存' : '文件保存失败',
     });
     sys.refershAppList();
   } else if (eventData.type == "initSuccess") {

@@ -106,6 +106,7 @@ import { useFileDrag } from "@/hook/useFileDrag";
 import { useComputer } from "@/hook/useComputer";
 import { Rect, useRectChosen } from "@/hook/useRectChosen";
 import { getSystemConfig } from "@/system/config";
+import { isShareFile, isRootShare, turnLocalPath } from "@/util/sharePath.ts";
 
 const { choseStart, chosing, choseEnd, getRect, Chosen } = useRectChosen();
 
@@ -304,8 +305,12 @@ async function onTreeOpen(path: string) {
   chosenTreePath.value = path;
   let file:any
   // const file = await system.fs.stat(path);
-  if (path.substring(0,2) == '/F') {
-    file = path.indexOf('/F/myshare') !== -1 ? shareFileList.value[0] : shareFileList.value[1]
+  if (isRootShare(path)) {
+    file = path === '/F/myshare' ? shareFileList.value[0] : shareFileList.value[1]
+  } else if (isShareFile(path)) {
+    file = await system.fs.getShareInfo(path)
+    file = file.fi
+    file.path = turnLocalPath(file.path, path, 1)
   } else {
     file = await system.fs.stat(path)
   }

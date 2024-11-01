@@ -3,7 +3,7 @@
         <div v-if="setPwd">
             <div class="setting-item" >
                 <label>文件密码</label>
-                <el-input v-model="filePwd" placeholder="请输入文件加密密码" type="password"/>
+                <el-input v-model="filePwd" placeholder="请设置6-10位的密码" type="password"/>
             </div>
             <div class="setting-item">
                 <label></label>
@@ -33,7 +33,11 @@ const params = {
 }
 // 设置文件密码
 async function toSetFilePwd() {
-    params.pwd = filePwd.value || md5(filePwd.value)
+    if (filePwd.value.length < 6 || filePwd.value.length > 10) {
+        notifyError("密码长度应该在6-10位之间")
+        return
+    }
+    params.pwd = md5(filePwd.value)
     params.isPwd = filePwd.value === '' ? 0 : 1
     const url = getApiUrl() + '/file/setfilepwd'
     const header = {
@@ -51,10 +55,10 @@ async function toSetFilePwd() {
     }
     setSystemKey('file',params)
 }
-function clearPwd() {
+async function clearPwd() {
     setPwd.value = false
     filePwd.value = ''
-    toSetFilePwd()
+    await fetchGet(`${getApiUrl()}/file/changeispwd?ispwd=0`)
 }
 onMounted(()=>{
     setPwd.value = params.isPwd ? true : false

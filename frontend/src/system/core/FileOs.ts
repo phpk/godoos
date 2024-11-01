@@ -2,9 +2,9 @@ import { getFileUrl,fetchGet,fetchPost } from "../config.ts";
 const API_BASE_URL = getFileUrl()
 import { OsFileMode } from '../core/FileMode';
 import { getSystemConfig } from "@/system/config";
-import { turnServePath, turnLocalPath } from "@/util/sharePath.ts";
+import { turnServePath, turnLocalPath, isRootShare } from "@/util/sharePath.ts";
 import { OsFile } from "./FileSystem.ts";
-
+// import { notifyError } from "@/util/msg";
 export async function handleReadDir(path: any): Promise<any> {
     const res = await fetchGet(`${API_BASE_URL}/read?path=${encodeURIComponent(path)}`);
     if (!res.ok) {
@@ -55,6 +55,15 @@ export async function handleShareDetail(path: string, id: number): Promise<any> 
     path = turnServePath(path)
     
     const res = await fetchGet(`${API_BASE_URL}/shareinfo?path=${path}&id=${id}&sig=${sig}`);
+    if (!res.ok) {
+        return false;
+    }
+    return await res.json();
+}
+// 编写共享文件
+export async function handleWriteShareFile(path: string, content: any, isWrite: number): Promise<any> {
+    const formData = getFormData(content);
+    const res = await fetchPost(`${API_BASE_URL}/writewithchmod?path=${path}&iswrite=${isWrite}`, formData);
     if (!res.ok) {
         return false;
     }
@@ -244,24 +253,20 @@ export const useOsFile = () => {
     return {
         // 分享
         async sharedir(id: number, path: string) {
-            const response = await handleReadShareDir(id, path);
+            // console.log('是否是根：', isRootShare(path),path);
+            const fun = isRootShare(path) ? handleReadShareDir : handleShareDir
+            const response = await fun(id, path);
             if (response && response.data) {
                 return response.data.map((item: {[key: string]: OsFile}) => {
                     item.fi.isShare = true
                     item.fi.path = turnLocalPath(item.fi.path ,path)
+                    // item.fi.titleName = turnLocalPath(item.fi.titleName, path)
                     return item.fi
                 })
             }
             return [];
         },
         async readShareFile(path: string) {
-            const file = await handleShareDetail(path,getSystemConfig()?.userInfo.id)
-            // console.log('文件信息：',file, file.data.fs.is_write);
-            if(!file.data.fs.is_write) {
-                alert('该文件不能编辑')
-                console.log('该文件不能编辑');
-                return false
-            }
             const response = await handleReadShareFile(path);
             if (response && response.data) {
                 return response.data; 
@@ -271,7 +276,11 @@ export const useOsFile = () => {
         async readShareFileDir(id: number, path: string) {
             const response = await handleShareDir(id,path);
             if (response && response.data) {
-                return response.data; 
+                return response.data.map((item: {[key: string]: OsFile}) => {
+                    item.fi.isShare = true
+                    item.fi.path = turnLocalPath(item.fi.path ,path,1)
+                    return item.fi
+                })
             }
             return [];
         },
@@ -281,6 +290,15 @@ export const useOsFile = () => {
                 return response.data; 
             }
             return [];
+        },
+        //编写共享文件
+        async writeShareFile(path: string, content: any, isWrite: number) {
+            path = turnServePath(path)
+            const response = await handleWriteShareFile(path, content, isWrite);
+            if (response) {
+                return response; 
+            }
+            return false;
         },
         async readdir(path: string) {
             const response = await handleReadDir(path);
@@ -328,14 +346,15 @@ export const useOsFile = () => {
             return false;
         },
         async rename(oldPath: string, newPath: string) {
-            const response = await handleRename(oldPath, newPath);
+            const response = await handleRename(turnServePath(oldPath), turnServePath(newPath));
             if (response) {
                 return response; 
             }
             return false;
         },
         async rmdir(path: string) {
-            const response = await handleRmdir(path);
+            const fun = path.indexOf('/F') === 0 ? handleShareUnlink : handleRmdir
+            const response = await fun(path);
             if (response) {
                 return response; 
             }
