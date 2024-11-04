@@ -21,7 +21,7 @@ export const useComputer = (adpater: {
     if (path === '') path = '/';
     else if (path === '/') path = '/';
     else if (path.endsWith('/')) path = path.substr(0, path.length - 1);
-    
+
     if(path.substring(0,2) !== '/F') {
       const isExist = await adpater.exists(path);
       if (!isExist) {
