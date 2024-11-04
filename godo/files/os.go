@@ -364,7 +364,11 @@ func IsHavePwd(pwd string) bool {
 func GetSalt(r *http.Request) (string, error) {
 	data, ishas := libs.GetConfig("salt")
 	if ishas {
-		return data.(string), nil
+		// 断言成功则返回
+		if salt, ok := data.(string); ok {
+			return salt, nil
+		}
+		return "", fmt.Errorf("类型断言失败，期望类型为 string")
 	}
 	salt := r.Header.Get("salt")
 	if salt != "" {
