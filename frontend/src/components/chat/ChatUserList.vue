@@ -49,9 +49,9 @@
 		<el-collapse-item name="1">
 			<template #title>
 				<span
-					v-if="store.userList.length > 0"
+					v-if="store.onlineUserList.length > 0"
 					class="title"
-					>在线（{{ store.userList.length }}）</span
+					>在线（{{ store.onlineUserList.length }}）</span
 				>
 				<span
 					v-else
@@ -59,15 +59,14 @@
 					>在线</span
 				>
 			</template>
-			<div v-if="store.userList.length > 0">
+			<div v-if="store.onlineUserList.length > 0">
 				<div
-					v-for="item in store.userList"
+					v-for="item in store.onlineUserList"
 					:key="item.id"
 				>
-
 					<div
 						class="list-item"
-						@click="store.changeChatList(item.id,'user')"
+						@click="store.getSessionInfo(item.chatId, 'user')"
 						:style="{
 							backgroundColor:
 								item.id === store.targetChatId ? '#bae7ff' : '',
