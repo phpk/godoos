@@ -82,7 +82,7 @@ const store = useChatStore();
 
 <style scoped>
 .userAvatar {
-  margin: 30px auto 10px;
+  margin: 6px auto;
   -webkit-app-region: no-drag;
 }
 
@@ -93,13 +93,12 @@ const store = useChatStore();
   width: 40px;
   height: 40px;
   margin: 10px auto;
-  border-radius: 15%;
-  /* background-color: #bae7ff; */
+  /* border-radius: 15%; */
   transition: all 0.5s;
 }
-.menu-icon-box:hover {
+/* .menu-icon-box:hover {
   background-color: #d9d9d9;
-}
+} */
 
 .menu-icon {
   margin: 0px auto;
@@ -110,7 +109,7 @@ const store = useChatStore();
 .menu-icon-on {
   margin: 0px auto;
   font-size: 25px;
-  color: #1890ff;
+  color: #2A6BF2;
   cursor: pointer;
 }
 </style>

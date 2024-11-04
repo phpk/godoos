@@ -126,14 +126,15 @@
 	const store: any = useChatStore();
 	const choose = useChooseStore();
 	const imgExt = ["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"];
-	const choosetype = ref("image");
+	const choosetype = ref("");
 
 	function selectImg() {
 		choosetype.value = "image";
+		console.log(choosetype.value)
 		choose.select("选择图片", imgExt);
 	}
 	function selectFile() {
-		console.log("selectFile")
+		console.log("selectFile");
 		choosetype.value = "applyfile";
 		choose.select("选择文件", "*");
 	}
@@ -194,6 +195,7 @@
 		border-color: #d6d6d6;
 		border-style: solid;
 	}
+  
 
 	.msg-footer {
 		width: 100%;
@@ -276,7 +278,6 @@
 	}
 
 	.no-message-container {
-		height: 100%;
 		margin: 120px auto;
 		text-align: center;
 		justify-content: center;

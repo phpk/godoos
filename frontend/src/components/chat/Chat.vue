@@ -19,7 +19,7 @@
 
 	const data = ref(generateData());
 	// 声明 users 时指定类型为 any[]
-const users = ref<any[]>([]);
+	const users = ref<any[]>([]);
 
 	watchEffect(() => {
 		if (store.allUserList.length > 0) {
@@ -27,18 +27,18 @@ const users = ref<any[]>([]);
 		}
 	});
 
-  function toggleSelectItem(item: any) {
-	const index = users.value.indexOf(item.key);
-	if (index === -1) {
-		users.value.push(item.key);
-	} else {
-		users.value.splice(index, 1);
+	function toggleSelectItem(item: any) {
+		const index = users.value.indexOf(item.key);
+		if (index === -1) {
+			users.value.push(item.key);
+		} else {
+			users.value.splice(index, 1);
+		}
 	}
-}
 
-function removeItem(userId:string) {
-	users.value = users.value.filter((user) => user !== userId);
-}
+	function removeItem(userId: string) {
+		users.value = users.value.filter((user) => user !== userId);
+	}
 </script>
 <template>
 	<el-container class="container">
@@ -107,10 +107,22 @@ function removeItem(userId:string) {
 	>
 		<div class="dialog-body">
 			<!-- 添加输入部门名的输入框 -->
-			<el-input
-				v-model="store.departmentName"
-				placeholder="请输入群聊名称"
-			></el-input>
+			<el-form
+				label-position="top"
+			>
+				<el-form-item label="群聊名称:">
+					<el-input
+						style="width: 240px"
+						class="department-name"
+						v-model="store.departmentName"
+						placeholder="请输入群聊名称"
+					></el-input>
+				</el-form-item>
+
+        <el-upload> 
+        
+        </el-upload>
+			</el-form>
 			<div class="transfer-container">
 				<!-- 自定义穿梭框组件 -->
 				<div class="transfer-box">
@@ -150,7 +162,8 @@ function removeItem(userId:string) {
 								:key="user"
 							>
 								<span>{{
-									data.find((item: any) => item.key === user)?.label
+									data.find((item: any) => item.key === user)
+										?.label
 								}}</span>
 								<span
 									class="remove-icon"
@@ -185,12 +198,12 @@ function removeItem(userId:string) {
 		width: 100%;
 		overflow-y: hidden;
 		overflow-x: hidden;
+		border-top: 1px solid #e8e8e8;
 	}
 
 	.menu {
 		width: 55px;
-
-		background-color: #f0f0f0;
+		background-color: #ffffff;
 		overflow-y: hidden;
 		overflow-x: hidden;
 		-webkit-app-region: drag;
@@ -209,11 +222,14 @@ function removeItem(userId:string) {
 		display: flex;
 		align-items: center;
 		justify-content: space-evenly;
-		width: 90%;
+		width: 100%;
 		/* 占据整个宽度 */
 		height: 50px;
 		padding: 0;
+		padding-right: 10px;
 		-webkit-app-region: drag;
+		border-bottom: 1px solid #e8e8e8;
+		border-left: 1px solid #e8e8e8;
 	}
 	.inviteGroupChats {
 		width: 40px;
@@ -242,10 +258,13 @@ function removeItem(userId:string) {
 
 	.list {
 		width: 100%;
+		height: 100%;
 		/* 占据整个宽度 */
 		padding: 0;
 		overflow-y: hidden;
 		overflow-x: hidden;
+		border-left: 1px solid #e8e8e8;
+		/* border-right: 1px solid #E8E8E8; */
 	}
 	.dialog-body {
 		width: 100%;
@@ -288,52 +307,54 @@ function removeItem(userId:string) {
 		justify-content: center;
 	}
 
-  .transfer-box {
-	display: flex;
-	gap: 0;
-}
+	.transfer-box {
+		display: flex;
+		gap: 0px;
+	}
 
-.list-box {
-	width: 50%;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	padding: 10px;
-	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
+	.list-box {
+		width: 50%;
+		border-top: 1px solid #ccc;
+		margin-top: 10px;
+	}
 
-.list-box ul {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-}
+	.list-box ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
 
-.list-box li {
-	display: flex;
-	align-items: center;
-	padding: 5px 0;
-	cursor: pointer;
-	transition: background-color 0.2s;
-}
-.list-box li:hover {
-	background-color: #f0f8ff;
-}
+	.list-box li {
+		display: flex;
+		align-items: center;
+		padding: 5px 0;
+		cursor: pointer;
+		transition: background-color 0.2s;
+	}
+	.list-box li:hover {
+		background-color: #f0f8ff;
+	}
 
-.list-box li.selected {
-	background-color: #e6f7ff;
-}
+	.list-box li.selected {
+		background-color: #e6f7ff;
+	}
 
-input[type="checkbox"] {
-	margin-right: 8px;
-}
+	input[type="checkbox"] {
+		margin-right: 8px;
+	}
 
-.remove-icon {
-	margin-left: auto;
-	color: #d32f2f;
-	cursor: pointer;
-	font-size: 14px;
-}
+	.remove-icon {
+		margin-left: auto;
+		color: #d32f2f;
+		cursor: pointer;
+		font-size: 14px;
+	}
 
-.remove-icon:hover {
-	color: #ff5a5a;
-}
+	.remove-icon:hover {
+		color: #ff5a5a;
+	}
+
+	.department-name {
+		margin: 10px 0;
+	}
 </style>

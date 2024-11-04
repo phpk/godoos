@@ -70,7 +70,6 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
 
 
   async function handleMessage(message: any) {
-    // console.log(message)
     switch (message.type) {
       case 'update':
         checkUpdate(message.data)
@@ -85,6 +84,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         chatChatStore.userChatMessage(message.data)
         break
       case 'group':
+        console.log(message)
         chatChatStore.groupChatMessage(message.data);
         break;
       default:

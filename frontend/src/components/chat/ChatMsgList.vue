@@ -9,7 +9,7 @@
 			@click="store.getSessionInfo(item.chatId, item.type)"
 			:style="{
 				backgroundColor:
-					item.chatId == store.targetChatId ? '#bae7ff' : '',
+					item.chatId == store.targetChatId ? '#EAF3FC' : '',
 			}"
 		>
 			<el-row>
@@ -74,17 +74,16 @@
 
 <style scoped>
 	.list-item {
-		width: 94%;
+		width: 100%;
 		height: 60px;
 		display: flex;
 		margin: 0 auto;
-		border-radius: 4px;
 		transition: all 0.5s;
-		margin-top: 5px;
+    overflow: hidden;
 	}
 
 	.list-item:hover {
-		background-color: #bae7ff;
+		background-color: #eaf3fc;
 	}
 
 	.avatar {
