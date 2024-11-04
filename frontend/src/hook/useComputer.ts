@@ -31,7 +31,7 @@ export const useComputer = (adpater: {
     }
     return true;
   };
-  const refersh = async (file?: OsFileWithoutContent) => {
+  const refersh = async () => {
     const currentPath = adpater.getRouter();
     if (!currentPath) return;
     if (currentPath.startsWith('search:')) {

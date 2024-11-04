@@ -18,7 +18,8 @@
 	};
 
 	const data = ref(generateData());
-	const users = ref([]);
+	// 声明 users 时指定类型为 any[]
+const users = ref<any[]>([]);
 
 	watchEffect(() => {
 		if (store.allUserList.length > 0) {
@@ -26,7 +27,7 @@
 		}
 	});
 
-  function toggleSelectItem(item) {
+  function toggleSelectItem(item: any) {
 	const index = users.value.indexOf(item.key);
 	if (index === -1) {
 		users.value.push(item.key);
@@ -35,7 +36,7 @@
 	}
 }
 
-function removeItem(userId) {
+function removeItem(userId:string) {
 	users.value = users.value.filter((user) => user !== userId);
 }
 </script>
@@ -149,7 +150,7 @@ function removeItem(userId) {
 								:key="user"
 							>
 								<span>{{
-									data.find((item) => item.key === user).label
+									data.find((item: any) => item.key === user)?.label
 								}}</span>
 								<span
 									class="remove-icon"

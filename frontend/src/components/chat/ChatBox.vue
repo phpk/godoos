@@ -133,6 +133,7 @@
 		choose.select("选择图片", imgExt);
 	}
 	function selectFile() {
+		console.log("selectFile")
 		choosetype.value = "applyfile";
 		choose.select("选择文件", "*");
 	}

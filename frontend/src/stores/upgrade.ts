@@ -92,7 +92,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     }
   }
   async function checkUpdate(res: any) {
-    //console.log(res)
+    console.log(res)
     if (!res) return
     const config = getSystemConfig();
     if (!config.account.ad) return;

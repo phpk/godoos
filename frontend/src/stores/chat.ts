@@ -16,19 +16,6 @@ export const useChatStore = defineStore('chatStore', () => {
     username: string;
     nickname: string;
   }
-
-  // // 定义用户类型
-  // type UserSessionListType = {
-  //   id: string;
-  //   ip: string;
-  //   avatar: string;
-  //   online: boolean;
-  //   type: string;
-  //   chatId: string;
-  //   username: string;
-  //   nickname: string;
-  // };
-
   // 文件消息类型
   interface ChatMessageType {
     type: string;
@@ -103,6 +90,9 @@ export const useChatStore = defineStore('chatStore', () => {
   const targetChatId = ref();
   const search = ref('');
 
+  // 群成员列表
+  const groupMemberList = ref([])
+
   // 所有用户列表
   const allUserList = ref([])
 
@@ -123,7 +113,7 @@ export const useChatStore = defineStore('chatStore', () => {
   });
 
 
-  const initChat = () => {
+  const initChat = async () => {
     if (config.userInfo.avatar == '') {
       config.userInfo.avatar = '/logo.png';
     }
@@ -131,7 +121,7 @@ export const useChatStore = defineStore('chatStore', () => {
     // 初始化用户列表
     initUserList()
     // 获取群列表
-    getGroupList()
+    await getGroupList()
     // 初始化聊天列表
     initChatList()
     // 获取部门列表
@@ -151,9 +141,14 @@ export const useChatStore = defineStore('chatStore', () => {
   // 初始化用户列表
   const initChatList = async () => {
     const userSessionList = await db.getAll("workbenchSessionList");
-    // 合并两个数组
-    chatList.value = [...userSessionList, ...groupList.value];
-    console.log(chatList.value)
+    // 确保groupList已加载
+    if (groupList.value.length > 0) {
+      // 合并两个数组
+      chatList.value = [...userSessionList, ...groupList.value];
+    } else {
+      // 如果groupList为空，只使用userSessionList
+      chatList.value = [...userSessionList];
+    }
   };
 
   const setCurrentNavId = (id: number) => {
@@ -165,62 +160,126 @@ export const useChatStore = defineStore('chatStore', () => {
     if (messageType == 'text') {
       await sendTextMessage()
     }
-    // if (messageType == 'image') {
-    //   sendImageMessage()
-    // }
+    if (messageType == 'image') {
+      sendImageMessage()
+    }
 
+    console.log(messageType)
     if (messageType == 'applyfile') {
       await sendFileMessage()
     }
   }
 
+  // 发送图片消息
+  const sendImageMessage = async () => {
+
+    // 判断是群聊发送还是单聊发送
+    if (targetGroupInfo.value && Object.keys(targetGroupInfo.value).length > 0) {
+      console.log('群聊发送文件');
+      Message.type = 'group';
+      Message.content_type = 'image';
+      Message.userId = userInfo.value.id;
+      Message.to_groupid = targetGroupInfo.value.group_id;
+      Message.message = sendInfo.value[0];
+      Message.userInfo = {};
+      console.log("群聊发送文件", Message)
+    } else if (targetUserInfo.value && Object.keys(targetUserInfo.value).length > 0) {
+      console.log('单聊发送文件');
+      Message.type = 'user';
+      Message.content_type = 'image';
+      Message.userId = userInfo.value.id;
+      Message.toUserId = targetChatId.value;
+      Message.message = sendInfo.value[0];
+      Message.to_groupid = targetGroupInfo.value?.group_id || '';
+      Message.userInfo = {};
+    }
+    console.log(Message)
+    // 发送文件消息
+    const res = await fetchPost(config.userInfo.url + '/chat/send/file', JSON.stringify(Message));
+    if (!res.ok) {
+      fileSendActive.value = false;
+      return;
+    }
+    const data = await res.json();
+    console.log(data);
+
+    // 封装成消息历史记录
+    const messageHistory = {
+      ...Message,
+      isMe: true,
+      chatId: Message.type === 'group' ? targetGroupInfo.value.chatId : targetUserInfo.value.chatId,
+      avatar: Message.type === 'group' ? targetUserInfo.value.avatar : '',
+      createdAt: Date.now()
+    };
+
+    console.log("messageHistory------", messageHistory)
+
+    // 添加到聊天记录
+    await db.addOne("workbenchGroupChatRecord", messageHistory);
+    chatHistory.value.push(messageHistory);
+    fileSendActive.value = true;
+    notifySuccess('文件发送成功');
+
+    // 两秒后关闭
+    setTimeout(() => {
+      fileSendActive.value = false;
+    }, 2000);
+  }
+
+  // 发送文件消息
   const sendFileMessage = async () => {
 
-    if (targetUserInfo.value && Object.keys(targetUserInfo.value).length > 0) {
-      Message.type = "user"
-      Message.content_type = 'file'
-      Message.userId = userInfo.value.id
-      Message.toUserId = targetChatId.value
-      Message.message = sendInfo.value[0]
-      Message.to_groupid = targetGroupInfo.value.group_id || ''
-      const messageHistory = {
-        ...Message,
-        isMe: true,
-        chatId: targetUserInfo.value.chatId,
-        avatar: targetUserInfo.value.avatar,
-        // file_name: ,
-        createdAt: Date.now()
-      }
-
-      const res = await fetchPost(config.userInfo.url + '/chat/send/file', JSON.stringify(Message));
-      if (!res.ok) {
-        fileSendActive.value = false
-        return
-      }
-      const data = await res.json()
-      console.log(data)
-      // 添加到聊天记录
-      await db.addOne("workbenchChatRecord", messageHistory)
-      chatHistory.value.push(messageHistory)
-      fileSendActive.value = true
-      notifySuccess('文件发送成功')
-      // 两秒后关闭
-      setTimeout(() => {
-        fileSendActive.value = false
-      }, 2000)
-    } else if (targetGroupInfo.value && Object.keys(targetGroupInfo.value).length > 0) {
-
+    // 判断是群聊发送还是单聊发送
+    if (targetGroupInfo.value && Object.keys(targetGroupInfo.value).length > 0) {
+      console.log('群聊发送文件');
+      Message.type = 'group';
+      Message.content_type = 'file';
+      Message.userId = userInfo.value.id;
+      Message.to_groupid = targetGroupInfo.value.group_id;
+      Message.message = sendInfo.value[0];
+      Message.userInfo = {};
+      console.log("群聊发送文件", Message)
+    } else if (targetUserInfo.value && Object.keys(targetUserInfo.value).length > 0) {
+      console.log('单聊发送文件');
+      Message.type = 'user';
+      Message.content_type = 'file';
+      Message.userId = userInfo.value.id;
+      Message.toUserId = targetChatId.value;
+      Message.message = sendInfo.value[0];
+      Message.to_groupid = targetGroupInfo.value?.group_id || '';
+      Message.userInfo = {};
     }
+    console.log(Message)
+    // 发送文件消息
+    const res = await fetchPost(config.userInfo.url + '/chat/send/file', JSON.stringify(Message));
+    if (!res.ok) {
+      fileSendActive.value = false;
+      return;
+    }
+    const data = await res.json();
+    console.log(data);
 
-    // // 模拟发送文件
-    // fileSendActive.value = true
-    // const res = await fetchPost(config.userInfo.url + '/chat/send/file', JSON.stringify(Message));
-    // if (res.ok) {
-    //   const data = await res.json();
-    //   if (data.code == 0) {
-    //     fileSendActive.value = true
-    //   }
-    // }
+    // 封装成消息历史记录
+    const messageHistory = {
+      ...Message,
+      isMe: true,
+      chatId: Message.type === 'group' ? targetGroupInfo.value.chatId : targetUserInfo.value.chatId,
+      avatar: Message.type === 'group' ? targetUserInfo.value.avatar : '',
+      createdAt: Date.now()
+    };
+
+    console.log("messageHistory------", messageHistory)
+
+    // 添加到聊天记录
+    await db.addOne("workbenchGroupChatRecord", messageHistory);
+    chatHistory.value.push(messageHistory);
+    fileSendActive.value = true;
+    notifySuccess('文件发送成功');
+
+    // 两秒后关闭
+    setTimeout(() => {
+      fileSendActive.value = false;
+    }, 2000);
   }
 
   // 发送文字消息 
@@ -521,13 +580,14 @@ export const useChatStore = defineStore('chatStore', () => {
   };
   // 获取群列表信息
   const getGroupList = async () => {
-    console.log('获取群列表')
+
     const res = await fetchGet(userInfo.value.url + '/chat/group/list');
     if (!res.ok) {
       console.warn("Error fetching group list:", res);
       return false;
     }
     const list = await res.json()
+    console.log(list)
     if (list.data.groups == null) {
       list.data.groups = []
     }
@@ -541,6 +601,25 @@ export const useChatStore = defineStore('chatStore', () => {
       type: 'group',
     }));
     groupList.value = formattedGroups;
+
+    // 将群成员添加到数据库
+    for (const group of list.data.groups) {
+      // 查询数据库中是否已存在该群组的成员列表
+      const existingGroup = await db.getByField("workbenchGroupUserList", "group_id", group.id);
+      if (existingGroup.length > 0) {
+        // 如果存在，更新userIdArray
+        await db.update("workbenchGroupUserList", existingGroup[0].id, {
+          userIdArray: group.members
+        });
+      } else {
+        // 如果不存在，添加新记录
+        await db.addOne("workbenchGroupUserList", {
+          group_id: group.id,
+          userIdArray: group.members
+        });
+      }
+    }
+
   };
 
   const onlineUserData = async (data: OnlineUserInfoType[]) => {
@@ -673,7 +752,8 @@ export const useChatStore = defineStore('chatStore', () => {
     // 根据type去判断
     // user会话，查发送和接收发方id
     // group会话，查群id(chatId)查到所有消息记录
-
+    // 清空聊天记录
+    chatHistory.value = []
     targetChatId.value = chatId
     if (type === 'user') {
       console.log("user")
@@ -686,6 +766,7 @@ export const useChatStore = defineStore('chatStore', () => {
     } else if (type === 'group') {
       console.log('group')
       // 获取当前用户和目标用户的聊天记录
+      console.log(userInfo.value.id, chatId, type)
       const history = await getHistory(userInfo.value.id, chatId, type)
       chatHistory.value = history;
       // 设置目标用户的信息
@@ -704,7 +785,8 @@ export const useChatStore = defineStore('chatStore', () => {
       });
     } else if (type === 'group') {
       console.log('group')
-      messagesHistory = await db.getByField("workbenchGroupChatRecord", "groupId", toUserId);
+      messagesHistory = await db.getByField("workbenchGroupChatRecord", "chatId", toUserId);
+      console.log("messagesHistory", messagesHistory)
     }
     return messagesHistory
   }
@@ -747,17 +829,22 @@ export const useChatStore = defineStore('chatStore', () => {
     const messageRecord = {
       userId: data.userId,
       groupId: data.to_groupid,
-      messageType: data.content_type,
+      content_type: data.content_type,
       message: data.message,
       time: data.time,
       type: data.type,
-      chatId: data.userId,
+      chatId: data.to_groupid,
       isMe: false,
       displayName: data.userInfo.nickname,
       avatar: data.userInfo.avatar,
       role_id: data.userInfo.role_id,
       createdAt: Date.now(),
     };
+
+    // 判断当前消息是否是自己发送的
+    if (messageRecord.userId === userInfo.value.id) {
+      return;
+    }
 
     console.log(messageRecord)
 
@@ -766,6 +853,7 @@ export const useChatStore = defineStore('chatStore', () => {
     console.log(res)
     // 更改聊天记录
     chatHistory.value.push(messageRecord)
+
   };
 
   const showContextMenu = (event: any, id: number) => {
@@ -782,9 +870,24 @@ export const useChatStore = defineStore('chatStore', () => {
     if (!res.ok) {
       return false;
     }
+    console.log(await res.json())
     // 从groupList中删除
     groupList.value = groupList.value.filter((group: any) => group.group_id !== group_id)
+    const a = await db.deleteByField("workbenchGroupUserList", "group_id", group_id)
+    console.log(a)
     initChatList()
+    notifySuccess("退出群聊成功")
+
+    targetGroupInfo.value = {}
+    targetChatId.value = ''
+
+    // const group = await db.getByField("workbenchGroupUserList", "group_id", group_id);
+    // if (group.length > 0) {
+    //   // 删除当前用户
+    //   console.log(group[0])
+    //   const updatedUserIdArray = group[0].userIdArray.filter((user: any) => user.id !== userInfo.value.id);
+    //   await db.update("workbenchGroupUserList", group[0].id, { userIdArray: updatedUserIdArray });
+    // }
   }
 
   return {
@@ -814,6 +917,7 @@ export const useChatStore = defineStore('chatStore', () => {
     targetGroupInfo,
     sendInfo,
     fileSendActive,
+    groupMemberList,
     initChat,
     showContextMenu,
     setCurrentNavId,
@@ -830,6 +934,6 @@ export const useChatStore = defineStore('chatStore', () => {
     userChatMessage,
     getDepartmentList,
     getAllUser,
-    quitGroup
+    quitGroup,
   };
 });
