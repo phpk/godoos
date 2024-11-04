@@ -2,7 +2,8 @@
 import { t } from '@/i18n';
 import { ref, onMounted } from "vue";
 import { useChatStore } from "@/stores/chat";
-import { fetchGet, getSystemConfig } from "@/system/config";
+import { notifyError, notifySuccess } from "@/util/msg";
+import { fetchGet, getSystemConfig, setSystemKey } from "@/system/config";
 const store = useChatStore()
 const form = ref({
     nickname: '',
@@ -10,37 +11,49 @@ const form = ref({
 const userInfo = getSystemConfig().userInfo
 const dialogShow = ref(false)
 let imgList = reactive([])
+let pos = ref(0)
 const showChange = (val) =>{
     dialogShow.value = val
 }
-const toChangeHead = ()=>{
-    console.log('换头像');
+const toChangeHead = async ()=>{
+    let res = await fetchGet(`${userInfo.url}/files/saveavatar?id=${userInfo.id}&name=${imgList[pos.value].name}`)
+    console.log('submit!:',res)
+    if (!res.ok) {
+        notifyError("头像换取失败")
+    } else {
+        res = await res.json()
+        notifySuccess(res.message)
+        userInfo.avatar = imgList[pos.value].name
+        store.userInfo.avatar = userInfo.url + '/upload/avatar/' + userInfo.avatar
+        setSystemKey('userInfo', userInfo)
+    }
+    showChange(false)
 }
 // 获取头像列表
-const getHeadList = async() => {
-    const res = await fetchGet(`${userInfo.url}/files/avatarlist`)
+const getHeadList = async () => {
+    let res = await fetchGet (`${userInfo.url}/files/avatarlist`)
+    // const apiUrl = getSystemConfig().apiUrl + '/upload/avatar/';
+    const apiUrl = userInfo.url + '/upload/avatar/';
     if (res.ok) {
-        imgList = await res.json()
-        imgList = imgList.data.map(item => {
-            item.isChoose = false
-            return item
-        })
-        imgList[0].isChoose = true
+        res = await res.json()
+        for (const item of res.data) {
+            imgList.push({
+                url: apiUrl + item,
+                name: item
+            })
+        }
     }
-    console.log('imgList:' , imgList);
 }
-let pos = ref(0)
 // 换头像
 const chooseImg = (index) => {
-    imgList.forEach(item => item.isChoose = false)
-    imgList[index].isChoose = true
     pos.value = index
 }
-const onSubmit = () => {
-    console.log('submit!')
+const onSubmit = async () => {
+    console.log('提交');
 }
 onMounted(()=>{
     getHeadList()
+    store.userInfo.avatar = userInfo.url + '/upload/avatar/' + userInfo.avatar
 })
 </script>
 <template>
@@ -67,13 +80,20 @@ onMounted(()=>{
     </el-form>
     <el-dialog v-model="dialogShow" title="修改头像" width="500px" draggable>
         <div>
-            <el-avatar 
-                v-for="(item, index) in imgList" 
-                :key="item.name" 
-                :size="90" 
-                :src="item.url"
-                :class="{'is-active': item.isChoose}"
-                @click="chooseImg(index)"/>
+            <span
+                v-for="(item, index) in imgList"
+                :key="item.name"
+                class="img-box"
+            >
+                <el-avatar  
+                    :size="80" 
+                    :src="item.url"
+                    @click="chooseImg(index)"
+                    :class="{'is-active': pos == index}"
+                >
+                </el-avatar>
+                <el-icon v-show="pos == index"><Select /></el-icon>
+            </span>
         </div>
         <template #footer>
         <div class="dialog-footer">
@@ -89,12 +109,28 @@ onMounted(()=>{
 </template>
 
 <style scoped lang="scss">
-.el-avatar {
-    margin: 10px;
+.img-box {
+    position: relative;
+    .el-avatar {
+        margin: 10px;
+    }
+    .is-active {
+        width: 90px;
+        height: 90px;
+        border: 2px solid green;
+        box-sizing: border-box;
+    }
+    .el-icon {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        color: white;
+        background-color: green;
+        transform: translate(-50%,0)
+    }
 }
-.is-active {
-    width: 100px;
-    height: 100px;
-    border: 2px solid red;
-}
+
 </style>

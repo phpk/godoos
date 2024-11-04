@@ -21,14 +21,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, inject } from 'vue';
+import { ref, inject, onMounted } from 'vue';
 import { useSystem, BrowserWindow } from '@/system';
 import { getSystemConfig, fetchPost } from "@/system/config";
 import { notifySuccess, notifyError } from "@/util/msg";
 const window: BrowserWindow | undefined = inject("browserWindow");
 const sys = useSystem()
 const userInfo: any = sys.getConfig('userInfo')
-const userList = ref(userInfo.user_shares)
+let userList = ref(userInfo.user_shares)
 const checkAll = ref(false)
 const form: any = ref({
     senderid: '',
@@ -68,6 +68,11 @@ const onSubmit = async () => {
         notifyError("分享文件失败")
     }
 }
+onMounted(() => {
+    userList.value = userList.value.filter((item: any)=> {
+        return item?.id !== config.value.userInfo.id
+    })
+})
 </script>
 <style scoped>
 .btn-group{
