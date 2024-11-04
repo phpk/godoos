@@ -16,7 +16,7 @@
 		class="user-info-container"
 	>
 		<div class="user-details">
-			<p>昵称: {{ store.targetUserInfo.nickname }}</p>
+			<p>昵称: {{ store.targetUserInfo.displayName }}</p>
 			<p>邮箱: {{ store.targetUserInfo.email }}</p>
 			<p>电话: {{ store.targetUserInfo.phone }}</p>
 			<p>描述: {{ store.targetUserInfo.desc }}</p>
@@ -37,9 +37,9 @@
 
 	const store = useChatStore();
 
-	const sendMessage = (userId:number) => {
+	const sendMessage = (chatId: string) => {
 		store.currentNavId = 0;
-    store.changeChatListAndGetChatHistory(userId)
+		store.addChatListAndGetChatHistory(chatId);
 	};
 </script>
 
@@ -50,7 +50,7 @@
 		text-align: center;
 		font-size: 14px;
 	}
-  
+
 	.user-info-container {
 		height: 100%;
 		margin: 0px auto;

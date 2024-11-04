@@ -1,55 +1,75 @@
 <template>
-  <div v-if="store.chatList.length > 0" v-for="item in store.chatList" :key="item.id">
-    <div
-      class="list-item"
-      @click="store.changeChatList(item.chatId,item.type)"
-      :style="{
-        backgroundColor: item.userId == store.targetChatId ? '#bae7ff' : '',
-      }"
-    >
-      <el-row>
-        <el-col :span="6">
-          <el-avatar
-            shape="square"
-            :size="40"
-            class="avatar"
-            :src="item.avatar"
-          />
-        </el-col>
-        <el-col :span="18" class="preview">
-          <el-row class="preview-content">
-            <el-col :span="18" class="preview-left">
-              <div class="previewName">{{ item.displayName }}</div>
-              <div class="previewChat">
-                <span>{{ item.previewMessage }}</span>
-              
-              </div>
-            </el-col>
-            <el-col :span="6" class="preview-right">
-              <div class="previewTime">
-                {{ item.previewTimeFormat }}
-              </div>
-            </el-col>
-          </el-row>
-        </el-col>
-      </el-row>
-    </div>
-  </div>
-  <div v-else class="emptyChat">
-    <el-icon :size="60" class="chat-icon">
-      <ChatSquare />
-    </el-icon>
-    <p class="empty-message">暂无数据</p>
-  </div>
+	<div
+		v-if="store.chatList.length > 0"
+		v-for="item in store.chatList"
+		:key="item.id"
+	>
+		<div
+			class="list-item"
+			@click="store.getSessionInfo(item.chatId, item.type)"
+			:style="{
+				backgroundColor:
+					item.chatId == store.targetChatId ? '#bae7ff' : '',
+			}"
+		>
+			<el-row>
+				<el-col :span="6">
+					<el-avatar
+						shape="square"
+						:size="40"
+						class="avatar"
+						:src="item.avatar"
+					/>
+				</el-col>
+				<el-col
+					:span="18"
+					class="preview"
+				>
+					<el-row class="preview-content">
+						<el-col
+							:span="18"
+							class="preview-left"
+						>
+							<div class="previewName">
+								{{ item.displayName }}
+							</div>
+							<div class="previewChat">
+								<span>{{ item.previewMessage }}</span>
+							</div>
+						</el-col>
+						<el-col
+							:span="6"
+							class="preview-right"
+						>
+							<div class="previewTime">
+								{{ item.previewTimeFormat }}
+							</div>
+						</el-col>
+					</el-row>
+				</el-col>
+			</el-row>
+		</div>
+	</div>
+	<div
+		v-else
+		class="emptyChat"
+	>
+		<el-icon
+			:size="60"
+			class="chat-icon"
+		>
+			<ChatSquare />
+		</el-icon>
+		<p class="empty-message">暂无数据</p>
+	</div>
 </template>
 
 <script setup>
-import { useChatStore } from "@/stores/chat";
-import { ref } from "vue";
+	import { useChatStore } from "@/stores/chat";
+	import { ref } from "vue";
 
-const store = useChatStore();
-const id = ref("1");
-
+	const store = useChatStore();
+	const id = ref("1");
 </script>
 
 <style scoped>
@@ -57,10 +77,10 @@ const id = ref("1");
 		width: 94%;
 		height: 60px;
 		display: flex;
-    margin: 0 auto;  
-    border-radius: 4px; 
-    transition: all 0.5s;
-    margin-top: 5px;
+		margin: 0 auto;
+		border-radius: 4px;
+		transition: all 0.5s;
+		margin-top: 5px;
 	}
 
 	.list-item:hover {
@@ -106,7 +126,7 @@ const id = ref("1");
 	}
 
 	.previewChat {
-    height: 20px;
+		height: 20px;
 		margin-left: 10px;
 		font-size: 10px;
 		font-family: Arial, sans-serif;

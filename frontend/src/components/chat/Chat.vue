@@ -18,13 +18,27 @@
 	};
 
 	const data = ref(generateData());
-	const users = ref([]);
+	// 声明 users 时指定类型为 any[]
+const users = ref<any[]>([]);
 
 	watchEffect(() => {
 		if (store.allUserList.length > 0) {
 			data.value = generateData();
 		}
 	});
+
+  function toggleSelectItem(item: any) {
+	const index = users.value.indexOf(item.key);
+	if (index === -1) {
+		users.value.push(item.key);
+	} else {
+		users.value.splice(index, 1);
+	}
+}
+
+function removeItem(userId:string) {
+	users.value = users.value.filter((user) => user !== userId);
+}
 </script>
 <template>
 	<el-container class="container">
@@ -89,6 +103,7 @@
 		v-model="store.groupChatInvitedDialogVisible"
 		title="发起群聊"
 		width="80%"
+		align-center
 	>
 		<div class="dialog-body">
 			<!-- 添加输入部门名的输入框 -->
@@ -96,22 +111,57 @@
 				v-model="store.departmentName"
 				placeholder="请输入群聊名称"
 			></el-input>
-			<el-transfer
-				v-model="users"
-				:data="data"
-			>
-				<!-- 义穿梭框 -->
-				<template #default="{ option }">
-					<div class="user-item">
-						<el-avatar
-							:size="20"
-							:src="option.avatar"
-							class="avatar"
-						/>
-						<span>{{ option.label }}</span>
+			<div class="transfer-container">
+				<!-- 自定义穿梭框组件 -->
+				<div class="transfer-box">
+					<div class="list-box">
+						<h3>可选项</h3>
+						<ul>
+							<li
+								v-for="item in data"
+								:key="item.key"
+								@click="toggleSelectItem(item)"
+								:class="{ selected: users.includes(item.key) }"
+							>
+								<el-avatar
+									:size="10"
+									:src="item.avatar"
+									class="avatar"
+								/>
+								<input
+									type="checkbox"
+									:checked="users.includes(item.key)"
+								/>
+								<span>{{ item.label }}</span>
+								<span
+									v-if="users.includes(item.key)"
+									class="remove-icon"
+									@click.stop="removeItem(item.key)"
+									>✖</span
+								>
+							</li>
+						</ul>
 					</div>
-				</template>
-			</el-transfer>
+					<div class="list-box">
+						<h3>已选项</h3>
+						<ul>
+							<li
+								v-for="user in users"
+								:key="user"
+							>
+								<span>{{
+									data.find((item: any) => item.key === user)?.label
+								}}</span>
+								<span
+									class="remove-icon"
+									@click="removeItem(user)"
+									>✖</span
+								>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
 		</div>
 		<template #footer>
 			<span class="dialog-footer">
@@ -200,18 +250,15 @@
 	.dialog-body {
 		width: 100%;
 	}
+
+	.transfer-container >>> .el-transfer-panel {
+		width: 300px;
+	}
 	.el-transfer {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
-
-	/* .el-transfer >>> .el-transfer-panel >>> .el-transfer__buttons {
-		width: 50px;
-	} */
-	/* .el-transfer__button {
-    width: 20px;;
-	} */
 
 	.chat-box {
 		flex: 3;
@@ -240,4 +287,53 @@
 		font-size: 14px;
 		justify-content: center;
 	}
+
+  .transfer-box {
+	display: flex;
+	gap: 0;
+}
+
+.list-box {
+	width: 50%;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 10px;
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.list-box ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.list-box li {
+	display: flex;
+	align-items: center;
+	padding: 5px 0;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+.list-box li:hover {
+	background-color: #f0f8ff;
+}
+
+.list-box li.selected {
+	background-color: #e6f7ff;
+}
+
+input[type="checkbox"] {
+	margin-right: 8px;
+}
+
+.remove-icon {
+	margin-left: auto;
+	color: #d32f2f;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+.remove-icon:hover {
+	color: #ff5a5a;
+}
 </style>
