@@ -25,3 +25,8 @@ export function turnFilePath(file: OsFileWithoutContent) : string {
     const arr = file.path.split('/')
     return `/${arr[1]}/${arr[2]}/${arr[arr.length - 1]}`
 }
+//返回是我的分享还是接收分享的文件路径
+export function getFileRootPath(path: string) : string {
+    const rootPath = path.indexOf('/F/myshare') === 0 ? '/F/myshare' : '/F/othershare'
+    return rootPath
+}

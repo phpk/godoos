@@ -79,6 +79,7 @@ const file = ref<OsFileWithoutContent | null>();
 const path = window?.config.content
 if(path.indexOf('/F') === 0) {
   file.value = (await useSystem()?.fs.getShareInfo(path)).fi
+  // file.value.path = file.value.titleName || file.value.path
 } else {
   file.value = await useSystem()?.fs.stat(path);
 }

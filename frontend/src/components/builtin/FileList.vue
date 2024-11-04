@@ -369,7 +369,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
       },
 
     ];
-    if (item.isShare && item.path.indexOf('/F/othershare') !== 0) {
+    if (!item.isShare || item.path.indexOf('/F/othershare') !== 0) {
       fileMenus.push({
         label: t('delete'),
         click: async () => {
@@ -385,7 +385,7 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
       })
     }
     const userType = sys.getConfig('userType');
-    if (userType == 'member' && !item.isShare) {
+    if (userType == 'member' && !item.isShare && !item.isDirectory) {
 
       menuArr.push(
         {
