@@ -75,7 +75,7 @@ export const useComputer = (adpater: {
       // const path = file?.isShare ? file.titleName : file.path
       const path = file.path
       adpater.setRouter(path);
-      refersh(file);
+      refersh();
     } else {
       adpater.openFile(file.path);
     }
