@@ -16,6 +16,8 @@ export const useChatStore = defineStore('chatStore', () => {
     username: string;
     nickname: string;
   }
+
+
   // 文件消息类型
   interface ChatMessageType {
     type: string;
@@ -52,6 +54,7 @@ export const useChatStore = defineStore('chatStore', () => {
   const setGroupChatInvitedDialogVisible = (visible: boolean) => {
     getAllUser()
     groupChatInvitedDialogVisible.value = visible;
+    groupTitle.value = '创建群聊'
   };
   // 设置群信息抽屉状态
   const setGroupInfoDrawerVisible = (visible: boolean) => {
@@ -65,6 +68,8 @@ export const useChatStore = defineStore('chatStore', () => {
   // 在线用户列表
   const onlineUserList = ref<OnlineUserInfoType[]>([]);
 
+  // 添加成员
+  const addMemberDialogVisible = ref(false)
   // 聊天列表
   const chatList: any = ref([]);
 
@@ -72,9 +77,8 @@ export const useChatStore = defineStore('chatStore', () => {
   const chatHistory: any = ref([]);
 
   // 群组l列表
-  const groupList: any = ref([
-
-  ]);
+  const groupList: any = ref([]);
+  const drawerVisible = ref(false)
   const targetGroupInfo: any = ref({})
   const activeNames = ref([]);
   const userInfo: any = ref({});
@@ -93,13 +97,16 @@ export const useChatStore = defineStore('chatStore', () => {
   const searchInput = ref('');
 
   // 群成员列表
-  const groupMemberList = ref([])
+  const groupMemberList = ref<any[]>([])
 
   // 所有用户列表
   const allUserList = ref([])
 
   // 部门列表
   const departmentList = ref([])
+
+  // groupTitle
+  const groupTitle = ref('')
 
   // 邀请好友
   const inviteFriendDialogVisible = ref(false)
@@ -489,11 +496,13 @@ export const useChatStore = defineStore('chatStore', () => {
   // 获取用户表中所有用户
   const getAllUser = async () => {
     allUserList.value = await db.getAll("workbenchChatUser");
-    console.log(allUserList.value)
   };
 
   // 创建群聊
   const createGroupChat = async (userIds: number[]) => {
+
+
+    console.log(userIds)
 
     if (userIds.length === 0) {
       notifyError('请选择用户')
@@ -675,16 +684,6 @@ export const useChatStore = defineStore('chatStore', () => {
   const updateOrAddUsers = async (users: OnlineUserInfoType[]) => {
     // 从数据库中获取所有用户信息
     const allUsers = await db.getAll("workbenchChatUser");
-    const onlineUserIds = new Set(users.map(user => user.id));
-
-    // 筛选出需要删除的用户（即不在在线列表中的用户）
-    const usersToDelete = allUsers.filter((user: { id: string; }) => !onlineUserIds.has(user.id));
-    const deleteIds = usersToDelete.map((user: { id: any; }) => user.id);
-
-    // 删除不在在线列表中的用户
-    if (deleteIds.length > 0) {
-      await db.table("workbenchChatUser").bulkDelete(deleteIds);
-    }
 
     // 添加或更新在线用户
     for (const user of users) {
@@ -873,14 +872,57 @@ export const useChatStore = defineStore('chatStore', () => {
 
     targetGroupInfo.value = {}
     targetChatId.value = ''
+  }
 
-    // const group = await db.getByField("workbenchGroupUserList", "group_id", group_id);
-    // if (group.length > 0) {
-    //   // 删除当前用户
-    //   console.log(group[0])
-    //   const updatedUserIdArray = group[0].userIdArray.filter((user: any) => user.id !== userInfo.value.id);
-    //   await db.update("workbenchGroupUserList", group[0].id, { userIdArray: updatedUserIdArray });
-    // }
+  // 获取群成员
+  const getGroupMember = async (group_id: string) => {
+    const member = await db.getByField("workbenchGroupUserList", "group_id", group_id)
+    groupMemberList.value = member[0].userIdArray
+  }
+
+  const inviteUserList = ref([])// 添加群成员
+  const addMember = async () => {
+    groupChatInvitedDialogVisible.value = true;
+    await getAllUser();
+
+    // 确保 groupMemberList 是一个包含 ID 的数组
+    const existingMemberIds = groupMemberList.value.map((member: any) => member.id);
+
+    // 使用 filter 方法过滤掉已在群成员列表中的用户
+    inviteUserList.value = allUserList.value.filter(
+      (user: any) => !existingMemberIds.includes(user.id)
+    );
+
+    allUserList.value = inviteUserList.value;
+    groupTitle.value = '邀请群聊';
+  };
+
+  // 获取图片消息预览
+  const getImageSrc = async (imageMessage: string = "/C/Users/Desktop/bizhi.png") => {
+
+    const path = userInfo.value.url + "/chat/image/view?path=" + imageMessage
+    console.log(path)
+    const response = await fetchGet(path)
+
+    if (!response.ok) {
+      return ''
+    }
+
+    // 检查Content-Type是否为图片
+    const contentType = response.headers.get("Content-Type");
+    if (!contentType || !contentType.startsWith("image/")) {
+      console.error("Expected an image content type, but received:", contentType);
+      return '';
+    }
+
+    // 将响应数据转换为 Blob
+    const imageBlob = await response.blob();
+
+
+    // 将 Blob 转换为一个 URL 以供展示
+    const imageUrl = URL.createObjectURL(imageBlob);
+    console.log(imageUrl)
+    return imageUrl; // 返回 Blob URL
   }
 
   return {
@@ -914,6 +956,10 @@ export const useChatStore = defineStore('chatStore', () => {
     groupMemberList,
     groups,
     inviteFriendDialogVisible,
+    drawerVisible,
+    addMemberDialogVisible,
+    groupTitle,
+    inviteUserList,
     initChat,
     showContextMenu,
     setCurrentNavId,
@@ -932,5 +978,8 @@ export const useChatStore = defineStore('chatStore', () => {
     getAllUser,
     quitGroup,
     inviteFriend,
+    getGroupMember,
+    addMember,
+    getImageSrc
   };
 });

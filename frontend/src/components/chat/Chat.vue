@@ -26,7 +26,6 @@
 		}
 	});
 
-
 	// 监听搜索输入并更新 searchList
 	watch(
 		() => store.searchInput,
@@ -103,14 +102,16 @@
 	<!-- 邀请群聊弹窗 -->
 	<el-dialog
 		v-model="store.groupChatInvitedDialogVisible"
-		title="发起群聊"
 		width="80%"
 		style="height: 550px"
 		align-center
 	>
+		<template #title>
+			<span>{{ store.groupTitle }}</span>
+		</template>
 		<div class="dialog-body">
 			<!-- 添加输入部门名的输入框 -->
-			<div>
+			<div v-if="store.groupTitle === '创建群聊'">
 				<el-form label-position="top">
 					<el-form-item label="群聊名称:">
 						<el-input
@@ -162,32 +163,39 @@
 </template>
 
 <style scoped>
+	:deep(.el-transfer) {
+		display: flex;
+		flex-direction: row; /* 将布局方向设置为横向 */
+		width: 550px; /* 让穿梭框占满宽度 */
+		.el-transfer__buttons {
+			display: flex;
+			justify-content: space-evenly;
+			align-items: center;
+			width: 160px;
+			padding: 0 0 !important;
+			.el-button {
+				width: 50px !important;
+			}
+		}
+	}
 	.el-transfer {
 		display: flex;
 		flex-direction: row; /* 将布局方向设置为横向 */
 		width: 550px; /* 让穿梭框占满宽度 */
+		height: 250px;
 	}
 
-	.el-transfer-panel {
-		width: 300px !important;
-		height: 530px !important;
+	::v-deep .el-transfer-panel {
+		width: 270px !important; /* 设置每个穿梭框面板的宽度 */
+		height: 250px !important;
 	}
 
-	.el-transfer-panel__body {
-		height: 450px !important;
+	::v-deep .el-transfer-panel__body {
+		height: 200px !important;
 	}
 
-	.el-checkbox__label {
+	::v-deep .el-checkbox__label {
 		margin-left: 10px !important;
-	}
-
-	.el-transfer-panel
-		.el-transfer-panel__header
-		.el-checkbox
-		.el-checkbox__label
-		span {
-		left: 150px;
-		right: 0px;
 	}
 
 	.container {
@@ -221,7 +229,6 @@
 		align-items: center;
 		justify-content: space-evenly;
 		width: 100%;
-		/* 占据整个宽度 */
 		height: 50px;
 		padding: 0;
 		padding-right: 10px;
@@ -246,7 +253,6 @@
 
 	.search-input {
 		width: calc(100% - 20px);
-		/* 减去左右边距 */
 		margin: 10px;
 		height: 32px;
 		-webkit-app-region: no-drag;
@@ -257,7 +263,6 @@
 	.list {
 		width: 100%;
 		height: 100%;
-		/* 占据整个宽度 */
 		padding: 0;
 		overflow-y: hidden;
 		overflow-x: hidden;
@@ -265,18 +270,17 @@
 	}
 	.dialog-body {
 		width: 100%;
+		height: 350px;
 	}
 
 	.chat-box {
 		flex: 3;
-		/* 占据剩余宽度的三倍 */
 		max-height: max-content;
 		background-color: #f5f5f5;
 	}
 
 	.chat-setting {
 		width: calc(100% - 65px);
-		/* 占据整个宽度 */
 		height: 100%;
 		overflow: hidden;
 	}

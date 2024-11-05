@@ -2,7 +2,8 @@
 	<div
 		class="chatbox-main"
 		v-if="store.targetChatId"
-	>
+	
+  
 		<!--聊天顶部区-->
 		<el-header class="chat-header">
 			<div class="header-title">
@@ -14,35 +15,73 @@
 				<span
 					v-else-if="store.targetGroupInfo.displayName"
 					class="header-title-name"
-					>{{ store.targetGroupInfo.displayName }}</span
+					>{{ store.targetGroupInfo.displayName }}{{ 1 }}</span
 				>
-				<!-- 更多 -->
-				<el-dropdown
-					placement="bottom"
-					v-if="
-						store.targetGroupInfo &&
-						Object.keys(store.targetGroupInfo).length > 0
-					"
-				>
-					<!-- 设置 -->
-					<el-icon><More /></el-icon>
-					<template #dropdown>
-						<el-dropdown-menu>
-							<el-dropdown-item
-								@click="store.inviteFriendDialogVisible = true"
-								>邀请好友</el-dropdown-item
-							>
-							<el-dropdown-item
-								@click="
-									store.quitGroup(
-										store.targetGroupInfo.chatId
-									)
-								"
-								>退出群聊</el-dropdown-item
-							>
-						</el-dropdown-menu>
-					</template>
-				</el-dropdown>
+
+				<div @click="store.drawerVisible = true">
+					<el-icon><Tools /></el-icon>
+					<!-- 抽屉 -->
+					<el-drawer
+						v-model="store.drawerVisible"
+						direction="ltr"
+						title="群设置"
+						:with-header="true"
+					>
+						<div
+							style="
+								display: flex;
+								flex-direction: column;
+								justify-content: space-between;
+								height: 100%;
+							"
+						>
+							<div>
+								<!-- 群名 -->
+								<div class="group-name">
+									{{ store.targetGroupInfo.displayName }}
+								</div>
+
+								<!-- 群成员 -->
+								<div class="group-member">
+									<div><span>群成员</span></div>
+									<div class="group-member-list">
+										<button
+											@click="store.addMember"
+											class="group-member-add"
+										>
+											<el-icon><Plus /></el-icon>
+										</button>
+										<div
+											style="
+												display: flex;
+												flex-direction: row;
+											"
+											v-for="member in store.groupMemberList"
+										>
+											<el-avatar :src="member.avatar" />
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 退出按钮 -->
+							<div class="group-exit">
+								<el-button
+									style="
+										background-color: #0078d4;
+										color: #fff;
+									"
+									@click="
+										store.quitGroup(
+											store.targetGroupInfo.group_id
+										)
+									"
+									>退出群聊</el-button
+								>
+							</div>
+						</div>
+					</el-drawer>
+				</div>
 
 				<!-- 邀请好友对话框 -->
 				<el-dialog
@@ -163,6 +202,16 @@
 	const imgExt = ["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"];
 	const choosetype = ref("");
 
+	// 监听store.drawerVisible
+	watch(
+		() => store.drawerVisible,
+		(newVal, _) => {
+			if (newVal) {
+				store.getGroupMember(store.targetGroupInfo.group_id);
+			}
+		}
+	);
+
 	const generateData = () => {
 		return store.allUserList.map((user: any) => ({
 			key: user.id,
@@ -202,6 +251,43 @@
 </script>
 
 <style scoped>
+	.group-name {
+		font-size: 16px;
+		border-top: 1px solid #edebeb;
+		border-bottom: 1px solid #edebeb;
+		display: flex;
+		align-items: center;
+		justify-content: start;
+		height: 50px;
+	}
+
+	.group-member-list {
+		display: flex;
+		gap: 5px;
+		width: 100%;
+		align-items: center;
+		height: 50px;
+		overflow: hidden;
+		padding-bottom: 10px;
+		border-bottom: 1px solid #edebeb;
+	}
+
+	.group-member-add {
+		background-color: #0078d4;
+		border-radius: 50px;
+		width: 40px;
+		height: 40px;
+		color: #fff;
+		border: none;
+	}
+
+	.group-member {
+		display: flex;
+		flex-direction: column;
+		align-items: start;
+		justify-content: start;
+	}
+
 	.el-transfer {
 		display: flex;
 		flex-direction: row; /* 将布局方向设置为横向 */

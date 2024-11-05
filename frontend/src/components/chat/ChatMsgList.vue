@@ -1,4 +1,5 @@
 <template>
+
 	<div
 		v-if="
 			(store.searchList.length > 0 ? store.searchList : store.chatList)
@@ -149,7 +150,7 @@
 		justify-content: space-between;
 	}
 	.previewName {
-		font-size: 16px;
+		font-size: 14px;
 		color: #000000;
 		font-family: Arial, sans-serif;
 		line-height: 1.5;
