@@ -167,6 +167,9 @@ export const useChatStore = defineStore('chatStore', () => {
   };
 
   const sendMessage = async (messageType: string) => {
+
+    console.log("群聊消息类型", messageType)
+
     if (messageType == 'text') {
       await sendTextMessage()
     }
@@ -211,7 +214,7 @@ export const useChatStore = defineStore('chatStore', () => {
       return;
     }
 
-
+    Message.message = await getImageSrc(Message.message)
     // 封装成消息历史记录
     const messageHistory = {
       ...Message,
@@ -572,7 +575,7 @@ export const useChatStore = defineStore('chatStore', () => {
       type: data.type,
       time: data.time,
       userId: data.userId,
-      message: data.message,
+      message: await getImageSrc(data.message),
       toUserId: data.toUserId,
       chatId: data.toUserId,
       isMe: false,
@@ -583,6 +586,14 @@ export const useChatStore = defineStore('chatStore', () => {
       displayName: data.userInfo.nickname,
       avatar: data.userInfo.avatar,
       createdAt: Date.now(),
+    }
+
+    if (data.content_type === 'image') {
+      addMessageHistory.message = await getImageSrc(data.message)
+    } else if (data.content_type === 'text') {
+      addMessageHistory.message = data.message
+    } else if (data.content_type === 'file') {
+      addMessageHistory.message = data.message
     }
 
     await db.addOne("workbenchChatRecord", addMessageHistory)
@@ -824,7 +835,6 @@ export const useChatStore = defineStore('chatStore', () => {
       userId: data.userId,
       groupId: data.to_groupid,
       content_type: data.content_type,
-      message: data.message,
       time: data.time,
       type: data.type,
       chatId: data.to_groupid,
@@ -835,6 +845,14 @@ export const useChatStore = defineStore('chatStore', () => {
       role_id: data.userInfo.role_id,
       createdAt: Date.now(),
     };
+
+    if (data.content_type === 'image') {
+      messageRecord.message = await getImageSrc(data.message)
+    } else if (data.content_type === 'text') {
+      messageRecord.message = data.message
+    } else if (data.content_type === 'file') {
+      messageRecord.message = data.message
+    }
 
     // 判断当前消息是否是自己发送的
     if (messageRecord.userId === userInfo.value.id) {
@@ -898,35 +916,30 @@ export const useChatStore = defineStore('chatStore', () => {
   };
 
   // 获取图片消息预览
-  const getImageSrc = async (imageMessage: string = "/C/Users/Desktop/bizhi.png") => {
+  // 获取图片消息预览
+  const getImageSrc = async (imageMessage: string) => {
+    // 确保路径以 '/' 开始
+    if (!imageMessage.startsWith('/')) {
+      imageMessage = '/' + imageMessage;
+    }
+    console.log("地址:-----------", imageMessage)
 
-    // const path = userInfo.value.url + "/chat/image/view?path=" + imageMessage
-    // console.log(path)
-    // const response = await fetchGet(path)
+    const path = userInfo.value.url + "/chat/image/view?path=" + imageMessage;
+    const response = await fetchGet(path);
 
-    // if (!response.ok) {
-    //   return ''
-    // }
-
-    // // 检查Content-Type是否为图片
-    // const contentType = response.headers.get("Content-Type");
-    // if (!contentType || !contentType.startsWith("image/")) {
-    //   console.error("Expected an image content type, but received:", contentType);
-    //   return '';
-    // }
-
-    // // 将响应数据转换为 Blob
-    // const imageBlob = await response.blob();
-
-    // // 将 Blob 转换为 base64 字符串
-    // return new Promise((resolve, reject) => {
-    //   const reader = new FileReader();
-    //   reader.onloadend = () => {
-    //     resolve(reader.result); // 返回 base64 字符串
-    //   };
-    //   reader.onerror = reject;
-    //   reader.readAsDataURL(imageBlob);
-    // });
+    if (!response.ok) {
+      return '';
+    }
+    const blob = await response.blob(); // 获取 Blob 对象
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result; // 转换为 base64
+        console.log(base64data);
+        resolve(base64data);
+      };
+      reader.readAsDataURL(blob);
+    });
   }
 
   return {

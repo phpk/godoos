@@ -55,11 +55,10 @@
 							v-else-if="item.content_type == 'image'"
 							class="chat-item-image"
 						>
-							{{ item.message }}
 							<el-image
 								fit="cover"
 								loading="lazy"
-								:src="store.getImageSrc()"
+								:src="item.message"
 							/>
 						</div>
 					</div>
@@ -260,8 +259,6 @@
 	}
 
 	.chat-item-image {
-		width: 180px;
-		height: 180px;
 		margin: 10px;
 	}
 

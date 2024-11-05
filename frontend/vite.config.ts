@@ -1,9 +1,9 @@
-import { defineConfig } from "vite";
-import path from 'path'
 import vue from "@vitejs/plugin-vue";
-import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import path from 'path';
+import AutoImport from 'unplugin-auto-import/vite';
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import Components from 'unplugin-vue-components/vite';
+import { defineConfig } from "vite";
 
 
 export default defineConfig(async () => ({
@@ -24,6 +24,7 @@ export default defineConfig(async () => ({
 
   clearScreen: false,
   server: {
+    host: '0.0.0.0',
     port: 8215
   },
   resolve: {
@@ -32,7 +33,7 @@ export default defineConfig(async () => ({
       "~": path.resolve(__dirname, 'wailsjs')
     },
   },
-  build:{
+  build: {
     sourcemap: true,
     // 打包环境移除console.log，debugger
     terserOptions: {
