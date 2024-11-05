@@ -67,7 +67,6 @@ const eventHandler = async (e: MessageEvent) => {
     const isWrite = ref(0)
     if (isShareFile(path)) {
       const file = await sys?.fs.getShareInfo(path)
-      console.log('文件信息：',file);
       isShare.value = true
       isWrite.value = file.fs.is_write
       if (!isWrite.value) {

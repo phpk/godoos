@@ -7,7 +7,7 @@
     <div v-if="extname(file?.path || '') === '.ln' || file?.isShare === true" class="ln-img">
       <img :src="lnicon" alt="ln" />
     </div>
-    <div v-if="extname(file?.path || '') === '.ln' || file?.isPwd === true" class="lock-img">
+    <div v-if="file?.isPwd === true" class="lock-img">
       <img :src="lockImg" alt="ln" />
     </div>
   </div>

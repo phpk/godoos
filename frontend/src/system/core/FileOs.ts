@@ -2,7 +2,7 @@ import { getFileUrl,fetchGet,fetchPost } from "../config.ts";
 const API_BASE_URL = getFileUrl()
 import { OsFileMode } from '../core/FileMode';
 import { getSystemConfig } from "@/system/config";
-import { turnServePath, turnLocalPath, isRootShare } from "@/util/sharePath.ts";
+import { turnServePath, turnLocalPath, isRootShare, isShareFile } from "@/util/sharePath.ts";
 import { OsFile } from "./FileSystem.ts";
 // import { notifyError } from "@/util/msg";
 export async function handleReadDir(path: any): Promise<any> {
@@ -137,7 +137,17 @@ export async function handleClear(): Promise<any> {
 }
 
 export async function handleRename(oldPath: string, newPath: string): Promise<any> {
-    const res = await fetchGet(`${API_BASE_URL}/rename?oldPath=${encodeURIComponent(oldPath)}&newPath=${encodeURIComponent(newPath)}`);
+    const url = isShareFile(oldPath) ? 'sharerename' : 'rename'
+    let params = ''
+    if (isShareFile(oldPath)) {
+        const optionID = oldPath.indexOf('/F/myshare') === 0 ? 0 : 1
+        oldPath = turnServePath(oldPath)
+        newPath = turnServePath(newPath)
+        params = `oldpath=${encodeURIComponent(oldPath)}&newpath=${encodeURIComponent(newPath)}&userID=${getSystemConfig()?.userInfo.id}&optionID=${optionID}`
+    } else {
+        params = `oldPath=${encodeURIComponent(oldPath)}&newPath=${encodeURIComponent(newPath)}`
+    }
+    const res = await fetchGet(`${API_BASE_URL}/${url}?${params}`);
     if (!res.ok) {
         return false;
     }
@@ -298,6 +308,8 @@ export const useOsFile = () => {
         async getShareInfo(path: string) {
             const response = await handleShareDetail(path, getSystemConfig().userInfo.id);
             if (response && response.data) {
+                response.data.fi.isShare = true
+                response.data.fi.path = turnLocalPath(response.data.fi.path, path, 1)
                 return response.data; 
             }
             return [];
@@ -357,7 +369,7 @@ export const useOsFile = () => {
             return false;
         },
         async rename(oldPath: string, newPath: string) {
-            const response = await handleRename(turnServePath(oldPath), turnServePath(newPath));
+            const response = await handleRename(oldPath, newPath);
             if (response) {
                 return response; 
             }

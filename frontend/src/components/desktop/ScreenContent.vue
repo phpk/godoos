@@ -31,6 +31,7 @@ defineProps<{
   rootState: RootState;
 }>();
 onMounted(() => {
+  //console.log('rootState:', RootState.state);
   useSystem().rootRef = screenref.value;
 });
 </script>

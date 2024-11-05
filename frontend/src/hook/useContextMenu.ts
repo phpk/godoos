@@ -215,6 +215,7 @@ function useContextMenu() {
         newPath = fspath.join(parentPath, `${file.title}(${i}).${file.ext}`)
       }
     }
+
     //console.log(newPath)
     return system?.fs.rename(file.path, newPath)
 
