@@ -115,6 +115,8 @@
 				<el-form label-position="top">
 					<el-form-item label="群聊名称:">
 						<el-input
+							maxlength="8"
+							show-word-limit
 							style="width: 240px; height: 30px"
 							class="department-name"
 							v-model="store.departmentName"

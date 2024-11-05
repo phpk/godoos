@@ -58,6 +58,7 @@
 							<el-image
 								fit="cover"
 								loading="lazy"
+                :preview-src-list="[item.message]"
 								:src="item.message"
 							/>
 						</div>
@@ -138,6 +139,7 @@
 							<el-image
 								fit="cover"
 								loading="lazy"
+                :preview-src-list="[item.message]"
 								:src="item.message"
 							/>
 						</div>

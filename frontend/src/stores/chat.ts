@@ -143,9 +143,37 @@ export const useChatStore = defineStore('chatStore', () => {
     console.log(res);
     if (res.ok) {
       const data = await res.json();
-      console.log(data)
+      console.log(data.data.users)
       groups.value = data.data.groups;
       departmentList.value = data.data.users;
+
+      // 新增代码：提取部门成员并去重，按指定字段保存
+      const uniqueUsers = new Set();
+
+      data.data.users.forEach((department: { users: any[]; }) => {
+        department.users?.forEach(async (user) => {
+          if (!uniqueUsers.has(user.user_id)) {
+            uniqueUsers.add(user.user_id);
+            const userToProcess = {
+              id: user.user_id,
+              login_ip: user.login_ip || '',  // 假设 login_ip 可能未提供
+              type: "user",
+              chatId: user.user_id,
+              online: user.is_online,
+              avatar: user.avatar || '/default_avatar.png', // 使用默认头像如果没有提供
+              username: user.user_name,
+              nickname: user.nick_name
+            };
+
+            const existingUser = await db.getOne("workbenchChatUser", user.user_id);
+            if (existingUser) {
+              await db.update("workbenchChatUser", user.user_id, userToProcess);
+            } else {
+              await db.addOne("workbenchChatUser", userToProcess);
+            }
+          }
+        });
+      });
     }
   }
 
@@ -565,10 +593,19 @@ export const useChatStore = defineStore('chatStore', () => {
     // 更新会话列表数据库
     // 更新chatlist
     // 更新聊天记录
+
+    // 判断是否是自己发的消息
+    if (data.userId === userInfo.value.id) {
+      return
+    }
+
     const isPresence = await db.getByField('workbenchChatUser', 'chatId', data.userId)
     if (isPresence[0].id !== data.userId) {
       return
     }
+
+
+
 
     // 添加消息记录
     const addMessageHistory = {
@@ -669,6 +706,12 @@ export const useChatStore = defineStore('chatStore', () => {
 
 
   const onlineUserData = async (data: OnlineUserInfoType[]) => {
+
+    if (data.length === 0) {
+      onlineUserList.value = []
+      return
+    }
+
     // 创建一个新的用户数组，用于更新在线用户列表
     const updatedOnlineUsers = data.map(item => ({
       id: item.id,
@@ -680,7 +723,6 @@ export const useChatStore = defineStore('chatStore', () => {
       username: item.username,
       nickname: item.nickname
     })).filter(item => item.id && item.login_ip); // 确保所有项都有有效的id和ip
-
     // 更新在线用户列表，只添加不存在的用户
     updatedOnlineUsers.forEach(newUser => {
       if (!onlineUserList.value.some(existingUser => existingUser.id === newUser.id)) {
@@ -800,13 +842,12 @@ export const useChatStore = defineStore('chatStore', () => {
 
   // 设置目标用户的信息
   const setTargetUserInfo = async (id: string) => {
-    console.log(id)
     const userInfoArray = await db.getByField("workbenchChatUser", "chatId", id);
     // 封装用户信息
     const userInfo = {
       type: "user",
-      avatar: userInfoArray[0].avatar,
-      displayName: userInfoArray[0].nickname,
+      avatar: userInfoArray[0].avatar || "",
+      displayName: userInfoArray[0].nickname || "",
       toUserId: config.userInfo.id,
       chatId: userInfoArray[0].chatId
     }

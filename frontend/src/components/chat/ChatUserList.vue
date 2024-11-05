@@ -9,7 +9,9 @@
 	} from "element-plus";
 	const store = useChatStore();
 	const handleNodeClick = (data) => {
-		console.log(data);
+		if (data.isUser) {
+			store.getSessionInfo(data.id, "user");
+		}
 	};
 
 	const defaultProps = {
@@ -29,8 +31,11 @@
 
 	function transformUsers(users) {
 		if (!users) return [];
+		console.log(users);
 		return users.map((user) => ({
-			label: `${user.user_name} (${user.user_id})`,
+			label: `${user.nick_name}`,
+			id: user.user_id, // 添加用户ID
+			isUser: true,
 			children: [],
 		}));
 	}
@@ -82,7 +87,9 @@
 								/>
 							</el-col>
 							<el-col :span="18">
-								<el-row style="display: flex; align-items: center;">
+								<el-row
+									style="display: flex; align-items: center"
+								>
 									<el-col>
 										<div class="previewName">
 											{{ item.nickname }}
@@ -100,7 +107,7 @@
 								</el-row>
 								<el-row>
 									<div class="previewIP">
-										{{ item.login_ip}}
+										{{ item.login_ip }}
 									</div>
 								</el-row>
 							</el-col>
@@ -127,7 +134,6 @@
 					>部门</span
 				>
 			</template>
-
 			<div
 				class="tree-container"
 				v-if="data.length > 0"
@@ -211,7 +217,7 @@
 	}
 
 	.list-item:hover {
-		background-color: #F5F5F5;
+		background-color: #f5f5f5;
 	}
 
 	.avatar {
