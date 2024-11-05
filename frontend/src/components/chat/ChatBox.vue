@@ -28,7 +28,8 @@
 					<el-icon><More /></el-icon>
 					<template #dropdown>
 						<el-dropdown-menu>
-							<el-dropdown-item @click="store.inviteFriend"
+							<el-dropdown-item
+								@click="store.inviteFriendDialogVisible = true"
 								>邀请好友</el-dropdown-item
 							>
 							<el-dropdown-item
@@ -42,6 +43,36 @@
 						</el-dropdown-menu>
 					</template>
 				</el-dropdown>
+
+				<!-- 邀请好友对话框 -->
+				<el-dialog
+					v-model="store.inviteFriendDialogVisible"
+					title="邀请好友"
+					width="80%"
+					style="height: 550px"
+					align-center
+				>
+					<div>
+						<el-transfer
+							v-model="value"
+							:data="data"
+						/>
+					</div>
+
+					<template #footer>
+						<span class="dialog-footer">
+							<el-button
+								style="background-color: #0078d4; color: #fff"
+								@click="store.inviteFriendDialogVisible = false"
+								>取消</el-button
+							>
+							<el-button
+								style="background-color: #0078d4; color: #fff"
+								>确定</el-button
+							>
+						</span>
+					</template>
+				</el-dialog>
 			</div>
 		</el-header>
 
@@ -55,54 +86,58 @@
 		</el-main>
 
 		<!--聊天输入区和发送按钮等-->
-		<el-footer class="msg-footer">
-			<!--聊天输入选项-->
-			<div class="input-option">
-				<el-icon
-					:size="20"
-					class="input-option-icon"
-					@click="selectImg"
-				>
-					<Picture />
-				</el-icon>
-				<el-icon
-					:size="20"
-					class="input-option-icon"
-					@click="selectFile"
-				>
-					<Link />
-				</el-icon>
-				<el-icon
-					:size="20"
-					class="input-option-icon"
-				>
-					<Delete />
-				</el-icon>
-			</div>
-			<!--聊天输入区-->
-			<div class="input-textarea">
+		<el-footer
+			class="msg-footer"
+			style="
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: start;
+			"
+		>
+			<!-- 输入主体 -->
+			<div
+				class="input-main"
+				style="width: 100%; height: 40px; background-color: #ffffff"
+			>
 				<el-input
-					type="textarea"
-					maxlength="1000"
-					resize="none"
-					class="textarea"
+					size="large"
+					style="width: 100%; height: 100%"
+					placeholder="请输入内容"
 					@keyup.enter.exact="store.sendMessage('text')"
 					v-model="store.message"
-				/>
-			</div>
-			<!--聊天发送按钮-->
-			<el-tooltip
-				placement="top"
-				content="按enter键发送，按ctrl+enter键换行"
-			>
-				<el-icon
-					@click="store.sendMessage('text')"
-					:size="22"
-					class="input-button"
 				>
-					<Promotion />
-				</el-icon>
-			</el-tooltip>
+					<template #suffix>
+						<el-icon
+							:size="20"
+							class="input-option-icon"
+							@click="selectImg"
+						>
+							<Picture />
+						</el-icon>
+						<el-icon
+							:size="20"
+							class="input-option-icon"
+							@click="selectFile"
+						>
+							<Link />
+						</el-icon>
+						<el-icon
+							:size="20"
+							class="input-option-icon"
+						>
+							<Delete />
+						</el-icon>
+						<el-icon
+							@click="store.sendMessage('text')"
+							:size="22"
+							class="input-button"
+						>
+							<Promotion />
+						</el-icon>
+					</template>
+				</el-input>
+			</div>
 		</el-footer>
 	</div>
 
@@ -128,9 +163,20 @@
 	const imgExt = ["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"];
 	const choosetype = ref("");
 
+	const generateData = () => {
+		return store.allUserList.map((user: any) => ({
+			key: user.id,
+			label: user.nickname,
+			avatar: user.avatar, // 添加头像数据
+		}));
+	};
+
+	const data = ref(generateData());
+	const value = ref([]);
+
 	function selectImg() {
 		choosetype.value = "image";
-		console.log(choosetype.value)
+		console.log(choosetype.value);
 		choose.select("选择图片", imgExt);
 	}
 	function selectFile() {
@@ -156,6 +202,57 @@
 </script>
 
 <style scoped>
+	.el-transfer {
+		display: flex;
+		flex-direction: row; /* 将布局方向设置为横向 */
+		width: 550px; /* 让穿梭框占满宽度 */
+	}
+
+	.el-transfer-panel {
+		width: 300px !important;
+		height: 530px !important;
+	}
+
+	.el-transfer-panel__body {
+		height: 450px !important;
+	}
+
+	.el-checkbox__label {
+		margin-left: 10px !important;
+	}
+
+	.el-transfer-panel
+		.el-transfer-panel__header
+		.el-checkbox
+		.el-checkbox__label
+		span {
+		left: 150px;
+		right: 0px;
+	}
+
+	.el-transfer__buttons {
+		display: flex;
+		flex-direction: column;
+		align-items: center !important;
+		/* 水平居中对齐 */
+		justify-content: center !important;
+		gap: 10px;
+		/* 子元素之间的间距 */
+		padding: 0 15px;
+	}
+
+	.el-transfer__buttons .el-button {
+		min-width: 35px !important;
+		text-align: center;
+		margin-left: 0 !important;
+	}
+
+	.el-transfer__buttons .el-transfer__button {
+		width: 35px;
+		height: 35px;
+		border-radius: 50%;
+	}
+
 	.chatbox-main {
 		width: 100%;
 		height: 100%;
@@ -164,17 +261,14 @@
 	.chat-header {
 		width: 100%;
 		/* 占据整个宽度 */
-		height: 50px;
+		height: 49px;
 		line-height: 50px;
-		padding: 0;
-		-webkit-app-region: drag;
 	}
 
 	.header-title {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		margin: 0px 10px;
 	}
 
 	.header-title-name {
@@ -186,22 +280,16 @@
 	.msg-main {
 		width: 100%;
 		/* 占据整个宽度 */
-		height: calc(70% - 50px);
+		height: 75%;
 		padding: 0;
-		border-top-width: 1px;
-		border-bottom-width: 1px;
-		border-left-width: 0;
-		border-right-width: 0;
-		border-color: #d6d6d6;
-		border-style: solid;
+		border-top: 1px solid #edebeb;
 	}
-  
 
 	.msg-footer {
 		width: 100%;
 		/* 占据整个宽度 */
-		height: 30%;
-		padding: 0;
+		height: calc(100% - 75% - 49px);
+		border: none;
 	}
 
 	.input-option {
@@ -210,9 +298,8 @@
 	}
 
 	.input-option-icon {
-		color: #494949;
-		margin-left: 20px;
-		margin-top: 5px;
+		margin-left: 10px;
+		color: #656a72;
 		cursor: pointer;
 	}
 
@@ -239,26 +326,8 @@
 	}
 
 	.input-button {
-		position: absolute;
-		bottom: 12px;
-		right: 12px;
-		width: 30px;
-		/* 缩小宽度 */
-		height: 30px;
-		/* 减小高度 */
-		border-radius: 50%;
-		/* 较小的圆角 */
-		background-color: #e8f0fe;
-		/* 浅蓝色，符合Win11的轻量风格 */
-		color: #0078d4;
-		/* 使用Win11的强调色作为文字颜色 */
-		font-weight: bold;
-		border: 1px solid #b3d4fc;
-		/* 添加边框，保持简洁风格 */
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-		/* 轻微阴影 */
-		transition: all 0.2s ease;
-		/* 快速过渡效果 */
+		margin-left: 10px;
+		color: #2a6bf2;
 	}
 
 	.input-button:hover {
@@ -275,11 +344,5 @@
 		/* 回复初始阴影 */
 		transform: translateY(1px);
 		/* 微小下移，模拟按下 */
-	}
-
-	.no-message-container {
-		margin: 120px auto;
-		text-align: center;
-		justify-content: center;
 	}
 </style>

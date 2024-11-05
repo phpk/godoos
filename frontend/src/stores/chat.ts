@@ -88,8 +88,9 @@ export const useChatStore = defineStore('chatStore', () => {
   const message: any = ref('');
   const targetUserInfo: any = ref({});
   const targetChatId = ref();
-  const search = ref('');
+  const searchList = ref([]);
   const groups: any = ref([])
+  const searchInput = ref('');
 
   // 群成员列表
   const groupMemberList = ref([])
@@ -98,10 +99,10 @@ export const useChatStore = defineStore('chatStore', () => {
   const allUserList = ref([])
 
   // 部门列表
-  const departmentList = ref([
+  const departmentList = ref([])
 
-  ])
-
+  // 邀请好友
+  const inviteFriendDialogVisible = ref(false)
   const contextMenu = ref({
     visible: false,
     chatMessageId: 0,
@@ -159,12 +160,11 @@ export const useChatStore = defineStore('chatStore', () => {
   };
 
   const sendMessage = async (messageType: string) => {
-    console.log("sendMessage:", messageType)
     if (messageType == 'text') {
       await sendTextMessage()
     }
     if (messageType == 'image') {
-     await sendImageMessage()
+      await sendImageMessage()
     }
 
     console.log(messageType)
@@ -203,19 +203,19 @@ export const useChatStore = defineStore('chatStore', () => {
       fileSendActive.value = false;
       return;
     }
-    const data = await res.json();
-    console.log(data);
+
 
     // 封装成消息历史记录
     const messageHistory = {
       ...Message,
       isMe: true,
+      previewTimeFormat: formatTime(Date.now()),
+      displayName: userInfo.value.nickname,
       chatId: Message.type === 'group' ? targetGroupInfo.value.chatId : targetUserInfo.value.chatId,
       avatar: Message.type === 'group' ? targetUserInfo.value.avatar : '',
       createdAt: Date.now()
     };
 
-    console.log("messageHistory------", messageHistory)
 
     // 添加到聊天记录
     if (Message.type === 'group') {
@@ -255,7 +255,6 @@ export const useChatStore = defineStore('chatStore', () => {
       Message.to_groupid = targetGroupInfo.value?.group_id || '';
       Message.userInfo = {};
     }
-    console.log(Message)
     // 发送文件消息
 
     console.log("token", config.userInfo.token)
@@ -266,19 +265,17 @@ export const useChatStore = defineStore('chatStore', () => {
       fileSendActive.value = false;
       return;
     }
-    const data = await res.json();
-    console.log("", data);
 
     // 封装成消息历史记录
     const messageHistory = {
       ...Message,
       isMe: true,
+      previewTimeFormat: formatTime(Date.now()),
+      displayName: userInfo.value.nickname,
       chatId: Message.type === 'group' ? targetGroupInfo.value.chatId : targetUserInfo.value.chatId,
       avatar: Message.type === 'group' ? targetUserInfo.value.avatar : '',
       createdAt: Date.now()
     };
-
-    console.log("messageHistory------", messageHistory)
 
     // 添加到聊天记录
     if (Message.type === 'group') {
@@ -333,6 +330,7 @@ export const useChatStore = defineStore('chatStore', () => {
         messageHistory = {
           ...Message,
           isMe: true,
+          previewTimeFormat: formatTime(Date.now()),
           displayName: userInfo.value.nickname,
           chatId: targetUserInfo.value.chatId.toString(),
           avatar: userInfo.value.avatar,
@@ -343,6 +341,8 @@ export const useChatStore = defineStore('chatStore', () => {
       } else if (Message.type === 'group') {
         messageHistory = {
           ...Message,
+          previewTimeFormat: formatTime(Date.now()),
+          displayName: targetGroupInfo.value.name,
           isMe: true,
           chatId: targetGroupInfo.value.chatId.toString(),
           createdAt: Date.now()
@@ -379,9 +379,9 @@ export const useChatStore = defineStore('chatStore', () => {
       displayName: data.userInfo.nickname,
       nickname: data.userInfo.nickname,
       time: Date.now().toString,
-      // previewMessage: data.message,
-      // previewTimeFormat: formatTime(Date.now()), // 时间格式化函数
-      createdAt: Date.now()
+      previewMessage: data.message,
+      previewTimeFormat: formatTime(Date.now()), // 时间格式化函数
+      createdAt: Date.now(),
     };
 
     if (conversation.length === 0) {
@@ -396,9 +396,9 @@ export const useChatStore = defineStore('chatStore', () => {
         avatar: data.userInfo.avatar,
         nickname: data.userInfo.nickname,
         displayName: data.userInfo.nickname,
-        // previewMessage: data.message,
+        previewMessage: data.message,
         time: data.time || Date.now().toString,
-        // previewTimeFormat: formatTime(Date.now())
+        previewTimeFormat: formatTime(Date.now())
       });
 
 
@@ -435,7 +435,8 @@ export const useChatStore = defineStore('chatStore', () => {
       nickname: user.nickname,
       avatar: user.avatar,
       toUserId: userInfo.value.id,
-      time: Date.now(),
+      previewMessage: message.value || "快开始打招呼吧！",
+      previewTimeFormat: formatTime(Date.now()),
       displayName: user.nickname,
     };
     chatList.value.push(newChat);
@@ -449,7 +450,8 @@ export const useChatStore = defineStore('chatStore', () => {
       nickname: user.nickname,
       avatar: user.avatar,
       toUserId: userInfo.value.id,
-      time: Date.now(),
+      previewMessage: message.value || "快开始打招呼吧！",
+      previewTimeFormat: formatTime(Date.now()),
       createdAt: Date.now(),
     });
 
@@ -518,8 +520,6 @@ export const useChatStore = defineStore('chatStore', () => {
       return false;
     }
 
-    // getGroupList()
-    // initChatList()
     const groupData = await res.json();
     console.log(groupData)
     // 构建数据入库
@@ -534,7 +534,7 @@ export const useChatStore = defineStore('chatStore', () => {
       chatId: group_id,
       type: "group",
       displayName: departmentName.value,
-      previewMessage: "",
+      previewMessage: "快来和大家一起交流吧！",
       previewTimeFormat: formatTime(Date.now()),
       createdAt: new Date()
     }
@@ -542,17 +542,17 @@ export const useChatStore = defineStore('chatStore', () => {
     initChatList()
     // 关闭对话弹窗
     setGroupChatInvitedDialogVisible(false)
+    notifySuccess('创建群聊成功')
     await getAllList()
   };
 
-  // 处���用户消息
+  // 处理用户消息
   const userChatMessage = async (data: any) => {
     // 先判断数据库是否有该用户
     // 更新聊天记录表
     // 更新会话列表数据库
     // 更新chatlist
     // 更新聊天记录
-    console.log("userChatMessage:", data)
     const isPresence = await db.getByField('workbenchChatUser', 'chatId', data.userId)
     if (isPresence[0].id !== data.userId) {
       return
@@ -569,6 +569,8 @@ export const useChatStore = defineStore('chatStore', () => {
       isMe: false,
       content_type: data.content_type,
       to_groupid: data.to_groupid,
+      previewMessage: data.message,
+      previewTimeFormat: formatTime(Date.now()),
       displayName: data.userInfo.nickname,
       avatar: data.userInfo.avatar,
       createdAt: Date.now(),
@@ -645,9 +647,10 @@ export const useChatStore = defineStore('chatStore', () => {
 
   };
 
+
   const onlineUserData = async (data: OnlineUserInfoType[]) => {
-    // 创建一个用户数组，将所有在线的用户提取出来
-    const onlineUsers: OnlineUserInfoType[] = data.map(item => ({
+    // 创建一个新的用户数组，用于更新在线用户列表
+    const updatedOnlineUsers = data.map(item => ({
       id: item.id,
       login_ip: item.login_ip,
       type: "user",
@@ -658,16 +661,21 @@ export const useChatStore = defineStore('chatStore', () => {
       nickname: item.nickname
     })).filter(item => item.id && item.login_ip); // 确保所有项都有有效的id和ip
 
-    // 更新在线用户列表
-    if (onlineUsers.length > 0) {
-      await setOnlineUserList(onlineUsers);
-    }
+    // 更新在线用户列表，只添加不存在的用户
+    updatedOnlineUsers.forEach(newUser => {
+      if (!onlineUserList.value.some(existingUser => existingUser.id === newUser.id)) {
+        onlineUserList.value.push(newUser);
+      }
+    });
+
+    // 更新数据库中的用户信息
+    await updateOrAddUsers(updatedOnlineUsers);
   };
 
-  const setOnlineUserList = async (data: OnlineUserInfoType[]) => {
+  const updateOrAddUsers = async (users: OnlineUserInfoType[]) => {
     // 从数据库中获取所有用户信息
     const allUsers = await db.getAll("workbenchChatUser");
-    const onlineUserIds = new Set(data.map(user => user.id));
+    const onlineUserIds = new Set(users.map(user => user.id));
 
     // 筛选出需要删除的用户（即不在在线列表中的用户）
     const usersToDelete = allUsers.filter((user: { id: string; }) => !onlineUserIds.has(user.id));
@@ -679,7 +687,7 @@ export const useChatStore = defineStore('chatStore', () => {
     }
 
     // 添加或更新在线用户
-    for (const user of data) {
+    for (const user of users) {
       const existingUser = allUsers.find((u: { id: string; }) => u.id === user.id);
       if (existingUser) {
         // 更新现有用户
@@ -707,115 +715,13 @@ export const useChatStore = defineStore('chatStore', () => {
         });
       }
     }
-
-    // 重新初始化在线用户列表，确保所有用户都被显示
-    await initOnlineUserList();
   };
 
-  const initOnlineUserList = async () => {
-    // 从数据库中获取所有用户信息
-    const list = await db.getAll("workbenchChatUser");
-    // 更新用户列表
-    onlineUserList.value = list;
-  };
+  // 邀请好友
+  const inviteFriend = async () => {
+    console.log("邀请好友")
+  }
 
-
-  // const onlineUserData = async (data: OnlineUserInfoType[]) => {
-  //   // 创建一个用户数组，将所有在线的用户提取出来
-  //   const onlineUsers: OnlineUserInfoType[] = data.map(item => ({
-  //     id: item.id,
-  //     login_ip: item.login_ip,
-  //     type: "user",
-  //     chatId: item.id,
-  //     online: true,
-  //     avatar: item.avatar || '/default_avatar.png', // 使用默认头像如果没有提供
-  //     username: item.username,
-  //     nickname: item.nickname
-  //   })).filter(item => item.id && item.login_ip); // 确保所有项都有有效的id和ip
-
-  //   // 更新在线用户列表
-  //   if (onlineUsers.length > 0) {
-  //     await setOnlineUserList(onlineUsers);
-  //   }
-  // };
-
-  // const setOnlineUserList = async (data: OnlineUserInfoType[]) => {
-  //   // 从当前用户列表中获取已有用户的 IP 和完整用户映射
-  //   const existingIps = new Set(onlineUserList.value.map((d: any) => d.ip));
-  //   const userMap = new Map<string, OnlineUserInfoType>(
-  //     onlineUserList.value.map((user: OnlineUserInfoType) => [user.login_ip, user])
-  //   );
-
-  //   const updates: any[] = [];
-  //   const newEntries: any[] = [];
-
-  //   // 遍历传入的 data，每个用户根据是否存在来更新或添加
-  //   data.forEach((d: any) => {
-  //     const existingUser = userMap.get(d.ip);
-  //     if (existingUser && existingIps.has(d.ip)) {
-  //       // 若用户已存在，添加到更新列表
-  //       updates.push({
-  //         key: existingUser.id,
-  //         changes: {
-  //           isOnline: true,
-  //           avatar: d.avatar,
-  //           nickname: d.nickname,
-  //           username: d.username,
-  //           updatedAt: Date.now()
-  //         }
-  //       });
-  //     } else {
-  //       // 若用户不存在，添加到新条目列表
-  //       newEntries.push({
-  //         id: d.id,
-  //         ip: d.ip,
-  //         type: "user",
-  //         chatId: d.id,
-  //         isOnline: true,
-  //         avatar: d.avatar,
-  //         nickname: d.nickname,
-  //         username: d.username,
-  //         createdAt: Date.now(),
-  //         updatedAt: Date.now()
-  //       });
-  //     }
-  //   });
-
-  //   // 批量更新和添加用户数据
-  //   if (updates.length > 0) {
-  //     await db.table("workbenchChatUser").bulkUpdate(updates);
-  //   }
-  //   if (newEntries.length > 0) {
-  //     await db.table("workbenchChatUser").bulkPut(newEntries);
-  //   }
-
-  //   console.log(updates)
-  //   console.log(newEntries)
-  //   // 重新初始化在线用户列表，确保所有用户都被显示
-  //   await initOnlineUserList();
-  // };
-
-  // const initOnlineUserList = async () => {
-
-  //   // 从数据库中获取所有用户信息
-  //   const list = await db.getAll("workbenchChatUser");
-  //   // 创建一个 Map，用于存储每个用户的唯一 ID 地址
-  //   let uniqueIdMap = new Map<string, any>();
-
-  //   // 遍历用户列表，将每个用户添加到 Map 中（基于 ID 去重）
-  //   list.forEach((item: any) => {
-  //     uniqueIdMap.set(item.userId, item); // 使用 ID 作为键，用户对象作为值
-  //   });
-
-  //   // 将 Map 的值转换为数组（去重后的用户列表）
-  //   const uniqueIdList = Array.from(uniqueIdMap.values());
-  //   // 按照 updatedAt 时间进行升序排序
-  //   uniqueIdList.sort((a: any, b: any) => a.time - b.time);
-  //   // 更新用户列表
-  //   onlineUserList.value = list;
-  // };
-
-  // 初始化统一用户列表状态
   const initUserList = async () => {
     if (!onlineUserList.value.length) return;
     // 获取需要更新的用户数据（只选取在线的用户并设为离线状态）
@@ -915,8 +821,6 @@ export const useChatStore = defineStore('chatStore', () => {
   };
 
   const groupChatMessage = async (data: any) => {
-    console.log("收到群消息了！！！！！")
-    // 创建消息记录
     const messageRecord = {
       userId: data.userId,
       groupId: data.to_groupid,
@@ -926,6 +830,7 @@ export const useChatStore = defineStore('chatStore', () => {
       type: data.type,
       chatId: data.to_groupid,
       isMe: false,
+      previewTimeFormat: formatTime(Date.now()),
       displayName: data.userInfo.nickname,
       avatar: data.userInfo.avatar,
       role_id: data.userInfo.role_id,
@@ -985,7 +890,7 @@ export const useChatStore = defineStore('chatStore', () => {
     groupList,
     chatHistory,
     userInfo,
-    search,
+    searchList,
     showChooseFile,
     currentPage,
     pageSize,
@@ -996,6 +901,7 @@ export const useChatStore = defineStore('chatStore', () => {
     targetChatId,
     message,
     contextMenu,
+    searchInput,
     activeNames,
     groupChatInvitedDialogVisible,
     groupInfoSettingDrawerVisible,
@@ -1007,6 +913,7 @@ export const useChatStore = defineStore('chatStore', () => {
     fileSendActive,
     groupMemberList,
     groups,
+    inviteFriendDialogVisible,
     initChat,
     showContextMenu,
     setCurrentNavId,
@@ -1024,5 +931,6 @@ export const useChatStore = defineStore('chatStore', () => {
     getAllList,
     getAllUser,
     quitGroup,
+    inviteFriend,
   };
 });

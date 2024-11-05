@@ -1,7 +1,12 @@
 <template>
 	<div
-		v-if="store.chatList.length > 0"
-		v-for="item in store.chatList"
+		v-if="
+			(store.searchList.length > 0 ? store.searchList : store.chatList)
+				.length > 0
+		"
+		v-for="item in store.searchList.length > 0
+			? store.searchList
+			: store.chatList"
 		:key="item.id"
 	>
 		<div
@@ -9,17 +14,27 @@
 			@click="store.getSessionInfo(item.chatId, item.type)"
 			:style="{
 				backgroundColor:
-					item.chatId == store.targetChatId ? '#EAF3FC' : '',
+					item.chatId == store.targetChatId ? '#F5F5F5' : '',
 			}"
 		>
 			<el-row>
 				<el-col :span="6">
 					<el-avatar
+						v-if="item.type == 'user'"
 						shape="square"
 						:size="40"
 						class="avatar"
 						:src="item.avatar"
-					/>
+					></el-avatar>
+
+					<el-avatar
+						v-else="item.type == 'group'"
+						shape="square"
+						:size="40"
+						class="avatar"
+						:src="item.avatar"
+						>群</el-avatar
+					>
 				</el-col>
 				<el-col
 					:span="18"
@@ -30,9 +45,15 @@
 							:span="18"
 							class="preview-left"
 						>
-							<div class="previewName">
-								{{ item.displayName }}
+							<div class="preview-top-content">
+								<div class="previewName">
+									{{ item.displayName }}
+								</div>
+								<div class="previewTime">
+									{{ item.previewTimeFormat }}
+								</div>
 							</div>
+
 							<div class="previewChat">
 								<span>{{ item.previewMessage }}</span>
 							</div>
@@ -41,15 +62,13 @@
 							:span="6"
 							class="preview-right"
 						>
-							<div class="previewTime">
-								{{ item.previewTimeFormat }}
-							</div>
 						</el-col>
 					</el-row>
 				</el-col>
 			</el-row>
 		</div>
 	</div>
+
 	<div
 		v-else
 		class="emptyChat"
@@ -70,20 +89,34 @@
 
 	const store = useChatStore();
 	const id = ref("1");
+
+	// 假设消息数据列表在 store 中
+	const filteredMessages = computed(() => {
+		return store.search
+			? store.messages.filter((message) =>
+					message.content
+						.toLowerCase()
+						.includes(store.search.toLowerCase())
+			  )
+			: store.messages;
+	});
 </script>
 
 <style scoped>
 	.list-item {
-		width: 100%;
+		width: 95%;
 		height: 60px;
 		display: flex;
-		margin: 0 auto;
 		transition: all 0.5s;
-    overflow: hidden;
+		margin: 0 auto;
+		border-radius: 4px;
+		margin-bottom: 5px;
+		overflow: hidden;
+		margin-top: 5px;
 	}
 
 	.list-item:hover {
-		background-color: #eaf3fc;
+		background-color: #f5f5f5;
 	}
 
 	.avatar {
@@ -103,6 +136,31 @@
 		align-items: center;
 		justify-content: space-between;
 		width: 100%;
+		margin-left: 5px;
+	}
+
+	.preview-top-content {
+		height: 20px;
+		display: flex;
+		min-width: 110px;
+		max-width: 200px;
+		align-items: center;
+		margin-left: 10px;
+		justify-content: space-between;
+	}
+	.previewName {
+		font-size: 16px;
+		color: #000000;
+		font-family: Arial, sans-serif;
+		line-height: 1.5;
+		overflow: hidden; /* 隐藏超出部分 */
+		text-overflow: ellipsis; /* 显示为省略号 */
+		white-space: nowrap; /* 不换行 */
+	}
+
+	.previewTime {
+		font-size: 12px;
+		color: #999999;
 	}
 
 	.preview-left {
@@ -112,19 +170,9 @@
 		height: 100%;
 	}
 
-	.previewName {
-		margin-left: 10px;
-		font-size: 12px;
-		font-family: Arial, sans-serif;
-		line-height: 1.5;
-		overflow: hidden; /* 隐藏超出部分 */
-		text-overflow: ellipsis; /* 显示为省略号 */
-		white-space: nowrap; /* 不换行 */
-		min-width: 100px; /* 最小宽度 */
-		max-width: 100%; /* 最大宽度 */
-	}
-
 	.previewChat {
+		line-height: 20px;
+		width: 100px;
 		height: 20px;
 		margin-left: 10px;
 		font-size: 10px;
@@ -133,8 +181,6 @@
 		overflow: hidden; /* 隐藏超出部分 */
 		text-overflow: ellipsis; /* 显示为省略号 */
 		white-space: nowrap; /* 不换行 */
-		min-width: 90px; /* 最小宽度 */
-		max-width: 100%; /* 最大宽度 */
 	}
 
 	.preview-right {
@@ -142,14 +188,6 @@
 		align-items: center;
 		justify-content: center;
 		height: 100%;
-	}
-
-	.previewTime {
-		font-size: 12px;
-		font-family: Arial, sans-serif;
-		color: #999999;
-		min-width: 30px; /* 最小宽度 */
-		max-width: 100%; /* 最大宽度 */
 	}
 
 	.emptyChat {

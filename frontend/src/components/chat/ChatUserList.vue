@@ -69,7 +69,7 @@
 						@click="store.getSessionInfo(item.chatId, 'user')"
 						:style="{
 							backgroundColor:
-								item.id === store.targetChatId ? '#bae7ff' : '',
+								item.id === store.targetChatId ? '#F5F5F5' : '',
 						}"
 					>
 						<el-row>
@@ -82,8 +82,8 @@
 								/>
 							</el-col>
 							<el-col :span="18">
-								<el-row>
-									<el-col :span="18">
+								<el-row style="display: flex; align-items: center;">
+									<el-col>
 										<div class="previewName">
 											{{ item.nickname }}
 											<el-icon
@@ -100,7 +100,7 @@
 								</el-row>
 								<el-row>
 									<div class="previewIP">
-										{{ item.ip }}
+										{{ item.login_ip}}
 									</div>
 								</el-row>
 							</el-col>
@@ -139,7 +139,6 @@
 					@node-click="handleNodeClick"
 					:default-expand-all="false"
 				>
-
 				</el-tree>
 			</div>
 
@@ -171,7 +170,7 @@
 						:style="{
 							backgroundColor:
 								group.id === store.targetChatId
-									? '#bae7ff'
+									? '#F5F5F5'
 									: '',
 						}"
 					>
@@ -181,8 +180,8 @@
 									shape="square"
 									:size="40"
 									class="avatar"
-									:src="group.avatar"
-								/>
+									>群</el-avatar
+								>
 							</el-col>
 							<el-col :span="18">
 								<div class="previewName">{{ group.name }}</div>
@@ -203,7 +202,7 @@
 		padding-left: 10px;
 	}
 	.list-item {
-		width: 94%;
+		width: 95%;
 		height: 60px;
 		margin: 0 auto;
 		border-radius: 4px;
@@ -212,7 +211,7 @@
 	}
 
 	.list-item:hover {
-		background-color: #bae7ff;
+		background-color: #F5F5F5;
 	}
 
 	.avatar {

@@ -2,6 +2,7 @@
 	<div
 		v-if="store.chatHistory && store.chatHistory.length > 0"
 		v-for="item in store.chatHistory"
+		style="margin-top: 10px"
 		:key="item.chatId"
 	>
 		<div
@@ -37,7 +38,6 @@
 							v-else-if="item.content_type == 'file'"
 							:class="['chat-item-file', 'file-me']"
 						>
-							<!-- 文件图标 -->
 							<div class="chat-item-file-icon">
 								<el-icon
 									size="30"
@@ -45,7 +45,6 @@
 									><Document
 								/></el-icon>
 							</div>
-							<!-- 文件名 -->
 							<div class="chat-item-file-name">
 								{{ item.message }}
 							</div>
@@ -62,6 +61,10 @@
 								:src="item.message"
 							/>
 						</div>
+					</div>
+					<!-- 发送时间展示，在消息框外部的下方 -->
+					<div class="chat-time-me-outer">
+						{{ item.previewTimeFormat }}
 					</div>
 				</el-col>
 				<el-col :span="2">
@@ -115,7 +118,6 @@
 							v-else-if="item.content_type == 'file'"
 							:class="['chat-item-file', 'file-other']"
 						>
-							<!-- 文件图标 -->
 							<div class="chat-item-file-icon">
 								<el-icon
 									size="30"
@@ -123,7 +125,6 @@
 									><Document
 								/></el-icon>
 							</div>
-							<!-- 文件名 -->
 							<div class="chat-item-file-name">
 								{{ item.message }}
 							</div>
@@ -140,6 +141,10 @@
 								:src="item.message"
 							/>
 						</div>
+					</div>
+					<!-- 发送时间展示，在消息框外部的下方 -->
+					<div class="chat-time-other-outer">
+						{{ item.previewTimeFormat }}
 					</div>
 				</el-col>
 				<el-col :span="8" />
@@ -180,34 +185,43 @@
 	.bubble-me,
 	.bubble-other {
 		display: flex;
-		align-items: center;
+		flex-direction: column;
 		background-color: #ffffff;
 		float: left;
-		border-radius: 4px;
 		margin-left: 5px;
-		margin-bottom: 20px;
+		margin-bottom: 10px;
 	}
 
 	.bubble-me {
-		background-color: #95ec69;
+		background-color: #d6e4f6;
 		float: right;
+		border-radius: 12px 0px 12px 12px;
 		margin-right: 5px;
 		margin-left: 0;
+	}
+
+	.bubble-other {
+		border-radius: 0 12px 12px 12px;
+		background-color: #e8eaed;
 	}
 
 	.chat-name-me,
 	.chat-name-other {
 		font-size: 14px;
 		font-family: Arial, sans-serif;
-		line-height: 1.5;
 		color: #b2b2b2;
 		margin-bottom: 2px;
 		margin-left: 2px;
 	}
 
 	.chat-name-me {
-		text-align: right; /* 右对齐昵称 */
-		margin-right: 2px;
+		text-align: right;
+		margin-right: 5px;
+	}
+
+	.chat-name-other {
+		text-align: left;
+		margin-left: 5px;
 	}
 
 	.chat-font {
@@ -226,11 +240,11 @@
 	}
 
 	.file-me {
-		flex-direction: row; /* 图标在左边 */
+		flex-direction: row;
 	}
 
 	.file-other {
-		flex-direction: row-reverse; /* 图标在右边 */
+		flex-direction: row-reverse;
 	}
 
 	.chat-item-file-icon {
@@ -243,9 +257,30 @@
 		line-height: 1.5;
 		color: #409eff;
 	}
+
 	.chat-item-image {
 		width: 180px;
 		height: 180px;
 		margin: 10px;
+	}
+
+	.chat-time-me-outer,
+	.chat-time-other-outer {
+		font-size: 12px;
+		color: #999999;
+		margin-top: 25px;
+		text-align: center;
+	}
+
+	.chat-time-me-outer {
+		display: flex;
+		padding-right: 5px;
+		justify-content: end;
+	}
+
+	.chat-time-other-outer {
+		display: flex;
+		padding-left: 5px;
+		justify-content: start;
 	}
 </style>
