@@ -74,6 +74,7 @@ declare module 'vue' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElTransfer: typeof import('element-plus/es')['ElTransfer']
     ElTree: typeof import('element-plus/es')['ElTree']
+    ElUpload: typeof import('element-plus/es')['ElUpload']
     Error: typeof import('./src/components/taskbar/Error.vue')['default']
     FileIcon: typeof import('./src/components/builtin/FileIcon.vue')['default']
     FileIconImg: typeof import('./src/components/builtin/FileIconImg.vue')['default']

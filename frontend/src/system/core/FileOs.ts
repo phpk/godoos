@@ -253,16 +253,17 @@ export const useOsFile = () => {
     return {
         // 分享
         async sharedir(id: number, path: string) {
-            // console.log('是否是根：', isRootShare(path),path);
             const fun = isRootShare(path) ? handleReadShareDir : handleShareDir
             const response = await fun(id, path);
             if (response && response.data) {
-                return response.data.map((item: {[key: string]: OsFile}) => {
+                const result = response.data.map((item: {[key: string]: OsFile}) => {
                     item.fi.isShare = true
+                    item.fi.parentPath = turnLocalPath(item.fi.parentPath ,path)
                     item.fi.path = turnLocalPath(item.fi.path ,path)
-                    // item.fi.titleName = turnLocalPath(item.fi.titleName, path)
+                    //item.fi.titleName = turnLocalPath(item.fi.titleName, path)
                     return item.fi
                 })
+                return result
             }
             return [];
         },
@@ -273,16 +274,26 @@ export const useOsFile = () => {
             }
             return [];
         },
+        //分享文件夹取消
         async readShareFileDir(id: number, path: string) {
-            const response = await handleShareDir(id,path);
+            const response = await handleShareDir(id, path)
             if (response && response.data) {
-                return response.data.map((item: {[key: string]: OsFile}) => {
-                    item.fi.isShare = true
-                    item.fi.path = turnLocalPath(item.fi.path ,path,1)
-                    return item.fi
-                })
+                return response.data
             }
-            return [];
+            return []
+            // const response = await handleShareDir(id, file.path);
+            // useShareFile().setCurrentFile(file)
+            // if (response && response.data) {
+            //     const result = response.data.map((item: {[key: string]: OsFile}) => {
+            //         item.fi.isShare = true
+            //         item.fi.parentPath = turnLocalPath(item.fi.parentPath ,file.path,1)
+            //         item.fi.path = turnLocalPath(item.fi.path ,file.path,1)
+            //         // item.fi.titleName = turnLocalPath(item.fi.titleName, file.path, 1)
+            //         return item.fi
+            //     })
+            //     return result
+            // }
+            // return [];
         },
         async getShareInfo(path: string) {
             const response = await handleShareDetail(path, getSystemConfig().userInfo.id);

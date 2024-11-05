@@ -175,7 +175,16 @@ const { refersh, createFolder, backFolder, openFolder, onComputerMount } = useCo
     return file.isDirectory;
   },
   // 读取分享文件夹
-  readShareDir(path){
+  async readShareDir(path){
+    // let file: OsFileWithoutContent
+    // if (type === 'path') {
+    //   file = await system.fs.getShareInfo(params)
+    //   file = file.fi
+    //   file.path = turnLocalPath(file.path, currentPath, 1)
+    // } else {
+    //   file = params
+    // }
+    // return system.fs.readShareFileDir(getSystemConfig().userInfo.id, file)
     return system.fs.readShareFileDir(getSystemConfig().userInfo.id, path)
   },
   notify(title, content) {

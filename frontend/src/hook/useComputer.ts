@@ -21,7 +21,7 @@ export const useComputer = (adpater: {
     if (path === '') path = '/';
     else if (path === '/') path = '/';
     else if (path.endsWith('/')) path = path.substr(0, path.length - 1);
-    
+
     if(path.substring(0,2) !== '/F') {
       const isExist = await adpater.exists(path);
       if (!isExist) {
@@ -33,6 +33,8 @@ export const useComputer = (adpater: {
   };
   const refersh = async () => {
     const currentPath = adpater.getRouter();
+    //console.log('refresh:', currentPath);
+    
     if (!currentPath) return;
     if (currentPath.startsWith('search:')) {
       const keyword = currentPath.substr(7);
@@ -41,16 +43,37 @@ export const useComputer = (adpater: {
       return;
     }
     if (!(await isVia(currentPath))) return;
-    // console.log('use computer refresh:', currentPath);
     let result
     if (currentPath === '/F/myshare' || currentPath === '/F/othershare') {
       result = await adpater.sharedir(currentPath)
-    } else if (currentPath.indexOf('/F') === 0) {
-      // result = await adpater.readShareDir(file?.path || currentPath)
-      result = await adpater.readShareDir(currentPath)
     } else {
       result = await adpater.readdir(currentPath);
     }
+    // else if (currentPath.indexOf('/F') === 0) {
+    //   //判断是否是回退
+    //   // console.log('currentPath:', currentPath);
+      
+    //   if (offset && offset === -1) {
+    //     const parentPath = useShareFile().CurrentFile?.parentPath
+    //     //console.log('回退:',parentPath);
+    //     result = await adpater.readShareDir('path', parentPath, currentPath)
+    //   } else {
+    //     result = await adpater.readShareDir('file',file)
+    //   }
+    //   // 查找文件回退的路径
+    //   // const arr = useShareFile().getShareFile()
+    //   // file = arr?.find(item => {
+    //   //   return item.titleName === currentPath
+    //   // })
+    //   // console.log('file:',arr,currentPath, file);
+    //   // if (!file) {
+    //   //   const parentPath = useShareFile().CurrentFile?.parentPath
+    //   //   console.log('回退:',parentPath);
+    //   //   result = await adpater.readShareDir('path', parentPath, currentPath)
+    //   // } else {
+    //   //   result = await adpater.readShareDir('file',file)
+    //   // }
+    // } 
     if (result) adpater.setFileList(result);
   };
   const createFolder = (path: RouterPath) => {
@@ -72,10 +95,11 @@ export const useComputer = (adpater: {
   };
   const openFolder = (file: OsFileWithoutContent) => {
     if (adpater.isDirectory(file)) {
-      // const path = file?.isShare ? file.titleName : file.path
-      const path = file.path
-      adpater.setRouter(path);
-      refersh(file);
+      // console.log('文件：',file);
+      // const path = file?.isShare ? turnLocalPath(file.titleName, file.root) : file.path
+      // console.log('路径：', path);
+      adpater.setRouter(file.path);
+      refersh();
     } else {
       adpater.openFile(file.path);
     }

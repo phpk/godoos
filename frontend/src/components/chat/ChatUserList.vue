@@ -49,9 +49,9 @@
 		<el-collapse-item name="1">
 			<template #title>
 				<span
-					v-if="store.userList.length > 0"
+					v-if="store.onlineUserList.length > 0"
 					class="title"
-					>在线（{{ store.userList.length }}）</span
+					>在线（{{ store.onlineUserList.length }}）</span
 				>
 				<span
 					v-else
@@ -59,15 +59,14 @@
 					>在线</span
 				>
 			</template>
-			<div v-if="store.userList.length > 0">
+			<div v-if="store.onlineUserList.length > 0">
 				<div
-					v-for="item in store.userList"
+					v-for="item in store.onlineUserList"
 					:key="item.id"
 				>
-
 					<div
 						class="list-item"
-						@click="store.changeChatList(item.id,'user')"
+						@click="store.getSessionInfo(item.chatId, 'user')"
 						:style="{
 							backgroundColor:
 								item.id === store.targetChatId ? '#bae7ff' : '',
@@ -109,6 +108,7 @@
 					</div>
 				</div>
 			</div>
+
 			<div v-else>
 				<p class="no-data">暂无数据</p>
 			</div>
@@ -139,37 +139,58 @@
 					@node-click="handleNodeClick"
 					:default-expand-all="false"
 				>
-					<!-- <template #default="{ node, data }">
-						<div
-							class="list-item"
-							@click="store.changeGroupList(data)"
-							:style="{
-								backgroundColor:
-									data.dept_id === store.targetGroupId
-										? '#C4C4C4'
-										: '',
-							}"
-						>
-							<el-row>
-								<el-col :span="6">
-									<el-avatar
-										shape="square"
-										:size="40"
-										class="avatar"
-										:src="data.avatar || ''"
-									/>
-								</el-col>
-								<el-col :span="18">
-									<div class="preview-name">
-										{{ data.dept_name }}
-									</div>
-								</el-col>
-							</el-row>
-						</div>
-					</template> -->
+
 				</el-tree>
 			</div>
 
+			<div v-else>
+				<p class="no-data">暂无数据</p>
+			</div>
+		</el-collapse-item>
+		<el-collapse-item name="3">
+			<template #title>
+				<span
+					v-if="store.groupList.length > 0"
+					class="title"
+					>群组（{{ store.groups.length }}）</span
+				>
+				<span
+					v-else
+					class="title"
+					>群组</span
+				>
+			</template>
+			<div v-if="store.groupList.length > 0">
+				<div
+					v-for="group in store.groups"
+					:key="group.id"
+				>
+					<div
+						class="list-item"
+						@click="store.getSessionInfo(group.id, 'group')"
+						:style="{
+							backgroundColor:
+								group.id === store.targetChatId
+									? '#bae7ff'
+									: '',
+						}"
+					>
+						<el-row>
+							<el-col :span="6">
+								<el-avatar
+									shape="square"
+									:size="40"
+									class="avatar"
+									:src="group.avatar"
+								/>
+							</el-col>
+							<el-col :span="18">
+								<div class="previewName">{{ group.name }}</div>
+							</el-col>
+						</el-row>
+					</div>
+				</div>
+			</div>
 			<div v-else>
 				<p class="no-data">暂无数据</p>
 			</div>
@@ -191,7 +212,7 @@
 	}
 
 	.list-item:hover {
-		/* background-color: #bae7ff; */
+		background-color: #bae7ff;
 	}
 
 	.avatar {

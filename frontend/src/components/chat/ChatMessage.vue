@@ -2,10 +2,10 @@
 	<div
 		v-if="store.chatHistory && store.chatHistory.length > 0"
 		v-for="item in store.chatHistory"
-		:key="item.time"
+		:key="item.chatId"
 	>
 		<div
-			v-if="item.userId == store.userInfo.id"
+			v-if="item.isMe"
 			class="chat-item"
 		>
 			<el-row>
@@ -14,18 +14,53 @@
 					<el-row>
 						<el-col :span="24">
 							<div class="chat-name-me">
-								{{ item.userInfo.nickname }}
+								{{ store.userInfo.nickname }}
 							</div>
 						</el-col>
 					</el-row>
 					<div
 						class="bubble-me"
 						@contextmenu.prevent="
-							store.showContextMenu($event, item.userId)
+							store.showContextMenu($event, item.chatId)
 						"
 					>
-						<div class="chat-font">
+						<!-- 文本消息展示 -->
+						<div
+							v-if="item.content_type == 'text'"
+							class="chat-font"
+						>
 							{{ item.message }}
+						</div>
+
+						<!-- 文件消息展示 -->
+						<div
+							v-else-if="item.content_type == 'file'"
+							:class="['chat-item-file', 'file-me']"
+						>
+							<!-- 文件图标 -->
+							<div class="chat-item-file-icon">
+								<el-icon
+									size="30"
+									color="#303133"
+									><Document
+								/></el-icon>
+							</div>
+							<!-- 文件名 -->
+							<div class="chat-item-file-name">
+								{{ item.message }}
+							</div>
+						</div>
+
+						<!-- 图片消息展示 -->
+						<div
+							v-else-if="item.content_type == 'image'"
+							class="chat-item-image"
+						>
+							<el-image
+								fit="cover"
+								loading="lazy"
+								:src="item.message"
+							/>
 						</div>
 					</div>
 				</el-col>
@@ -36,7 +71,7 @@
 							style="margin: 0; float: left"
 							:size="32"
 							class="userAvatar"
-							:src="item.userInfo.avatar"
+							:src="item.avatar"
 						/>
 					</div>
 				</el-col>
@@ -54,7 +89,7 @@
 							style="margin: 0; float: right"
 							:size="32"
 							class="userAvatar"
-							:src="item.userInfo.avatar"
+							:src="item.avatar"
 						/>
 					</div>
 				</el-col>
@@ -62,13 +97,48 @@
 					<el-row>
 						<el-col :span="24">
 							<div class="chat-name-other">
-								{{ item.userInfo.nickname }}
+								{{ item.displayName }}
 							</div>
 						</el-col>
 					</el-row>
 					<div class="bubble-other">
-						<div class="chat-font">
+						<!-- 文本消息展示 -->
+						<div
+							v-if="item.content_type == 'text'"
+							class="chat-font"
+						>
 							{{ item.message }}
+						</div>
+
+						<!-- 文件消息展示 -->
+						<div
+							v-else-if="item.content_type == 'file'"
+							:class="['chat-item-file', 'file-other']"
+						>
+							<!-- 文件图标 -->
+							<div class="chat-item-file-icon">
+								<el-icon
+									size="30"
+									color="#303133"
+									><Document
+								/></el-icon>
+							</div>
+							<!-- 文件名 -->
+							<div class="chat-item-file-name">
+								{{ item.message }}
+							</div>
+						</div>
+
+						<!-- 图片消息展示 -->
+						<div
+							v-else-if="item.content_type == 'image'"
+							class="chat-item-image"
+						>
+							<el-image
+								fit="cover"
+								loading="lazy"
+								:src="item.message"
+							/>
 						</div>
 					</div>
 				</el-col>
@@ -107,22 +177,22 @@
 </script>
 
 <style scoped>
-	.bubble-me {
-		background-color: #95ec69;
-		float: right;
-		border-radius: 4px;
-		margin-right: 5px;
-		margin-top: 5px;
-		padding: 5px;
-	}
-
+	.bubble-me,
 	.bubble-other {
+		display: flex;
+		align-items: center;
 		background-color: #ffffff;
 		float: left;
 		border-radius: 4px;
 		margin-left: 5px;
-		margin-top: 5px;
-		padding: 5px;
+		margin-bottom: 20px;
+	}
+
+	.bubble-me {
+		background-color: #95ec69;
+		float: right;
+		margin-right: 5px;
+		margin-left: 0;
 	}
 
 	.chat-name-me,
@@ -131,12 +201,51 @@
 		font-family: Arial, sans-serif;
 		line-height: 1.5;
 		color: #b2b2b2;
+		margin-bottom: 2px;
+		margin-left: 2px;
+	}
+
+	.chat-name-me {
+		text-align: right; /* 右对齐昵称 */
+		margin-right: 2px;
 	}
 
 	.chat-font {
-		margin: 8px;
 		font-size: 15px;
 		font-family: Arial, sans-serif;
 		line-height: 1.5;
+		margin: 10px;
+	}
+
+	.chat-item-file {
+		border-radius: 4px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin: 10px;
+	}
+
+	.file-me {
+		flex-direction: row; /* 图标在左边 */
+	}
+
+	.file-other {
+		flex-direction: row-reverse; /* 图标在右边 */
+	}
+
+	.chat-item-file-icon {
+		width: 40px;
+	}
+
+	.chat-item-file-name {
+		font-size: 14px;
+		font-family: Arial, sans-serif;
+		line-height: 1.5;
+		color: #409eff;
+	}
+	.chat-item-image {
+		width: 180px;
+		height: 180px;
+		margin: 10px;
 	}
 </style>

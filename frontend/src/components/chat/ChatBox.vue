@@ -6,12 +6,42 @@
 		<!--聊天顶部区-->
 		<el-header class="chat-header">
 			<div class="header-title">
-				<span v-if="store.targetUserInfo.displayName">{{
-					store.targetUserInfo.displayName
-				}}</span>
-				<span v-else-if="store.targetGroupInfo.displayName">{{
-					store.targetGroupInfo.displayName
-				}}</span>
+				<span
+					v-if="store.targetUserInfo.displayName"
+					class="header-title-name"
+					>{{ store.targetUserInfo.displayName }}</span
+				>
+				<span
+					v-else-if="store.targetGroupInfo.displayName"
+					class="header-title-name"
+					>{{ store.targetGroupInfo.displayName }}</span
+				>
+				<!-- 更多 -->
+				<el-dropdown
+					placement="bottom"
+					v-if="
+						store.targetGroupInfo &&
+						Object.keys(store.targetGroupInfo).length > 0
+					"
+				>
+					<!-- 设置 -->
+					<el-icon><More /></el-icon>
+					<template #dropdown>
+						<el-dropdown-menu>
+							<el-dropdown-item @click="store.inviteFriend"
+								>邀请好友</el-dropdown-item
+							>
+							<el-dropdown-item
+								@click="
+									store.quitGroup(
+										store.targetGroupInfo.chatId
+									)
+								"
+								>退出群聊</el-dropdown-item
+							>
+						</el-dropdown-menu>
+					</template>
+				</el-dropdown>
 			</div>
 		</el-header>
 
@@ -96,13 +126,15 @@
 	const store: any = useChatStore();
 	const choose = useChooseStore();
 	const imgExt = ["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"];
-	const choosetype = ref("image");
+	const choosetype = ref("");
 
 	function selectImg() {
 		choosetype.value = "image";
+		console.log(choosetype.value)
 		choose.select("选择图片", imgExt);
 	}
 	function selectFile() {
+		console.log("selectFile");
 		choosetype.value = "applyfile";
 		choose.select("选择文件", "*");
 	}
@@ -115,6 +147,7 @@
 			if (paths.length > 0) {
 				store.sendInfo = paths;
 				choose.path = [];
+				console.log(choosetype.value);
 				store.sendMessage(choosetype.value);
 			}
 		},
@@ -137,10 +170,17 @@
 		-webkit-app-region: drag;
 	}
 
-	header-title {
+	.header-title {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin: 0px 10px;
+	}
+
+	.header-title-name {
+		height: 50px;
+		line-height: 50px;
 		font-size: 20px;
-		text-align: left;
-		margin-left: 15px;
 	}
 
 	.msg-main {
@@ -155,6 +195,7 @@
 		border-color: #d6d6d6;
 		border-style: solid;
 	}
+  
 
 	.msg-footer {
 		width: 100%;
@@ -237,7 +278,6 @@
 	}
 
 	.no-message-container {
-		height: 100%;
 		margin: 120px auto;
 		text-align: center;
 		justify-content: center;

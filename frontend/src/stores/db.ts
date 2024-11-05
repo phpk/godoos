@@ -1,35 +1,37 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'chatuser' | 'chatmsg' | 'chatmessage' | 'groupmessage' | 'chatRecord' | 'workbenchusers' | 'conversationList' | 'group' | 'groupMembers' | 'groupChatList' | 'groupChatRecord';
+export type ChatTable = 'chatuser' | 'chatmsg' | 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
   // 用户列表
-  workbenchusers: '++id,ip,userName,avatar,mobile,phone,nickName,isOnline,updatedAt,createdAt',
-  // 聊天记录
-  chatRecord: '++id,toUserId,messages,messageType,time,createdAt,userInfo',
+  workbenchChatUser: '++id,ip,userName,chatId,avatar,mobile,phone,nickName,isOnline,updatedAt,createdAt',
   // 会话列表
-  conversationList: '++id,avatar,chatId,username,nickname,userId,toUserId,previewMessage,messages,time,createdAt',
+  workbenchSessionList: '++id,avatar,chatId,username,nickname,userId,toUserId,previewMessage,messages,time,createdAt',
+  // 聊天记录
+  workbenchChatRecord: '++id,toUserId,messages,messageType,time,createdAt,userInfo',
+  // 群组会话列表
+  groupSessionList: '++id,groupId,name,message,previewMessage,avatar,createdAt',
+  // 群组聊天记录
+  workbenchGroupChatRecord: '++id,chatId,userId,to_groupid,messageType,userInfo,message,time,type,createdAt',
+  // 群用户列表
+  workbenchGroupUserList: '++id, group_id, createdAt, userIdArray',
+  // 用户列表
   chatuser: '++id,ip,hostname,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
   chatmsg: '++id,toUserId,targetIp,senderInfo,reciperInfo,previewMessage,content,type,status,isRead,isMe,readAt,createdAt',
-  chatmessage: '++id,userId,toUserId,senderInfo,isMe,isRead,content,type,readAt,createdAt',
-  groupChatRecord: '++id,userId,groupId,messageType,userInfo,message,time,type,createdAt',
-  // 群组表
-  group: '++id,avatar,name,groupId,creator,createdAt',
-  // 群成员表
-  groupMembers: '++id,userId,groupTableId,groupId,createdAt',
-  // 群会话列表
-  groupChatList: '++id,groupId,name,message,previewMessage,avatar,createdAt',
-
 }).upgrade((tx: {
-  conversationList: any;
-  group: any;
-  chatRecord: { addIndex: (arg0: string, arg1: (obj: { toUserId: any; }) => any) => void; };
+  workbenchSessionList: any;
+  workbenchChatUser: any;
+  workbenchGroupChatRecord: any;
+  workbenchGroupUserList: any;
+  workbenchChatRecord: { addIndex: (arg0: string, arg1: (obj: { toUserId: any; }) => any) => void; };
 }) => {
   // 手动添加索引
-  tx.conversationList.addIndex('userId', (obj: { userId: any; }) => obj.userId);
-  tx.chatRecord.addIndex('toUserId', (obj: { toUserId: any; }) => obj.toUserId);
-  tx.group.addIndex('groupId', (obj: { groupId: any }) => obj.groupId);  // 添加索引: 群主 ID
+  tx.workbenchSessionList.addIndex('userId', (obj: { userId: any; }) => obj.userId);
+  tx.workbenchChatRecord.addIndex('toUserId', (obj: { toUserId: any; }) => obj.toUserId);
+  tx.workbenchChatUser.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
+  tx.workbenchGroupChatRecord.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
+  tx.workbenchGroupUserList.addIndex('group_id', (obj: { group_id: any; }) => obj.group_id);
 });
 export const db = {
 

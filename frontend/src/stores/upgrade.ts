@@ -68,20 +68,6 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     };
   }
 
-  // 获取用户聊天消息
-  function userChatMessage() {
-    const url = getUrl('/chat/message', false)
-    const source = new EventSource(url);
-
-    source.onmessage = function (event) {
-      const data = JSON.parse(event.data);
-
-      handleMessage(data);
-    };
-    source.onerror = function (event) {
-      console.error('EventSource error:', event);
-    };
-  }
 
   async function handleMessage(message: any) {
     switch (message.type) {
@@ -92,12 +78,13 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         localChatStore.handlerMessage(message.data)
         break;
       case 'online':
-        chatChatStore.handleUserData(message.data)
+        chatChatStore.onlineUserData(message.data)
         break;
       case 'user':
         chatChatStore.userChatMessage(message.data)
         break
       case 'group':
+        console.log(message)
         chatChatStore.groupChatMessage(message.data);
         break;
       default:
@@ -105,7 +92,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     }
   }
   async function checkUpdate(res: any) {
-    //console.log(res)
+    console.log(res)
     if (!res) return
     const config = getSystemConfig();
     if (!config.account.ad) return;
@@ -142,7 +129,6 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     list.forEach((item: any) => {
       if (item.img && item.img.indexOf('http') == -1) {
         item.img = `https://godoos.com${item.img}`
-
       }
     });
     return list
@@ -202,7 +188,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     checkUpdate,
     systemMessage,
     onlineMessage,
-    userChatMessage,
+    // userChatMessage,
     update
   }
 })

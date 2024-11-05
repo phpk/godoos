@@ -121,6 +121,7 @@ onMounted(() => {
 });
 
 async function onLogin() {
+  localStorage.removeItem("godoosClientId");
   if (loginCallback) {
     const res = await loginCallback(userName.value, userPassword.value);
     if (res) {
