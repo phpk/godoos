@@ -2,7 +2,7 @@
 	<div
 		class="chatbox-main"
 		v-if="store.targetChatId"
-	
+	>
   
 		<!--聊天顶部区-->
 		<el-header class="chat-header">

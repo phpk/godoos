@@ -900,29 +900,33 @@ export const useChatStore = defineStore('chatStore', () => {
   // 获取图片消息预览
   const getImageSrc = async (imageMessage: string = "/C/Users/Desktop/bizhi.png") => {
 
-    const path = userInfo.value.url + "/chat/image/view?path=" + imageMessage
-    console.log(path)
-    const response = await fetchGet(path)
+    // const path = userInfo.value.url + "/chat/image/view?path=" + imageMessage
+    // console.log(path)
+    // const response = await fetchGet(path)
 
-    if (!response.ok) {
-      return ''
-    }
+    // if (!response.ok) {
+    //   return ''
+    // }
 
-    // 检查Content-Type是否为图片
-    const contentType = response.headers.get("Content-Type");
-    if (!contentType || !contentType.startsWith("image/")) {
-      console.error("Expected an image content type, but received:", contentType);
-      return '';
-    }
+    // // 检查Content-Type是否为图片
+    // const contentType = response.headers.get("Content-Type");
+    // if (!contentType || !contentType.startsWith("image/")) {
+    //   console.error("Expected an image content type, but received:", contentType);
+    //   return '';
+    // }
 
-    // 将响应数据转换为 Blob
-    const imageBlob = await response.blob();
+    // // 将响应数据转换为 Blob
+    // const imageBlob = await response.blob();
 
-
-    // 将 Blob 转换为一个 URL 以供展示
-    const imageUrl = URL.createObjectURL(imageBlob);
-    console.log(imageUrl)
-    return imageUrl; // 返回 Blob URL
+    // // 将 Blob 转换为 base64 字符串
+    // return new Promise((resolve, reject) => {
+    //   const reader = new FileReader();
+    //   reader.onloadend = () => {
+    //     resolve(reader.result); // 返回 base64 字符串
+    //   };
+    //   reader.onerror = reject;
+    //   reader.readAsDataURL(imageBlob);
+    // });
   }
 
   return {
