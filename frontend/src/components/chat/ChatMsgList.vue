@@ -37,11 +37,29 @@
 					>
 				</el-col>
 
+				<!-- 在线状态 -->
 				<el-icon
 					v-if="item.online"
-					style="position: absolute; left: 40px; bottom: 5px;"
+					style="
+						position: absolute;
+						left: 40px;
+						bottom: 5px;
+						color: #0078d4;
+					"
 				>
 					<CircleCheckFilled />
+				</el-icon>
+				<!-- 离线状态 -->
+				<el-icon
+					v-else
+					style="
+						position: absolute;
+						left: 40px;
+						bottom: 5px;
+						color: #999999;
+					"
+				>
+					<CircleCloseFilled />
 				</el-icon>
 
 				<el-col

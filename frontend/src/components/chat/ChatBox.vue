@@ -18,7 +18,10 @@
 				>
 
 				<div
-					v-if="store.targetGroupInfo.value && Object.keys(store.targetGroupInfo.value).length > 0"
+					v-if="
+						store.targetGroupInfo &&
+						Object.keys(store.targetGroupInfo).length > 0
+					"
 					@click="store.drawerVisible = true"
 				>
 					<el-icon><Tools /></el-icon>
@@ -130,8 +133,8 @@
 
 		<!--聊天主体区-->
 		<el-main class="msg-main">
-			<el-scrollbar ref="store.scrollbarRef">
-				<div ref="store.innerRef">
+			<el-scrollbar ref="scrollbarRef">
+				<div ref="innerRef">
 					<ChatMessage />
 				</div>
 			</el-scrollbar>
@@ -214,6 +217,32 @@
 	const choose = useChooseStore();
 	const imgExt = ["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"];
 	const choosetype = ref("");
+	const scrollbarRef = ref(null);
+	const innerRef = ref(null);
+
+	function scrollToBottom() {
+		store.setScrollToBottom(innerRef, scrollbarRef);
+	}
+
+	// 监听store中的messageSendStatus.value = true，调用scrollToBottom
+	watch(
+		() => store.messageSendStatus,
+		(newVal, _) => {
+			if (newVal) {
+				scrollToBottom();
+			}
+		}
+	);
+
+	// 监听store中的messageReceiveStatus，调用scrollToBottom
+	watch(
+		() => store.messageReceiveStatus,
+		(newVal, _) => {
+			if (newVal) {
+				scrollToBottom();
+			}
+		}
+	);
 
 	// 监听store.drawerVisible
 	watch(

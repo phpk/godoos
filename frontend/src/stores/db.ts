@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'chatuser' | 'chatmsg' | 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList';
+export type ChatTable = 'chatuser' | 'chatmsg' | 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
@@ -16,6 +16,8 @@ dbInit.version(1).stores({
   workbenchGroupChatRecord: '++id,chatId,userId,to_groupid,messageType,userInfo,message,time,type,createdAt',
   // 群用户列表
   workbenchGroupUserList: '++id, group_id, createdAt, userIdArray',
+  // 群组邀请信息消息
+  workbenchGroupInviteMessage: '++id, group_id,userId, message, createdAt',
   // 用户列表
   chatuser: '++id,ip,hostname,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
   chatmsg: '++id,toUserId,targetIp,senderInfo,reciperInfo,previewMessage,content,type,status,isRead,isMe,readAt,createdAt',
@@ -24,6 +26,7 @@ dbInit.version(1).stores({
   workbenchChatUser: any;
   workbenchGroupChatRecord: any;
   workbenchGroupUserList: any;
+  workbenchGroupInviteMessage: any;
   workbenchChatRecord: { addIndex: (arg0: string, arg1: (obj: { toUserId: any; }) => any) => void; };
 }) => {
   // 手动添加索引
@@ -32,6 +35,7 @@ dbInit.version(1).stores({
   tx.workbenchChatUser.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchGroupChatRecord.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchGroupUserList.addIndex('group_id', (obj: { group_id: any; }) => obj.group_id);
+  tx.workbenchGroupInviteMessage.addIndex('group_id', (obj: { group_id: any; }) => obj.group_id);
 });
 export const db = {
 
@@ -108,6 +112,11 @@ export const db = {
   async getValue(tableName: ChatTable, fieldName: string, val: any, fName: string) {
     const row = await this.getRow(tableName, fieldName, val);
     return row[fName]
+  },
+
+  // 写一个根据id数组的in方法
+  async getByIds(tableName: ChatTable, ids: string[]) {
+    return dbInit[tableName].where("id").anyOf(ids).toArray()
   },
 
   async getByField(tableName: ChatTable, fieldName: string, val: any) {

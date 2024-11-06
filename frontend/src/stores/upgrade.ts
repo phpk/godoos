@@ -87,6 +87,9 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         console.log(message)
         chatChatStore.groupChatMessage(message.data);
         break;
+      case 'update_group':
+        chatChatStore.groupInviteMessage(message.data)
+        break;
       default:
         console.warn('Unknown message type:', message.type);
     }
