@@ -3,7 +3,6 @@
 		class="chatbox-main"
 		v-if="store.targetChatId"
 	>
-  
 		<!--聊天顶部区-->
 		<el-header class="chat-header">
 			<div class="header-title">
@@ -15,10 +14,16 @@
 				<span
 					v-else-if="store.targetGroupInfo.displayName"
 					class="header-title-name"
-					>{{ store.targetGroupInfo.displayName }}{{ 1 }}</span
+					>{{ store.targetGroupInfo.displayName }}</span
 				>
 
-				<div @click="store.drawerVisible = true">
+				<div
+					v-if="
+						store.targetGroupInfo &&
+						Object.keys(store.targetGroupInfo).length > 0
+					"
+					@click="store.drawerVisible = true"
+				>
 					<el-icon><Tools /></el-icon>
 					<!-- 抽屉 -->
 					<el-drawer
@@ -83,6 +88,17 @@
 					</el-drawer>
 				</div>
 
+				<div v-else>
+					<el-dropdown>
+						<el-icon><Tools /></el-icon>
+						<template #dropdown>
+							<el-dropdown-menu>
+								<el-dropdown-item>删除好友</el-dropdown-item>
+							</el-dropdown-menu>
+						</template>
+					</el-dropdown>
+				</div>
+
 				<!-- 邀请好友对话框 -->
 				<el-dialog
 					v-model="store.inviteFriendDialogVisible"
@@ -117,8 +133,8 @@
 
 		<!--聊天主体区-->
 		<el-main class="msg-main">
-			<el-scrollbar ref="store.scrollbarRef">
-				<div ref="store.innerRef">
+			<el-scrollbar ref="scrollbarRef">
+				<div ref="innerRef">
 					<ChatMessage />
 				</div>
 			</el-scrollbar>
@@ -201,6 +217,32 @@
 	const choose = useChooseStore();
 	const imgExt = ["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"];
 	const choosetype = ref("");
+	const scrollbarRef = ref(null);
+	const innerRef = ref(null);
+
+	function scrollToBottom() {
+		store.setScrollToBottom(innerRef, scrollbarRef);
+	}
+
+	// 监听store中的messageSendStatus.value = true，调用scrollToBottom
+	watch(
+		() => store.messageSendStatus,
+		(newVal, _) => {
+			if (newVal) {
+				scrollToBottom();
+			}
+		}
+	);
+
+	// 监听store中的messageReceiveStatus，调用scrollToBottom
+	watch(
+		() => store.messageReceiveStatus,
+		(newVal, _) => {
+			if (newVal) {
+				scrollToBottom();
+			}
+		}
+	);
 
 	// 监听store.drawerVisible
 	watch(
@@ -251,6 +293,14 @@
 </script>
 
 <style scoped>
+	:deep(.el-drawer__header) {
+		color: #000000;
+	}
+
+	:deep(.el-drawer__body) {
+		margin-top: -40px; /* 根据需要调整这个值 */
+	}
+
 	.group-name {
 		font-size: 16px;
 		border-top: 1px solid #edebeb;

@@ -1,5 +1,4 @@
 <template>
-
 	<div
 		v-if="
 			(store.searchList.length > 0 ? store.searchList : store.chatList)
@@ -37,6 +36,32 @@
 						>群</el-avatar
 					>
 				</el-col>
+
+				<!-- 在线状态 -->
+				<el-icon
+					v-if="item.online"
+					style="
+						position: absolute;
+						left: 40px;
+						bottom: 5px;
+						color: #0078d4;
+					"
+				>
+					<CircleCheckFilled />
+				</el-icon>
+				<!-- 离线状态 -->
+				<el-icon
+					v-else
+					style="
+						position: absolute;
+						left: 40px;
+						bottom: 5px;
+						color: #999999;
+					"
+				>
+					<CircleCloseFilled />
+				</el-icon>
+
 				<el-col
 					:span="18"
 					class="preview"
@@ -50,6 +75,7 @@
 								<div class="previewName">
 									{{ item.displayName }}
 								</div>
+
 								<div class="previewTime">
 									{{ item.previewTimeFormat }}
 								</div>
@@ -69,7 +95,6 @@
 			</el-row>
 		</div>
 	</div>
-
 	<div
 		v-else
 		class="emptyChat"

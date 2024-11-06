@@ -93,12 +93,6 @@
 									<el-col>
 										<div class="previewName">
 											{{ item.nickname }}
-											<el-icon
-												class="online-icon"
-												v-if="item.isOnline"
-											>
-												<CircleCheckFilled />
-											</el-icon>
 										</div>
 									</el-col>
 									<el-col :span="6">

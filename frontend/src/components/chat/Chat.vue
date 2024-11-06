@@ -132,6 +132,10 @@
 				:data="data"
 				:titles="['可选项', '已选项']"
 				filterable
+				:style="{
+					height: store.groupTitle === '创建群聊' ? '250px' : '350px',
+				}"
+				filter-placeholder="搜索用户名"
 				:props="{ key: 'key', label: 'label', avatar: 'avatar' }"
 				class="transfer-container"
 			>
@@ -169,22 +173,25 @@
 		display: flex;
 		flex-direction: row; /* 将布局方向设置为横向 */
 		width: 550px; /* 让穿梭框占满宽度 */
+		justify-content: center;
+		align-items: center;
 		.el-transfer__buttons {
 			display: flex;
 			justify-content: space-evenly;
 			align-items: center;
-			width: 160px;
+			width: 120px;
 			padding: 0 0 !important;
 			.el-button {
-				width: 50px !important;
+				width: 40px !important;
+				height: 30px !important;
+				background-color: #0078d4;
+				color: #fff;
 			}
 		}
 	}
-	.el-transfer {
-		display: flex;
-		flex-direction: row; /* 将布局方向设置为横向 */
-		width: 550px; /* 让穿梭框占满宽度 */
-		height: 250px;
+
+	::v-deep .el-dialog .el-dialog__header {
+		border: none !important;
 	}
 
 	::v-deep .el-transfer-panel {

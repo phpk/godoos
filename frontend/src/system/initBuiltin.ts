@@ -1,20 +1,20 @@
+import { t } from "@/i18n";
 import type { System } from "./index";
 import { BrowserWindow } from "./window/BrowserWindow";
-import { t } from "@/i18n";
 
 import { dealIcon } from "../util/Icon";
-import { basename } from "./core/Path";
-import { Dialog } from "./window/Dialog";
-import { Tray } from "./menu/Tary";
 import { appList } from "./applist.ts";
-import { getSystemConfig } from './config'
+import { getSystemConfig } from './config';
+import { basename } from "./core/Path";
 import { memberList } from "./member.ts";
+import { Tray } from "./menu/Tary";
+import { Dialog } from "./window/Dialog";
 const unknownIcon = "unknown";
 export function initBuiltinApp(system: System) {
   const config = getSystemConfig();
   let sysList = appList;
-  if(config.userType == 'member') {
-    sysList = [...appList,...memberList]
+  if (config.userType == 'member') {
+    sysList = [...appList, ...memberList]
   }
   sysList.forEach((d: any) => {
 
