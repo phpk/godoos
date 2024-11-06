@@ -161,7 +161,7 @@ function doubleTouch(e: TouchEvent, item: OsFileWithoutContent) {
 
 const editIndex = ref<number>(-1);
 const editName = ref<string>('');
-function onEditNameEnd() {
+async function onEditNameEnd() {
   const editEndName = editName.value.trim();
   if (editEndName && editIndex.value >= 0) {
     const editpath: any = props.fileList[editIndex.value].path.toString()
@@ -174,7 +174,7 @@ function onEditNameEnd() {
     newPath.pop()
     newPath.push(editEndName)
     newPath = newPath.join(sp)
-    sys?.fs.rename(
+    await sys?.fs.rename(
       editpath,
       newPath
     );
@@ -384,6 +384,17 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
         },
       })
     }
+    if (!item.isShare) {
+      fileMenus.push({
+        label: t('create.shortcut'),
+        click: () => {
+          createLink(item.path)?.then(() => {
+            chosenIndexs.value = [];
+            props.onRefresh();
+          });
+        },
+      },)
+    }
     const userType = sys.getConfig('userType');
     if (userType == 'member' && !item.isShare && !item.isDirectory) {
 
@@ -428,16 +439,6 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
     menuArr.push.apply(menuArr, fileMenus)
   }
   const sysEndMenu = [
-
-    {
-      label: t('create.shortcut'),
-      click: () => {
-        createLink(item.path)?.then(() => {
-          chosenIndexs.value = [];
-          props.onRefresh();
-        });
-      },
-    },
     {
       label: t('props'),
       click: () => {

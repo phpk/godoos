@@ -85,8 +85,8 @@ if(path.indexOf('/F') === 0) {
 }
 // file.value = await useSystem()?.fs.stat(window?.config.content);
 function localName<T>(currentPath:T){
-  if(isShareFile(path)) {
-    const arr = path.split('/')
+  if(isShareFile(path) && file.value && file.value.path) {
+    const arr = file?.value.path.split('/')
     const url = '/' + arr[1] + '/' + arr[2] + '/' + arr[arr.length-1]
     return arr.length >3 ? url : currentPath
   }
@@ -109,7 +109,17 @@ function editFileName() {
     resizable: false,
   });
   win.on("file.props.edit", async (_: string, data: string) => {
-    file.value = await useSystem()?.fs.stat(data);
+    //console.log('文件信息：', file.value, data);
+    if(data.indexOf('data/userData') === 0) {
+      const newPathArr = data.split('/')
+      const pathArr = file.value?.path.split('/') || []
+      pathArr.pop()
+      pathArr.push(newPathArr.pop() || '')
+      const shareInfo = await useSystem()?.fs.getShareInfo(pathArr.join('/'))
+      file.value = shareInfo?.fi
+    } else {
+      file.value = await useSystem()?.fs.stat(data);
+    }
   });
 
   win.show();

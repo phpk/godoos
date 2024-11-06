@@ -17,6 +17,7 @@ import {
   useSystem,
   OsFileWithoutContent,
 } from "@/system";
+import { notifyError } from "@/util/msg";
 
 const browserWindow: BrowserWindow = inject("browserWindow")!;
 const name = ref(basename((browserWindow.config.content as OsFileWithoutContent).path));
@@ -29,10 +30,22 @@ function confirm() {
     });
     return;
   }
-  const newPath = join(browserWindow.config.content.path, name.value);
+  let oldPath = ''
+  if(browserWindow.config.content?.isShare) {
+    oldPath = browserWindow.config.content.parentPath
+  } else {
+    const temp = browserWindow.config.content.path.split('/')
+    temp.pop()
+    oldPath = temp.join('/')
+  } 
+  const newPath = join(oldPath, name.value);
   useSystem()
     ?.fs.rename(browserWindow.config.content.path, newPath)
-    .then(() => {
+    .then((res: any) => {
+      if(!res || res.code === -1) {
+        notifyError(res.message || '改名失败')
+        return 
+      }
       emitEvent("file.props.edit");
       browserWindow.emit("file.props.edit", newPath);
       browserWindow.close();
