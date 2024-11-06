@@ -92,6 +92,7 @@ declare module 'vue' {
     FileIconIs: typeof import('./src/components/builtin/FileIconIs.vue')['default']
     FileList: typeof import('./src/components/builtin/FileList.vue')['default']
     FileProps: typeof import('./src/components/builtin/FileProps.vue')['default']
+    FilePwd: typeof import('./src/components/oa/FilePwd.vue')['default']
     FileTree: typeof import('./src/components/builtin/FileTree.vue')['default']
     FileViewer: typeof import('./src/components/builtin/FileViewer.vue')['default']
     IframeFile: typeof import('./src/components/window/IframeFile.vue')['default']

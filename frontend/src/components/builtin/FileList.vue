@@ -408,8 +408,26 @@ function handleRightClick(mouse: MouseEvent, item: OsFileWithoutContent, index: 
               config: {
                 path: item.path,
               },
-              width: 500,
-              height: 500,
+              width: 450,
+              height: 280,
+              center: true,
+            });
+            win.show();
+          },
+        }
+      )
+      menuArr.push(
+        {
+          label: '文件加密',
+          click: () => {
+            const win = new BrowserWindow({
+              title: '文件加密',
+              content: "FilePwd",
+              config: {
+                path: item.path,
+              },
+              width: 400,
+              height: 200,
               center: true,
             });
             win.show();

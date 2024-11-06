@@ -47,7 +47,7 @@
             {{ t("confirm") }}
           </el-button>
         </div>
-        <SetFilePwd></SetFilePwd>
+        <SetFilePwd  v-if="config.userType === 'person'"></SetFilePwd>
       </div>
 
       <div v-if="2 === activeIndex">
