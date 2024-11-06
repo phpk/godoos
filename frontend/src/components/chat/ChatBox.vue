@@ -3,7 +3,6 @@
 		class="chatbox-main"
 		v-if="store.targetChatId"
 	>
-  
 		<!--聊天顶部区-->
 		<el-header class="chat-header">
 			<div class="header-title">
@@ -15,10 +14,13 @@
 				<span
 					v-else-if="store.targetGroupInfo.displayName"
 					class="header-title-name"
-					>{{ store.targetGroupInfo.displayName }}{{ 1 }}</span
+					>{{ store.targetGroupInfo.displayName }}</span
 				>
 
-				<div @click="store.drawerVisible = true">
+				<div
+					v-if="store.targetGroupInfo.value && Object.keys(store.targetGroupInfo.value).length > 0"
+					@click="store.drawerVisible = true"
+				>
 					<el-icon><Tools /></el-icon>
 					<!-- 抽屉 -->
 					<el-drawer
@@ -81,6 +83,17 @@
 							</div>
 						</div>
 					</el-drawer>
+				</div>
+
+				<div v-else>
+					<el-dropdown>
+						<el-icon><Tools /></el-icon>
+						<template #dropdown>
+							<el-dropdown-menu>
+								<el-dropdown-item>删除好友</el-dropdown-item>
+							</el-dropdown-menu>
+						</template>
+					</el-dropdown>
 				</div>
 
 				<!-- 邀请好友对话框 -->
@@ -251,6 +264,14 @@
 </script>
 
 <style scoped>
+	:deep(.el-drawer__header) {
+		color: #000000;
+	}
+
+	:deep(.el-drawer__body) {
+		margin-top: -40px; /* 根据需要调整这个值 */
+	}
+
 	.group-name {
 		font-size: 16px;
 		border-top: 1px solid #edebeb;

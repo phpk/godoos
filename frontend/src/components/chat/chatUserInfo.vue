@@ -15,7 +15,13 @@
 		v-else
 		class="user-info-container"
 	>
-		<div class="user-details">
+		<div
+			class="user-details"
+			v-if="
+				store.targetUserInfo &&
+				Object.keys(store.targetUserInfo).length > 0
+			"
+		>
 			<p>昵称: {{ store.targetUserInfo.displayName }}</p>
 			<p>邮箱: {{ store.targetUserInfo.email }}</p>
 			<p>电话: {{ store.targetUserInfo.phone }}</p>
@@ -25,7 +31,7 @@
 			<p>入职日期: {{ store.targetUserInfo.hiredDate }}</p>
 		</div>
 		<el-button
-			type="primary"
+			style="background-color: #0078d4; color: #fff"
 			@click="sendMessage(store.targetChatId)"
 			>发送消息</el-button
 		>
