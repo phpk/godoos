@@ -195,13 +195,18 @@ export const useChatStore = defineStore('chatStore', () => {
   const initChatList = async () => {
     console.log("收到消息被刷新了！！！！")
     const userSessionList = await db.getAll("workbenchSessionList");
+    // 给userSessionList去一次重
+    const uniqueUserSessionList = userSessionList.filter((item: any, index: number, self: any[]) =>
+      index === self.findIndex((t: any) => t.chatId === item.chatId)
+    );
+
     // 确保groupList已加载
     if (groupList.value.length > 0) {
       // 合并两个数组
-      chatList.value = [...userSessionList, ...groupList.value];
+      chatList.value = [...uniqueUserSessionList, ...groupList.value];
     } else {
       // 如果groupList为空，只使用userSessionList
-      chatList.value = [...userSessionList];
+      chatList.value = [...uniqueUserSessionList];
     }
   };
 
@@ -318,29 +323,31 @@ export const useChatStore = defineStore('chatStore', () => {
       Message.content_type = 'file';
       Message.userId = userInfo.value.id;
       Message.toUserId = targetChatId.value;
-      Message.message = "data/userData/1" + sendInfo.value[0];
+      Message.message = sendInfo.value[0];
       Message.to_groupid = targetGroupInfo.value?.group_id || '';
       Message.userInfo = {};
     }
     // 发送文件消息
-
-    console.log("token", config.userInfo.token)
-
     const res = await fetchPost(config.userInfo.url + '/chat/send', JSON.stringify(Message));
     console.log(res)
     if (!res.ok) {
       fileSendActive.value = false;
       return;
     }
+    const fileInfo = await res.json()
 
     // 封装成消息历史记录
     const messageHistory = {
       ...Message,
       isMe: true,
+      file_path: Message.message,
+      file_name: Message.message.split('/').pop(),
+      file_size: fileInfo.data.file_info.size,
+      previewMessage: "[文件消息]",
       previewTimeFormat: formatTime(Date.now()),
       displayName: userInfo.value.nickname,
       chatId: Message.type === 'group' ? targetGroupInfo.value.chatId : targetUserInfo.value.chatId,
-      avatar: Message.type === 'group' ? targetUserInfo.value.avatar : '',
+      avatar: userInfo.value.avatar,
       createdAt: Date.now()
     };
 
@@ -669,6 +676,7 @@ export const useChatStore = defineStore('chatStore', () => {
       return
     }
 
+    console.log("data---------", data)
     // 添加消息记录
     const addMessageHistory = {
       type: data.type,
@@ -678,9 +686,12 @@ export const useChatStore = defineStore('chatStore', () => {
       toUserId: data.toUserId,
       chatId: data.toUserId,
       isMe: false,
+      file_path: data.message,
+      file_name: data.file_info.origin_name,
+      file_size: data.file_info.size,
       content_type: data.content_type,
       to_groupid: data.to_groupid,
-      previewMessage: data.message,
+      previewMessage: "",
       previewTimeFormat: formatTime(Date.now()),
       displayName: data.userInfo.nickname,
       avatar: data.userInfo.avatar,
@@ -689,9 +700,12 @@ export const useChatStore = defineStore('chatStore', () => {
 
     if (data.content_type === 'image') {
       addMessageHistory.message = await getImageSrc(data.message)
+      addMessageHistory.previewMessage = "[图片消息]"
     } else if (data.content_type === 'text') {
       addMessageHistory.message = data.message
+      addMessageHistory.previewMessage = data.message
     } else if (data.content_type === 'file') {
+      addMessageHistory.previewMessage = "[文件消息]"
       addMessageHistory.message = data.message
     }
 
@@ -994,6 +1008,9 @@ export const useChatStore = defineStore('chatStore', () => {
       type: data.type,
       chatId: data.to_groupid,
       isMe: false,
+      file_path: data.message,
+      file_name: data.file_info.origin_name,
+      file_size: data.file_info.size,
       previewTimeFormat: formatTime(Date.now()),
       displayName: data.userInfo.nickname, // 发送者昵称
       avatar: data.userInfo.avatar,
@@ -1046,10 +1063,10 @@ export const useChatStore = defineStore('chatStore', () => {
     // 从groupList中删除
     groupList.value = groupList.value.filter((group: any) => group.group_id !== group_id)
     await db.deleteByField("workbenchGroupUserList", "group_id", group_id)
-    initChatList()
     targetGroupInfo.value = {}
     targetChatId.value = ''
     drawerVisible.value = false
+    initChatList()
     notifySuccess("退出群聊成功")
   }
 
@@ -1070,12 +1087,17 @@ export const useChatStore = defineStore('chatStore', () => {
       imageMessage = '/' + imageMessage;
     }
 
-    const path = userInfo.value.url + "/chat/image/view?path=" + imageMessage;
+    const path = config.userInfo.url + "/chat/image/view?path=" + imageMessage;
     const response = await fetchGet(path);
-
     if (!response.ok) {
       return '';
     }
+
+    // 检查返回的内容类型
+    const contentType = response.headers.get("Content-Type");
+    console.log("Content-Type:", contentType);
+
+
     const blob = await response.blob(); // 获取 Blob 对象
     return new Promise((resolve) => {
       const reader = new FileReader();

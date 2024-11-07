@@ -45,7 +45,7 @@
 
 							<!-- 文件消息展示 -->
 							<div
-								@click="sys.openFile(item.message)"
+								@click="sys.openFile(item.file_path)"
 								v-else-if="item.content_type == 'file'"
 								:class="['chat-item-file', 'file-me']"
 							>
@@ -57,14 +57,14 @@
 									/></el-icon>
 								</div>
 								<div class="chat-item-file-name">
-									{{ item.message }}
+									{{ item.file_name }}
 								</div>
 							</div>
 
 							<!-- 图片消息展示 -->
 							<div
 								v-else-if="item.content_type == 'image'"
-								class="chat-item-image"
+								class=""
 							>
 								<el-image
 									fit="cover"
@@ -127,6 +127,7 @@
 
 							<!-- 文件消息展示 -->
 							<div
+								@click="sys.openFile(item.message)"
 								v-else-if="item.content_type == 'file'"
 								:class="['chat-item-file', 'file-other']"
 							>
@@ -138,7 +139,7 @@
 									/></el-icon>
 								</div>
 								<div class="chat-item-file-name">
-									{{ item.message }}
+									{{ item.file_name }}
 								</div>
 							</div>
 
@@ -191,7 +192,7 @@
 
 <script setup lang="ts">
 	import { useChatStore } from "@/stores/chat";
-	import { System } from "@/system";
+import { System } from "@/system";
 	const store = useChatStore();
 	const sys: any = inject<System>("system");
 </script>
