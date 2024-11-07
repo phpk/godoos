@@ -1,4 +1,53 @@
 <template>
+	<!-- 邀请群聊对话框 -->
+	<el-dialog
+		v-model="store.inviteFriendDialogVisible"
+		title="邀请群聊"
+		width="80%"
+		style="height: 450px"
+		align-center
+	>
+		<div>
+			<el-transfer
+				:titles="['可选项', '已选项']"
+				filterable
+				filter-placeholder="搜索用户名"
+				style="height: 300px"
+				v-model="users"
+				:data="data"
+				:props="{ key: 'key', label: 'label', avatar: 'avatar' }"
+			>
+				<!-- 自定义穿梭框列表项模板 -->
+				<template #default="{ option }">
+					<el-avatar
+						:src="option.avatar"
+						size="small"
+						style="margin-right: 5px"
+					/>
+					<span>{{ option.label }}</span>
+				</template>
+			</el-transfer>
+			<el-button
+				style="
+					background-color: #0078d4;
+					color: #fff;
+					position: absolute;
+					bottom: 10px;
+					right: 120px;
+				"
+				@click="store.inviteFriendDialogVisible = false"
+				>取消</el-button
+			>
+			<el-button
+				@click="
+					store.inviteFriend(store.targetGroupInfo.group_id, users)
+				"
+				class="invite-group-button"
+				style=""
+				>确定</el-button
+			>
+		</div>
+	</el-dialog>
 	<div
 		class="chatbox-main"
 		v-if="store.targetChatId"
@@ -22,75 +71,127 @@
 						store.targetGroupInfo &&
 						Object.keys(store.targetGroupInfo).length > 0
 					"
-					@click="store.drawerVisible = true"
 				>
-					<el-icon><Tools /></el-icon>
+					<div style="display: flex; gap: 10px">
+						<el-dropdown
+							placement="bottom"
+							style="border: none"
+						>
+							<el-icon
+								style="
+									cursor: pointer;
+									color: black;
+									font-size: 15px;
+								"
+								><More
+							/></el-icon>
+							<template #dropdown>
+								<el-dropdown-menu>
+									<el-dropdown-item
+										@click="openInviteGroupDialog()"
+										>邀请群聊</el-dropdown-item
+									>
+									<el-dropdown-item
+										@click="
+											store.quitGroup(
+												store.targetGroupInfo.group_id
+											)
+										"
+										>退出群聊</el-dropdown-item
+									>
+								</el-dropdown-menu>
+							</template>
+						</el-dropdown>
+						<el-icon
+							style="
+								cursor: pointer;
+								color: black;
+								font-size: 15px;
+							"
+							@click="openDrawer()"
+							><Tools
+						/></el-icon>
+					</div>
 					<!-- 抽屉 -->
 					<el-drawer
 						v-model="store.drawerVisible"
 						direction="ltr"
-						title="群设置"
+						title="群成员"
 						:with-header="true"
 					>
 						<div
 							style="
 								display: flex;
+								height: 100%;
+								padding-top: 40px;
 								flex-direction: column;
 								justify-content: space-between;
-								height: 100%;
 							"
 						>
-							<div>
-								<!-- 群名 -->
-								<div class="group-name">
-									{{ store.targetGroupInfo.displayName }}
-								</div>
-
-								<!-- 群成员 -->
-								<div class="group-member">
-									<div><span>群成员</span></div>
-									<div class="group-member-list">
-										<button
-											@click="store.addMember"
-											class="group-member-add"
-										>
-											<el-icon><Plus /></el-icon>
-										</button>
-										<div
-											style="
-												display: flex;
-												flex-direction: row;
-											"
-											v-for="member in store.groupMemberList"
-										>
-											<el-avatar :src="member.avatar" />
-										</div>
+							<div
+								class="group-member-container"
+								style="
+									display: flex;
+									flex-wrap: wrap;
+									max-width: 248px; /* 每行4个用户，每个60px + 2px间距 */
+								"
+							>
+								<div
+									class="group-member"
+									v-for="member in store.groupMembers"
+									:key="member.id"
+									style="
+										display: flex;
+										flex-direction: column;
+										align-items: center;
+										justify-content: center;
+										width: 50px;
+										height: 70px;
+									"
+								>
+									<el-avatar
+										size="40"
+										src=""
+									/>
+									<div
+										style="
+											max-width: 46px;
+											height: 20px;
+											font-size: 10px;
+											text-align: center;
+											white-space: nowrap;
+											overflow: hidden;
+											text-overflow: ellipsis;
+											display: inline-block;
+											line-height: 20px;
+										"
+									>
+										{{ member.nickname }}
 									</div>
 								</div>
-							</div>
-
-							<!-- 退出按钮 -->
-							<div class="group-exit">
-								<el-button
-									style="
-										background-color: #0078d4;
-										color: #fff;
-									"
-									@click="
-										store.quitGroup(
-											store.targetGroupInfo.group_id
-										)
-									"
-									>退出群聊</el-button
-								>
 							</div>
 						</div>
 					</el-drawer>
 				</div>
 
-				<div v-else>
+				<div
+					v-else
+					style="
+						height: 50px;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					"
+				>
 					<el-dropdown>
-						<el-icon><Tools /></el-icon>
+						<el-icon
+							style="
+								cursor: pointer;
+								color: black;
+								font-size: 15px;
+							"
+							><Tools
+						/></el-icon>
 						<template #dropdown>
 							<el-dropdown-menu>
 								<el-dropdown-item>删除好友</el-dropdown-item>
@@ -98,36 +199,6 @@
 						</template>
 					</el-dropdown>
 				</div>
-
-				<!-- 邀请好友对话框 -->
-				<el-dialog
-					v-model="store.inviteFriendDialogVisible"
-					title="邀请好友"
-					width="80%"
-					style="height: 550px"
-					align-center
-				>
-					<div>
-						<el-transfer
-							v-model="value"
-							:data="data"
-						/>
-					</div>
-
-					<template #footer>
-						<span class="dialog-footer">
-							<el-button
-								style="background-color: #0078d4; color: #fff"
-								@click="store.inviteFriendDialogVisible = false"
-								>取消</el-button
-							>
-							<el-button
-								style="background-color: #0078d4; color: #fff"
-								>确定</el-button
-							>
-						</span>
-					</template>
-				</el-dialog>
 			</div>
 		</el-header>
 
@@ -197,7 +268,14 @@
 	</div>
 
 	<div
-		class="no-message-container"
+		style="
+			width: 100%;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		"
 		v-else
 	>
 		<el-icon
@@ -206,7 +284,16 @@
 		>
 			<ChatDotSquare />
 		</el-icon>
-		<p>欢迎使用GodoOS</p>
+		<p
+			style="
+				font-size: 18px;
+				font-weight: 600;
+				margin-top: 10px;
+				color: #333;
+			"
+		>
+			欢迎使用GodoOS
+		</p>
 	</div>
 </template>
 
@@ -220,15 +307,46 @@
 	const scrollbarRef = ref(null);
 	const innerRef = ref(null);
 
+	const openInviteGroupDialog = () => {
+		store.inviteFriendDialogVisible = true;
+		store.getInviteUserList();
+	};
+
 	function scrollToBottom() {
 		store.setScrollToBottom(innerRef, scrollbarRef);
 	}
+
+	const generateData = () => {
+		return store.inviteUserList.map((user: any) => ({
+			key: user.id,
+			label: user.nickname,
+			avatar: user.avatar, // 添加头像数据
+		}));
+	};
+
+	const data = ref([]);
+
+	watchEffect(() => {
+		if (store.inviteUserList && store.inviteUserList.length > 0) {
+			data.value = generateData();
+		}
+	});
+	// 声明 users 时指定类型为 any[]
+	const users = ref<any[]>([]);
+
+	watchEffect(() => {
+		if (store.allUserList.length > 0) {
+			data.value = generateData();
+		}
+	});
 
 	// 监听store中的messageSendStatus.value = true，调用scrollToBottom
 	watch(
 		() => store.messageSendStatus,
 		(newVal, _) => {
+			console.log("messageSendStatus 变化了:", newVal);
 			if (newVal) {
+				console.log("messageSendStatus 变化了:", newVal);
 				scrollToBottom();
 			}
 		}
@@ -244,6 +362,11 @@
 		}
 	);
 
+	function openDrawer() {
+		store.drawerVisible = true;
+		store.getGroupMemberList(store.targetGroupInfo.group_id);
+	}
+
 	// 监听store.drawerVisible
 	watch(
 		() => store.drawerVisible,
@@ -253,17 +376,6 @@
 			}
 		}
 	);
-
-	const generateData = () => {
-		return store.allUserList.map((user: any) => ({
-			key: user.id,
-			label: user.nickname,
-			avatar: user.avatar, // 添加头像数据
-		}));
-	};
-
-	const data = ref(generateData());
-	const value = ref([]);
 
 	function selectImg() {
 		choosetype.value = "image";
@@ -293,6 +405,30 @@
 </script>
 
 <style scoped>
+	.invite-group-button {
+		background-color: #0078d4;
+		color: #fff;
+		position: absolute;
+		bottom: 10px;
+		right: 50px;
+	}
+
+	.infinite-list {
+		display: flex;
+		flex-direction: column;
+		align-items: start;
+		padding: 0;
+		width: 100%;
+		margin: 0;
+	}
+	.infinite-list-item {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-bottom: 10px; /* 每个成员之间的间距 */
+	}
+
 	:deep(.el-drawer__header) {
 		color: #000000;
 	}

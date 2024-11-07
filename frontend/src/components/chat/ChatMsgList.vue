@@ -39,7 +39,7 @@
 
 				<!-- 在线状态 -->
 				<el-icon
-					v-if="item.online"
+					v-if="item.online && item.type == 'user'"
 					style="
 						position: absolute;
 						left: 40px;
@@ -51,7 +51,7 @@
 				</el-icon>
 				<!-- 离线状态 -->
 				<el-icon
-					v-else
+					v-else-if="item.type == 'user'"
 					style="
 						position: absolute;
 						left: 40px;

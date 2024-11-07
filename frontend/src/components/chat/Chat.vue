@@ -103,15 +103,13 @@
 	<el-dialog
 		v-model="store.groupChatInvitedDialogVisible"
 		width="80%"
+		title="创建群聊"
 		style="height: 550px"
 		align-center
 	>
-		<template #title>
-			<span>{{ store.groupTitle }}</span>
-		</template>
 		<div class="dialog-body">
 			<!-- 添加输入部门名的输入框 -->
-			<div v-if="store.groupTitle === '创建群聊'">
+			<div>
 				<el-form label-position="top">
 					<el-form-item label="群聊名称:">
 						<el-input
@@ -132,9 +130,7 @@
 				:data="data"
 				:titles="['可选项', '已选项']"
 				filterable
-				:style="{
-					height: store.groupTitle === '创建群聊' ? '250px' : '350px',
-				}"
+				style="height: 250px"
 				filter-placeholder="搜索用户名"
 				:props="{ key: 'key', label: 'label', avatar: 'avatar' }"
 				class="transfer-container"

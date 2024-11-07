@@ -256,6 +256,7 @@
 		font-family: Arial, sans-serif;
 		line-height: 1.5;
 		margin: 10px;
+		word-break: break-all;
 	}
 
 	.chat-item-file {
