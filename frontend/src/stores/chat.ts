@@ -216,8 +216,6 @@ export const useChatStore = defineStore('chatStore', () => {
 
   const sendMessage = async (messageType: string) => {
 
-
-    console.log("messageType", messageType)
     if (messageType == "text" && message.value.trim() == '') {
       return
     }
@@ -279,6 +277,7 @@ export const useChatStore = defineStore('chatStore', () => {
       ...Message,
       isMe: true,
       message: await getImageSrc(Message.message),
+      previewMessage: "[图片消息]",
       previewTimeFormat: formatTime(Date.now()),
       displayName: userInfo.value.nickname,
       chatId: Message.type === 'group' ? targetGroupInfo.value.chatId : targetUserInfo.value.chatId,
@@ -292,6 +291,7 @@ export const useChatStore = defineStore('chatStore', () => {
       await db.addOne("workbenchGroupChatRecord", messageHistory);
     } else if (Message.type === 'user') {
       await db.addOne("workbenchChatRecord", messageHistory);
+      updateUserSessionList(messageHistory.previewMessage as string)
     }
     chatHistory.value.push(messageHistory);
     fileSendActive.value = true;
@@ -357,6 +357,7 @@ export const useChatStore = defineStore('chatStore', () => {
       await db.addOne("workbenchGroupChatRecord", messageHistory);
     } else if (Message.type === 'user') {
       await db.addOne("workbenchChatRecord", messageHistory);
+      updateUserSessionList(messageHistory.previewMessage as string)
     }
     chatHistory.value.push(messageHistory);
     fileSendActive.value = true;
@@ -405,6 +406,7 @@ export const useChatStore = defineStore('chatStore', () => {
         messageHistory = {
           ...Message,
           isMe: true,
+          previewMessage: message.value,
           previewTimeFormat: formatTime(Date.now()),
           displayName: userInfo.value.nickname,
           chatId: targetUserInfo.value.chatId.toString(),
@@ -412,16 +414,20 @@ export const useChatStore = defineStore('chatStore', () => {
           createdAt: Date.now()
         }
         await db.addOne("workbenchChatRecord", messageHistory);
+        // 更新sessionlist表的字段
+        updateUserSessionList(messageHistory.message)
 
       } else if (Message.type === 'group') {
         messageHistory = {
           ...Message,
+          previewMessage: message.value,
           previewTimeFormat: formatTime(Date.now()),
           displayName: targetGroupInfo.value.name,
           isMe: true,
           chatId: targetGroupInfo.value.chatId.toString(),
           createdAt: Date.now()
         }
+
         await db.addOne("workbenchGroupChatRecord", messageHistory);
       }
 
@@ -429,18 +435,30 @@ export const useChatStore = defineStore('chatStore', () => {
       chatHistory.value.push(messageHistory);
       // 清空输入框
       clearMessage();
-
       messageSendStatus.value = true
     }
 
   }
 
 
+  const updateUserSessionList = async (message: string) => {
+    // 更新sessionlist表的字段
+    const sessionList = await db.getByField("workbenchSessionList", "chatId", targetUserInfo.value.chatId)
+    await db.update("workbenchSessionList", sessionList[0].id, {
+      previewMessage: message,
+      previewTimeFormat: formatTime(Date.now())
+    })
+
+    initChatList()
+  }
+
+
+
   // 更新聊天和聊天记录
   const changeChatListAndChatHistory = async (data: any) => {
 
     // 从 conversationList 数据库中查找是否存在对应的会话
-    const conversation = await db.getByField("workbenchSessionList", 'userId', data.userId);
+    const conversation = await db.getByField("workbenchSessionList", 'chatId', data.userId);
 
     // 准备会话更新数据
     const updatedConversation = {
@@ -454,7 +472,7 @@ export const useChatStore = defineStore('chatStore', () => {
       displayName: data.userInfo.nickname,
       nickname: data.userInfo.nickname,
       time: Date.now(),
-      previewMessage: data.message,
+      previewMessage: data.previewMessage,
       previewTimeFormat: formatTime(Date.now()), // 时间格式化函数
       createdAt: Date.now(),
     };
@@ -675,8 +693,6 @@ export const useChatStore = defineStore('chatStore', () => {
     if (isPresence[0].id !== data.userId) {
       return
     }
-
-    console.log("data---------", data)
     // 添加消息记录
     const addMessageHistory = {
       type: data.type,
@@ -711,9 +727,28 @@ export const useChatStore = defineStore('chatStore', () => {
 
     await db.addOne("workbenchChatRecord", addMessageHistory)
 
-    console.log("添加成功")
     // 更新 chatList 和 conversationList表
     changeChatListAndChatHistory(data)
+
+    console.log(chatList.value[0].chatId)
+    console.log(data.toUserId)
+
+    // // 找到chatlist中的对应项，更新previewMessage和previewTimeFormat
+    // const chatListIndex = chatList.value.findIndex((chat: { chatId: string; }) => chat.chatId === data.toUserId);
+    // console.log(chatListIndex)
+    // if (chatListIndex !== -1) {
+    // if (chatListIndex !== -1) {
+    //   chatList.value[chatListIndex].previewMessage = addMessageHistory.previewMessage;
+    //   chatList.value[chatListIndex].previewTimeFormat = addMessageHistory.previewTimeFormat;
+    // }
+
+    // // 更新sessionlist表的字段
+    // const sessionList = await db.getByField("workbenchSessionList", "chatId", targetUserInfo.value.chatId)
+    // await db.update("workbenchSessionList", sessionList[0].id, {
+    //   previewMessage: message,
+    //   previewTimeFormat: formatTime(Date.now())
+    // })
+
     // 更改聊天记录
     chatHistory.value.push(addMessageHistory)
     messageReceiveStatus.value = true
@@ -1063,10 +1098,13 @@ export const useChatStore = defineStore('chatStore', () => {
     // 从groupList中删除
     groupList.value = groupList.value.filter((group: any) => group.group_id !== group_id)
     await db.deleteByField("workbenchGroupUserList", "group_id", group_id)
+    // 获取群列表
+    await getGroupList()
+    // 初始化聊天列表
+    initChatList()
     targetGroupInfo.value = {}
     targetChatId.value = ''
     drawerVisible.value = false
-    initChatList()
     notifySuccess("退出群聊成功")
   }
 

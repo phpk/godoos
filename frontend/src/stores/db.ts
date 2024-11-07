@@ -30,7 +30,7 @@ dbInit.version(1).stores({
   workbenchChatRecord: { addIndex: (arg0: string, arg1: (obj: { toUserId: any; }) => any) => void; };
 }) => {
   // 手动添加索引
-  tx.workbenchSessionList.addIndex('userId', (obj: { userId: any; }) => obj.userId);
+  tx.workbenchSessionList.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchChatRecord.addIndex('toUserId', (obj: { toUserId: any; }) => obj.toUserId);
   tx.workbenchChatUser.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchGroupChatRecord.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
