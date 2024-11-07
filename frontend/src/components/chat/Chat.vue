@@ -223,6 +223,8 @@
 	.side {
 		flex: 1;
 		/* 占据剩余宽度 */
+    max-width: 200px;
+    min-width: 200px;
 		max-height: max-content;
 		border-right: 1px solid #e8e8e8;
 		overflow-y: hidden;

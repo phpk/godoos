@@ -146,7 +146,7 @@
 							<!-- 图片消息展示 -->
 							<div
 								v-else-if="item.content_type == 'image'"
-								class="chat-item-image"
+								class=""
 							>
 								<el-image
 									fit="cover"

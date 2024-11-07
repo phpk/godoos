@@ -27,14 +27,18 @@
 						:src="item.avatar"
 					></el-avatar>
 
-					<el-avatar
+					<!-- <el-avatar
 						v-else="item.type == 'group'"
 						shape="square"
 						:size="40"
 						class="avatar"
 						:src="item.avatar"
 						>群</el-avatar
-					>
+					> -->
+					<!-- 引入icon -->
+					<el-icon :size="40">
+						
+					</el-icon>
 				</el-col>
 
 				<!-- 在线状态 -->

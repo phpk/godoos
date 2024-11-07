@@ -289,6 +289,7 @@ export const useChatStore = defineStore('chatStore', () => {
     // 添加到聊天记录
     if (Message.type === 'group') {
       await db.addOne("workbenchGroupChatRecord", messageHistory);
+      updateGroupSessionList(messageHistory.previewMessage as string)
     } else if (Message.type === 'user') {
       await db.addOne("workbenchChatRecord", messageHistory);
       updateUserSessionList(messageHistory.previewMessage as string)
@@ -355,6 +356,7 @@ export const useChatStore = defineStore('chatStore', () => {
     // 添加到聊天记录
     if (Message.type === 'group') {
       await db.addOne("workbenchGroupChatRecord", messageHistory);
+      updateGroupSessionList(messageHistory.previewMessage as string)
     } else if (Message.type === 'user') {
       await db.addOne("workbenchChatRecord", messageHistory);
       updateUserSessionList(messageHistory.previewMessage as string)
@@ -429,6 +431,9 @@ export const useChatStore = defineStore('chatStore', () => {
         }
 
         await db.addOne("workbenchGroupChatRecord", messageHistory);
+        // 更新groupSessionList
+        updateGroupSessionList(message.value)
+
       }
 
       // 更新聊天历史
@@ -438,6 +443,25 @@ export const useChatStore = defineStore('chatStore', () => {
       messageSendStatus.value = true
     }
 
+  }
+
+  const updateGroupSessionList = async (message: string) => {
+    const groupSessionList = await db.getByField("groupSessionList", "chatId", targetChatId.value)
+
+    await db.update("groupSessionList", groupSessionList[0].id, {
+      previewMessage: message,
+      time: Date.now(),
+      previewTimeFormat: Date.now()
+    })
+
+    // 更新grouplist的预览字段
+    groupList.value.forEach((item: any) => {
+      if (item.chatId === targetChatId.value) {
+        item.previewMessage = message
+        item.previewTimeFormat = formatTime(Date.now())
+      }
+    })
+    initChatList()
   }
 
 
@@ -455,10 +479,13 @@ export const useChatStore = defineStore('chatStore', () => {
 
 
   // 更新聊天和聊天记录
-  const changeChatListAndChatHistory = async (data: any) => {
+  const changeChatListAndChatHistory = async (data: any, message: string) => {
 
     // 从 conversationList 数据库中查找是否存在对应的会话
     const conversation = await db.getByField("workbenchSessionList", 'chatId', data.userId);
+
+
+    console.log("更新的文字", message)
 
     // 准备会话更新数据
     const updatedConversation = {
@@ -472,7 +499,7 @@ export const useChatStore = defineStore('chatStore', () => {
       displayName: data.userInfo.nickname,
       nickname: data.userInfo.nickname,
       time: Date.now(),
-      previewMessage: data.previewMessage,
+      previewMessage: message,
       previewTimeFormat: formatTime(Date.now()), // 时间格式化函数
       createdAt: Date.now(),
     };
@@ -489,7 +516,7 @@ export const useChatStore = defineStore('chatStore', () => {
         avatar: data.userInfo.avatar,
         nickname: data.userInfo.nickname,
         displayName: data.userInfo.nickname,
-        previewMessage: data.message,
+        previewMessage: message,
         time: Date.now(),
         previewTimeFormat: formatTime(Date.now())
       });
@@ -504,6 +531,7 @@ export const useChatStore = defineStore('chatStore', () => {
       } else {
         chatList.value.push(updatedConversation);
       }
+      initChatList()
     }
   };
 
@@ -642,10 +670,11 @@ export const useChatStore = defineStore('chatStore', () => {
       messages: message.value,
       chatId: group_id,
       type: "group",
+      time: Date.now(),
       displayName: departmentName.value,
-      previewMessage: message.value,
-      previewTimeFormat: formatTime(Date.now()),
-      createdAt: new Date()
+      previewMessage: "快开始打招呼吧！",
+      previewTimeFormat: Date.now(),
+      createdAt: Date.now()
     }
     groupList.value.push(groupConversation)
 
@@ -659,17 +688,25 @@ export const useChatStore = defineStore('chatStore', () => {
       content_type: "invite_group_message",
       isMe: true,
       chatId: group_id,
+      time: Date.now(),
       message: `你邀请 ${inviteUserName} 加入群聊`,
       createdAt: Date.now()
     }
     // 添加到数据库
     await db.addOne("workbenchGroupChatRecord", groupInviteMessage)
+
+
+    // groupConversation添加到groupSessionList
+    await db.addOne("groupSessionList", groupConversation)
+
+
     // 更新会话列表
     initChatList()
     // 关闭对话弹窗
     setGroupChatInvitedDialogVisible(false)
     // 更新群组列表
-    await getAllList()
+    // await getAllList()
+    getGroupList()
     notifySuccess('创建群聊成功')
   };
 
@@ -728,26 +765,10 @@ export const useChatStore = defineStore('chatStore', () => {
     await db.addOne("workbenchChatRecord", addMessageHistory)
 
     // 更新 chatList 和 conversationList表
-    changeChatListAndChatHistory(data)
+    changeChatListAndChatHistory(data, addMessageHistory.previewMessage)
 
-    console.log(chatList.value[0].chatId)
-    console.log(data.toUserId)
 
-    // // 找到chatlist中的对应项，更新previewMessage和previewTimeFormat
-    // const chatListIndex = chatList.value.findIndex((chat: { chatId: string; }) => chat.chatId === data.toUserId);
-    // console.log(chatListIndex)
-    // if (chatListIndex !== -1) {
-    // if (chatListIndex !== -1) {
-    //   chatList.value[chatListIndex].previewMessage = addMessageHistory.previewMessage;
-    //   chatList.value[chatListIndex].previewTimeFormat = addMessageHistory.previewTimeFormat;
-    // }
 
-    // // 更新sessionlist表的字段
-    // const sessionList = await db.getByField("workbenchSessionList", "chatId", targetUserInfo.value.chatId)
-    // await db.update("workbenchSessionList", sessionList[0].id, {
-    //   previewMessage: message,
-    //   previewTimeFormat: formatTime(Date.now())
-    // })
 
     // 更改聊天记录
     chatHistory.value.push(addMessageHistory)
@@ -782,19 +803,27 @@ export const useChatStore = defineStore('chatStore', () => {
       return false;
     }
     const list = await res.json()
-    console.log(list)
+
     if (list.data.groups == null) {
       list.data.groups = []
     }
-    // 封装 list.data.groups
-    const formattedGroups = list.data.groups.map((group: any) => ({
-      group_id: group.id,
-      avatar: group.avatar || '', // 使用默认头像
-      // messages: "",
-      displayName: group.name,
-      chatId: group.id,
-      type: 'group',
-    }));
+
+    // 从groupSessionList中获取群信息
+    const groupSessionList = await db.getAll("groupSessionList")
+
+    // 合并查找和封装逻辑到一个循环中
+    const formattedGroups = list.data.groups.map((group: any) => {
+      const groupSession = groupSessionList.find((item: { chatId: string; }) => item.chatId === group.id);
+      return {
+        group_id: group.id,
+        avatar: group.avatar || '', // 使用默认头像
+        displayName: group.name,
+        chatId: group.id,
+        type: 'group',
+        time: groupSession ? groupSession.time : "",
+        previewMessage: groupSession ? groupSession.previewMessage : "", // 如果找到对应的会话则使用其预览消息，否则为空
+      };
+    });
     groupList.value = formattedGroups;
 
     // 将群成员添加到数据库
@@ -1032,7 +1061,7 @@ export const useChatStore = defineStore('chatStore', () => {
   const groupChatMessage = async (data: any) => {
 
     messageReceiveStatus.value = false
-    console.log("接受消息", data)
+
 
     // 构建消息记录
     const messageRecord: any = {
@@ -1056,12 +1085,15 @@ export const useChatStore = defineStore('chatStore', () => {
     if (data.content_type === 'image') {
       messageRecord.message = await getImageSrc(data.message)
       messageRecord.previewMessage = "[图片消息]"
+      updateRecipientGroupSessionList(messageRecord.previewMessage, data.to_groupid)
     } else if (data.content_type === 'text') {
       messageRecord.message = data.message
       messageRecord.previewMessage = data.message
+      updateRecipientGroupSessionList(messageRecord.previewMessage, data.to_groupid)
     } else if (data.content_type === 'file') {
       messageRecord.message = data.message
       messageRecord.previewMessage = "[文件消息]"
+      updateRecipientGroupSessionList(messageRecord.previewMessage, data.to_groupid)
     }
 
     // 判断接受的消息是否是自己发送的
@@ -1079,6 +1111,19 @@ export const useChatStore = defineStore('chatStore', () => {
     chatHistory.value.push(messageRecord)
     messageReceiveStatus.value = true
   };
+
+  // 接受方更新groupSessionList
+  const updateRecipientGroupSessionList = async (message: string, chatId: string) => {
+    const group = await db.getByField("groupSessionList", "chatId", chatId)
+    // 更新groupSessionList
+    await db.update("groupSessionList", group[0].id, {
+      previewMessage: message,
+      time: Date.now(),
+      previewTimeFormat: Date.now(),
+    })
+    await getGroupList()
+    initChatList()
+  }
 
   const showContextMenu = (event: any, id: number) => {
     contextMenu.value.visible = true;
@@ -1155,10 +1200,13 @@ export const useChatStore = defineStore('chatStore', () => {
       message: data.message,
       chatId: data.group_id,
       isMe: false,
+      previewMessage: "快开始打招呼吧！",
       content_type: "invite_group_message",
       createdAt: Date.now()
     };
     await db.addOne("workbenchGroupChatRecord", groupInviteMessage)
+    // 添加到groupSessionList
+    await db.addOne("groupSessionList", groupInviteMessage)
 
     const groupExists = groupList.value.some((group: { group_id: string; }) => group.group_id === data.group_id);
 
@@ -1242,7 +1290,6 @@ export const useChatStore = defineStore('chatStore', () => {
     inviteFriendDialogVisible,
     drawerVisible,
     addMemberDialogVisible,
-    // groupTitle,
     inviteUserList,
     messageSendStatus,
     messageReceiveStatus,

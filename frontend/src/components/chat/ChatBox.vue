@@ -550,7 +550,8 @@
 	}
 
 	.msg-main {
-		width: 100%;
+		background-color: re;
+		/* width: 100%; */
 		/* 占据整个宽度 */
 		height: 75%;
 		padding: 0;

@@ -11,7 +11,7 @@ dbInit.version(1).stores({
   // 聊天记录
   workbenchChatRecord: '++id,toUserId,messages,messageType,time,createdAt,userInfo',
   // 群组会话列表
-  groupSessionList: '++id,groupId,name,message,previewMessage,avatar,createdAt',
+  groupSessionList: '++id,groupId,chatId,name,message,previewMessage,avatar,createdAt',
   // 群组聊天记录
   workbenchGroupChatRecord: '++id,chatId,userId,to_groupid,messageType,userInfo,message,time,type,createdAt',
   // 群用户列表
@@ -27,9 +27,11 @@ dbInit.version(1).stores({
   workbenchGroupChatRecord: any;
   workbenchGroupUserList: any;
   workbenchGroupInviteMessage: any;
+  groupSessionList: any;
   workbenchChatRecord: { addIndex: (arg0: string, arg1: (obj: { toUserId: any; }) => any) => void; };
 }) => {
   // 手动添加索引
+  tx.groupSessionList.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchSessionList.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchChatRecord.addIndex('toUserId', (obj: { toUserId: any; }) => obj.toUserId);
   tx.workbenchChatUser.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);

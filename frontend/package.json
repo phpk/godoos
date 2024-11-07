@@ -24,6 +24,7 @@
     "vue": "^3.4.31",
     "vue-i18n": "^9.13.1",
     "vue-router": "^4.4.0",
+    "vue-svg-icon": "^1.2.9",
     "vue-web-screen-shot": "^1.5.3"
   },
   "devDependencies": {
