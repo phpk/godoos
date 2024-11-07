@@ -5,34 +5,27 @@ import { useChatStore } from "@/stores/chat";
 import { notifyError, notifySuccess } from "@/util/msg";
 import { fetchGet, fetchPost, getSystemConfig, setSystemKey } from "@/system/config";
 const store = useChatStore()
-const form = ref({
-    nickname: '',
-})
+// const form = ref({
+//     nickname: '',
+// })
 interface ImgItem {
     url: string;
     name: string;
 }
 const editType = ref(0)
 const userInfo = getSystemConfig().userInfo
+const userInfoForm: {[key: string]: any} = reactive({
+    nickname: '',
+    phone: '',
+    email: '',
+    desc: ''
+})
 const dialogShow = ref(false)
 let imgList = reactive<ImgItem[]>([])
 let pos = ref(0)
-
+// 换头像
 const showChange = (val: boolean) =>{
     dialogShow.value = val
-}
-const toChangeHead = async ()=>{
-    let res = await fetchGet(`${userInfo.url}/files/saveavatar?id=${userInfo.id}&name=${imgList[pos.value]?.name}`)
-    if (!res.ok) {
-        notifyError("头像换取失败")
-    } else {
-        const response = await res.json()
-        notifySuccess(response?.message || '头像换取成功')
-        userInfo.avatar = imgList[pos.value]?.name
-        store.userInfo.avatar = userInfo.url + '/upload/avatar/' + userInfo.avatar
-        setSystemKey('userInfo', userInfo)
-    }
-    showChange(false)
 }
 // 获取头像列表
 const getHeadList = async () => {
@@ -49,12 +42,62 @@ const getHeadList = async () => {
         }
     }
 }
-// 换头像
 const chooseImg = (index: number) => {
     pos.value = index
 }
-const onSubmit = async () => {
-    console.log('提交');
+const toChangeHead = async ()=>{
+    let res = await fetchGet(`${userInfo.url}/files/saveavatar?id=${userInfo.id}&name=${imgList[pos.value]?.name}`)
+    if (!res.ok) {
+        notifyError("头像换取失败")
+    } else {
+        const response = await res.json()
+        notifySuccess(response?.message || '头像换取成功')
+        userInfo.avatar = imgList[pos.value]?.name
+        store.userInfo.avatar = userInfo.url + '/upload/avatar/' + userInfo.avatar
+        setSystemKey('userInfo', userInfo)
+    }
+    showChange(false)
+}
+//修改资料
+const userRef:any = ref(null)
+const userRule = {
+    nickname: [
+        { required: true, message: '昵称不能为空', trigger: 'blur'},
+        { min: 2, max: 10, message: '昵称长度应该在2到10位', trigger: 'blur'}
+    ],
+    phone: [
+        { required: true, message: '手机号不能为空', trigger: 'blur'},
+        { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur'}
+    ],
+    email: [
+        { required: true, message: '邮箱不能为空', trigger: 'blur'},
+        { pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, message: '邮箱格式不正确', trigger: 'blur'}
+    ]
+    // desc: [
+    //     { required: true, message: '昵称不能为空', trigger: 'blur'},
+    //     { min: 2, max: 10, message: '昵称长度应该在2到10位', trigger: 'blur'}
+    // ],
+}
+const onSubmit = async () => {                                                                                                                                                                                                                                                                                                
+    try {
+        for (const key in userInfoForm) {
+            userInfo[key] = userInfoForm[key]
+        }
+        const head = {
+            'AuthorizationAdmin': userInfo.token
+        }
+        await userRef.value.validate()
+        const res = await fetchPost(`${userInfo.url}/user/editdata?id=${userInfo.id}`, JSON.stringify(userInfoForm), head)
+        const result = await res.json()
+        if (result?.success) {
+            notifySuccess(result?.message)
+            setSystemKey('userInfo', userInfo)
+        } else {
+            notifyError(result?.message)
+        }
+    }catch (e) {
+        console.log(e)
+    }
 }
 //修改密码
 const passwordForm = reactive({
@@ -73,7 +116,9 @@ const rules = {
     ],
     confirmPassword: [
         { required: true, message: '请再次输入密码', trigger: 'blur' },
-        { validator: (value:any, callback:any) => {
+        { validator: (rule: any, value:any, callback:any) => {
+            console.log('rule:', rule);
+            
         if (value === '') {
             callback(new Error('请再次输入密码'));
         } else if (value !== passwordForm.newPassword) {
@@ -103,6 +148,9 @@ const toChangePwd = async () => {
 }
 onMounted(()=>{
     getHeadList()
+    for (const key in userInfoForm) {
+        userInfoForm[key] = userInfo[key]
+    }
     store.userInfo.avatar = userInfo.url + '/upload/avatar/' + userInfo.avatar
 })
 </script>
@@ -113,21 +161,21 @@ onMounted(()=>{
             <div @click="editType = 1" :class="{'is-active': editType == 1}">修改密码</div>
         </el-aside>
         <el-main>  
-            <el-form v-if="editType == 0" :model="form" label-width="150px" style="padding: 30px;">
+            <el-form v-if="editType == 0" :model="userInfoForm" :rules="userRule"  ref="userRef" label-width="130px" style="padding: 30px;">
                 <el-form-item label="头像">
                     <el-avatar :size="90" :src="store.userInfo.avatar" @click="showChange(true)"/>
                 </el-form-item>
-                <el-form-item label="昵称">
-                    <el-input v-model="store.userInfo.nickname" />
+                <el-form-item label="昵称" prop="nickname">
+                    <el-input v-model="userInfoForm.nickname" />
                 </el-form-item>
-                <el-form-item label="手机号">
-                    <el-input v-model="store.userInfo.phone" />
+                <el-form-item label="手机号" prop="phone">
+                    <el-input v-model="userInfoForm.phone" />
                 </el-form-item>
-                <el-form-item label="工号">
-                    <el-input v-model="store.userInfo.job_number" />
+                <el-form-item label="邮箱" prop="email">
+                    <el-input v-model="userInfoForm.email" />
                 </el-form-item>
-                <el-form-item label="自我介绍">
-                    <el-input v-model="store.userInfo.desc" />
+                <el-form-item label="自我介绍" prop="desc">
+                    <el-input v-model="userInfoForm.desc" type="textarea" maxlength="100" show-word-limit/>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="onSubmit">保存</el-button>
@@ -190,6 +238,12 @@ onMounted(()=>{
 </template>
 
 <style scoped lang="scss">
+:deep(.el-dialog) {
+    .el-dialog__body {
+        max-height: 300px;
+        overflow-y: scroll
+    }
+}
 .img-box {
     position: relative;
     .el-avatar {

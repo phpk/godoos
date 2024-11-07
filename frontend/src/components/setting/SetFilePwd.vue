@@ -3,7 +3,7 @@
         <div v-if="setPwd">
             <div class="setting-item" >
                 <label>文件密码</label>
-                <el-input v-model="filePwd" placeholder="请设置6-10位的密码" type="password"/>
+                <el-input v-model="filePwd" placeholder="请设置6-10位的密码" type="password" show-password/>
             </div>
             <div class="setting-item">
                 <label></label>
@@ -26,6 +26,7 @@ import { fetchGet, getApiUrl, setSystemKey, getSystemConfig } from "@/system/con
 import { notifySuccess, notifyError } from "@/util/msg";
 const filePwd = ref('')
 const setPwd = ref(false)
+const config = getSystemConfig()
 const params = {
     isPwd: 1,
     pwd: '',
@@ -58,9 +59,12 @@ async function toSetFilePwd() {
 async function clearPwd() {
     setPwd.value = false
     filePwd.value = ''
+    params.isPwd = 0
     await fetchGet(`${getApiUrl()}/file/changeispwd?ispwd=0`)
+    setSystemKey('file',params)
 }
 onMounted(()=>{
+    params.isPwd = config.file.isPwd
     setPwd.value = params.isPwd ? true : false
 })
 </script>

@@ -234,7 +234,7 @@ export function fetchGet(url: string, headerConfig?: {[key: string]: string}) {
         })
     }
 }
-export function fetchPost(url: string, data: any) {
+export function fetchPost(url: string, data: any, headerConfig?: {[key: string]: string}) {
     const config = getSystemConfig();
     if (config.userType == 'person') {
         return fetch(url, {
@@ -248,7 +248,8 @@ export function fetchPost(url: string, data: any) {
             body: data,
             headers: {
                 'ClientID': getClientId(),
-                'Authorization': config.userInfo.token
+                'Authorization': config.userInfo.token,
+                ...headerConfig
             }
         })
     }
