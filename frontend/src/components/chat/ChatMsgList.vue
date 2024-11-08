@@ -14,7 +14,7 @@
 			@click="store.getSessionInfo(item.chatId, item.type)"
 			:style="{
 				backgroundColor:
-					item.chatId == store.targetChatId ? '#F5F5F5' : '',
+					item.chatId == store.targetChatId ? '#E8F3FF' : '',
 			}"
 		>
 			<el-row>
@@ -27,18 +27,27 @@
 						:src="item.avatar"
 					></el-avatar>
 
-					<!-- <el-avatar
-						v-else="item.type == 'group'"
+					<el-avatar
+						v-else-if="item.type == 'group'"
 						shape="square"
 						:size="40"
 						class="avatar"
-						:src="item.avatar"
-						>群</el-avatar
-					> -->
-					<!-- 引入icon -->
-					<el-icon :size="40">
-						
-					</el-icon>
+						style="
+							background-color: #165DFF;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+						"
+					>
+						<div
+							style="
+								width: 25px;
+								height: 25px;
+								background-image: url('./src/assets/icons/group.png');
+								background-size: cover;
+							"
+						></div>
+					</el-avatar>
 				</el-col>
 
 				<!-- 在线状态 -->
@@ -143,10 +152,11 @@
 		margin-bottom: 5px;
 		overflow: hidden;
 		margin-top: 5px;
+		background-color: #FFF;
 	}
 
 	.list-item:hover {
-		background-color: #f5f5f5;
+		background-color: #E8F3FF;
 	}
 
 	.avatar {
@@ -179,6 +189,7 @@
 		justify-content: space-between;
 	}
 	.previewName {
+		font-weight: 400;
 		font-size: 14px;
 		color: #000000;
 		font-family: Arial, sans-serif;
@@ -190,7 +201,7 @@
 
 	.previewTime {
 		font-size: 12px;
-		color: #999999;
+		color: #86909C;
 	}
 
 	.preview-left {
@@ -205,9 +216,9 @@
 		width: 100px;
 		height: 20px;
 		margin-left: 10px;
-		font-size: 10px;
+		font-size: 12px;
 		font-family: Arial, sans-serif;
-		color: #999999;
+		color: #86909C;
 		overflow: hidden; /* 隐藏超出部分 */
 		text-overflow: ellipsis; /* 显示为省略号 */
 		white-space: nowrap; /* 不换行 */

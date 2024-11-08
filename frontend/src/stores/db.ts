@@ -142,6 +142,11 @@ export const db = {
   async deleteByField(tableName: ChatTable, fieldName: string, val: any) {
     return dbInit[tableName].where(fieldName).equals(val).delete()
   },
+
+  // 根据whereObj条件删除
+  async deleteByWhere(tableName: ChatTable, whereObj: any) {
+    return dbInit[tableName].where(whereObj).delete()
+  },
   // 获取创建时间最近的记录
   async getLatest(tableName: ChatTable, fieldName: string, val: any) {
     return dbInit[tableName].where(fieldName).equals(val).reverse().first()

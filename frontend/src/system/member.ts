@@ -4,7 +4,7 @@ export const memberList = [
         appIcon: "chat",
         content:"Chat",
         frame: true,
-        width: 1050,
+        width: 1000,
         height: 650,
         center: true,
         resizable: true,

@@ -99,79 +99,11 @@
 										"
 										>退出群聊</el-dropdown-item
 									>
+									<el-dropdown-item>清空记录</el-dropdown-item>
 								</el-dropdown-menu>
 							</template>
 						</el-dropdown>
-						<el-icon
-							style="
-								cursor: pointer;
-								color: black;
-								font-size: 15px;
-							"
-							@click="openDrawer()"
-							><Tools
-						/></el-icon>
 					</div>
-					<!-- 抽屉 -->
-					<el-drawer
-						v-model="store.drawerVisible"
-						direction="ltr"
-						title="群成员"
-						:with-header="true"
-					>
-						<div
-							style="
-								display: flex;
-								height: 100%;
-								padding-top: 40px;
-								flex-direction: column;
-								justify-content: space-between;
-							"
-						>
-							<div
-								class="group-member-container"
-								style="
-									display: flex;
-									flex-wrap: wrap;
-									max-width: 248px; /* 每行4个用户，每个60px + 2px间距 */
-								"
-							>
-								<div
-									class="group-member"
-									v-for="member in store.groupMembers"
-									:key="member.id"
-									style="
-										display: flex;
-										flex-direction: column;
-										align-items: center;
-										justify-content: center;
-										width: 50px;
-										height: 70px;
-									"
-								>
-									<el-avatar
-										size="40"
-										src=""
-									/>
-									<div
-										style="
-											max-width: 46px;
-											height: 20px;
-											font-size: 10px;
-											text-align: center;
-											white-space: nowrap;
-											overflow: hidden;
-											text-overflow: ellipsis;
-											display: inline-block;
-											line-height: 20px;
-										"
-									>
-										{{ member.nickname }}
-									</div>
-								</div>
-							</div>
-						</div>
-					</el-drawer>
 				</div>
 
 				<div
@@ -190,11 +122,13 @@
 								color: black;
 								font-size: 15px;
 							"
-							><Tools
+							><More
 						/></el-icon>
 						<template #dropdown>
 							<el-dropdown-menu>
-								<el-dropdown-item>删除好友</el-dropdown-item>
+								<el-dropdown-item @click="store.clearChatRecord()"
+									>清空记录</el-dropdown-item
+								>
 							</el-dropdown-menu>
 						</template>
 					</el-dropdown>
@@ -204,28 +138,29 @@
 
 		<!--聊天主体区-->
 		<el-main class="msg-main">
-			<el-scrollbar ref="scrollbarRef">
-				<div ref="innerRef">
-					<ChatMessage />
-				</div>
-			</el-scrollbar>
+			<!-- 聊天消息滚动区域 -->
+			<div class="msg-container">
+				<el-scrollbar ref="scrollbarRef">
+					<div ref="innerRef">
+						<ChatMessage />
+						<!-- <ChatGroupMember /> -->
+					</div>
+				</el-scrollbar>
+			</div>
+			<!-- 群成员滚动区域 -->
+			<div class="member-container">
+				<el-scrollbar ref="memberScrollbarRef">
+					<div ref="memberInnerRef">
+						<ChatGroupMember />
+					</div>
+				</el-scrollbar>
+			</div>
 		</el-main>
 
 		<!--聊天输入区和发送按钮等-->
-		<el-footer
-			class="msg-footer"
-			style="
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: start;
-			"
-		>
+		<el-footer class="msg-footer">
 			<!-- 输入主体 -->
-			<div
-				class="input-main"
-				style="width: 100%; height: 40px; background-color: #ffffff"
-			>
+			<div class="input-main">
 				<el-input
 					size="large"
 					style="width: 100%; height: 100%"
@@ -247,12 +182,6 @@
 							@click="selectFile"
 						>
 							<Link />
-						</el-icon>
-						<el-icon
-							:size="20"
-							class="input-option-icon"
-						>
-							<Delete />
 						</el-icon>
 						<el-icon
 							@click="store.sendMessage('text')"
@@ -300,6 +229,7 @@
 <script setup lang="ts">
 	import { useChatStore } from "@/stores/chat";
 	import { useChooseStore } from "@/stores/choose";
+
 	const store: any = useChatStore();
 	const choose = useChooseStore();
 	const imgExt = ["png", "jpg", "jpeg", "gif", "bmp", "webp", "svg"];
@@ -364,7 +294,7 @@
 
 	function openDrawer() {
 		store.drawerVisible = true;
-		store.getGroupMemberList(store.targetGroupInfo.group_id);
+		// store.getGroupMemberList(store.targetGroupInfo.group_id);
 	}
 
 	// 监听store.drawerVisible
@@ -405,6 +335,35 @@
 </script>
 
 <style scoped>
+	.msg-main {
+		width: 100%;
+
+		/* 占据整个宽度 */
+		height: 75%;
+		padding: 0;
+		border-top: 1px solid #edebeb;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	/* 聊天消息滚动区域 */
+	.msg-container {
+		width: calc(100% - 150px);
+		height: 100%;
+	}
+	/* 群成员滚动区域 */
+	.member-container {
+		border-left: 1px solid #edebeb;
+		width: 140px;
+		height: 100%;
+	}
+
+	.input-main {
+		width: 100%;
+		height: 40px;
+		background-color: #ffffff;
+	}
+
 	.invite-group-button {
 		background-color: #0078d4;
 		color: #fff;
@@ -549,20 +508,15 @@
 		font-size: 20px;
 	}
 
-	.msg-main {
-		background-color: re;
-		/* width: 100%; */
-		/* 占据整个宽度 */
-		height: 75%;
-		padding: 0;
-		border-top: 1px solid #edebeb;
-	}
-
 	.msg-footer {
 		width: 100%;
 		/* 占据整个宽度 */
 		height: calc(100% - 75% - 49px);
 		border: none;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: start;
 	}
 
 	.input-option {

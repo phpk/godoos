@@ -1,173 +1,172 @@
 <template>
 	<div
-		v-if="store.targetChatId == null"
-		style="height: 280px; width: 100%"
-		class="no-message-container"
+		v-if="store.targetChatId"
+		class="chat-user-info"
 	>
-		<el-icon
-			:size="180"
-			color="#0078d7"
+		<!-- 用户信息区域 -->
+		<div
+			v-if="
+				store.targetUserInfo &&
+				Object.keys(store.targetUserInfo).length > 0
+			"
+			class="user-content"
 		>
-			<ChatDotSquare />
-		</el-icon>
-		<p class="welcome-text">欢迎使用GodoOS</p>
-	</div>
-
-	<div
-		v-else-if="
-			store.targetUserInfo && Object.keys(store.targetUserInfo).length > 0
-		"
-		class="user-info-container"
-	>
-		<el-avatar
-			class="user-avatar"
-			:size="80"
-			:src="store.targetUserInfo.avatarUrl || ''"
-		/>
-		<h2 class="user-name">{{ store.targetUserInfo.displayName }}</h2>
-		<div class="user-details">
-			<p><strong>邮箱:</strong> {{ store.targetUserInfo.email }}</p>
-			<p><strong>电话:</strong> {{ store.targetUserInfo.phone }}</p>
-			<p><strong>描述:</strong> {{ store.targetUserInfo.desc }}</p>
-			<p><strong>工号:</strong> {{ store.targetUserInfo.jobNumber }}</p>
-			<p>
-				<strong>工作地点:</strong> {{ store.targetUserInfo.workPlace }}
-			</p>
-			<p>
-				<strong>入职日期:</strong> {{ store.targetUserInfo.hiredDate }}
-			</p>
+			<div class="user-details">
+				<h2>{{ store.targetUserInfo.displayName }}</h2>
+				<p>工号：{{ targetUserInfo.jobNumber }}</p>
+				<p>岗位：{{ targetUserInfo.desc }}</p>
+				<p>邮箱：{{ targetUserInfo.email }}</p>
+				<p>电话：{{ targetUserInfo.phone }}</p>
+				<p>入职日期：{{ targetUserInfo.hiredDate }}</p>
+			</div>
+			<div class="avatar">
+				<el-avatar
+					style="width: 80px; height: 80px"
+					:src="targetUserInfo.avatar"
+					alt="avatar"
+				/>
+			</div>
 		</div>
-		<el-button
-			class="send-message-btn"
-			@click="sendMessage(store.targetChatId, 'user')"
-		>
-			发送消息
-		</el-button>
-	</div>
-	<!-- 群聊信息 -->
-	<div
-		v-else
-		class="group-info-container"
-	>
-		<el-avatar
-			class="group-avatar"
-			:size="80"
-		><span style="font-size: 40px;">群</span></el-avatar>
 
-		<h2 class="group-name">{{ store.targetGroupInfo.displayName }}</h2>
-
-		<el-button
-			class="send-message-btn"
-			@click="sendMessage(store.targetChatId, 'group')"
+		<!-- 群信息区域 -->
+		<div
+			v-else-if="
+				store.targetGroupInfo &&
+				Object.keys(store.targetGroupInfo).length > 0
+			"
+			class="group-content"
 		>
-			发送消息
-		</el-button>
+			<div class="group-details">
+				<h2>{{ store.targetGroupInfo.displayName }}</h2>
+				<p>群ID：{{ store.targetGroupInfo.chatId }}</p>
+				<p>群人数：{{ targetGroupInfo.memberCount }}人</p>
+				<p>创建时间：{{ targetGroupInfo.createdAt }}</p>
+			</div>
+			<div class="group-avatar">
+				<div class="avatar-container">
+					<el-avatar
+						style="width: 80px; height: 80px"
+						:src="targetGroupInfo.avatar"
+						alt="group-avatar"
+					/>
+				</div>
+			</div>
+		</div>
+
+		<!-- 分割线 -->
+		<div class="divider"></div>
+
+		<!-- 发送按钮 -->
+		<div class="send-button-container">
+			<el-button
+				type="primary"
+				@click="
+					sendMessage(
+						store.targetGroupInfo?.chatId ||
+							store.targetUserInfo.chatId,
+						store.targetGroupInfo
+							? 'group'
+							: store.targetUserInfo.type
+					)
+				"
+			>
+				发送消息
+			</el-button>
+		</div>
 	</div>
+	<div v-else>1</div>
 </template>
 
 <script lang="ts" setup>
 	import { useChatStore } from "@/stores/chat";
-
 	const store = useChatStore();
+
+	// 模拟用户信息
+	const targetUserInfo = {
+		avatar: "./logo.png",
+		jobNumber: 12345678,
+		desc: "测试岗位",
+		email: "12345678@qq.com",
+		phone: "12345678910",
+		hiredDate: "2024-01-01",
+	};
+
+	// 模拟群信息
+	const targetGroupInfo = {
+		avatar: "./logo.png",
+		chatId: "1234567890",
+		memberCount: 100,
+		createdAt: "2024-01-01",
+	};
 
 	const sendMessage = (chatId: string, type: string) => {
 		store.currentNavId = 0;
-		console.log(chatId, type);
+		store.getGroupMemberList(chatId);
 		store.addChatListAndGetChatHistory(chatId, type);
 	};
 </script>
 
 <style scoped>
-	/* 无消息提示样式 */
-	.no-message-container {
+	.chat-user-info {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		text-align: center;
-		color: #4a4a4a;
-	}
-
-	.welcome-text {
-		font-size: 18px;
-		font-weight: 600;
-		margin-top: 10px;
-		color: #333;
-	}
-
-	/* 用户信息容器 */
-	.user-info-container {
-		display: flex;
 		width: 100%;
-		flex-direction: column;
+		padding: 20px;
+	}
+
+	.user-content,
+	.group-content {
+		display: flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: space-between;
+	}
+
+	.user-details,
+	.group-details {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.user-details h2,
+	.group-details h2 {
+		margin: 0;
+		font-size: 1.5rem;
+	}
+
+	.user-details p,
+	.group-details p {
+		margin: 5px 0;
+		color: #666;
+	}
+
+	.avatar,
+	.group-avatar {
+		width: 80px;
 		height: 100%;
-		padding: 20px;
-		text-align: center;
+		object-fit: cover;
+		margin-left: 20px;
 	}
 
-	/* 用户头像 */
-	.user-avatar {
-		margin-bottom: 15px;
-		border-radius: 50%;
-	}
-
-	/* 用户名标题 */
-	.user-name {
-		font-size: 22px;
-		font-weight: 700;
-		color: #333;
-		margin-bottom: 15px;
-	}
-
-	/* 用户详细信息 */
-	.user-details {
-		text-align: left;
-		background-color: #f8f9fa;
-		padding: 20px;
-		border-radius: 10px;
-		box-shadow: 0px 1px 1px 1px rgba(0, 0, 0, 0.1);
-		max-width: 200px;
+	.divider {
 		width: 100%;
-		margin-bottom: 30px;
+		height: 1px;
+		background-color: #e0e0e0;
+		margin: 20px 0;
 	}
 
-	.user-details p {
-		margin: 8px 0;
-		color: #333;
+	.send-button-container {
+		display: flex;
+		justify-content: center;
+		margin-top: 20px;
 	}
 
-	.user-details p strong {
-		color: #333;
-	}
-
-	/* 发送消息按钮 */
-	.send-message-btn {
-		width: 100%;
-		max-width: 240px;
-		font-size: 16px;
-		background-color: #0078d4;
+	.el-button {
+		background-color: #0d42d2;
 		color: #fff;
-		border-radius: 8px;
-		box-shadow: 0 4px 8px rgba(0, 120, 212, 0.3);
-		font-weight: 600;
-		transition: background-color 0.3s;
 	}
-
-	.send-message-btn:hover {
-		background-color: #005a9e;
-	}
-
-	/* 群聊信息容器 */
-	.group-info-container {
-		display: flex;
-		width: 100%;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		height: 100%;
-		padding: 20px;
-		text-align: center;
+	.el-button:hover {
+		background-color: #4080ff;
+		color: #fff;
 	}
 </style>

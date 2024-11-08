@@ -82,6 +82,7 @@
 					<el-col :span="2">
 						<div class="chat-avatar">
 							<el-avatar
+								@click="showUserInfo(item.userId)"
 								shape="square"
 								style="margin: 0; float: left"
 								:size="32"
@@ -100,6 +101,7 @@
 					<el-col :span="2">
 						<div class="chat-avatar">
 							<el-avatar
+								@click="showUserInfo(item.userId)"
 								shape="square"
 								style="margin: 0; float: right"
 								:size="32"
@@ -188,16 +190,114 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- 用户信息弹窗 -->
+	<el-dialog
+		style="border-radius: 10px"
+		v-model="showUserInfoDialog"
+		title="用户信息"
+		width="300"
+	>
+		<!-- 用户信息  -->
+		<div class="user-content">
+			<div class="user-details">
+				<h3>{{ targetUserInfo.displayName }}</h3>
+				<p>工号：{{ targetUserInfo.jobNumber }}</p>
+				<p>岗位：{{ targetUserInfo.desc }}</p>
+				<p>邮箱：{{ targetUserInfo.email }}</p>
+				<p>电话：{{ targetUserInfo.phone }}</p>
+				<p>入职日期：{{ targetUserInfo.hiredDate }}</p>
+			</div>
+		</div>
+
+		<!-- 发送消息按钮 -->
+		<el-button
+			@click="sendMessage"
+			class="send-button-container"
+			>发送消息</el-button
+		>
+	</el-dialog>
 </template>
 
 <script setup lang="ts">
 	import { useChatStore } from "@/stores/chat";
-import { System } from "@/system";
+	import { System } from "@/system";
+	import { notifyInfo } from "@/util/msg";
 	const store = useChatStore();
 	const sys: any = inject<System>("system");
+	const showUserInfoDialog = ref(false);
+	var targetUserInfo: any = {};
+
+	const currUserId = ref();
+
+	const showUserInfo = (chatId: string) => {
+		console.log(chatId);
+		currUserId.value = chatId;
+		// 需要去群用户列表中找到这个用户
+		const userInfo = store.groupMembers.find(
+			(member: any) => member.id === chatId
+		);
+
+		// 封装一下这个用户信息
+		targetUserInfo = {
+			displayName: userInfo.nickname,
+			jobNumber: 12345678,
+			desc: "测试岗位",
+			email: "12345678@qq.com",
+			phone: "12345678910",
+			hiredDate: "2024-01-01",
+		};
+
+		showUserInfoDialog.value = true;
+	};
+
+	const sendMessage = () => {
+		if (currUserId.value == store.userInfo.id) {
+			notifyInfo("不能给自己发送消息");
+			return;
+		}
+		store.getSessionInfo(currUserId.value, "user");
+		showUserInfoDialog.value = false;
+	};
 </script>
 
 <style scoped>
+	.send-button-container {
+		width: 230px;
+		display: flex;
+		justify-content: center;
+		margin-top: 20px;
+		background-color: #0d42d2;
+		color: #fff;
+	}
+	.send-button-container:hover {
+		background-color: #4080ff;
+		color: #fff;
+	}
+
+	.user-content {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.user-details {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+
+	.user-details h3 {
+		margin: 0;
+		font-size: 1.2rem;
+	}
+
+	.user-details p {
+		margin: 5px 0;
+		color: #666;
+	}
+
 	.system-message {
 		background-color: #e8e8e8; /* 设置背景颜色 */
 		color: #333; /* 设置文字颜色 */

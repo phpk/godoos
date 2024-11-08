@@ -208,10 +208,11 @@
 		border-radius: 4px;
 		transition: all 0.5s;
 		margin-bottom: 5px;
+		background-color: #fff;
 	}
 
 	.list-item:hover {
-		background-color: #f5f5f5;
+		background-color: #e8f3ff;
 	}
 
 	.avatar {
@@ -219,10 +220,12 @@
 	}
 
 	.previewName {
+		font-weight: 400;
 		margin-left: 10px;
 		font-size: 14px;
 		font-family: Arial, sans-serif;
 		line-height: 1.5;
+		color: #000000;
 		overflow: hidden; /* 隐藏超出部分 */
 		text-overflow: ellipsis; /* 显示为省略号 */
 		white-space: nowrap; /* 不换行 */
@@ -250,26 +253,6 @@
 		font-size: 16px; /* 调整图标大小 */
 		color: green; /* 在线状态颜色 */
 		margin-left: 5px; /* 与用户名之间的间距 */
-	}
-
-	.previewChat {
-		margin-left: 10px;
-		font-size: 12px; /* 调整字体大小 */
-		font-family: Arial, sans-serif;
-		color: #999999;
-		overflow: hidden; /* 隐藏超出部分 */
-		text-overflow: ellipsis; /* 显示为省略号 */
-		white-space: nowrap; /* 不换行 */
-		max-width: 100%; /* 最大宽度 */
-	}
-
-	.previewTime {
-		float: right;
-		margin-top: 10px;
-		margin-right: 10px;
-		font-size: 12px;
-		font-family: Arial, sans-serif;
-		color: #999999;
 	}
 
 	.no-data {

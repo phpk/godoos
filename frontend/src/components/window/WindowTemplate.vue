@@ -191,10 +191,10 @@
 		margin: 0;
 		// left: 0;
 		// top: 0;
-		min-width: 950px;
+		// min-width: 900px;
 		width: max-content;
 		height: max-content;
-		min-height: 650px;
+		// min-height: 650px;
 		border-radius: 10px;
 		overflow: hidden;
 		background-color: #fff;

@@ -80,7 +80,6 @@ export const useChatStore = defineStore('chatStore', () => {
 
   // 群组l列表
   const groupList: any = ref([]);
-  const drawerVisible = ref(false)
   const targetGroupInfo: any = ref({})
   const activeNames = ref([]);
   const userInfo: any = ref({});
@@ -411,7 +410,7 @@ export const useChatStore = defineStore('chatStore', () => {
           previewMessage: message.value,
           previewTimeFormat: formatTime(Date.now()),
           displayName: userInfo.value.nickname,
-          chatId: targetUserInfo.value.chatId.toString(),
+          chatId: targetUserInfo.value.chatId,
           avatar: userInfo.value.avatar,
           createdAt: Date.now()
         }
@@ -426,7 +425,7 @@ export const useChatStore = defineStore('chatStore', () => {
           previewTimeFormat: formatTime(Date.now()),
           displayName: targetGroupInfo.value.name,
           isMe: true,
-          chatId: targetGroupInfo.value.chatId.toString(),
+          chatId: targetGroupInfo.value.chatId,
           createdAt: Date.now()
         }
 
@@ -483,10 +482,6 @@ export const useChatStore = defineStore('chatStore', () => {
 
     // 从 conversationList 数据库中查找是否存在对应的会话
     const conversation = await db.getByField("workbenchSessionList", 'chatId', data.userId);
-
-
-    console.log("更新的文字", message)
-
     // 准备会话更新数据
     const updatedConversation = {
       userId: data.userId,
@@ -903,8 +898,6 @@ export const useChatStore = defineStore('chatStore', () => {
   const updateOrAddUsers = async (users: OnlineUserInfoType[]) => {
     // 从数据库中获取所有用户信息
     const allUsers = await db.getAll("workbenchChatUser");
-    console.log(users)
-    console.log(allUsers)
     // 添加或更新在线用户
     for (const user of users) {
       const existingUser = allUsers.find((u: { id: string; }) => u.id === user.id);
@@ -986,12 +979,10 @@ export const useChatStore = defineStore('chatStore', () => {
     chatHistory.value = []
     targetChatId.value = chatId
 
-    console.log("------")
     if (type === 'user') {
       console.log("user")
       // 获取当前用户和目标用户的聊天记录
       const history = await getHistory(userInfo.value.id, chatId, type)
-      console.log(history)
       chatHistory.value = [...history];
       // 设置目标用户的信息
       await setTargetUserInfo(chatId);
@@ -1030,12 +1021,18 @@ export const useChatStore = defineStore('chatStore', () => {
 
   // 设置目标用户的信息
   const setTargetUserInfo = async (id: string) => {
-    const userInfoArray = await db.getByField("workbenchChatUser", "chatId", id);
+    var userInfoArray = await db.getByField("workbenchChatUser", "chatId", id);
+
     // 封装用户信息
     const userInfo = {
       type: "user",
       avatar: userInfoArray[0].avatar || "",
       displayName: userInfoArray[0].nickname || "",
+      jobNumber: userInfoArray[0].jobNumber || "",
+      desc: userInfoArray[0].desc || "",
+      email: userInfoArray[0].email || "",
+      phone: userInfoArray[0].phone || "",
+      hiredDate: userInfoArray[0].hiredDate || "",
       toUserId: config.userInfo.id,
       chatId: userInfoArray[0].chatId
     }
@@ -1045,8 +1042,16 @@ export const useChatStore = defineStore('chatStore', () => {
 
   // 设置目标群信息
   const setTargetGrouprInfo = async (id: string) => {
-    for (const group of groupList.value) {
+    for (var group of groupList.value) {
       if (group.group_id === id) {
+        // 模拟群信息
+        // group = {
+        //   chatId: id,
+        //   displayName: "湖南果度科技有限公司",
+        //   avatar: "./src/assets/icons/group.png",
+        //   memberCount: 150, // 假设成员数
+        //   createdAt: "2023-01-01" // 假设创建日期
+        // }
         targetGroupInfo.value = group;
         targetUserInfo.value = {};
         break;
@@ -1149,7 +1154,6 @@ export const useChatStore = defineStore('chatStore', () => {
     initChatList()
     targetGroupInfo.value = {}
     targetChatId.value = ''
-    drawerVisible.value = false
     notifySuccess("退出群聊成功")
   }
 
@@ -1256,6 +1260,43 @@ export const useChatStore = defineStore('chatStore', () => {
   };
 
 
+  // 清空聊天记录
+  // 清空聊天记录
+  const clearChatRecord = async () => {
+    // 删除我发送给对方的记录
+    const whereObjSent = {
+      toUserId: targetChatId.value,
+      userId: userInfo.value.id
+    };
+    const resSent = await db.deleteByWhere("workbenchChatRecord", whereObjSent);
+
+    // 删除对方发送给我的记录
+    const whereObjReceived = {
+      userId: targetChatId.value,
+      toUserId: userInfo.value.id
+    };
+    const resReceived = await db.deleteByWhere("workbenchChatRecord", whereObjReceived);
+
+    // 检查两个删除操作是否都成功
+    if (resSent == 1 && resReceived == 1) {
+      // 更新chatHistory，移除相关记录
+      chatHistory.value = chatHistory.value.filter((item: any) =>
+        !(item.toUserId === targetChatId.value && item.userId === userInfo.value.id) &&
+        !(item.userId === targetChatId.value && item.toUserId === userInfo.value.id)
+      );
+
+      // 更新chatList中的预览消息
+      chatList.value.forEach((item: any) => {
+        if (item.chatId === targetChatId.value) {
+          item.previewMessage = "快开始打招呼吧！";
+        }
+      });
+      notifySuccess("清空成功");
+      return;
+    }
+    notifyError("清空失败");
+  }
+
   return {
     emojiList,
     groupSystemMessage,
@@ -1288,7 +1329,6 @@ export const useChatStore = defineStore('chatStore', () => {
     groupMemberList,
     groups,
     inviteFriendDialogVisible,
-    drawerVisible,
     addMemberDialogVisible,
     inviteUserList,
     messageSendStatus,
@@ -1317,6 +1357,7 @@ export const useChatStore = defineStore('chatStore', () => {
     groupInviteMessage,
     setScrollToBottom,
     getGroupMemberList,
-    getInviteUserList
+    getInviteUserList,
+    clearChatRecord,
   };
 });
