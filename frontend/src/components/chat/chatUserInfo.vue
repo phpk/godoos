@@ -74,7 +74,9 @@
 			</el-button>
 		</div>
 	</div>
-	<div v-else>1</div>
+	<div v-else class="empty-container">
+		<el-empty description="请选择一个用户或群聊" />
+	</div>
 </template>
 
 <script lang="ts" setup>
@@ -107,6 +109,14 @@
 </script>
 
 <style scoped>
+	.empty-container {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
 	.chat-user-info {
 		display: flex;
 		flex-direction: column;

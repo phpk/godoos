@@ -33,7 +33,7 @@
 						:size="40"
 						class="avatar"
 						style="
-							background-color: #165DFF;
+							background-color: #165dff;
 							display: flex;
 							align-items: center;
 							justify-content: center;
@@ -90,7 +90,7 @@
 								</div>
 
 								<div class="previewTime">
-									{{ item.previewTimeFormat }}
+									{{ formatTime(item.time) }}
 								</div>
 							</div>
 
@@ -129,6 +129,14 @@
 	const store = useChatStore();
 	const id = ref("1");
 
+	// 添加格式化时间的方法
+	function formatTime(timestamp) {
+		const date = new Date(timestamp);
+		const month = date.getMonth() + 1; // 月份是从0开始的
+		const day = date.getDate();
+		return `${month}-${day}`;
+	}
+
 	// 假设消息数据列表在 store 中
 	const filteredMessages = computed(() => {
 		return store.search
@@ -152,11 +160,11 @@
 		margin-bottom: 5px;
 		overflow: hidden;
 		margin-top: 5px;
-		background-color: #FFF;
+		background-color: #fff;
 	}
 
 	.list-item:hover {
-		background-color: #E8F3FF;
+		background-color: #e8f3ff;
 	}
 
 	.avatar {
@@ -201,7 +209,7 @@
 
 	.previewTime {
 		font-size: 12px;
-		color: #86909C;
+		color: #86909c;
 	}
 
 	.preview-left {
@@ -218,7 +226,7 @@
 		margin-left: 10px;
 		font-size: 12px;
 		font-family: Arial, sans-serif;
-		color: #86909C;
+		color: #86909c;
 		overflow: hidden; /* 隐藏超出部分 */
 		text-overflow: ellipsis; /* 显示为省略号 */
 		white-space: nowrap; /* 不换行 */

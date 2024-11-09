@@ -9,7 +9,7 @@ dbInit.version(1).stores({
   // 会话列表
   workbenchSessionList: '++id,avatar,chatId,username,nickname,userId,toUserId,previewMessage,messages,time,createdAt',
   // 聊天记录
-  workbenchChatRecord: '++id,toUserId,messages,messageType,time,createdAt,userInfo',
+  workbenchChatRecord: '++id,[toUserId+userId], [userId+toUserId],toUserId,messages,messageType,time,createdAt,userInfo',
   // 群组会话列表
   groupSessionList: '++id,groupId,chatId,name,message,previewMessage,avatar,createdAt',
   // 群组聊天记录
@@ -28,13 +28,14 @@ dbInit.version(1).stores({
   workbenchGroupUserList: any;
   workbenchGroupInviteMessage: any;
   groupSessionList: any;
-  workbenchChatRecord: { addIndex: (arg0: string, arg1: (obj: { toUserId: any; }) => any) => void; };
+  workbenchChatRecord: any;
 }) => {
   // 手动添加索引
   tx.groupSessionList.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchSessionList.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchChatRecord.addIndex('toUserId', (obj: { toUserId: any; }) => obj.toUserId);
-  tx.workbenchChatUser.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
+  // 添加复合索引
+  tx.workbenchChatRecord.addIndex('[toUserId+userId]', (obj: { toUserId: any; userId: any; }) => [obj.toUserId, obj.userId]);
   tx.workbenchGroupChatRecord.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchGroupUserList.addIndex('group_id', (obj: { group_id: any; }) => obj.group_id);
   tx.workbenchGroupInviteMessage.addIndex('group_id', (obj: { group_id: any; }) => obj.group_id);

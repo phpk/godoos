@@ -99,6 +99,8 @@ export const useChatStore = defineStore('chatStore', () => {
   // 定义消息发送、接受的状态用于控制滚动条的滚动
   const messageSendStatus = ref(false)
   const messageReceiveStatus = ref(false)
+  // 群成员列表抽屉是否显示
+  const groupMemberDrawerVisible = ref(false)
 
   // 群成员列表
   const groupMemberList = ref<any[]>([])
@@ -1260,30 +1262,34 @@ export const useChatStore = defineStore('chatStore', () => {
   };
 
 
-  // 清空聊天记录
-  // 清空聊天记录
-  const clearChatRecord = async () => {
-    // 删除我发送给对方的记录
+  // 清空发送的聊天记录
+  const clearSentMessages = async () => {
     const whereObjSent = {
       toUserId: targetChatId.value,
       userId: userInfo.value.id
     };
     const resSent = await db.deleteByWhere("workbenchChatRecord", whereObjSent);
+    if (resSent >= 0) {
+      // 更新chatList中的预览消息
+      chatList.value.forEach((item: any) => {
+        if (item.chatId === targetChatId.value) {
+          item.previewMessage = "快开始打招呼吧！";
+        }
+      });
+      return true
+    } else {
+      return false
+    }
+  };
 
-    // 删除对方发送给我的记录
+  // 清空接收的聊天记录
+  const clearReceivedMessages = async () => {
     const whereObjReceived = {
       userId: targetChatId.value,
       toUserId: userInfo.value.id
     };
     const resReceived = await db.deleteByWhere("workbenchChatRecord", whereObjReceived);
-
-    // 检查两个删除操作是否都成功
-    if (resSent == 1 && resReceived == 1) {
-      // 更新chatHistory，移除相关记录
-      chatHistory.value = chatHistory.value.filter((item: any) =>
-        !(item.toUserId === targetChatId.value && item.userId === userInfo.value.id) &&
-        !(item.userId === targetChatId.value && item.toUserId === userInfo.value.id)
-      );
+    if (resReceived >= 0) {
 
       // 更新chatList中的预览消息
       chatList.value.forEach((item: any) => {
@@ -1291,11 +1297,30 @@ export const useChatStore = defineStore('chatStore', () => {
           item.previewMessage = "快开始打招呼吧！";
         }
       });
-      notifySuccess("清空成功");
-      return;
+      return true
+    } else {
+      return false
     }
-    notifyError("清空失败");
+  };
+
+  // 清空群消息
+  const clearGroupMessages = async () => {
+    const res = await db.deleteByField("workbenchGroupChatRecord", "chatId", targetChatId.value);
+    if (res >= 0) {
+      // 还需要找到
+      getSessionInfo(targetChatId.value, "group")
+      // 更新chatList中的预览消息
+      chatList.value.forEach((item: any) => {
+        if (item.chatId === targetChatId.value) {
+          item.previewMessage = "快开始打招呼吧！";
+        }
+      });
+      notifySuccess("删除成功");
+    } else {
+      notifyError("删除失败");
+    }
   }
+
 
   return {
     emojiList,
@@ -1334,6 +1359,7 @@ export const useChatStore = defineStore('chatStore', () => {
     messageSendStatus,
     messageReceiveStatus,
     groupMembers,
+    groupMemberDrawerVisible,
     initChat,
     showContextMenu,
     setCurrentNavId,
@@ -1358,6 +1384,8 @@ export const useChatStore = defineStore('chatStore', () => {
     setScrollToBottom,
     getGroupMemberList,
     getInviteUserList,
-    clearChatRecord,
+    clearReceivedMessages,
+    clearSentMessages,
+    clearGroupMessages
   };
 });

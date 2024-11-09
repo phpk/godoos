@@ -1,44 +1,73 @@
 <template>
-	<div class="group-member-container">
+	<el-drawer
+		v-model="store.groupMemberDrawerVisible"
+		direction="rtl"
+		title="群成员"
+		:with-header="true"
+		:show-close="true"
+		size="250px"
+	>
 		<!-- 群成员列表 -->
-		<div
-			class="member-list"
-			v-for="item in groupMembers"
-			:key="item.userId"
-		>
-			<!-- 头像和昵称 -->
-			<div class="member-item">
-				<div class="avatar-container">
-					<el-avatar
-						style="width: 100%; height: 100%;"
-						:src="item.avatar"
-					/>
+		<div class="group-member-container">
+			<div
+				class="member-list"
+				v-for="item in store.groupMembers"
+				:key="item.id"
+			>
+				<div class="member-item">
+					<!-- 头像和昵称 -->
+					<div class="avatar-container">
+						<el-avatar
+							style="width: 100%; height: 100%"
+							:src="item.avatar"
+						/>
+					</div>
+					<span>{{ item.nickname }}</span>
 				</div>
-				<span>{{ item.nickname }}</span>
 			</div>
 		</div>
-	</div>
+	</el-drawer>
 </template>
 <script setup lang="ts">
 	import { useChatStore } from "@/stores/chat";
 	const store = useChatStore();
 
-	// 使用模拟数据
+	// 监听群成员抽屉的可见性，当其变为true时获取群成员列表
+	watch(
+		() => store.groupMemberDrawerVisible,
+		(newVal) => {
+			if (newVal) {
+				store.getGroupMemberList(store.targetGroupInfo.group_id);
+			}
+		}
+	);
 
-	// 使用模拟数据，定义40条
-	const groupMembers = ref(
-		Array.from({ length: 40 }, (v, i) => ({
-			userId: `${i + 1}`,
-			avatar: `path/to/avatar${i + 1}.jpg`,
-			nickname: `用户1111111111111111${i + 1}`,
-		}))
+	// 监听抽屉状态变化，当打开时获取群成员列表
+	watch(
+		() => store.drawerVisible,
+		(newVal) => {
+			if (newVal) {
+				store.getGroupMemberList(store.targetGroupInfo.group_id);
+			}
+		}
 	);
 </script>
 <style scoped>
+	:deep(.el-drawer__header) {
+		background-color: red;
+		padding: 0px 20px;
+		height: 50px;
+		color: #000000;
+		margin-bottom: 0px;
+	}
+	:deep(.el-drawer__title) {
+		font-size: 20px;
+	}
+
 	.group-member-container {
-		margin: 10px 0;
 		width: 100%;
 		height: 100%;
+		overflow-y: auto; /* 添加滚动条 */
 	}
 
 	.member-item {
@@ -48,19 +77,18 @@
 	}
 
 	.avatar-container {
-		width: 25px;
-		height: 25px;
-		margin-right: 5px;
+		width: 30px;
+		height: 30px;
+		margin-right: 10px;
 	}
 
 	.member-item span {
-		width: 90px;
+		width: 150px;
 		margin-left: 10px;
-    font-size: 12px;
-    color: #86909C;
-		overflow: hidden; /* 防止内容溢出 */
-		white-space: nowrap; /* 保持文本在一行 */
-		text-overflow: ellipsis; /* 文本溢出显示省略号 */
-		max-width: 150px; /* 最大宽度，根据需要调整 */
+		font-size: 12px;
+		color: #86909c;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 	}
 </style>

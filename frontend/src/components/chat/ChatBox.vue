@@ -48,6 +48,8 @@
 			>
 		</div>
 	</el-dialog>
+	<!-- 群成员抽屉 -->
+	<ChatGroupMember />
 	<div
 		class="chatbox-main"
 		v-if="store.targetChatId"
@@ -88,6 +90,13 @@
 							<template #dropdown>
 								<el-dropdown-menu>
 									<el-dropdown-item
+										@click="
+											store.groupMemberDrawerVisible = true
+										"
+										>群成员</el-dropdown-item
+									>
+
+									<el-dropdown-item
 										@click="openInviteGroupDialog()"
 										>邀请群聊</el-dropdown-item
 									>
@@ -99,7 +108,10 @@
 										"
 										>退出群聊</el-dropdown-item
 									>
-									<el-dropdown-item>清空记录</el-dropdown-item>
+									<el-dropdown-item
+										@click="clearMessages('group')"
+										>清空记录</el-dropdown-item
+									>
 								</el-dropdown-menu>
 							</template>
 						</el-dropdown>
@@ -126,7 +138,7 @@
 						/></el-icon>
 						<template #dropdown>
 							<el-dropdown-menu>
-								<el-dropdown-item @click="store.clearChatRecord()"
+								<el-dropdown-item @click="clearMessages('user')"
 									>清空记录</el-dropdown-item
 								>
 							</el-dropdown-menu>
@@ -144,14 +156,6 @@
 					<div ref="innerRef">
 						<ChatMessage />
 						<!-- <ChatGroupMember /> -->
-					</div>
-				</el-scrollbar>
-			</div>
-			<!-- 群成员滚动区域 -->
-			<div class="member-container">
-				<el-scrollbar ref="memberScrollbarRef">
-					<div ref="memberInnerRef">
-						<ChatGroupMember />
 					</div>
 				</el-scrollbar>
 			</div>
@@ -207,28 +211,14 @@
 		"
 		v-else
 	>
-		<el-icon
-			:size="180"
-			color="#0078d7"
-		>
-			<ChatDotSquare />
-		</el-icon>
-		<p
-			style="
-				font-size: 18px;
-				font-weight: 600;
-				margin-top: 10px;
-				color: #333;
-			"
-		>
-			欢迎使用GodoOS
-		</p>
+		<el-empty description="请选择一个用户或群聊" />
 	</div>
 </template>
 
 <script setup lang="ts">
 	import { useChatStore } from "@/stores/chat";
 	import { useChooseStore } from "@/stores/choose";
+	import { notifyError, notifySuccess } from "@/util/msg";
 
 	const store: any = useChatStore();
 	const choose = useChooseStore();
@@ -236,6 +226,27 @@
 	const choosetype = ref("");
 	const scrollbarRef = ref(null);
 	const innerRef = ref(null);
+
+	// 清空聊天记录
+	const clearMessages = (type: string) => {
+		// 首先先删除发送的聊天记录，如果删除成功，再删除接收的聊天记录，如果发送消息删除失败也调用删除接收的聊天记录。如果删除对方的记录成功也弹出删除成功
+		if (type === "user") {
+			if (store.clearSentMessages()) {
+				if (store.clearReceivedMessages()) {
+					notifySuccess("删除成功");
+					store.getSessionInfo(store.targetChatId, type);
+				} else {
+					notifyError("删除失败");
+				}
+			} else if (store.clearReceivedMessages()) {
+				notifySuccess("删除成功");
+			} else {
+				notifyError("删除失败");
+			}
+		} else if (type === "group") {
+			store.clearGroupMessages();
+		}
+	};
 
 	const openInviteGroupDialog = () => {
 		store.inviteFriendDialogVisible = true;
@@ -292,11 +303,6 @@
 		}
 	);
 
-	function openDrawer() {
-		store.drawerVisible = true;
-		// store.getGroupMemberList(store.targetGroupInfo.group_id);
-	}
-
 	// 监听store.drawerVisible
 	watch(
 		() => store.drawerVisible,
@@ -348,14 +354,14 @@
 
 	/* 聊天消息滚动区域 */
 	.msg-container {
-		width: calc(100% - 150px);
+		width: 100%;
 		height: 100%;
 	}
 	/* 群成员滚动区域 */
 	.member-container {
 		border-left: 1px solid #edebeb;
 		width: 140px;
-		height: 100%;
+		height: calc(100% - 10px);
 	}
 
 	.input-main {
@@ -386,14 +392,6 @@
 		justify-content: center;
 		align-items: center;
 		margin-bottom: 10px; /* 每个成员之间的间距 */
-	}
-
-	:deep(.el-drawer__header) {
-		color: #000000;
-	}
-
-	:deep(.el-drawer__body) {
-		margin-top: -40px; /* 根据需要调整这个值 */
 	}
 
 	.group-name {

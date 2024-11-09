@@ -76,7 +76,7 @@
 						</div>
 						<!-- 发送时间展示，在消息框外部的下方 -->
 						<div class="chat-time-me-outer">
-							{{ item.previewTimeFormat }}
+							{{ formatTime(item.createdAt) }}
 						</div>
 					</el-col>
 					<el-col :span="2">
@@ -160,7 +160,7 @@
 						</div>
 						<!-- 发送时间展示，在消息框外部的下方 -->
 						<div class="chat-time-other-outer">
-							{{ item.previewTimeFormat }}
+							{{ item.time }}
 						</div>
 					</el-col>
 					<el-col :span="8" />
@@ -229,6 +229,14 @@
 	var targetUserInfo: any = {};
 
 	const currUserId = ref();
+
+	// 添加格式化时间的方法
+	function formatTime(timestamp) {
+		const date = new Date(timestamp);
+		const month = date.getMonth() + 1; // 月份是从0开始的
+		const day = date.getDate();
+		return `${month}-${day}`;
+	}
 
 	const showUserInfo = (chatId: string) => {
 		console.log(chatId);
