@@ -61,7 +61,7 @@ export const useChatStore = defineStore('chatStore', () => {
     groupInfoSettingDrawerVisible.value = visible
   }
 
-  const groupMembers = ref([])
+  const groupMembers: any = ref([])
 
   // 群名
   const departmentName = ref('');

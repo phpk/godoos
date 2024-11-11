@@ -41,16 +41,6 @@
 			}
 		}
 	);
-
-	// 监听抽屉状态变化，当打开时获取群成员列表
-	watch(
-		() => store.drawerVisible,
-		(newVal) => {
-			if (newVal) {
-				store.getGroupMemberList(store.targetGroupInfo.group_id);
-			}
-		}
-	);
 </script>
 <style scoped>
 	:deep(.el-drawer__header) {

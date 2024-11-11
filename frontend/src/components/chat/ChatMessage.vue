@@ -231,7 +231,7 @@
 	const currUserId = ref();
 
 	// 添加格式化时间的方法
-	function formatTime(timestamp) {
+	function formatTime(timestamp:string) {
 		const date = new Date(timestamp);
 		const month = date.getMonth() + 1; // 月份是从0开始的
 		const day = date.getDate();
