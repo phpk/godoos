@@ -452,7 +452,7 @@ export class System {
         const filePwd = getSystemConfig()
         const header = {
           salt: '',
-          filePwd: ''
+          pwd: ''
         }
         //判断文件是否需要输入密码
         if (fileStat.isPwd && path.indexOf('.exe') === -1) {
@@ -461,13 +461,29 @@ export class System {
             return
           }
           header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
-          header.filePwd = temp?.inputPwd || ''
+          header.pwd = temp?.inputPwd || ''
         }
         // 读取文件内容
         const fileContent = await this.fs.readFile(path, header);
-        if (!fileContent && fileStat.isPwd) {
+        // console.log('文件：', fileContent);
+
+        if (fileContent === false && fileStat.isPwd) {
           notifyError('密码错误')
           return
+        }
+        //企业用户文件加密密码存储
+        if (fileStat.isPwd && getSystemConfig().userType === 'member') {
+          let fileInputPwd = getSystemConfig().fileInputPwd
+          const pos = fileInputPwd.findIndex((item: any) => item.path == path)
+          if (pos !== -1) {
+            fileInputPwd[pos].pwd = header.pwd
+          } else {
+            fileInputPwd.push({
+              path: path,
+              pwd: header.pwd
+            })
+          }
+          setSystemKey('fileInputPwd', fileInputPwd)
         }
         // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
         const fileName = extname(fileStat?.name || '') || 'link'

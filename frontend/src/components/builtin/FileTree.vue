@@ -51,7 +51,6 @@
 import { useSystem,OsFileWithoutContent,basename } from '@/system/index.ts';
 import { onMounted, ref } from 'vue';
 import { dealSystemName } from '@/i18n';
-import { getSystemConfig } from "@/system/config";
 import { isShareFile } from '@/util/sharePath';
 
 const sys = useSystem();
@@ -113,7 +112,7 @@ function onSubOpen(path: string) {
 
 async function onSubRefresh(item: FileWithOpen) {
   if(isShareFile(item.path)) {
-    item.subFileList = (await sys.fs.sharedir(getSystemConfig().userInfo.id, item?.path)).filter((file:any) => {
+    item.subFileList = (await sys.fs.sharedir(item?.path)).filter((file:any) => {
       return file.isDirectory;
     });
   } else {
@@ -135,7 +134,7 @@ async function onOpenArrow(item: FileWithOpen) {
   //   });
   // } else
    if(isShareFile(item.path)) {
-    item.subFileList = (await sys.fs.sharedir(getSystemConfig().userInfo.id, item?.path)).filter((file:any) => {
+    item.subFileList = (await sys.fs.sharedir(item?.path)).filter((file:any) => {
       return file.isDirectory;
     });
   } else {

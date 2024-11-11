@@ -63,7 +63,7 @@ async function clearPwd() {
     await fetchGet(`${getApiUrl()}/file/changeispwd?ispwd=0`)
     setSystemKey('file',params)
 }
-onMounted(()=>{
+onMounted(() => {
     params.isPwd = config.file.isPwd
     setPwd.value = params.isPwd ? true : false
 })

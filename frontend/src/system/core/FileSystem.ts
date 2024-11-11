@@ -1,10 +1,10 @@
-import * as fspath from './Path';
-import { OsFileInterface } from './FIleInterface';
-import { SystemOptions } from '../type/type';
-import { InitSystemFile, InitUserFile } from './SystemFileConfig';
-import { createInitFile } from './createInitFile';
-import { OsFileMode } from './FileMode';
 import JSZip from "jszip";
+import { SystemOptions } from '../type/type';
+import { createInitFile } from './createInitFile';
+import { OsFileInterface } from './FIleInterface';
+import { OsFileMode } from './FileMode';
+import * as fspath from './Path';
+import { InitSystemFile, InitUserFile } from './SystemFileConfig';
 type DateLike = Date | string | number;
 // Os文件模式枚举
 class OsFileInfo {
@@ -896,7 +896,7 @@ class OsFileSystem implements OsFileInterface {
     const transedPath = fspath.transformPath(path);
     // 获取父路径
     let parentPath = fspath.dirname(transedPath);
-    
+
     // 如果父路径为空，设置为根路径
     if (parentPath === '') parentPath = '/';
     // 判断文件是否存在
@@ -1120,7 +1120,7 @@ class OsFileSystem implements OsFileInterface {
       const ziplibs = new JSZip();
       const unziped = await ziplibs.loadAsync(content);
       const targetPath = path.substring(0, path.lastIndexOf("."))
-      
+
       if (!await that.exists(targetPath)) {
         await that.mkdir(targetPath)
       }

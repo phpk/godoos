@@ -1,6 +1,7 @@
 import { ElMessageBox } from 'element-plus'
-import {BrowserWindow} from "./BrowserWindow"
-import { md5 } from "js-md5"
+import { BrowserWindow } from "./BrowserWindow"
+// import { setSystemKey } from "@/system/config"
+// import { md5 } from "js-md5"
 class Dialog {
   constructor() {
     // static class
@@ -120,8 +121,9 @@ class Dialog {
     }).then(({value}) => {
       promres({
         response: 1,
-        inputPwd: md5(value)
+        inputPwd: value
       });
+      // setSystemKey('filePwd', value)
     }).catch(()=>{
       promres({
         response: -1,
