@@ -317,7 +317,7 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 
 // 带加密写
 func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
-	filePath := r.URL.Query().Get("filePath")
+	filePath := r.URL.Query().Get("path")
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())

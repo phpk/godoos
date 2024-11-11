@@ -20,6 +20,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	// 非加密文件直接返回base64编码
 	isHide := IsHaveHiddenFile(basePath, path)
+	//Liuziwang888!@#
 	if !isHide {
 		fileContent, err := ReadFile(basePath, path)
 		if err != nil {
@@ -35,7 +36,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// 有隐藏文件说明这是一个加密过的文件,需要验证密码
-	fPwd := r.Header.Get("filePwd")
+	fPwd := r.Header.Get("pwd")
 	if fPwd == "" {
 		libs.HTTPError(w, http.StatusBadRequest, "密码不能为空")
 		return
@@ -71,7 +72,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 // 设置文件密码
 func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
-	fPwd := r.Header.Get("filePwd")
+	fPwd := r.Header.Get("filepwd")
 	salt, err := GetSalt(r) // 获取盐值
 	// 处理获取盐值时的错误
 	if err != nil || fPwd == "" {
