@@ -1,0 +1,2148 @@
+[
+  {
+    "id": "kRShE9NBWK",
+    "elements": [
+      {
+        "type": "image",
+        "id": "de-XaIyWHv",
+        "src": "./images/summary/de-XaIyWHv.png",
+        "width": 1000,
+        "height": 562.5,
+        "left": 0,
+        "top": 0,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "image",
+        "id": "t3DbuUScD1",
+        "src": "./images/summary/t3DbuUScD1.png",
+        "width": 411.80555555555554,
+        "height": 151.9096675415573,
+        "left": 531.9444444444443,
+        "top": 100.17366579177602,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "shape",
+        "id": "L_TMXoYybo",
+        "width": 584.2013342082239,
+        "height": 77.29166666666666,
+        "left": 389.75699912510936,
+        "top": 256.423665791776,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#ffffff",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"\" class=\"\"><strong><span style=\"font-size: 41.66666666666667px;\"><span style=\"font-family: Arial;\"><span style=\"color: #ffffff;\">主题主题</span></span></span></strong></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "XmqaFCHPcn",
+        "width": 487.84722222222223,
+        "height": 30.208333333333332,
+        "left": 453.125,
+        "top": 342.7083333333333,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"\"><span style=\"font-size: 12.5px;\"><span style=\"font-family: Arial;\"><span style=\"color: #ffffff;\">适用产品介绍｜品牌发布｜工作计划｜项目推广</span></span></span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "0cBwWCqyL4",
+        "width": 235.59033245844267,
+        "height": 57.08333333333333,
+        "left": 620.1388888888889,
+        "top": 398.9583333333333,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;\"><span style=\"font-family: Arial;\"><span style=\"color: #ffffff;\">汇报时间：2023年7月&nbsp; 汇报人：wu</span></span></span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "b3JDyzdKji",
+    "elements": [
+      {
+        "type": "image",
+        "id": "w6DgKb845G",
+        "src": "./images/summary/w6DgKb845G.png",
+        "width": 512.5,
+        "height": 562.5,
+        "left": -2.4305555555555554,
+        "top": 0,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "text",
+        "id": "AvRY0XnN3q",
+        "width": 239.4096675415573,
+        "height": 88.234375,
+        "left": 584.548665791776,
+        "top": 52.9514435695538,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 45.83333333333333px;font-family: Arial;font-weight: bold;\">目录</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "Lr401zIeg4",
+        "width": 375.52077865266835,
+        "height": 66.59375,
+        "left": 516.4931102362204,
+        "top": 142.70833333333331,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 25px;font-family: Arial;\">CONTENTS</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "5hEM06abm_",
+        "width": 288.19444444444446,
+        "height": 60.65625,
+        "left": 566.3194444444443,
+        "top": 245.13888888888886,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录1目录1</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "cSzPe1s8SV",
+        "width": 288.19444444444446,
+        "height": 60.65625,
+        "left": 566.3194444444443,
+        "top": 300.69444444444446,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录2目录2</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "xVaMaZ0Ky8",
+        "width": 288.19444444444446,
+        "height": 60.65625,
+        "left": 566.3194444444443,
+        "top": 361.1111111111111,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录3目录3</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "6aDb5um9KX",
+        "width": 288.19444444444446,
+        "height": 60.65625,
+        "left": 566.3194444444443,
+        "top": 416.49311023622045,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录4目录4</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "71WEQr12vJ",
+        "width": 40.10422134733158,
+        "height": 69.15625,
+        "left": 544.4444444444443,
+        "top": 238.19444444444446,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 29.166666666666668px;font-family: +mn-lt;font-weight: bold;\">1</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "ymz1Emji8V",
+        "width": 40.10422134733158,
+        "height": 69.15625,
+        "left": 544.4444444444443,
+        "top": 292.1875546806649,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 29.166666666666668px;font-family: +mn-lt;font-weight: bold;\">2</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "82Q86G9w8o",
+        "width": 40.10422134733158,
+        "height": 69.15625,
+        "left": 544.4444444444443,
+        "top": 351.5625546806649,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 29.166666666666668px;font-family: +mn-lt;font-weight: bold;\">3</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "2vDYOC0IIy",
+        "width": 40.10422134733158,
+        "height": 69.15625,
+        "left": 544.4444444444443,
+        "top": 407.4653324584427,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 29.166666666666668px;font-family: +mn-lt;font-weight: bold;\">4</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "line",
+        "id": "pVXi0VXPWn",
+        "width": 1,
+        "left": 836.6319991251094,
+        "top": 58.33333333333333,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          0,
+          118.22922134733159
+        ],
+        "style": "solid",
+        "color": "#FFFFFF",
+        "points": [
+          "",
+          ""
+        ]
+      },
+      {
+        "type": "line",
+        "id": "uHuRcdI9R4",
+        "width": 1,
+        "left": 552.2569991251094,
+        "top": 281.94444444444446,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          333.68055555555554,
+          0
+        ],
+        "style": "solid",
+        "color": "#1F497D",
+        "points": [
+          "",
+          ""
+        ]
+      },
+      {
+        "type": "line",
+        "id": "El8tzkZuGP",
+        "width": 1,
+        "left": 552.2569991251094,
+        "top": 337.5,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          333.68055555555554,
+          0
+        ],
+        "style": "solid",
+        "color": "#1F497D",
+        "points": [
+          "",
+          ""
+        ]
+      },
+      {
+        "type": "line",
+        "id": "PLwFkLONby",
+        "width": 1,
+        "left": 552.2569991251094,
+        "top": 397.91666666666663,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          333.68055555555554,
+          0
+        ],
+        "style": "solid",
+        "color": "#1F497D",
+        "points": [
+          "",
+          ""
+        ]
+      },
+      {
+        "type": "line",
+        "id": "H90Oog_o2k",
+        "width": 1,
+        "left": 558.3333333333333,
+        "top": 458.16498523622045,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          333.68055555555554,
+          0
+        ],
+        "style": "solid",
+        "color": "#1F497D",
+        "points": [
+          "",
+          ""
+        ]
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "p4ZIxHID89",
+    "elements": [
+      {
+        "type": "text",
+        "id": "OD4oT1qfuD",
+        "width": 441.49311023622045,
+        "height": 60.125,
+        "left": -115.97222222222223,
+        "top": 7.118110236220472,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 16.927083333333336px;font-family: Arial;\">COMPANY&nbsp;NAME</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "ArN5vw_rto",
+        "width": 431.59722222222223,
+        "height": 74.21875,
+        "left": 24.652777777777775,
+        "top": 221.5625546806649,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #404040;font-size: 34.21875px;font-family: 方正黑体简体;\">目录1目录1</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "NgehJTw32M",
+        "width": 354.3403324584427,
+        "height": 60,
+        "left": 35.416666666666664,
+        "top": 276.7361111111111,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #262626;font-size: 14.010416666666666px;font-family: Campton Light;\">CLICK&nbsp;ADD DIRECTORY TITLE</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "image",
+        "id": "p6bCBbJOJo",
+        "src": "./images/summary/p6bCBbJOJo.png",
+        "width": 552,
+        "height": 366,
+        "left": 367.1623931623932,
+        "top": 93.73611111111109,
+        "fixedRatio": true,
+        "rotate": 0
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "eOULf7Op2k",
+    "elements": [
+      {
+        "type": "image",
+        "id": "oYWMsKlkXZ",
+        "src": "./images/summary/oYWMsKlkXZ.png",
+        "width": 22.569444444444443,
+        "height": 51.90977690288714,
+        "left": 20.65977690288714,
+        "top": 13.541666666666666,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "text",
+        "id": "Vkb7mPO_z7",
+        "width": 213.19444444444446,
+        "height": 60.65625,
+        "left": 50.520888013998245,
+        "top": 21.00699912510936,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录1目录1</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "F9p9rrbHhN",
+        "width": 348.43744531933504,
+        "height": 101.3125,
+        "left": 192.88199912510936,
+        "top": 193.75,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录1标题1目录1标题1</span></p><p style=\"text-align: left;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录1内容1目录1内容1</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "Q9680Hwzr6",
+        "width": 348.43744531933504,
+        "height": 101.3125,
+        "left": 192.88199912510936,
+        "top": 364.2361111111111,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录1标题2目录1标题2</span></p><p style=\"text-align: left;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录1内容2目录1内容2</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "line",
+        "id": "cIv6iX9wlV",
+        "width": 1,
+        "left": 59.02777777777778,
+        "top": 62.3264435695538,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          897.7431102362204,
+          0
+        ],
+        "style": "solid",
+        "color": "#000000",
+        "points": [
+          "",
+          ""
+        ]
+      },
+      {
+        "type": "shape",
+        "id": "tfllX0KBqE",
+        "width": 97.22222222222223,
+        "height": 91.14588801399825,
+        "left": -32.09893554972291,
+        "top": 80.60866870807816,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "CowTXdD1xb",
+        "width": 76.73611111111111,
+        "height": 1.5625546806649169,
+        "left": -22.550269757946882,
+        "top": 160.122557596967,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "Jv6wU3pNiU",
+        "width": 76.73611111111111,
+        "height": 1.5625546806649169,
+        "left": -22.550269757946882,
+        "top": 155.60866870807814,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "ekKKyVEFHI",
+        "width": 97.22222222222223,
+        "height": 91.14588801399825,
+        "left": -30.94660736852332,
+        "top": 373.903312433168,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "sJ5o0seuGw",
+        "width": 76.73611111111111,
+        "height": 1.5625546806649169,
+        "left": -21.397941576747293,
+        "top": 453.4172013220569,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "SPoRbxaj55",
+        "width": 76.73611111111111,
+        "height": 1.5625546806649169,
+        "left": -21.397941576747293,
+        "top": 448.903312433168,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "image",
+        "id": "Ce0vKHUPHk",
+        "src": "./images/summary/Ce0vKHUPHk.png",
+        "width": 304,
+        "height": 430,
+        "left": 638.5982905982905,
+        "top": 80.06249999999997,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "image",
+        "id": "Aqh5fxNsIr",
+        "src": "./images/summary/Aqh5fxNsIr.png",
+        "width": 61,
+        "height": 237,
+        "left": 115.86752136752136,
+        "top": 205.48504273504273,
+        "fixedRatio": true,
+        "rotate": 0
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "MRO4oOVuZq",
+    "elements": [
+      {
+        "type": "image",
+        "id": "zC5y_bwzOt",
+        "src": "./images/summary/zC5y_bwzOt.png",
+        "width": 22.569444444444443,
+        "height": 51.90977690288714,
+        "left": 20.65977690288714,
+        "top": 13.541666666666666,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "image",
+        "id": "d-4Jna17fT",
+        "src": "./images/summary/d-4Jna17fT.png",
+        "width": 470.8333333333333,
+        "height": 313.88888888888886,
+        "left": 59.02777777777778,
+        "top": 151.38888888888889,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "text",
+        "id": "FzOvqTYhIk",
+        "width": 213.19444444444446,
+        "height": 60.65625,
+        "left": 50.520888013998245,
+        "top": 21.00699912510936,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录1目录1</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "cJQChcdh92",
+        "width": 218.57633420822395,
+        "height": 60,
+        "left": 686.2847769028872,
+        "top": 217.70833333333331,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 12.5px;font-family: Arial;\">目录1内容3目录1内容3</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "SR4R3QpqV7",
+        "width": 282.77777777777777,
+        "height": 61.140625,
+        "left": 677.6476742490521,
+        "top": 176.48753280839892,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Arial;font-weight: bold;\">目录1标题3目录1标题3</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "UPvmNUc7vD",
+        "width": 218.57633420822395,
+        "height": 60,
+        "left": 686.2847769028872,
+        "top": 388.1944444444444,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 12.5px;font-family: Arial;\">目录1内容4目录1内容4</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "GF7uwcOk6B",
+        "width": 282.77777777777777,
+        "height": 61.140625,
+        "left": 686.3194444444445,
+        "top": 346.7361111111111,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Arial;font-weight: bold;\">目录1标题4目录1标题4</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "line",
+        "id": "9HrSD5DYO2",
+        "width": 1,
+        "left": 59.02777777777778,
+        "top": 62.3264435695538,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          897.7431102362204,
+          0
+        ],
+        "style": "solid",
+        "color": "#000000",
+        "points": [
+          "",
+          ""
+        ]
+      },
+      {
+        "type": "shape",
+        "id": "DcBhVdzdQI",
+        "width": 118.71172353455816,
+        "height": 163.76640419947506,
+        "left": 558.935950714494,
+        "top": 176.48753280839892,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "o40-vUUpSZ",
+        "width": 25.311679790026247,
+        "height": 36.44870953630796,
+        "left": 606.0535141440653,
+        "top": 192.39599737532808,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "dSdPN8ujhM",
+        "width": 118.71172353455816,
+        "height": 163.76640419947506,
+        "left": 558.935950714494,
+        "top": 400.71879556722075,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "xhH1A5dY4M",
+        "width": 57.71052055993,
+        "height": 41.76432633420822,
+        "left": 589.8545858850978,
+        "top": 455.03769320501607,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "3Lnriy2PdI",
+        "width": 25.311679790026247,
+        "height": 36.44870953630796,
+        "left": 606.0535141440653,
+        "top": 416.6272601341499,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "image",
+        "id": "udOwTN02EO",
+        "src": "./images/summary/udOwTN02EO.png",
+        "width": 70,
+        "height": 258,
+        "left": 606.0535141440653,
+        "top": 190.19444444444437,
+        "fixedRatio": true,
+        "rotate": 0
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "hD86KQl-Qp",
+    "elements": [
+      {
+        "type": "text",
+        "id": "HAAuZmp0-r",
+        "width": 441.49311023622045,
+        "height": 60.125,
+        "left": -115.97222222222223,
+        "top": 7.118110236220472,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 16.927083333333336px;font-family: Arial;\">COMPANY&nbsp;NAME</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "lU6HsVonBA",
+        "width": 431.59722222222223,
+        "height": 74.21875,
+        "left": 24.652777777777775,
+        "top": 221.5625546806649,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #404040;font-size: 34.21875px;font-family: 方正黑体简体;\">目录2目录2</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "zRUp79FL1b",
+        "width": 354.3403324584427,
+        "height": 60,
+        "left": 35.416666666666664,
+        "top": 276.7361111111111,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #262626;font-size: 14.010416666666666px;font-family: Campton Light;\">CLICK&nbsp;ADD DIRECTORY TITLE</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "image",
+        "id": "XRaDZt0Cbh",
+        "src": "./images/summary/XRaDZt0Cbh.png",
+        "width": 600.0769230769231,
+        "height": 397.87709030100336,
+        "left": 363.95726495726495,
+        "top": 96.84275953016319,
+        "fixedRatio": true,
+        "rotate": 0
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "WfKLqg8dEg",
+    "elements": [
+      {
+        "type": "image",
+        "id": "HgHRFViam9",
+        "src": "./images/summary/HgHRFViam9.png",
+        "width": 22.569444444444443,
+        "height": 51.90977690288714,
+        "left": 20.65977690288714,
+        "top": 13.541666666666666,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "text",
+        "id": "NPJnWy_XZr",
+        "width": 213.19444444444446,
+        "height": 60.65625,
+        "left": 50.520888013998245,
+        "top": 21.00699912510936,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录2目录2</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "DEBwk-1ARf",
+        "width": 267.8818897637795,
+        "height": 100.375,
+        "left": 59.895888013998245,
+        "top": 171.00699912510936,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;font-family: Arial;font-weight: bold;\">目录2标题1目录2标题1</span></p><p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;font-family: Arial;font-weight: bold;\">目录2内容1目录2内容1</span></p>",
+        "lineHeight": 1,
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "a7vX9X4SGE",
+        "width": 267.7083333333333,
+        "height": 100.375,
+        "left": 640.625,
+        "top": 171.00699912510936,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;font-family: Arial;font-weight: bold;\">目录2标题2目录2标题2</span></p><p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;font-family: Arial;font-weight: bold;\">目录2内容2目录2内容2</span></p>",
+        "lineHeight": 1,
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "kAcVWlAXTn",
+        "width": 267.8818897637795,
+        "height": 100.375,
+        "left": 59.895888013998245,
+        "top": 344.2708880139983,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;font-family: Arial;font-weight: bold;\">目录2标题3目录2标题3</span></p><p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;font-family: Arial;font-weight: bold;\">目录2内容3目录2内容3</span></p>",
+        "lineHeight": 1,
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "XjDqtERWY6",
+        "width": 267.7083333333333,
+        "height": 100.375,
+        "left": 640.625,
+        "top": 344.2708880139983,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;font-family: Arial;font-weight: bold;\">目录2标题4目录2标题4</span></p><p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;font-family: Arial;font-weight: bold;\">目录2内容4目录2内容4</span></p>",
+        "lineHeight": 1,
+        "fill": ""
+      },
+      {
+        "type": "line",
+        "id": "cjt_6dlTKb",
+        "width": 1,
+        "left": 59.02777777777778,
+        "top": 62.3264435695538,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          897.7431102362204,
+          0
+        ],
+        "style": "solid",
+        "color": "#000000",
+        "points": [
+          "",
+          ""
+        ]
+      },
+      {
+        "type": "image",
+        "id": "oBYvyTWTBR",
+        "src": "./images/summary/oBYvyTWTBR.png",
+        "width": 289,
+        "height": 243,
+        "left": 339.47435897435895,
+        "top": 171.00699912510936,
+        "fixedRatio": true,
+        "rotate": 0
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "gUBogLvyJq",
+    "elements": [
+      {
+        "type": "text",
+        "id": "pwo0-Qpz3S",
+        "width": 441.49311023622045,
+        "height": 60.125,
+        "left": -115.97222222222223,
+        "top": 7.118110236220472,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 16.927083333333336px;font-family: Arial;\">COMPANY&nbsp;NAME</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "6Nn-7o2Kd8",
+        "width": 431.59722222222223,
+        "height": 74.21875,
+        "left": 24.652777777777775,
+        "top": 221.5625546806649,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #404040;font-size: 34.21875px;font-family: 方正黑体简体;\">目录3目录3</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "BLTGf3WW9D",
+        "width": 354.3403324584427,
+        "height": 60,
+        "left": 35.416666666666664,
+        "top": 276.7361111111111,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #262626;font-size: 14.010416666666666px;font-family: Campton Light;\">CLICK&nbsp;ADD DIRECTORY TITLE</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "image",
+        "id": "FqBi1oIBPs",
+        "src": "./images/summary/FqBi1oIBPs.png",
+        "width": 552,
+        "height": 366,
+        "left": 389.75699912510936,
+        "top": 93.73611111111109,
+        "fixedRatio": true,
+        "rotate": 0
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "3BzZ64RDKv",
+    "elements": [
+      {
+        "type": "image",
+        "id": "TR28DehnYc",
+        "src": "./images/summary/TR28DehnYc.png",
+        "width": 1000,
+        "height": 556.1969597550305,
+        "left": 0,
+        "top": 2.457075678040262,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "image",
+        "id": "6t_8qt1PFZ",
+        "src": "./images/summary/6t_8qt1PFZ.png",
+        "width": 22.569444444444443,
+        "height": 51.90977690288714,
+        "left": 20.65977690288714,
+        "top": 13.541666666666666,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "text",
+        "id": "Rgmp1JhqE_",
+        "width": 213.19444444444446,
+        "height": 60.65625,
+        "left": 50.520888013998245,
+        "top": 21.00699912510936,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"\"><strong><span style=\"font-size: 16.666666666666664px;\"><span style=\"font-family: Arial;\"><span style=\"color: #000000;\">目录3目录3</span></span></span></strong></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "shape",
+        "id": "N_O6nq1X51",
+        "width": 185,
+        "height": 55.416666666666664,
+        "left": 38.125,
+        "top": 170.13888888888889,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: center;\"><span style=\"font-size: 11.458333333333332px;\"><span style=\"font-family: Arial;\"><span style=\"color: #000000;\">目录3标题1目录3标题1</span></span></span></p><p style=\"text-align: center;\"><span style=\"font-size: 11.458333333333332px;\"><span style=\"font-family: Arial;\"><span style=\"color: #000000;\">目录3内容1目录3内容1</span></span></span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "b5Tfx2PT7o",
+        "width": 180.83333333333331,
+        "height": 55.416666666666664,
+        "left": 42.291666666666664,
+        "top": 306.25,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: center;\"><span style=\"font-size: 11.458333333333332px;\"><span style=\"font-family: Arial;\"><span style=\"color: #000000;\">目录3标题3目录3标题3</span></span></span></p><p style=\"text-align: center;\"><span style=\"font-size: 11.458333333333332px;\"><span style=\"font-family: Arial;\"><span style=\"color: #000000;\">目录3内容3目录3内容3</span></span></span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "OLGXtqTyub",
+        "width": 250.7318376068376,
+        "height": 55.416666666666664,
+        "left": 740.5181623931624,
+        "top": 170.13888888888889,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: center;\"><span style=\"font-size: 11.458333333333332px;\"><span style=\"font-family: Arial;\"><span style=\"color: #000000;\">目录3标题2目录3标题2</span></span></span></p><p style=\"text-align: center;\"><span style=\"font-size: 11.458333333333332px;\"><span style=\"font-family: Arial;\"><span style=\"color: #000000;\">目录3内容2目录3内容2</span></span></span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "_G4YgOEMDk",
+        "width": 190.55555555555554,
+        "height": 55.416666666666664,
+        "left": 772.5694444444445,
+        "top": 280.55555555555554,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: center;\"><span style=\"font-size: 11.458333333333332px;\"><span style=\"font-family: Arial;\"><span style=\"color: #000000;\">目录3标题4目录3标题4</span></span></span></p><p style=\"text-align: center;\"><span style=\"font-size: 11.458333333333332px;\"><span style=\"font-family: Arial;\"><span style=\"color: #000000;\">目录3内容4目录3内容4</span></span></span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "line",
+        "id": "_0od1kVGP0",
+        "width": 1,
+        "left": 59.02777777777778,
+        "top": 62.3264435695538,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          897.7431102362204,
+          0
+        ],
+        "style": "solid",
+        "color": "#FFFFFF",
+        "points": [
+          "",
+          ""
+        ]
+      },
+      {
+        "type": "image",
+        "id": "Z4XMTA9wCC",
+        "src": "./images/summary/Z4XMTA9wCC.png",
+        "width": 528,
+        "height": 327,
+        "left": 236,
+        "top": 144.76388888888883,
+        "fixedRatio": true,
+        "rotate": 0
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "klahyh4huW",
+    "elements": [
+      {
+        "type": "text",
+        "id": "nz85EGRjPa",
+        "width": 441.49311023622045,
+        "height": 60.125,
+        "left": -118.10897435897436,
+        "top": 16.733494851605087,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: center;\"><span style=\"font-size: 16.927083333333336px;font-family: Arial;\">COMPANY&nbsp;NAME</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "cuAYr5M_pr",
+        "width": 431.59722222222223,
+        "height": 74.21875,
+        "left": 24.652777777777775,
+        "top": 221.5625546806649,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #404040;font-size: 34.21875px;font-family: 方正黑体简体;\">目录4目录4</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "djublsYB31",
+        "width": 354.3403324584427,
+        "height": 60,
+        "left": 35.416666666666664,
+        "top": 276.7361111111111,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #262626;font-size: 14.010416666666666px;font-family: Campton Light;\">CLICK&nbsp;ADD DIRECTORY TITLE</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "image",
+        "id": "hSOSsvu9LD",
+        "src": "./images/summary/hSOSsvu9LD.png",
+        "width": 552,
+        "height": 366,
+        "left": 362.8888888888889,
+        "top": 103.59188034188034,
+        "fixedRatio": true,
+        "rotate": 0
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "k_EyWUqA1I",
+    "elements": [
+      {
+        "type": "image",
+        "id": "vSKjmy2OgF",
+        "src": "./images/summary/vSKjmy2OgF.png",
+        "width": 22.569444444444443,
+        "height": 51.90977690288714,
+        "left": 20.65977690288714,
+        "top": 13.541666666666666,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "text",
+        "id": "OWDYjlEPDY",
+        "width": 213.19444444444446,
+        "height": 60.65625,
+        "left": 50.520888013998245,
+        "top": 21.00699912510936,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 16.666666666666664px;font-family: Arial;font-weight: bold;\">目录4目录4</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "66QPXbw0UM",
+        "width": 261.3113769432667,
+        "height": 60,
+        "left": 35.56362305673329,
+        "top": 217.70833333333331,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 12.5px;font-family: Arial;\">目录4内容1目录4内容1</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "0xOAaK_cOT",
+        "width": 342.9861111111111,
+        "height": 61.140625,
+        "left": 27.222222222222243,
+        "top": 176.25,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #0070C0;font-size: 18.75px;font-family: Arial;font-weight: bold;\">目录4标题1目录4标题1</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "k1Y07cwSjm",
+        "width": 261.3113769432667,
+        "height": 60,
+        "left": 35.56362305673329,
+        "top": 388.1944444444444,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 12.5px;font-family: Arial;\">目录4内容3目录4内容3</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "QP0eHZdxu2",
+        "width": 279.02777777777777,
+        "height": 61.140625,
+        "left": 27.22222222222222,
+        "top": 346.7361111111111,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #0070C0;font-size: 18.75px;font-family: Arial;font-weight: bold;\">目录4标题3目录4标题3</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "LLzclUX7u2",
+        "width": 242.08071707382732,
+        "height": 60,
+        "left": 673.3707264957266,
+        "top": 217.70833333333331,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 12.5px;font-family: Arial;\">目录4内容2目录4内容2</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "d4F4B9rfm1",
+        "width": 303.22115384615387,
+        "height": 61.140625,
+        "left": 668.0288461538462,
+        "top": 176.25,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #0070C0;font-size: 18.75px;font-family: Arial;font-weight: bold;\">目录4标题2目录4标题2</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "D1MYjPnIfX",
+        "width": 220.71319570630595,
+        "height": 60,
+        "left": 694.7382478632478,
+        "top": 388.1944444444444,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"font-size: 12.5px;font-family: Arial;\">目录4内容4目录4内容4</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "text",
+        "id": "1RpWk7amPi",
+        "width": 285.0587606837607,
+        "height": 61.140625,
+        "left": 686.1912393162393,
+        "top": 346.7361111111111,
+        "rotate": 0,
+        "defaultFontName": "Microsoft Yahei",
+        "defaultColor": "#333",
+        "content": "<p style=\"text-align: left;\"><span style=\"color: #0070C0;font-size: 18.75px;font-family: Arial;font-weight: bold;\">目录4标题4目录4标题4</span></p>",
+        "lineHeight": 1,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "fill": ""
+      },
+      {
+        "type": "line",
+        "id": "Pk6Js36w70",
+        "width": 1,
+        "left": 59.02777777777778,
+        "top": 62.3264435695538,
+        "start": [
+          0,
+          0
+        ],
+        "end": [
+          897.7431102362204,
+          0
+        ],
+        "style": "solid",
+        "color": "#000000",
+        "points": [
+          "",
+          ""
+        ]
+      },
+      {
+        "type": "shape",
+        "id": "hvHMBTCdqT",
+        "width": 19.09722222222222,
+        "height": 26.041666666666664,
+        "left": 287.07319918343546,
+        "top": 38.0754593175853,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "s7ePvjghm8",
+        "width": 43.75,
+        "height": 35.93755468066492,
+        "left": 274.92042140565763,
+        "top": 63.24912510936129,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "D_ztyyEJBN",
+        "width": 43.40277777777778,
+        "height": 35.763888888888886,
+        "left": 235.3370880723243,
+        "top": 107.69356955380579,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "U3IYF2wTf9",
+        "width": 18.923665791776028,
+        "height": 26.041666666666664,
+        "left": 247.48986585010212,
+        "top": 82.51990376202976,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "N414DftYyu",
+        "width": 43.40277777777778,
+        "height": 35.763888888888886,
+        "left": 311.7259769612132,
+        "top": 107.17268153980751,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "hEC7ohZEB5",
+        "width": 19.09722222222222,
+        "height": 26.041666666666664,
+        "left": 323.7050889472149,
+        "top": 81.99912510936129,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: left;\"><span style=\"font-size: 18.75px;font-family: Calibri;\">&nbsp;</span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "image",
+        "id": "mQrQBQn5M-",
+        "src": "./images/summary/mQrQBQn5M-.png",
+        "width": 352,
+        "height": 307,
+        "left": 296.875,
+        "top": 141.1944444444444,
+        "fixedRatio": true,
+        "rotate": 0
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  },
+  {
+    "id": "2hCEPv3daZ",
+    "elements": [
+      {
+        "type": "image",
+        "id": "eTrjzf5L3a",
+        "src": "./images/summary/eTrjzf5L3a.png",
+        "width": 1000,
+        "height": 562.5,
+        "left": 0,
+        "top": 0,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "image",
+        "id": "Lbei33jjai",
+        "src": "./images/summary/Lbei33jjai.png",
+        "width": 411.80555555555554,
+        "height": 151.9096675415573,
+        "left": 531.9444444444443,
+        "top": 100.17366579177602,
+        "fixedRatio": true,
+        "rotate": 0
+      },
+      {
+        "type": "shape",
+        "id": "zIHV3a14sR",
+        "width": 511.80555555555554,
+        "height": 77.25688976377953,
+        "left": 452.7777777777777,
+        "top": 253.99311023622047,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"\"><strong><span style=\"font-size: 41.66666666666667px;\"><span style=\"font-family: Arial;\"><span style=\"color: #ffffff;\">感谢一路有你！</span></span></span></strong></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "VGO6kUoDaK",
+        "width": 487.84722222222223,
+        "height": 30.208333333333332,
+        "left": 453.125,
+        "top": 342.7083333333333,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"\"><span style=\"font-size: 12.5px;\"><span style=\"font-family: Arial;\"><span style=\"color: #ffffff;\">适用产品介绍｜品牌发布｜工作计划｜项目推广</span></span></span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "G3M7CTck-Y",
+        "width": 235.59033245844267,
+        "height": 57.08333333333333,
+        "left": 620.1388888888889,
+        "top": 398.9583333333333,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "outline": {
+          "color": "#000",
+          "width": 0,
+          "style": "solid"
+        },
+        "text": {
+          "content": "<p style=\"text-align: center;\"><span style=\"font-size: 14.583333333333334px;\"><span style=\"font-family: Arial;\"><span style=\"color: #ffffff;\">汇报时间：2023年1月&nbsp; 汇报人：wu</span></span></span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      },
+      {
+        "type": "shape",
+        "id": "cilj07BT8B",
+        "width": 488.7153324584427,
+        "height": 30.555555555555557,
+        "left": 452.7777777777777,
+        "top": 341.66666666666663,
+        "viewBox": [
+          200,
+          200
+        ],
+        "path": "M 0 0 L 200 0 L 200 200 L 0 200 Z",
+        "fill": "none",
+        "fixedRatio": false,
+        "rotate": 0,
+        "text": {
+          "content": "<p style=\"text-align: center;\"><span style=\"font-size: 18.75px;\"><span style=\"font-family: Calibri;\"><span style=\"color: #ffffff;\">&nbsp;</span></span></span></p>",
+          "defaultFontName": "Microsoft Yahei",
+          "defaultColor": "#333",
+          "align": "middle"
+        }
+      }
+    ],
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    }
+  }
+]
