@@ -427,7 +427,6 @@ export const useOsFile = () => {
           }
         }
       }
-      //console.log('创建露肩：', path);
 
       const response = await handleWriteFile(path, content, head);
       if (response) {
