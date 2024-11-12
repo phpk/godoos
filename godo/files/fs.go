@@ -182,6 +182,12 @@ func HandleUnlink(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
+	// 如果有同名隐藏文件，也要删除掉
+	hiddenFilePath := filepath.Join(basePath, filepath.Dir(path), "."+filepath.Base(path))
+	_, err = os.Stat(hiddenFilePath)
+	if err == nil {
+		os.Remove(hiddenFilePath)
+	}
 	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully removed.", path)}
 	json.NewEncoder(w).Encode(res)
 }
