@@ -236,7 +236,15 @@ func HandleRename(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
-
+	// 如果是一个加密文件，则隐藏文件的名字也要改
+	if IsHaveHiddenFile(basePath, oldPath) {
+		oldHiddenFilePath := filepath.Join(basePath, filepath.Dir(oldPath), "."+filepath.Base(oldPath))
+		newHiddenFilePath := filepath.Join(basePath, filepath.Dir(newPath), "."+filepath.Base(newPath))
+		err = os.Rename(oldHiddenFilePath, newHiddenFilePath)
+		if err != nil {
+			log.Printf("Error renaming hidden file: %s", err.Error())
+		}
+	}
 	err = CheckAddDesktop(newPath)
 	if err != nil {
 		log.Printf("Error adding file to desktop: %s", err.Error())
@@ -316,6 +324,13 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 	err = CheckAddDesktop(dstPath)
 	if err != nil {
 		log.Printf("Error adding file to desktop: %s", err.Error())
+	}
+	// 如果是一个复制的加密文件，则隐藏的文件也要复制过去
+	if IsHaveHiddenFile(basePath, srcPath) {
+		if err := CopyFile(filepath.Join(basePath, srcPath), filepath.Join(basePath, dstPath)); err != nil {
+			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 	}
 	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully copied to '%s'.", srcPath, dstPath)}
 	json.NewEncoder(w).Encode(res)
