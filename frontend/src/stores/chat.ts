@@ -1236,7 +1236,6 @@ export const useChatStore = defineStore('chatStore', () => {
     }
 
     const memberData = await res.json();
-    console.log(memberData.data.group.members)
     // 封装 avatar 和 nickname 到 groupMembers
     groupMembers.value = memberData.data.group.members.map((member: any) => ({
       id: member.id,

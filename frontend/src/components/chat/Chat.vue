@@ -2,7 +2,7 @@
 	import { useChatStore } from "@/stores/chat";
 	import { getWorkflowUrl } from "@/system/config";
 	import { Search } from "@element-plus/icons-vue";
-	const store = useChatStore()
+	const store = useChatStore();
 	const workUrl = getWorkflowUrl();
 	onMounted(() => {
 		store.initChat();
@@ -223,8 +223,8 @@
 	.side {
 		flex: 1;
 		/* 占据剩余宽度 */
-		max-width: 200px;
-		min-width: 200px;
+		/* max-width: 200px; */
+		/* min-width: 200px; */
 		min-height: 650px;
 		max-height: max-content;
 		border-right: 1px solid #e8e8e8;

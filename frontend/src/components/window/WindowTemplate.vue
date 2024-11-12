@@ -191,7 +191,7 @@
 		margin: 0;
 		// left: 0;
 		// top: 0;
-		// min-width: 900px;
+		// min-width: 800px;
 		width: max-content;
 		height: max-content;
 		// min-height: 650px;
