@@ -327,7 +327,9 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 	}
 	// 如果是一个复制的加密文件，则隐藏的文件也要复制过去
 	if IsHaveHiddenFile(basePath, srcPath) {
-		if err := CopyFile(filepath.Join(basePath, srcPath), filepath.Join(basePath, dstPath)); err != nil {
+		hiddenSrcPath := filepath.Join(basePath, filepath.Dir(srcPath), "."+filepath.Base(srcPath))
+		hiddenDstPath := filepath.Join(basePath, filepath.Dir(dstPath), "."+filepath.Base(dstPath))
+		if err := CopyFile(hiddenSrcPath, hiddenDstPath); err != nil {
 			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -382,9 +384,8 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 
 	// 没有加密写入明文
 	if !ispwd {
-		_, err := io.Copy(file, fileContent)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+		if _, err := file.Write(filedata); err != nil {
+			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		CheckAddDesktop(filePath)
