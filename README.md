@@ -10,7 +10,7 @@
 
 [English](README.en.md) | 简体中文
 
-[FAQ](./docs/Faq.md) | [API](./docs/Api.md) | [应用开发](./docs/Store.md)
+[使用文档](https://docs.godoos.com/zh/godoos.html) | [FAQ](./docs/Faq.md) | [应用开发](./docs/Store.md)
 
 </div>
 
