@@ -12,7 +12,7 @@ export interface IImportDocxOption {
 }
 function transformElement(element:any) {
   if (element.children) {
-      var children = _.map(element.children, transformElement);
+      const children = _.map(element.children, transformElement);
       element = {...element, children: children};
   }
 

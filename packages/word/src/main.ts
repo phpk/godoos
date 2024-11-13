@@ -30,7 +30,6 @@ import barcode2dPlugin from "./plugins/barcode2d"
 import floatingToolbarPlugin from "./plugins/floatingToolbar"
 import excelPlugin from "./plugins/excel"
 import docxPlugin from './plugins/docx'
-import { workerData } from 'worker_threads'
 window.onload = function () {
   const isApple =
     typeof navigator !== 'undefined' && /Mac OS X/.test(navigator.userAgent)
@@ -1806,7 +1805,7 @@ window.onload = function () {
     },
     {
       name: "导出文档",
-      when: (payload) => true,
+      when: () => true,
       callback: (command) => {
         if (wordTitle == '') {
           wordTitle = window.prompt("请输入文档标题");
@@ -1819,15 +1818,15 @@ window.onload = function () {
     },
     {
       name: "导入文档",
-      when: (payload) => true,
-      callback: (command) => {
+      when: () => true,
+      callback: () => {
         docxFileInput.click();
       },
     },
     {
       name: "导入excel",
-      when: (payload) => true,
-      callback: (command) => {
+      when: () => true,
+      callback: () => {
         excelFileInput.click();
       },
     },
@@ -1943,13 +1942,6 @@ window.onload = function () {
     instance.command.executeExportDocx({
       fileName: wordTitle,
       isFile: false
-    }).then((base64:any) => {
-      const save = {
-        data: JSON.stringify({ content: base64, title: wordTitle }),
-        type: 'exportDocx'
-      }
-      //console.log(save)
-      window.parent.postMessage(save, '*')
     })
     
   };
@@ -1959,7 +1951,7 @@ window.onload = function () {
       key: KeyMap.S,
       mod: true,
       isGlobal: true,
-      callback: (command: Command) => {
+      callback: () => {
         saveData()
       }
     },

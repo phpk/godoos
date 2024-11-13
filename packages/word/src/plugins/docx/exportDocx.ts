@@ -39,12 +39,9 @@ const titleLevelToHeadingLevel = {
 function convertElementToParagraphChild(element: IElement): ParagraphChild {
   if (element.type === ElementType.IMAGE) {
     return new ImageRun({
+      type: 'png',
       data: element.value,
       transformation: {
-        width: element.width!,
-        height: element.height!
-      },
-      SvgMediaOptions:{
         width: element.width!,
         height: element.height!
       }
@@ -77,7 +74,7 @@ function convertElementToParagraphChild(element: IElement): ParagraphChild {
     color: Color(element.color).hex() || '#000000',
     italics: element.italic,
     strike: element.strikeout,
-    highlight: element.highlight ? Color(element.highlight).hex() : undefined,
+    // highlight: element.highlight ? Color(element.highlight).hex() : undefined,
     superScript: element.type === ElementType.SUPERSCRIPT,
     subScript: element.type === ElementType.SUBSCRIPT,
     underline: element.underline ? {} : undefined
@@ -230,7 +227,14 @@ export default function (command: Command) {
         saveAs(blob, `${fileName}.docx`)
       })
     }else{
-      return Packer.toBase64String(doc)
+      Packer.toBase64String(doc).then((base64:any) => {
+        const save = {
+          data: JSON.stringify({ content: base64, title: fileName }),
+          type: 'exportDocx'
+        }
+        //console.log(save)
+        window.parent.postMessage(save, '*')
+      })
     }
     
   }

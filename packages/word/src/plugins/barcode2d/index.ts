@@ -25,8 +25,7 @@ export interface IBarcode2DOption {
 }
 
 export default function barcode2DPlugin(
-  editor: Editor,
-  options: IBarcode2DOption = {}
+  editor: Editor
 ) {
   const command = editor.command
 

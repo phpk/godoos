@@ -1,4 +1,4 @@
-import Editor from '@hufe921/canvas-editor'
+import Editor from '../../../editor'
 
 export interface IToolbarRegister {
   key?: string
