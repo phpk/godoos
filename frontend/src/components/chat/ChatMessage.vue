@@ -160,7 +160,7 @@
 						</div>
 						<!-- 发送时间展示，在消息框外部的下方 -->
 						<div class="chat-time-other-outer">
-							{{ item.time }}
+							{{ formatTime(item.createdAt) }}
 						</div>
 					</el-col>
 					<el-col :span="8" />
@@ -231,11 +231,18 @@
 	const currUserId = ref();
 
 	// 添加格式化时间的方法
-	function formatTime(timestamp:string) {
-		const date = new Date(timestamp);
+	function formatTime(timestamp: string | number) {
+		const date = new Date(Number(timestamp)); // 确保时间戳为数字
 		const month = date.getMonth() + 1; // 月份是从0开始的
 		const day = date.getDate();
-		return `${month}-${day}`;
+		const hours = date.getHours();
+		const minutes = date.getMinutes();
+
+		// 格式化小时和分钟为两位数
+		const formattedHours = hours.toString().padStart(2, "0");
+		const formattedMinutes = minutes.toString().padStart(2, "0");
+
+		return `${month}-${day} ${formattedHours}:${formattedMinutes}`;
 	}
 
 	const showUserInfo = (chatId: string) => {

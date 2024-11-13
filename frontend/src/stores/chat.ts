@@ -279,7 +279,8 @@ export const useChatStore = defineStore('chatStore', () => {
       isMe: true,
       message: await getImageSrc(Message.message),
       previewMessage: "[图片消息]",
-      previewTimeFormat: formatTime(Date.now()),
+      previewTimeFormat: Date.now(),
+      time: Date.now(),
       displayName: userInfo.value.nickname,
       chatId: Message.type === 'group' ? targetGroupInfo.value.chatId : targetUserInfo.value.chatId,
       avatar: Message.type === 'group' ? targetUserInfo.value.avatar : '',
@@ -347,6 +348,7 @@ export const useChatStore = defineStore('chatStore', () => {
       file_name: Message.message.split('/').pop(),
       file_size: fileInfo.data.file_info?.size || 0,
       previewMessage: "[文件消息]",
+      time: Date.now(),
       previewTimeFormat: formatTime(Date.now()),
       displayName: userInfo.value.nickname,
       chatId: Message.type === 'group' ? targetGroupInfo.value.chatId : targetUserInfo.value.chatId,
@@ -412,8 +414,9 @@ export const useChatStore = defineStore('chatStore', () => {
           ...Message,
           isMe: true,
           previewMessage: message.value,
-          previewTimeFormat: formatTime(Date.now()),
+          previewTimeFormat: Date.now(),
           displayName: userInfo.value.nickname,
+          time: Date.now(),
           chatId: targetUserInfo.value.chatId,
           avatar: userInfo.value.avatar,
           createdAt: Date.now()
@@ -426,8 +429,9 @@ export const useChatStore = defineStore('chatStore', () => {
         messageHistory = {
           ...Message,
           previewMessage: message.value,
-          previewTimeFormat: formatTime(Date.now()),
+          previewTimeFormat: Date.now(),
           displayName: targetGroupInfo.value.name,
+          time: Date.now(),
           isMe: true,
           chatId: targetGroupInfo.value.chatId,
           createdAt: Date.now()
@@ -568,7 +572,8 @@ export const useChatStore = defineStore('chatStore', () => {
       online: user.online,
       toUserId: userInfo.value.id,
       previewMessage: message.value || "快开始打招呼吧！",
-      previewTimeFormat: formatTime(Date.now()),
+      previewTimeFormat: Date.now(),
+      time: Date.now(),
       displayName: user.nickname,
     };
     chatList.value.push(newChat);
@@ -582,9 +587,10 @@ export const useChatStore = defineStore('chatStore', () => {
       nickname: user.nickname,
       avatar: user.avatar,
       online: user.online,
+      time: Date.now(),
       toUserId: userInfo.value.id,
       previewMessage: message.value || "快开始打招呼吧！",
-      previewTimeFormat: formatTime(Date.now()),
+      previewTimeFormat: Date.now(),
       createdAt: Date.now(),
     });
 
@@ -744,7 +750,7 @@ export const useChatStore = defineStore('chatStore', () => {
       content_type: data.content_type,
       to_groupid: data.to_groupid,
       previewMessage: "",
-      previewTimeFormat: formatTime(Date.now()),
+      previewTimeFormat: Date.now(),
       displayName: data.userInfo.nickname,
       avatar: data.userInfo.avatar,
       createdAt: Date.now(),
@@ -802,6 +808,8 @@ export const useChatStore = defineStore('chatStore', () => {
       return false;
     }
     const list = await res.json()
+
+    console.log("list------", list)
 
     if (list.data.groups == null) {
       list.data.groups = []

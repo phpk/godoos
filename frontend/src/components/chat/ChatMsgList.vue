@@ -90,7 +90,7 @@
 								</div>
 
 								<div class="previewTime">
-									{{ formatTime(item.time) }}
+									{{ formatTime(item.item) }}
 								</div>
 							</div>
 
