@@ -25,7 +25,11 @@ import { Dialog } from './components/dialog/Dialog'
 import { formatPrismToken } from './utils/prism'
 import { Signature } from './components/signature/Signature'
 import { debounce, nextTick, scrollIntoView } from './utils'
-
+import barcode1DPlugin from "./plugins/barcode1d"
+import barcode2dPlugin from "./plugins/barcode2d"
+import floatingToolbarPlugin from "./plugins/floatingToolbar"
+import excelPlugin from "./plugins/excel"
+import docxPlugin from './plugins/docx'
 window.onload = function () {
   const isApple =
     typeof navigator !== 'undefined' && /Mac OS X/.test(navigator.userAgent)
@@ -35,33 +39,25 @@ window.onload = function () {
   const instance = new Editor(
     container,
     {
-      header: [
-        {
-          value: '第一人民医院',
-          size: 32,
-          rowFlex: RowFlex.CENTER
-        },
-        {
-          value: '\n门诊病历',
-          size: 18,
-          rowFlex: RowFlex.CENTER
-        },
-        {
-          value: '\n',
-          type: ElementType.SEPARATOR
-        }
-      ],
+      header: [],
       main: <IElement[]>data,
       footer: [
         {
-          value: 'canvas-editor',
+          value: '',
           size: 12
         }
       ]
     },
     options
   )
-  console.log('实例: ', instance)
+  //console.log('实例: ', instance)
+  instance.use(barcode1DPlugin)
+  instance.use(barcode2dPlugin)
+  instance.use(floatingToolbarPlugin)
+  instance.use(excelPlugin)
+  instance.use(docxPlugin)
+  const docxFileInput:any = document.querySelector("#file-docx");
+  const excelFileInput:any = document.querySelector("#file-excel");
   // cypress使用
   Reflect.set(window, 'editor', instance)
 
@@ -1789,6 +1785,49 @@ window.onload = function () {
   // 9. 右键菜单注册
   instance.register.contextMenuList([
     {
+      name: "插入条形码",
+      when: (payload) => {
+        return !payload.isReadonly && payload.editorTextFocus;
+      },
+      callback: (command) => {
+        const content:any = window.prompt("请输入内容");
+        command.executeInsertBarcode1D(content, 200, 100);
+      },
+    },
+    {
+      name: "插入二维码",
+      when: (payload) => {
+        return !payload.isReadonly && payload.editorTextFocus;
+      },
+      callback: (command) => {
+        const content:any = window.prompt("请输入内容");
+        command.executeInsertBarcode2D(content, 200, 200);
+      },
+    },
+    {
+      name: "导出文档",
+      when: (payload) => true,
+      callback: (command) => {
+        command.executeExportDocx({
+          fileName: "canvas-editor",
+        });
+      },
+    },
+    {
+      name: "导入文档",
+      when: (payload) => true,
+      callback: (command) => {
+        docxFileInput.click();
+      },
+    },
+    {
+      name: "导入excel",
+      when: (payload) => true,
+      callback: (command) => {
+        excelFileInput.click();
+      },
+    },
+    {
       name: '批注',
       when: payload => {
         return (
@@ -1818,7 +1857,7 @@ window.onload = function () {
             commentList.push({
               id: groupId,
               content: value,
-              userName: 'Hufe',
+              userName: 'godoos',
               rangeText: command.getRangeText(),
               createdDate: new Date().toLocaleString()
             })
@@ -1850,6 +1889,7 @@ window.onload = function () {
         })
       }
     },
+  
     {
       name: '格式整理',
       icon: 'word-tool',
@@ -1861,7 +1901,36 @@ window.onload = function () {
       }
     }
   ])
-
+  excelFileInput.onchange = () => {
+    const file = excelFileInput?.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const buffer = event?.target?.result;
+      if (buffer instanceof ArrayBuffer) {
+        instance.command.executeImportExcel({
+          arrayBuffer: buffer,
+        });
+      }
+      excelFileInput.value = "";
+    };
+    reader.readAsArrayBuffer(file);
+  };
+  docxFileInput.onchange = () => {
+    const file = docxFileInput?.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const buffer = event?.target?.result;
+      if (buffer instanceof ArrayBuffer) {
+        instance.command.executeImportDocx({
+          arrayBuffer: buffer,
+        });
+      }
+      docxFileInput.value = "";
+    };
+    reader.readAsArrayBuffer(file);
+  };
   // 10. 快捷键注册
   instance.register.shortcutList([
     {

@@ -50,6 +50,8 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^10.0.1",
+    "@types/color": "^4.2.0",
+    "@types/lodash": "^4.17.13",
     "@types/node": "16.18.96",
     "@types/prismjs": "^1.26.0",
     "@typescript-eslint/eslint-plugin": "5.62.0",
@@ -57,6 +59,7 @@
     "cypress": "13.6.0",
     "cypress-file-upload": "^5.0.8",
     "eslint": "7.32.0",
+    "sass": "^1.80.7",
     "simple-git-hooks": "^2.8.1",
     "typescript": "4.9.5",
     "vite": "^2.4.2",
@@ -65,10 +68,15 @@
     "vue": "^3.2.45"
   },
   "dependencies": {
+    "@simonwep/pickr": "^1.9.1",
+    "@zxing/browser": "^0.1.5",
+    "@zxing/library": "^0.21.3",
+    "color": "^4.2.3",
+    "docx": "^9.0.3",
+    "exceljs": "^4.4.0",
+    "jsbarcode": "^3.11.6",
+    "lodash": "^4.17.21",
+    "mammoth": "^1.8.0",
     "prismjs": "^1.27.0"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "npm run lint && npm run type:check",
-    "commit-msg": "node scripts/verifyCommit.js"
   }
 }
