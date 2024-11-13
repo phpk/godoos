@@ -30,6 +30,7 @@ import barcode2dPlugin from "./plugins/barcode2d"
 import floatingToolbarPlugin from "./plugins/floatingToolbar"
 import excelPlugin from "./plugins/excel"
 import docxPlugin from './plugins/docx'
+import { workerData } from 'worker_threads'
 window.onload = function () {
   const isApple =
     typeof navigator !== 'undefined' && /Mac OS X/.test(navigator.userAgent)
@@ -56,8 +57,9 @@ window.onload = function () {
   instance.use(floatingToolbarPlugin)
   instance.use(excelPlugin)
   instance.use(docxPlugin)
-  const docxFileInput:any = document.querySelector("#file-docx");
-  const excelFileInput:any = document.querySelector("#file-excel");
+  const docxFileInput: any = document.querySelector("#file-docx");
+  const excelFileInput: any = document.querySelector("#file-excel");
+  let wordTitle: any = ''
   // cypress使用
   Reflect.set(window, 'editor', instance)
 
@@ -614,9 +616,9 @@ window.onload = function () {
             gap:
               repeat && watermark.horizontalGap && watermark.verticalGap
                 ? [
-                    Number(watermark.horizontalGap),
-                    Number(watermark.verticalGap)
-                  ]
+                  Number(watermark.horizontalGap),
+                  Number(watermark.verticalGap)
+                ]
                 : undefined
           })
         }
@@ -721,10 +723,10 @@ window.onload = function () {
                   type,
                   value: value
                     ? [
-                        {
-                          value
-                        }
-                      ]
+                      {
+                        value
+                      }
+                    ]
                     : null,
                   placeholder
                 }
@@ -911,10 +913,10 @@ window.onload = function () {
                   dateFormat,
                   value: value
                     ? [
-                        {
-                          value
-                        }
-                      ]
+                      {
+                        value
+                      }
+                    ]
                     : null,
                   placeholder
                 }
@@ -1718,9 +1720,8 @@ window.onload = function () {
   }
 
   instance.listener.intersectionPageNoChange = function (payload) {
-    document.querySelector<HTMLSpanElement>('.page-no')!.innerText = `${
-      payload + 1
-    }`
+    document.querySelector<HTMLSpanElement>('.page-no')!.innerText = `${payload + 1
+      }`
   }
 
   instance.listener.pageScaleChange = function (payload) {
@@ -1761,9 +1762,8 @@ window.onload = function () {
   const handleContentChange = async function () {
     // 字数
     const wordCount = await instance.command.getWordCount()
-    document.querySelector<HTMLSpanElement>('.word-count')!.innerText = `${
-      wordCount || 0
-    }`
+    document.querySelector<HTMLSpanElement>('.word-count')!.innerText = `${wordCount || 0
+      }`
     // 目录
     if (isCatalogShow) {
       nextTick(() => {
@@ -1790,7 +1790,7 @@ window.onload = function () {
         return !payload.isReadonly && payload.editorTextFocus;
       },
       callback: (command) => {
-        const content:any = window.prompt("请输入内容");
+        const content: any = window.prompt("请输入内容");
         command.executeInsertBarcode1D(content, 200, 100);
       },
     },
@@ -1800,7 +1800,7 @@ window.onload = function () {
         return !payload.isReadonly && payload.editorTextFocus;
       },
       callback: (command) => {
-        const content:any = window.prompt("请输入内容");
+        const content: any = window.prompt("请输入内容");
         command.executeInsertBarcode2D(content, 200, 200);
       },
     },
@@ -1808,8 +1808,12 @@ window.onload = function () {
       name: "导出文档",
       when: (payload) => true,
       callback: (command) => {
+        if (wordTitle == '') {
+          wordTitle = window.prompt("请输入文档标题");
+        }
         command.executeExportDocx({
-          fileName: "canvas-editor",
+          fileName: wordTitle,
+          isFile: true
         });
       },
     },
@@ -1889,7 +1893,7 @@ window.onload = function () {
         })
       }
     },
-  
+
     {
       name: '格式整理',
       icon: 'word-tool',
@@ -1931,8 +1935,34 @@ window.onload = function () {
     };
     reader.readAsArrayBuffer(file);
   };
+  
+  const saveData = () => {
+    if (wordTitle == '') {
+      wordTitle = window.prompt("请输入文档标题");
+    }
+    instance.command.executeExportDocx({
+      fileName: wordTitle,
+      isFile: false
+    }).then((base64:any) => {
+      const save = {
+        data: JSON.stringify({ content: base64, title: wordTitle }),
+        type: 'exportDocx'
+      }
+      //console.log(save)
+      window.parent.postMessage(save, '*')
+    })
+    
+  };
   // 10. 快捷键注册
   instance.register.shortcutList([
+    {
+      key: KeyMap.S,
+      mod: true,
+      isGlobal: true,
+      callback: (command: Command) => {
+        saveData()
+      }
+    },
     {
       key: KeyMap.P,
       mod: true,
@@ -1980,4 +2010,44 @@ window.onload = function () {
       }
     }
   ])
+  const saveDom = document.querySelector<HTMLDivElement>(
+    '.menu-item__save'
+  )!
+  saveDom.addEventListener('click', () => {
+    saveData()
+  })
+  const base64ToArrayBuffer = (base64:any) => {
+    const binaryString = window.atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+  const eventHandler = (e: any) => {
+    const eventData = e.data
+    wordTitle = eventData.title ? eventData.title : '未命名文档'
+    if (eventData.type === 'init') {
+      const data = eventData.data
+      if (!data) {
+        return;
+      }
+      const buffer = base64ToArrayBuffer(data.content)
+      //console.log(buffer)
+      instance.command.executeImportDocx({
+        arrayBuffer: buffer,
+      });
+
+    }
+
+  }
+  //window.addEventListener('load', () => {
+    window.parent.postMessage({ type: 'initSuccess' }, '*')
+    window.addEventListener('message', eventHandler)
+  //})
+  window.addEventListener('unload', () => {
+    window.removeEventListener('message', eventHandler)
+  })
+
 }

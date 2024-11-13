@@ -191,7 +191,8 @@ function convertElementListToDocxChildren(
 }
 
 export interface IExportDocxOption {
-  fileName: string
+  fileName: string,
+  isFile:boolean
 }
 
 declare module '../../editor' {
@@ -202,7 +203,7 @@ declare module '../../editor' {
 
 export default function (command: Command) {
   return function (options: IExportDocxOption) {
-    const { fileName } = options
+    const { fileName,isFile } = options
     const {
       data: { header, main, footer }
     } = command.getValue()
@@ -224,9 +225,13 @@ export default function (command: Command) {
         }
       ]
     })
-
-    Packer.toBlob(doc).then(blob => {
-      saveAs(blob, `${fileName}.docx`)
-    })
+    if(isFile){
+      Packer.toBlob(doc).then(blob => {
+        saveAs(blob, `${fileName}.docx`)
+      })
+    }else{
+      return Packer.toBase64String(doc)
+    }
+    
   }
 }

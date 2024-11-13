@@ -38,9 +38,13 @@ export default defineConfig(({ mode }) => {
     }
   }
   return {
-    base: `/${name}/`,
+    base: `./`,
     server: {
       host: '0.0.0.0'
+    },
+    build: {
+      outDir: '../../frontend/public/docx',
+      assetsDir: 'assets',
     }
   }
 })

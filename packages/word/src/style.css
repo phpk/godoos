@@ -44,14 +44,16 @@ ul {
 }
 
 .menu {
-  width: 100%;
+  width: 98%;
+  left:1%;
   height: 60px;
   top: 0;
   z-index: 9;
   position: fixed;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
   background: #F2F4F7;
   box-shadow: 0 2px 4px 0 transparent;
 }
@@ -1057,4 +1059,12 @@ ul {
 
 .ce-contextmenu-word-tool {
   background-image: url('./assets/images/word-tool.svg');
+}
+
+.menu-item__save {
+  position: relative;
+}
+
+.menu-item__save i {
+  background-image: url('./assets/images/save.svg');
 }
