@@ -1,0 +1,128 @@
+<html>
+<body style="margin:0;">
+	
+<iframe id="myFrame" style="width:100%;height:70vh;border:0;" src="../" allow="camera"></iframe>
+
+<div style="height:20vh;margin:10px;">
+	Click on image to edit.
+	<br /><br />
+	<button onclick="open_image()">Open image</button>
+	<button onclick="update_image()">Update image</button>
+	<button onclick="save_image()">Save image</button>
+	OR
+	<button onclick="open_json()">Open JSON</button>
+	<button onclick="save_json()">Save JSON</button>
+	<br /><br />
+	
+	<img style="max-height:100%" id="testImage" alt="" src="../images/logo-colors.png" onclick="open_image(this)"  />
+
+	<textarea rows="8" style="width:500px;" id="testJson"></textarea>
+
+</div>
+
+<script>
+/**
+ * will open image on minipaint
+ * 
+ * @param {string|image} image image or image id
+ */
+function open_image(image){
+	if(image == undefined)
+		image = document.getElementById('testImage');
+	if(typeof image == 'string'){
+		image = document.getElementById(image);
+	}
+	var Layers = document.getElementById('myFrame').contentWindow.Layers;
+	var name = image.src.replace(/^.*[\\\/]/, '');
+	var new_layer = {
+		name: name,
+		type: 'image',
+		data: image,
+		width: image.naturalWidth || image.width,
+		height: image.naturalHeight || image.height,
+		width_original: image.naturalWidth || image.width,
+		height_original: image.naturalHeight || image.height,
+	};
+	Layers.insert(new_layer);
+}
+
+function open_json(){
+	var miniPaint = document.getElementById('myFrame').contentWindow;
+	var miniPaint_FileOpen = miniPaint.FileOpen;
+
+	window.fetch("../images/test-collection.json").then(function(response) {
+		return response.json();
+	}).then(function(json) {
+		miniPaint_FileOpen.load_json(json, false);
+	}).catch(function(ex) {
+		alert('Sorry, image could not be loaded.');
+	});
+}
+
+function save_image(){
+	var Layers = document.getElementById('myFrame').contentWindow.Layers;
+	var tempCanvas = document.createElement("canvas");
+	var tempCtx = tempCanvas.getContext("2d");
+	var dim = Layers.get_dimensions();
+	tempCanvas.width = dim.width;
+	tempCanvas.height = dim.height;
+	Layers.convert_layers_to_canvas(tempCtx);
+	
+	if(is_edge_or_ie() == false){
+		//update image using blob (faster)
+		tempCanvas.toBlob(function (blob) {
+			alert('Data length: ' + blob.size);
+			console.log(blob);
+		}, 'image/png');
+	}
+	else{
+		//slow way for IE, Edge
+		var data = tempCanvas.toDataURL();
+		alert('Data length: ' + data.length);
+		console.log(data);
+	}
+}
+
+function save_json(){
+	var miniPaint = document.getElementById('myFrame').contentWindow;
+	var miniPaint_FileSave = miniPaint.FileSave;
+
+	var data_json = miniPaint_FileSave.export_as_json();
+
+	document.getElementById('testJson').value = data_json;
+}
+
+function update_image(){
+	var target = document.getElementById('testImage');
+	
+	var Layers = document.getElementById('myFrame').contentWindow.Layers;
+	var tempCanvas = document.createElement("canvas");
+	var tempCtx = tempCanvas.getContext("2d");
+	var dim = Layers.get_dimensions();
+	tempCanvas.width = dim.width;
+	tempCanvas.height = dim.height;
+	Layers.convert_layers_to_canvas(tempCtx);
+	
+	target.width = dim.width;
+	target.height = dim.height;
+	target.src = tempCanvas.toDataURL();
+}
+
+/**
+ * will auto load image on page load. Uncomment line below to make it work
+ */
+window.onload = function () {
+	//open_image(document.getElementById('testImage'));  //uncomment me
+};
+
+//if IE 11 or Edge
+function is_edge_or_ie() {
+	//ie11
+	if( !(window.ActiveXObject) && "ActiveXObject" in window )
+		return true;
+	//edge
+	if( navigator.userAgent.indexOf('Edge/') != -1 )
+		return true;
+	return false;
+}
+</script>

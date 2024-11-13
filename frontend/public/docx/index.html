@@ -5,69 +5,14 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="./assets/favicon.fbfa22e6.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>docx</title>
-  <style>
-    .first-screen-loading {
-      width: 200px;
-      height: 200px;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      margin-top: -100px;
-      margin-left: -100px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .first-screen-loading-spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid #d14424;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spinner .8s linear infinite;
-    }
-
-    .first-screen-loading-text {
-      margin-top: 20px;
-      color: #d14424;
-    }
-
-    @keyframes spinner {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
-  <script>
-    // 假设加载动画持续2秒，2秒后隐藏加载动画并显示.menu
-    setTimeout(function () {
-      var loading = document.querySelector('.first-screen-loading');
-      var menu = document.querySelector('#app');
-
-      // 隐藏加载动画
-      loading.style.display = 'none';
-
-      // 显示菜单
-      menu.style.display = 'block';
-    }, 3000); // 2000毫秒后执行，根据实际情况调整
-  </script>
-  <script type="module" crossorigin src="./assets/index.82ba8f6a.js"></script>
-  <link rel="stylesheet" href="./assets/index.ea630926.css">
+  <title>word</title>
+  <script type="module" crossorigin src="./assets/index.bae472f7.js"></script>
+  <link rel="modulepreload" href="./assets/vendor.d13e5cc9.js">
+  <link rel="stylesheet" href="./assets/index.6dcf988b.css">
 </head>
 
 <body>
-  <div class="first-screen-loading">
-    <div class="first-screen-loading-spinner"></div>
-    <div class="first-screen-loading-text">正在加载中，请稍等 ...</div>
-  </div>
-  <div id="app" style="display: none;">
+  <div id="app">
     <div class="menu" editor-component="menu">
       <div class="menu-item">
         <div class="menu-item__undo">
@@ -90,11 +35,10 @@
           <div class="options">
             <ul>
               <li data-family="Microsoft YaHei" style="font-family:'Microsoft YaHei';">微软雅黑</li>
-              <li data-family="宋体" style="font-family:'宋体';">宋体</li>
-              <li data-family="黑体" style="font-family:'黑体';">黑体</li>
-              <li data-family="仿宋" style="font-family:'仿宋';">仿宋</li>
-              <li data-family="楷体" style="font-family:'楷体';">楷体</li>
-              <li data-family="等线" style="font-family:'等线';">等线</li>
+              <li data-family="华文宋体" style="font-family:'华文宋体';">华文宋体</li>
+              <li data-family="华文黑体" style="font-family:'华文黑体';">华文黑体</li>
+              <li data-family="华文仿宋" style="font-family:'华文仿宋';">华文仿宋</li>
+              <li data-family="华文楷体" style="font-family:'华文楷体';">华文楷体</li>
               <li data-family="华文琥珀" style="font-family:'华文琥珀';">华文琥珀</li>
               <li data-family="华文楷体" style="font-family:'华文楷体';">华文楷体</li>
               <li data-family="华文隶书" style="font-family:'华文隶书';">华文隶书</li>
@@ -266,7 +210,7 @@
               </li>
               <li data-list-type="ul" data-list-style='square'>
                 <label>空心方块列表：</label>
-                <ul style="list-style-type: square;">
+                <ul style="list-style-type: '☐ ';">
                   <li>________</li>
                 </ul>
               </li>
@@ -390,21 +334,12 @@
             <button>替换</button>
           </div>
         </div>
-        <div class="menu-item__print" data-menu="print" title="打印">
+        <div class="menu-item__print" data-menu="print">
           <i></i>
         </div>
-
-        <div class="menu-item__import" data-menu="import" title="导入">
-          <i></i>
-          <input type="file" id="file-docx" style="display: none; width: 0; height: 0" accept=".docx" />
-        </div>
-        <div class="menu-item__export" data-menu="export" title="导出">
+        <div class="menu-item__save" data-menu="save">
           <i></i>
         </div>
-        <div class="menu-item__save" data-menu="save" title="保存">
-          <i></i>
-        </div>
-
       </div>
     </div>
     <div class="catalog" editor-component="catalog">
@@ -436,7 +371,7 @@
         <span>页面：<span class="page-no">1</span>/<span class="page-size">1</span></span>
         <span>字数：<span class="word-count">0</span></span>
       </div>
-      <div class="editor-mode" title="编辑模式(编辑、清洁、只读、表单)">编辑模式</div>
+      <div class="editor-mode" title="编辑模式(编辑、清洁、只读、表单、设计)">编辑模式</div>
       <div>
         <div class="page-scale-minus" title="缩小(Ctrl+-)">
           <i></i>
@@ -482,6 +417,10 @@
         </div>
       </div>
     </div>
+  </div>
+  <div style="display: none;">
+    <input type="file" name="file-docx" id="file-docx" accept=".docx" />
+    <input type="file" name="file-excel" id="file-excel" accept=".xlsx" />
   </div>
   
 </body>

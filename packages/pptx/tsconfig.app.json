@@ -1,0 +1,16 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "resolveJsonModule": true, // 允许导入.json文件
+    "esModuleInterop": true, // 使得可以使用默认导入语法
+    "allowSyntheticDefaultImports": true // 对于没有默认导出的模块，允许默认导入
+  }
+}

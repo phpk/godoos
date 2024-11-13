@@ -182,6 +182,12 @@ func HandleUnlink(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
+	// 如果有同名隐藏文件，也要删除掉
+	hiddenFilePath := filepath.Join(basePath, filepath.Dir(path), "."+filepath.Base(path))
+	_, err = os.Stat(hiddenFilePath)
+	if err == nil {
+		os.Remove(hiddenFilePath)
+	}
 	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully removed.", path)}
 	json.NewEncoder(w).Encode(res)
 }
@@ -230,7 +236,15 @@ func HandleRename(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
-
+	// 如果是一个加密文件，则隐藏文件的名字也要改
+	if IsHaveHiddenFile(basePath, oldPath) {
+		oldHiddenFilePath := filepath.Join(basePath, filepath.Dir(oldPath), "."+filepath.Base(oldPath))
+		newHiddenFilePath := filepath.Join(basePath, filepath.Dir(newPath), "."+filepath.Base(newPath))
+		err = os.Rename(oldHiddenFilePath, newHiddenFilePath)
+		if err != nil {
+			log.Printf("Error renaming hidden file: %s", err.Error())
+		}
+	}
 	err = CheckAddDesktop(newPath)
 	if err != nil {
 		log.Printf("Error adding file to desktop: %s", err.Error())
@@ -311,6 +325,15 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error adding file to desktop: %s", err.Error())
 	}
+	// 如果是一个复制的加密文件，则隐藏的文件也要复制过去
+	if IsHaveHiddenFile(basePath, srcPath) {
+		hiddenSrcPath := filepath.Join(basePath, filepath.Dir(srcPath), "."+filepath.Base(srcPath))
+		hiddenDstPath := filepath.Join(basePath, filepath.Dir(dstPath), "."+filepath.Base(dstPath))
+		if err := CopyFile(hiddenSrcPath, hiddenDstPath); err != nil {
+			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+	}
 	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully copied to '%s'.", srcPath, dstPath)}
 	json.NewEncoder(w).Encode(res)
 }
@@ -361,9 +384,8 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 
 	// 没有加密写入明文
 	if !ispwd {
-		_, err := io.Copy(file, fileContent)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+		if _, err := file.Write(filedata); err != nil {
+			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		CheckAddDesktop(filePath)

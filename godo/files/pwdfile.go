@@ -72,7 +72,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 // 设置文件密码
 func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
-	fPwd := r.Header.Get("filepwd")
+	fPwd := r.Header.Get("Pwd")
 	salt, err := GetSalt(r) // 获取盐值
 	// 处理获取盐值时的错误
 	if err != nil || fPwd == "" {
@@ -102,7 +102,7 @@ func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
 
 // 更改文件密码
 func HandleChangeFilePwd(w http.ResponseWriter, r *http.Request) {
-	filePwd := r.Header.Get("filePwd")
+	filePwd := r.Header.Get("Pwd")
 	salt, err := GetSalt(r)          // 获取盐值
 	if err != nil || filePwd == "" { // 检查错误和密码是否为空
 		libs.ErrorMsg(w, "参数错误")

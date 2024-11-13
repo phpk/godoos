@@ -75,7 +75,7 @@
 			if (isShareFile(path)) {
 				const file = await sys?.fs.getShareInfo(path);
 				isShare.value = true;
-				isWrite.value = file.fs.is_write;
+				isWrite.value = file.fs.sender === getSystemConfig().userInfo.id ? 1 : file.fs.is_write;
 				if (
 					!isWrite.value &&
 					file.fs.sender !== getSystemConfig().userInfo.id
@@ -119,7 +119,8 @@
 			// console.log("编写文件：", res, isShare);
 			new Notify({
 				title: "提示",
-				content: res.code === 0 ? "文件已保存" : "文件保存失败",
+        content: res.message
+				// content: res.code === 0 ? "文件已保存" : res.message,
 			});
 			sys.refershAppList();
 		} else if (eventData.type == "initSuccess") {

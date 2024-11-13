@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  overscroll-behavior: none;
+  touch-action: none;
+  overflow: hidden;
+  min-height: 100vh;
+  /* mobile viewport bug fix */
+  min-height: -webkit-fill-available;
+  height: 100%;
+}
+
+.tlui-help-menu {
+  display: none !important;
+}
+
+.tlui-debug-panel {
+  display: none !important;
+}
+
+.tldraw__editor {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}

@@ -115,15 +115,17 @@ export async function handleExists(path: string): Promise<any> {
 
 export async function handleReadFile(path: string, header?: { [key: string]: string }): Promise<any> {
   const userType = getSystemConfig().userType
+  //console.log('请求头：', header);
   // let head = userType === 'member' ? { pwd: header?.pwd || '' } : { ...header }
   let head = {}
   if (userType === 'member') {
     head = {
       pwd: header?.pwd || ''
     }
-  } else if (getSystemConfig().file.isPwd === 1) {
+    // } else if (getSystemConfig().file.isPwd === 1) {
+  } else if (header) {
     head = {
-      pwd: md5(header?.pwd || ''),
+      pwd: header?.pwd === '' ? '' : md5(header?.pwd),
       salt: header?.salt || ''
     }
   }
@@ -426,8 +428,9 @@ export const useOsFile = () => {
             }
           }
         }
+      } else {
+        head = { ...header }
       }
-      //console.log('创建露肩：', path);
 
       const response = await handleWriteFile(path, content, head);
       if (response) {

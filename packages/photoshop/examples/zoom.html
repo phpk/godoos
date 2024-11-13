@@ -1,0 +1,71 @@
+<html>
+<body style="margin:0;">
+
+<iframe id="myFrame" style="width:100%;height:100vh;border:0;" src="../" allow="camera"></iframe>
+
+<script>
+	window.addEventListener('load', function (e) {
+		main();
+	}, false);
+
+	async function main() {
+		var Layers = document.getElementById('myFrame').contentWindow.Layers;
+		var config = document.getElementById('myFrame').contentWindow.AppConfig;
+
+		var canvas_width = 800;
+		var canvas_height = 600;
+
+		//set size
+		Layers.Base_gui.set_size(canvas_width, canvas_height);
+
+		//add rectangle
+		this.layer = {
+			name: 'layer1',
+			type: 'rectangle',
+			params: {
+				fill: true,
+				square: false,
+				border_size: 2,
+				border: false,
+				border_color: "#1b1bd8",
+				fill_color: "#1b1bd8"
+			},
+			color: '#ff0000',
+			render_function: ['rectangle', 'render'],
+			x: canvas_width/2 - 25,
+			y: canvas_height/2 - 25,
+			width: 50,
+			height: 50,
+		};
+		await Layers.insert(this.layer);
+
+		//zoom to 500%
+		setTimeout(function () {
+			Layers.Base_gui.GUI_preview.zoom_to_position(0, 0);
+			Layers.Base_gui.GUI_preview.zoom(500);
+		}, 100);
+
+		//do this after system changed zoom position
+		setTimeout(function () {
+			//move visible area to begin of rectangle
+			Layers.Base_gui.GUI_preview.zoom_to_position(500, 500);		//change zoom position
+		}, 500);
+
+		//action after 1 s - for preview purpose
+		setTimeout(function () {
+			//move visible area so rect is in center
+
+			var visible_area = Layers.Base_gui.get_visible_area_size();
+
+			//center of rect
+			var cx = canvas_width/2;
+			var cy = canvas_height/2;
+
+			//calc needed coords
+			var x = cx - visible_area.width / 2;
+			var y = cy - visible_area.height / 2;
+
+			Layers.Base_gui.GUI_preview.zoom_to_position(x, y);		//change zoom position
+		}, 1000);
+	}
+</script>
