@@ -36,14 +36,14 @@ import (
 func StartProcess(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["name"]
-	processesMu.Lock()
-	defer processesMu.Unlock()
-	err := ExecuteScript(name)
+	// processesMu.Lock()
+	// defer processesMu.Unlock()
+	// err := ExecuteScript(name)
 
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
+	// if err != nil {
+	// 	respondWithError(w, http.StatusInternalServerError, err.Error())
+	// 	return
+	// }
 	w.WriteHeader(http.StatusOK)
 
 	fmt.Fprintf(w, "Process %s started.", name)

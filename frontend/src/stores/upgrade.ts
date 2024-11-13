@@ -81,10 +81,11 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         chatChatStore.onlineUserData(message.data)
         break;
       case 'user':
+        console.log(message.data)
         chatChatStore.userChatMessage(message.data)
         break
       case 'group':
-        console.log(message)
+        console.log(message.data)
         chatChatStore.groupChatMessage(message.data);
         break;
       case 'update_group':

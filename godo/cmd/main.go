@@ -81,6 +81,8 @@ func OsStart() {
 	router.HandleFunc("/system/message", sys.HandleSystemEvents).Methods(http.MethodGet)
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/setting", sys.ConfigHandler).Methods(http.MethodPost)
+
+	
 	fileRouter := router.PathPrefix("/file").Subrouter()
 	fileRouter.HandleFunc("/desktop", files.HandleDesktop).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/info", files.HandleSystemInfo).Methods(http.MethodGet)

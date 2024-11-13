@@ -198,7 +198,7 @@
 		border-radius: 10px;
 		overflow: hidden;
 		background-color: #fff;
-		// border: var(--window-border);
+		border: var(--window-border);
 		display: flex;
 		flex-direction: column;
 		// box-shadow: var(--window-box-shadow);

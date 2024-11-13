@@ -331,6 +331,7 @@ export const useChatStore = defineStore('chatStore', () => {
     }
     // 发送文件消息
     const res = await fetchPost(config.userInfo.url + '/chat/send', JSON.stringify(Message));
+    console.log(Message)
     console.log(res)
     if (!res.ok) {
       fileSendActive.value = false;
@@ -344,7 +345,7 @@ export const useChatStore = defineStore('chatStore', () => {
       isMe: true,
       file_path: Message.message,
       file_name: Message.message.split('/').pop(),
-      file_size: fileInfo.data.file_info.size,
+      file_size: fileInfo.data.file_info?.size || 0,
       previewMessage: "[文件消息]",
       previewTimeFormat: formatTime(Date.now()),
       displayName: userInfo.value.nickname,
@@ -375,6 +376,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   // 发送文字消息 
   const sendTextMessage = async () => {
+
     // 判断是群聊发送还是单聊发送
     if (targetGroupInfo.value && Object.keys(targetGroupInfo.value).length) {
       console.log('群聊发送');
