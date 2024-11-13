@@ -1,15 +1,16 @@
 <script lang="ts" setup>
 	import { useHistoryStore } from "@/stores/history";
-	import { BrowserWindow, System } from "@/system";
-	import { getSplit, getSystemConfig } from "@/system/config";
-	import { decodeBase64, isBase64 } from "@/util/file";
-	import { notifyError, notifySuccess } from "@/util/msg";
-	import { getMdOption } from "@/util/vditor";
-	import { saveAs } from "file-saver";
-	import moment from "moment";
-	import Vditor from "vditor";
-	import "vditor/dist/index.css";
-	import { inject, onMounted, onUnmounted, ref, toRaw } from "vue";
+  import { BrowserWindow, System } from "@/system";
+  import { getSplit, getSystemConfig } from "@/system/config";
+  import { decodeBase64, isBase64 } from "@/util/file";
+  import { notifyError, notifySuccess } from "@/util/msg";
+  import { isShareFile } from "@/util/sharePath.ts";
+  import { getMdOption } from "@/util/vditor";
+  import { saveAs } from "file-saver";
+  import moment from "moment";
+  import Vditor from "vditor";
+  import "vditor/dist/index.css";
+  import { inject, onMounted, onUnmounted, ref, toRaw } from "vue";
 
 	const historyStore = useHistoryStore();
 
@@ -112,20 +113,19 @@
 		} else {
 			refreshDesktop = true;
 		}
-		const file = await sys?.fs.getShareInfo(filepath.value);
-		const isWrite =
-			file.fs.sender === getSystemConfig().userInfo.id
-				? 1
-				: file.fs.is_write;
-		//console.log(path)
-		const res = file.fi.isShare
-			? await sys?.fs.writeShareFile(
+    let res
+    if (isShareFile(filepath.value)) {
+      const file = await sys?.fs.getShareInfo(filepath.value);
+      const isWrite = file.fs.sender === getSystemConfig().userInfo.id ? 1 : file.fs.is_write;
+      res = await sys?.fs.writeShareFile(
 					filepath.value,
 					vditor.value.getValue(),
 					isWrite
 			  )
-			: await sys?.fs.writeFile(filepath.value, vditor.value.getValue());
-		if (res.success) {
+    } else {
+      res = await sys?.fs.writeFile(filepath.value, vditor.value.getValue());
+    }
+		if (res && res.code !== -1) {
 			notifySuccess(res.message || "保存成功！");
 		} else {
 			notifyError(res.message || "保存失败");
