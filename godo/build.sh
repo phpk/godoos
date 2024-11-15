@@ -22,7 +22,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         mkdir "$OUT_PATH"
     fi
     # 输出文件名
-    OUTPUT_FILE="${OUT_PATH}godoos_${OS}_${ARCH}${SUFFIX}"
+    OUTPUT_FILE="${OUT_PATH}godoos_web_${OS}_${ARCH}${SUFFIX}"
 
     # 设置GOOS和GOARCH环境变量
     export GOOS=$OS
@@ -30,7 +30,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
     export GODOTOPTYPE="web"
 
     # 执行编译命令，并处理可能的错误
-    go build -o "$OUTPUT_FILE" ./main.go || { echo "编译 $OS/$ARCH 失败，请检查错误并尝试解决。"; continue; }
+    go build  -ldflags="-s -w" -o "$OUTPUT_FILE" ./main.go || { echo "编译 $OS/$ARCH 失败，请检查错误并尝试解决。"; continue; }
 
     echo "编译 $OS/$ARCH 成功，生成文件: $OUTPUT_FILE"
 done

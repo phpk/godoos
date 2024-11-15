@@ -38,25 +38,36 @@
 - 新增远程存储
 - 修改选择文件夹会删除文件夹内的文件
 
-### 📥 下载安装(v1.0.1)
+### 📥 下载安装(v1.0.2)
 
 1. 💻 **Windows 用户**:
    
-- Windows (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_windows_amd64.zip) [**桌面版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos-amd64-installer.zip)
-- Windows (ARM64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_windows_arm64.zip) [**桌面版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos-arm64-installer.zip)
+- Windows (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_windows_amd64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.2/desktop/godoos-amd64-installer.exe)
+- Windows (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_windows_arm64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.2/desktop/godoos-arm64-installer.exe)
 
 
 2. 💼 **MacOS 用户**:
 
-- MacOS (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_amd64.zip) [**桌面版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos-darwin-amd64-installer.zip)
-- MacOS (ARM64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_darwin_arm64.zip) [**桌面版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos-darwin-arm64-installer.zip)
+- MacOS (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_darwin_amd64)
+- MacOS (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_darwin_arm64)
+
+提示：下载后以godoos_web_darwin_amd64为例，命令行：
+```
+sudo chmod +x godoos_web_darwin_amd64
+sudo ./godoos_web_darwin_amd64
+```
 
 3. 💽 **Linux 用户**:
 
-- Linux (AMD64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_amd64.zip)
-- Linux (ARM64) [**Web版**](https://gitee.com/ruitao_admin/godoos/releases/download/1.0.1/godoos_linux_arm64.zip)
+- Linux (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_linux_amd64)
+- Linux (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_linux_arm64)
+提示：下载后以godoos_web_darwin_amd64为例，root账号登录，命令行：
+```
+chmod +x godoos_web_darwin_amd64
+./godoos_web_darwin_amd64
+```
 
-- 备注：web版下载后启动服务端。访问地址为：http://localhost:56780/。如需linux桌面版请自行打包
+- 备注：web版下载后启动服务端。访问地址为：http://localhost:56780/。
 
 ### 🚢 **Docker安装(v1.0.1)**
 ```
@@ -87,12 +98,13 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 - [全程操作](https://www.bilibili.com/video/BV1NdvaeEEz3/?vd_source=739e0e59aeefdb2e9f760e5037d00245)
 
 ## 🚧 开发进程
+- 2024年11月15日，发布v1.0.2版本，企业版跟随发布。
 - 2024年8月1日，发布v1.0.0版本，发布后，项目进入第二阶段。
 
 ## 🏭 第二阶段目标
 - [x] 完善的应用商店体系
-- [x] 完善开发文档
-- [x] 支持远程存储
+- [ ] 完善开发文档
+- [ ] 支持远程存储
 - [x] 开发更多的商店应用
 
 
