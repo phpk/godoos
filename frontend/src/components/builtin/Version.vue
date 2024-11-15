@@ -4,7 +4,7 @@
       <div class="version-title">Godo OS</div>
       <div class="version-content">Version: {{ plusVersion }}</div>
       <div class="version-content">
-        Home:<a href="http://gdoa.top" target="_blank">Gdoa.Top</a>
+        Home:<a href="https://godoos.com" target="_blank">godoos.com</a>
       </div>
     </div>
   </div>
