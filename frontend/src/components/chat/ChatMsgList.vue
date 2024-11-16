@@ -48,6 +48,14 @@
 							"
 						></div>
 					</el-avatar>
+					<el-avatar
+						v-else-if="item.type == 'system'"
+						shape="square"
+						:size="40"
+						class="avatar"
+						icon="el-icon-message"
+					>
+					</el-avatar>
 				</el-col>
 
 				<!-- 在线状态 -->
@@ -90,7 +98,7 @@
 								</div>
 
 								<div class="previewTime">
-									{{ formatTime(item.item) }}
+									{{ formatTime(item.time) }}
 								</div>
 							</div>
 

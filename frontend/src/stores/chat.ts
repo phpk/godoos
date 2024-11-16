@@ -73,7 +73,7 @@ export const useChatStore = defineStore('chatStore', () => {
   // 添加成员
   const addMemberDialogVisible = ref(false)
   // 聊天列表
-  const chatList: any = ref([]);
+  const chatList = ref<any[]>([]);
 
   // 聊天消息记录列表
   const chatHistory: any = ref([]);
@@ -93,7 +93,7 @@ export const useChatStore = defineStore('chatStore', () => {
   const message: any = ref('');
   const targetUserInfo: any = ref({});
   const targetChatId = ref();
-  const searchList = ref([]);
+  const searchList = ref<any[]>([]);
   const groups: any = ref([])
   const searchInput = ref('');
   // 定义消息发送、接受的状态用于控制滚动条的滚动
@@ -200,19 +200,26 @@ export const useChatStore = defineStore('chatStore', () => {
     const uniqueUserSessionList = userSessionList.filter((item: any, index: number, self: any[]) =>
       index === self.findIndex((t: any) => t.chatId === item.chatId)
     );
+    // 获取所有系统消息列表
+    const systemSessionList =  await db.getAll("systemChatRecord");
+    // 取最后一条消息
+    const latestSysSession=systemSessionList.pop()
 
-    // 确保groupList已加载
-    if (groupList.value.length > 0) {
-      // 合并两个数组
+    if(latestSysSession){
+      chatList.value = [latestSysSession,...uniqueUserSessionList, ...groupList.value];
+    }else{
       chatList.value = [...uniqueUserSessionList, ...groupList.value];
-    } else {
-      // 如果groupList为空，只使用userSessionList
-      chatList.value = [...uniqueUserSessionList];
     }
+    console.log('!!!!1',chatList.value)
+    chatList.value.sort((a,b)=>{
+      return b.time - a.time
+    })
   };
 
   const setCurrentNavId = (id: number) => {
     currentNavId.value = id;
+    targetChatType.value=''
+    targetChatId.value = ''
   };
 
   const sendMessage = async (messageType: string) => {
@@ -376,7 +383,7 @@ export const useChatStore = defineStore('chatStore', () => {
     }, 2000);
   }
 
-  // 发送文字消息 
+  // 发送文字消息
   const sendTextMessage = async () => {
 
     // 判断是群聊发送还是单聊发送
@@ -477,6 +484,7 @@ export const useChatStore = defineStore('chatStore', () => {
     const sessionList = await db.getByField("workbenchSessionList", "chatId", targetUserInfo.value.chatId)
     await db.update("workbenchSessionList", sessionList[0].id, {
       previewMessage: message,
+      time: Date.now(),
       previewTimeFormat: formatTime(Date.now())
     })
 
@@ -704,13 +712,13 @@ export const useChatStore = defineStore('chatStore', () => {
     // groupConversation添加到groupSessionList
     await db.addOne("groupSessionList", groupConversation)
 
-
+    departmentName.value=''
     // 更新会话列表
     initChatList()
     // 关闭对话弹窗
     setGroupChatInvitedDialogVisible(false)
     // 更新群组列表
-    // await getAllList()
+    await getAllList()
     getGroupList()
     notifySuccess('创建群聊成功')
   };
@@ -817,8 +825,8 @@ export const useChatStore = defineStore('chatStore', () => {
 
     // 从groupSessionList中获取群信息
     const groupSessionList = await db.getAll("groupSessionList")
-
-    // 合并查找和封装逻辑到一个循环中
+    console.log('aaaaaa',groupSessionList)
+    // 合并,查找和封装逻辑到一个循环中
     const formattedGroups = list.data.groups.map((group: any) => {
       const groupSession = groupSessionList.find((item: { chatId: string; }) => item.chatId === group.id);
       return {
@@ -831,6 +839,8 @@ export const useChatStore = defineStore('chatStore', () => {
         previewMessage: groupSession ? groupSession.previewMessage : "", // 如果找到对应的会话则使用其预览消息，否则为空
       };
     });
+
+
     groupList.value = formattedGroups;
 
     // 将群成员添加到数据库
@@ -990,6 +1000,7 @@ export const useChatStore = defineStore('chatStore', () => {
     // 清空聊天记录
     chatHistory.value = []
     targetChatId.value = chatId
+    targetChatType.value = type
 
     if (type === 'user') {
       console.log("user")
@@ -1009,6 +1020,10 @@ export const useChatStore = defineStore('chatStore', () => {
       chatHistory.value = history;
       // 设置目标用户的信息
       await setTargetGrouprInfo(chatId);
+      messageSendStatus.value = true
+    }
+    else if(type === 'system'){
+      await getSystemInfo()
       messageSendStatus.value = true
     }
   };
@@ -1085,7 +1100,7 @@ export const useChatStore = defineStore('chatStore', () => {
       userId: data.userId,
       groupId: data.to_groupid,
       content_type: data.content_type,
-      time: data.time,
+      time: Date.now(),
       type: data.type,
       chatId: data.to_groupid,
       isMe: false,
@@ -1126,6 +1141,10 @@ export const useChatStore = defineStore('chatStore', () => {
 
     // 更改聊天记录
     chatHistory.value.push(messageRecord)
+
+    // 找到群会话列表，更新对于id的数据。
+    await updateRecipientGroupSessionList(messageRecord.previewMessage, data.to_groupid)
+
     messageReceiveStatus.value = true
   };
 
@@ -1160,12 +1179,14 @@ export const useChatStore = defineStore('chatStore', () => {
     // 从groupList中删除
     groupList.value = groupList.value.filter((group: any) => group.group_id !== group_id)
     await db.deleteByField("workbenchGroupUserList", "group_id", group_id)
+    await getAllList()
     // 获取群列表
     await getGroupList()
     // 初始化聊天列表
     initChatList()
     targetGroupInfo.value = {}
     targetChatId.value = ''
+    targetChatType.value =''
     notifySuccess("退出群聊成功")
   }
 
@@ -1285,6 +1306,15 @@ export const useChatStore = defineStore('chatStore', () => {
           item.previewMessage = "快开始打招呼吧！";
         }
       });
+
+
+      const res:any = await db.getByField("workbenchSessionList","chatId",targetChatId.value)
+
+      console.log(',kmmim',res)
+
+      await db.update('workbenchSessionList',res[0].id,{
+        previewMessage:"快开始打招呼吧",
+      })
       return true
     } else {
       return false
@@ -1324,14 +1354,55 @@ export const useChatStore = defineStore('chatStore', () => {
           item.previewMessage = "快开始打招呼吧！";
         }
       });
+      const res = await db.getByField("groupSessionList","chatId",targetChatId.value)
+      await db.update('groupSessionList',res[0].id,{
+        previewMessage:"快开始打招呼吧",
+      })
       notifySuccess("删除成功");
     } else {
       notifyError("删除失败");
     }
   }
-
-
+  // 系统消息模块
+  const targetChatType=ref()
+  const systemInfo=ref<any[]>([])
+  // 收到系统消息触发
+  const systemMessage = async (data: {
+    type: string;
+    data: string;
+    time: number;
+  }) => {
+    const systemMsg = {
+      type: "system",
+      chatId: 'system',
+      displayName: "系统消息",
+      time: Date.now(),
+      previewTimeFormat: formatTime(Date.now()),
+      previewMessage: data.data,
+    };
+    await db.addOne("systemChatRecord", systemMsg);
+    initChatList()
+    await getSystemInfo()
+    messageSendStatus.value=true
+  };
+  // 获取系统消息数组
+  const getSystemInfo=async()=>{
+       systemInfo.value=await db.getAll('systemChatRecord')
+  }
+  // 清空系统聊天记录
+  const clearSystemMessages=async()=>{
+   await db.clear('systemChatRecord')
+   notifySuccess("删除成功")
+   chatList.value=chatList.value.filter(item=>item.type!=='system')
+   initChatList()
+   systemInfo.value=[]
+   targetChatType.value=''
+  }
   return {
+    clearSystemMessages,
+    systemInfo,
+    targetChatType,
+    systemMessage,
     emojiList,
     groupSystemMessage,
     onlineUserList,

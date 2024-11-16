@@ -18,7 +18,8 @@
 
 	const data = ref(generateData());
 	// 声明 users 时指定类型为 any[]
-	const users = ref<any[]>([]);
+	let users = ref<any[]>([]);
+	const myTransfer = ref()
 
 	watchEffect(() => {
 		if (store.allUserList.length > 0) {
@@ -133,7 +134,9 @@
 				style="height: 250px"
 				filter-placeholder="搜索用户名"
 				:props="{ key: 'key', label: 'label', avatar: 'avatar' }"
+				:left-default-checked="[]"
 				class="transfer-container"
+				ref="myTransfer"
 			>
 				<!-- 自定义穿梭框列表项模板 -->
 				<template #default="{ option }">

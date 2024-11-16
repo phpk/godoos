@@ -13,11 +13,11 @@
 		>
 			<div class="user-details">
 				<h2>{{ store.targetUserInfo.displayName }}</h2>
-				<p>工号：{{ targetUserInfo.jobNumber }}</p>
-				<p>岗位：{{ targetUserInfo.desc }}</p>
-				<p>邮箱：{{ targetUserInfo.email }}</p>
-				<p>电话：{{ targetUserInfo.phone }}</p>
-				<p>入职日期：{{ targetUserInfo.hiredDate }}</p>
+				<p>工号：{{ store.targetUserInfo.jobNumber||'暂未设置' }}</p>
+				<p>岗位：{{ store.targetUserInfo.desc ||'暂未设置'}}</p>
+				<p>邮箱：{{ store.targetUserInfo.email||'暂未设置' }}</p>
+				<p>电话：{{ store.targetUserInfo.phone ||'暂未设置'}}</p>
+				<p>入职日期：{{ store.targetUserInfo.hiredDate ||'暂未设置'}}</p>
 			</div>
 			<div class="avatar">
 				<el-avatar

@@ -52,7 +52,7 @@
 	<ChatGroupMember />
 	<div
 		class="chatbox-main"
-		v-if="store.targetChatId"
+		v-if="store.targetChatType==='user'||store.targetChatType==='group'"
 	>
 		<!--聊天顶部区-->
 		<el-header class="chat-header">
@@ -67,7 +67,6 @@
 					class="header-title-name"
 					>{{ store.targetGroupInfo.displayName }}</span
 				>
-
 				<div
 					v-if="
 						store.targetGroupInfo &&
@@ -147,7 +146,6 @@
 				</div>
 			</div>
 		</el-header>
-
 		<!--聊天主体区-->
 		<el-main class="msg-main">
 			<!-- 聊天消息滚动区域 -->
@@ -199,7 +197,60 @@
 			</div>
 		</el-footer>
 	</div>
+	<div class="chatbox-main" v-if="store.targetChatType==='system'">
+		<!--聊天顶部区-->
+		<el-header class="chat-header">
+			<div class="header-title">
+				<span
+					v-if="store.systemInfo"
+					class="header-title-name"
+					>系统消息</span
+				>
 
+				<div
+					style="
+						height: 50px;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					"
+				>
+					<el-dropdown>
+						<el-icon
+							style="
+								cursor: pointer;
+								color: black;
+								font-size: 15px;
+							"
+							><More
+						/></el-icon>
+						<template #dropdown>
+							<el-dropdown-menu>
+								<el-dropdown-item @click="clearMessages('system')"
+									>清空记录</el-dropdown-item
+								>
+							</el-dropdown-menu>
+						</template>
+					</el-dropdown>
+				</div>
+			</div>
+		</el-header>
+		<!--聊天主体区-->
+		<el-main class="system-main">
+			<div class="msg-container">
+				<el-scrollbar ref="scrollbarRef">
+					<div ref="innerRef" >
+						<div class="msg-card" v-for="item in store.systemInfo" :key="item.id">
+							<div class="msg-time">{{ formatTime(item.time) }}</div>
+							<el-card class="box-card">
+							{{ item.previewMessage}}
+						</el-card>
+						</div>
+					</div>
+				</el-scrollbar>
+			</div>
+		</el-main>
+	</div>
 	<div
 		style="
 			width: 100%;
@@ -209,7 +260,7 @@
 			align-items: center;
 			justify-content: center;
 		"
-		v-else
+		v-if="!store.targetChatType"
 	>
 		<el-empty description="请选择一个用户或群聊" />
 	</div>
@@ -227,6 +278,17 @@
 	const scrollbarRef = ref(null);
 	const innerRef = ref(null);
 
+	function formatTime(timestamp:number) {
+		const date=new Date(timestamp)
+		const year = date.getFullYear();
+		const month = (date.getMonth() + 1).toString().padStart(2, '0');
+		const day = date.getDate().toString().padStart(2, '0');
+		const hours = date.getHours().toString().padStart(2, '0');
+		const minutes = date.getMinutes().toString().padStart(2, '0');
+		const seconds = date.getSeconds().toString().padStart(2, '0');
+
+		 return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+	}
 	// 清空聊天记录
 	const clearMessages = (type: string) => {
 		// 首先先删除发送的聊天记录，如果删除成功，再删除接收的聊天记录，如果发送消息删除失败也调用删除接收的聊天记录。如果删除对方的记录成功也弹出删除成功
@@ -245,6 +307,8 @@
 			}
 		} else if (type === "group") {
 			store.clearGroupMessages();
+		} else if(type==='system'){
+			store.clearSystemMessages()
 		}
 	};
 
@@ -341,6 +405,36 @@
 </script>
 
 <style scoped>
+	.system-main {
+		width: 100%;
+
+		/* 占据整个宽度 */
+		height: 90%;
+		padding: 0;
+		border-top: 1px solid #edebeb;
+		display: flex;
+		justify-content: space-between;
+	}
+	.msg-card{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	.msg-time{
+		text-align: center;
+		font-size: 12px;
+		color: #656a72;
+		padding: 15px 0;
+	}
+	.box-card{
+
+		width: 80%;
+		border: 0;
+		border-radius: 10px;
+	}
+	.el-card .el-card__body{
+		padding: 0;
+	}
 	.msg-main {
 		width: 100%;
 

@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'chatuser' | 'chatmsg' | 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage';
+export type ChatTable = 'chatuser' | 'chatmsg' |'systemChatRecord'| 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
@@ -18,6 +18,8 @@ dbInit.version(1).stores({
   workbenchGroupUserList: '++id, group_id, createdAt, userIdArray',
   // 群组邀请信息消息
   workbenchGroupInviteMessage: '++id, group_id,userId, message, createdAt',
+  //系统聊天记录表
+  systemChatRecord: '++id,chatId,message,time,createdAt',
   // 用户列表
   chatuser: '++id,ip,hostname,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
   chatmsg: '++id,toUserId,targetIp,senderInfo,reciperInfo,previewMessage,content,type,status,isRead,isMe,readAt,createdAt',
@@ -29,11 +31,13 @@ dbInit.version(1).stores({
   workbenchGroupInviteMessage: any;
   groupSessionList: any;
   workbenchChatRecord: any;
+  systemChatRecord: any;
 }) => {
   // 手动添加索引
   tx.groupSessionList.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchSessionList.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   tx.workbenchChatRecord.addIndex('toUserId', (obj: { toUserId: any; }) => obj.toUserId);
+  tx.systemChatRecord.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
   // 添加复合索引
   tx.workbenchChatRecord.addIndex('[toUserId+userId]', (obj: { toUserId: any; userId: any; }) => [obj.toUserId, obj.userId]);
   tx.workbenchGroupChatRecord.addIndex('chatId', (obj: { chatId: any; }) => obj.chatId);
