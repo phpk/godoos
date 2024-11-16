@@ -19,10 +19,10 @@ const store = useChatStore()
           <el-icon><DishDot /></el-icon>
           <span>我的任务</span>
         </el-menu-item>
-        <el-menu-item index="4">
+        <!-- <el-menu-item index="4">
           <el-icon><SuitcaseLine /></el-icon>
           <span>安排任务</span>
-        </el-menu-item>
+        </el-menu-item> -->
         <el-menu-item index="5">
           <el-icon><Present /></el-icon>
           <span>我的审批</span>

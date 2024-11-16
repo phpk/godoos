@@ -479,22 +479,22 @@
 						},
 					});
 				}
-				menuArr.push({
-					label: "评论",
-					click: () => {
-						const win = new BrowserWindow({
-							title: "评论",
-							content: "CommentsFiles",
-							config: {
-								path: item.path,
-							},
-							width: 350,
-							height: 400,
-							center: true,
-						});
-						win.show();
-					},
-				});
+				// menuArr.push({
+				// 	label: "评论",
+				// 	click: () => {
+				// 		const win = new BrowserWindow({
+				// 			title: "评论",
+				// 			content: "CommentsFiles",
+				// 			config: {
+				// 				path: item.path,
+				// 			},
+				// 			width: 350,
+				// 			height: 400,
+				// 			center: true,
+				// 		});
+				// 		win.show();
+				// 	},
+				// });
 			}
 			// eslint-disable-next-line prefer-spread
 			menuArr.push.apply(menuArr, fileMenus);
