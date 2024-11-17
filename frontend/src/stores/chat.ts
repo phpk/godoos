@@ -149,16 +149,16 @@ export const useChatStore = defineStore('chatStore', () => {
   // 获取部门列表
   const getAllList = async () => {
     const res = await fetchGet(userInfo.value.url + "/chat/user/list")
-    console.log(res);
+    // console.log(res);
     if (res.ok) {
       const data = await res.json();
-      console.log(data.data.users)
+      // console.log(data.data.users)
       groups.value = data.data.groups;
       departmentList.value = data.data.users;
 
       // 新增代码：提取部门成员并去重，按指定字段保存
       const uniqueUsers = new Set();
-      console.log("部门成员", data.data.users)
+      // console.log("部门成员", data.data.users)
       data.data.users.forEach((department: { users: any[]; }) => {
         department.users?.forEach(async (user) => {
           if (!uniqueUsers.has(user.user_id)) {
@@ -194,7 +194,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   // 初始化用户列表
   const initChatList = async () => {
-    console.log("收到消息被刷新了！！！！")
+    // console.log("收到消息被刷新了！！！！")
     const userSessionList = await db.getAll("workbenchSessionList");
     // 给userSessionList去一次重
     const uniqueUserSessionList = userSessionList.filter((item: any, index: number, self: any[]) =>
@@ -210,7 +210,7 @@ export const useChatStore = defineStore('chatStore', () => {
     }else{
       chatList.value = [...uniqueUserSessionList, ...groupList.value];
     }
-    console.log('!!!!1',chatList.value)
+    // console.log('!!!!1',chatList.value)
     chatList.value.sort((a,b)=>{
       return b.time - a.time
     })
@@ -254,16 +254,16 @@ export const useChatStore = defineStore('chatStore', () => {
 
     // 判断是群聊发送还是单聊发送
     if (targetGroupInfo.value && Object.keys(targetGroupInfo.value).length > 0) {
-      console.log('群聊发送文件');
+      // console.log('群聊发送文件');
       Message.type = 'group';
       Message.content_type = 'image';
       Message.userId = userInfo.value.id;
       Message.to_groupid = targetGroupInfo.value.group_id;
       Message.message = sendInfo.value[0];
       Message.userInfo = {};
-      console.log("群聊发送文件", Message)
+      // console.log("群聊发送文件", Message)
     } else if (targetUserInfo.value && Object.keys(targetUserInfo.value).length > 0) {
-      console.log('单聊发送文件');
+      // console.log('单聊发送文件');
       Message.type = 'user';
       Message.content_type = 'image';
       Message.userId = userInfo.value.id;
@@ -319,16 +319,16 @@ export const useChatStore = defineStore('chatStore', () => {
   const sendFileMessage = async () => {
     // 判断是群聊发送还是单聊发送
     if (targetGroupInfo.value && Object.keys(targetGroupInfo.value).length > 0) {
-      console.log('群聊发送文件');
+      // console.log('群聊发送文件');
       Message.type = 'group';
       Message.content_type = 'file';
       Message.userId = userInfo.value.id;
       Message.to_groupid = targetGroupInfo.value.group_id;
       Message.message = sendInfo.value[0];
       Message.userInfo = {};
-      console.log("群聊发送文件", Message)
+      // console.log("群聊发送文件", Message)
     } else if (targetUserInfo.value && Object.keys(targetUserInfo.value).length > 0) {
-      console.log('单聊发送文件');
+      // console.log('单聊发送文件');
       Message.type = 'user';
       Message.content_type = 'file';
       Message.userId = userInfo.value.id;
@@ -339,8 +339,8 @@ export const useChatStore = defineStore('chatStore', () => {
     }
     // 发送文件消息
     const res = await fetchPost(config.userInfo.url + '/chat/send', JSON.stringify(Message));
-    console.log(Message)
-    console.log(res)
+    // console.log(Message)
+    // console.log(res)
     if (!res.ok) {
       fileSendActive.value = false;
       return;
@@ -388,17 +388,17 @@ export const useChatStore = defineStore('chatStore', () => {
 
     // 判断是群聊发送还是单聊发送
     if (targetGroupInfo.value && Object.keys(targetGroupInfo.value).length) {
-      console.log('群聊发送');
+      // console.log('群聊发送');
       Message.type = 'group'
       Message.content_type = 'text'
       Message.to_groupid = targetGroupInfo.value?.group_id
       Message.message = message.value
       Message.userId = userInfo.value.id
       Message.userInfo = {}
-      console.log(Message)
+      // console.log(Message)
 
     } else if (targetUserInfo.value && Object.keys(targetUserInfo.value).length > 0) {
-      console.log('单聊发送');
+      // console.log('单聊发送');
       Message.type = 'user'
       Message.content_type = 'text'
       Message.userId = userInfo.value.id
@@ -412,7 +412,7 @@ export const useChatStore = defineStore('chatStore', () => {
     // 发送消息
     const res = await fetchPost(config.userInfo.url + '/chat/send', JSON.stringify(Message));
     if (res.ok) {
-      console.log(await res.json())
+      // console.log(await res.json())
       // 封装成消息历史记录
       var messageHistory
       // 本地存储一份聊天记录
@@ -554,7 +554,7 @@ export const useChatStore = defineStore('chatStore', () => {
     messageSendStatus.value = false;
 
     if (chatIdSet.has(chatId)) {
-      console.log("存在");
+      // console.log("存在");
 
       if (type == "group") {
         getInviteUserList()
@@ -567,7 +567,7 @@ export const useChatStore = defineStore('chatStore', () => {
       messageSendStatus.value = true;
       return;
     }
-    console.log("不存在")
+    // console.log("不存在")
     // 如果会话不存在，则从用户表中获取该用户的基本信息
     const user = await db.getOne("workbenchChatUser", Number(chatId));
 
@@ -605,7 +605,7 @@ export const useChatStore = defineStore('chatStore', () => {
     // 获取聊天记录
     chatHistory.value = await getHistory(chatId, userInfo.value.id, type);
 
-    console.log(chatHistory.value)
+    // console.log(chatHistory.value)
     messageSendStatus.value = true;
   };
 
@@ -666,7 +666,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
     const url = config.userInfo.url + "/chat/group";
     const res = await fetchPost(url, JSON.stringify(data));
-    console.log(res)
+    // console.log(res)
     if (!res.ok) {
       return false;
     }
@@ -730,7 +730,7 @@ export const useChatStore = defineStore('chatStore', () => {
     // 更新会话列表数据库
     // 更新chatlist
     // 更新聊天记录
-    console.log(data)
+    // console.log(data)
 
     messageReceiveStatus.value = false
 
@@ -817,7 +817,7 @@ export const useChatStore = defineStore('chatStore', () => {
     }
     const list = await res.json()
 
-    console.log("list------", list)
+    // console.log("list------", list)
 
     if (list.data.groups == null) {
       list.data.groups = []
@@ -825,7 +825,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
     // 从groupSessionList中获取群信息
     const groupSessionList = await db.getAll("groupSessionList")
-    console.log('aaaaaa',groupSessionList)
+    // console.log('aaaaaa',groupSessionList)
     // 合并,查找和封装逻辑到一个循环中
     const formattedGroups = list.data.groups.map((group: any) => {
       const groupSession = groupSessionList.find((item: { chatId: string; }) => item.chatId === group.id);
@@ -963,7 +963,7 @@ export const useChatStore = defineStore('chatStore', () => {
     if (!res.ok) {
       return false;
     }
-    console.log(await res.json())
+    // console.log(await res.json())
     // 关闭对话框
     inviteFriendDialogVisible.value = false
     notifySuccess('邀请成功')
@@ -975,7 +975,7 @@ export const useChatStore = defineStore('chatStore', () => {
     const updates = onlineUserList.value.reduce((acc: any[], user: any) => {
 
       if (user.isOnline) {
-        console.log(user);
+        // console.log(user);
         acc.push({
           key: user.id,
           changes: { isOnline: false }
@@ -1003,7 +1003,7 @@ export const useChatStore = defineStore('chatStore', () => {
     targetChatType.value = type
 
     if (type === 'user') {
-      console.log("user")
+      // console.log("user")
       // 获取当前用户和目标用户的聊天记录
       const history = await getHistory(userInfo.value.id, chatId, type)
       chatHistory.value = [...history];
@@ -1011,8 +1011,8 @@ export const useChatStore = defineStore('chatStore', () => {
       await setTargetUserInfo(chatId);
       messageSendStatus.value = true
     } else if (type === 'group') {
-      console.log('group')
-      console.log(userInfo.value.id, chatId, type)
+      // console.log('group')
+      // console.log(userInfo.value.id, chatId, type)
       // 获取当前用户和目标用户的聊天记录
       getInviteUserList()
       const history = await getHistory(userInfo.value.id, chatId, type)
@@ -1030,7 +1030,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   const getHistory = async (sendUserId: string, toUserId: string, type: string) => {
     var messagesHistory
-    console.log(sendUserId, toUserId, type)
+    // console.log(sendUserId, toUserId, type)
     if (type === 'user') {
       messagesHistory = await db.filter("workbenchChatRecord", (record: any) => {
         return (
@@ -1039,9 +1039,9 @@ export const useChatStore = defineStore('chatStore', () => {
         );
       });
     } else if (type === 'group') {
-      console.log('group')
+      // console.log('group')
       messagesHistory = await db.getByField("workbenchGroupChatRecord", "chatId", toUserId);
-      console.log("messagesHistory", messagesHistory)
+      // console.log("messagesHistory", messagesHistory)
     }
     return messagesHistory
   }
@@ -1175,7 +1175,7 @@ export const useChatStore = defineStore('chatStore', () => {
     if (!res.ok) {
       return false;
     }
-    console.log(await res.json())
+    // console.log(await res.json())
     // 从groupList中删除
     groupList.value = groupList.value.filter((group: any) => group.group_id !== group_id)
     await db.deleteByField("workbenchGroupUserList", "group_id", group_id)
@@ -1214,8 +1214,8 @@ export const useChatStore = defineStore('chatStore', () => {
     }
 
     // 检查返回的内容类型
-    const contentType = response.headers.get("Content-Type");
-    console.log("Content-Type:", contentType);
+    // const contentType = response.headers.get("Content-Type");
+    // console.log("Content-Type:", contentType);
 
 
     const blob = await response.blob(); // 获取 Blob 对象
@@ -1259,7 +1259,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
   // 获取群成员
   const getGroupMemberList = async (group_id: string) => {
-    console.log(group_id)
+    // console.log(group_id)
 
     const res = await fetchGet(userInfo.value.url + '/chat/group/info?gid=' + group_id);
     if (!res.ok) {
@@ -1310,7 +1310,7 @@ export const useChatStore = defineStore('chatStore', () => {
 
       const res:any = await db.getByField("workbenchSessionList","chatId",targetChatId.value)
 
-      console.log(',kmmim',res)
+      // console.log(',kmmim',res)
 
       await db.update('workbenchSessionList',res[0].id,{
         previewMessage:"快开始打招呼吧",

@@ -1,9 +1,15 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'chatuser' | 'chatmsg' |'systemChatRecord'| 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage';
+export type ChatTable = 'prompts' | 'modelslabel' | 'modelslist' | 'chatuser' | 'chatmsg' |'systemChatRecord'| 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
+  // ai助手
+  prompts: '++id,lang,action,prompt,name,ext,isdef,createdAt,[action+lang]',
+  // 模型标签
+  modelslabel: '++id,name,zhdesc,endesc,family,chanel,models,action,engine',
+  // 模型列表
+  modelslist: '++id,model,label,status,progress,url,file_name,isdef,action,chanel,engine,info,options',
   // 用户列表
   workbenchChatUser: '++id,ip,userName,chatId,avatar,mobile,phone,nickName,isOnline,updatedAt,createdAt',
   // 会话列表

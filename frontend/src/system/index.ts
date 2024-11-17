@@ -15,6 +15,8 @@ import {
 import { BrowserWindow, BrowserWindowOption } from './window/BrowserWindow';
 
 import { useUpgradeStore } from '@/stores/upgrade';
+import { useAssistantStore } from '@/stores/assistant';
+import { useModelStore } from "@/stores/model.ts";
 import { RestartApp } from '@/util/goutil';
 import { notifyError } from '@/util/msg';
 import { isShareFile } from '@/util/sharePath';
@@ -349,6 +351,10 @@ export class System {
       this.isFirstRun = true;
       setSystemKey('isFirstRun', true)
       this.emit('firstRun');
+      const promptStore = useAssistantStore()
+      promptStore.initPrompt()
+      const modelStore = useModelStore()
+      modelStore.initModel()
       return true;
     }
   }
