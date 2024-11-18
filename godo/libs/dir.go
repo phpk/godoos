@@ -116,6 +116,17 @@ func GetStaticDir() string {
 	}
 	return staticPath
 }
+func GetDataDir() string {
+	homeDir, err := GetAppDir()
+	if err != nil {
+		return "static"
+	}
+	staticPath := filepath.Join(homeDir, "data")
+	if !PathExists(staticPath) {
+		os.MkdirAll(staticPath, 0755)
+	}
+	return staticPath
+}
 func GetCacheDir() string {
 	homeDir, err := GetAppDir()
 	if err != nil {

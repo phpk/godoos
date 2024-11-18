@@ -327,6 +327,7 @@
     "defModel": "Default Model",
     "chatSetting": "Chat Setting",
     "serverUrl": "Server Url",
+    "ollamaUrl": "Ollama Url",
     "chatModel": "ChatModel",
     "eyeModel": "EyeModel",
     "transModel": "TranslationModel",

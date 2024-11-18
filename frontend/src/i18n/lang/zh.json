@@ -330,6 +330,7 @@
     "chatSetting": "对话设置",
     "systemSetting": "系统设置",
     "serverUrl": "服务器地址",
+    "ollamaUrl": "Ollama地址",
     "chatModel": "聊天模型",
     "eyeModel": "视觉模型",
     "transModel": "翻译模型",

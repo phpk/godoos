@@ -25,20 +25,20 @@ const modelStore = useModelStore();
 // top_p	与top-k一起工作。较高的值（例如，0.95）将产生更多样化的文本，而较低的值（例如，0.5）将生成更集中且保守的文本。默认值：0.9	float	top_p 0.9
 
 const hoverTxt = {
-  dataDir: t('setting.tips_dataDir'),
-  apiUrl: t('setting.tips_apiUrl'),
+  dataDir: t('aisetting.tips_dataDir'),
+  apiUrl: t('aisetting.tips_apiUrl'),
   contextLength: t("setting.tips_contextLength"),
-  top_k: t('setting.tips_top_k'),
-  top_p: t('setting.tips_top_p'),
-  temperature: t('setting.tips_temperature'),
-  frequency_penalty: t('setting.tips_frequency_penalty'),
-  presence_penalty: t('setting.tips_presence_penalty'),
-  num_predict: t('setting.tips_num_predict'),
-  num_keep: t('setting.tips_num_keep'),
+  top_k: t('aisetting.tips_top_k'),
+  top_p: t('aisetting.tips_top_p'),
+  temperature: t('aisetting.tips_temperature'),
+  frequency_penalty: t('aisetting.tips_frequency_penalty'),
+  presence_penalty: t('aisetting.tips_presence_penalty'),
+  num_predict: t('aisetting.tips_num_predict'),
+  num_keep: t('aisetting.tips_num_keep'),
 };
 // const systemStore = useSystemStore();
 const config: any = ref({});
-const chatConfig: any = ref({});
+//const chatConfig: any = ref({});
 const currentsModel: any = ref({});
 const modelList = ref([]);
 const pageLoading = ref(true);
@@ -70,7 +70,7 @@ const saveConfig = async () => {
   if (config.value.IpList.trim() != "") {
     postData.push({
       name: "dataDir",
-      value: config.value.IpList.trim().split("\n").map((line:string) => line.trim()),
+      value: config.value.IpList.trim().split("\n").map((line: string) => line.trim()),
     })
   }
   if (postData.length > 0) {
@@ -96,10 +96,7 @@ const saveConfig = async () => {
   //modelStore.updateCurrentModels(modelList.value);
   notifySuccess(t('common.saveSuccess'));
 };
-const saveChatConfig = () => {
-  //setChatConfig(chatConfig.value);
-  notifySuccess(t('common.saveSuccess'));
-};
+
 const changeConfig = async () => {
   //console.log(v)
   //setSystemKey('llmType',v)
@@ -125,12 +122,12 @@ async function changeDir() {
 <template>
   <div v-loading="pageLoading">
     <el-tabs v-model="activeName" class="setting-tabs" style="margin: 12px" @tab-click="handleClick">
-      <el-tab-pane :label="t('setting.modelSetting')" name="system">
+      <el-tab-pane :label="t('aisetting.modelSetting')" name="system">
         <el-scrollbar class="scrollbarSettingHeight">
           <el-form label-width="150px" style="padding: 0 30px 50px 0">
-            <el-form-item :label="t('setting.dataDir')">
+            <el-form-item :label="t('aisetting.dataDir')">
               <div class="slider-container">
-                <el-input v-model="config.dataDir" :placeholder="t('setting.localDirHolder')" prefix-icon="Menu"
+                <el-input v-model="config.dataDir" :placeholder="t('aisetting.localDirHolder')" prefix-icon="Menu"
                   @click="changeDir()" clearable></el-input>
                 <el-popover placement="left" :width="400" trigger="click">
                   <template #reference>
@@ -144,9 +141,9 @@ async function changeDir() {
                 </el-popover>
               </div>
             </el-form-item>
-            <el-form-item :label="t('setting.serverUrl')">
+            <el-form-item :label="t('aisetting.serverUrl')">
               <div class="slider-container">
-                <el-input v-model="config.apiUrl" :placeholder="t('setting.serverUrl')" prefix-icon="Notification"
+                <el-input v-model="config.apiUrl" :placeholder="t('aisetting.serverUrl')" prefix-icon="Notification"
                   clearable></el-input>
                 <el-popover placement="left" :width="400" trigger="click">
                   <template #reference>
@@ -160,16 +157,13 @@ async function changeDir() {
                 </el-popover>
               </div>
             </el-form-item>
-            <el-form-item :label="t('setting.ipSetting')">
+            <el-form-item :label="t('aisetting.ollamaUrl')">
               <div class="slider-container">
-                <el-input v-model="config.ipList" 
-                :placeholder="t('setting.ipHolder')"
-                :rows="3"
-                type="textarea" 
-                prefix-icon="Notification"
+                <el-input v-model="config.ollamaUrl" :placeholder="t('aisetting.ollamaUrl')" prefix-icon="Notification"
                   clearable></el-input>
               </div>
             </el-form-item>
+            
             <el-form-item>
               <el-button @click="saveConfig" type="info" plain>
                 {{ t("common.confim") }}
@@ -178,23 +172,23 @@ async function changeDir() {
           </el-form>
         </el-scrollbar>
       </el-tab-pane>
-      <el-tab-pane :label="t('setting.defModel')" name="modelDef">
+      <el-tab-pane :label="t('aisetting.defModel')" name="modelDef">
         <el-scrollbar class="scrollbarSettingHeight">
           <el-form label-width="150px" style="padding: 0 30px 50px 0">
-            <el-form-item :label="t('model.' + item)" v-for="(item, index) in config.modelCate" :key="index">
+            <el-form-item :label="t('model.' + item)" v-for="(item, index) in modelStore.cateList" :key="index">
               <el-select v-model="currentsModel[item]" @change="(val: any) => modelStore.setCurrentModel(item, val)">
-                <el-option v-for="(el, key) in modelStore.getCurrentModelList(modelList, item)" :key="key" :label="el.model"
-                  :value="el.model" />
+                <el-option v-for="(el, key) in modelStore.getCurrentModelList(modelList, item)" :key="key"
+                  :label="el.model" :value="el.model" />
               </el-select>
             </el-form-item>
           </el-form>
         </el-scrollbar>
       </el-tab-pane>
-      <el-tab-pane :label="t('setting.chatSetting')" name="chatSetting">
+      <el-tab-pane :label="t('aisetting.chatSetting')" name="chatSetting">
         <el-tabs tab-position="left" v-model="activeModel" style="height: 490px" class="setting-tabs">
-          <el-tab-pane :name="item.key" :label="t('model.' + item.key)" v-for="item in chatConfig">
+          <el-tab-pane :name="item.key" :label="t('model.' + item.key)" v-for="item in modelStore.chatConfig">
             <el-form label-width="100px" style="width: 500px">
-              <el-form-item :label="t('setting.contextLength')" v-if="item.contextLength" class="inline-layout">
+              <el-form-item :label="t('aisetting.contextLength')" v-if="item.contextLength" class="inline-layout">
                 <div class="slider-container">
                   <el-slider v-model="item.contextLength" :max="10" :min="1" :step="1" />
                   <el-popover placement="left" :width="400" trigger="click">
@@ -210,7 +204,7 @@ async function changeDir() {
                 </div>
               </el-form-item>
 
-              <el-form-item :label="t('setting.num_predict')" class="inline-layout">
+              <el-form-item :label="t('aisetting.num_predict')" class="inline-layout">
                 <div class="slider-container">
                   <el-slider v-model="item.num_predict" :max="5000" :min="1" />
                   <el-popover placement="left" :width="400" trigger="click">
@@ -225,7 +219,7 @@ async function changeDir() {
                   </el-popover>
                 </div>
               </el-form-item>
-              <el-form-item :label="t('setting.num_keep')" class="inline-layout">
+              <el-form-item :label="t('aisetting.num_keep')" class="inline-layout">
                 <div class="slider-container">
                   <el-slider v-model="item.num_keep" :max="500" :min="1" />
                   <el-popover placement="left" :width="400" trigger="click">
@@ -240,7 +234,7 @@ async function changeDir() {
                   </el-popover>
                 </div>
               </el-form-item>
-              <el-form-item :label="t('setting.top_k')" class="inline-layout">
+              <el-form-item :label="t('aisetting.top_k')" class="inline-layout">
                 <div class="slider-container">
                   <el-slider v-model="item.top_k" :max="100" :min="1" />
                   <el-popover placement="left" :width="400" trigger="click">
@@ -255,7 +249,7 @@ async function changeDir() {
                   </el-popover>
                 </div>
               </el-form-item>
-              <el-form-item :label="t('setting.top_p')" class="inline-layout">
+              <el-form-item :label="t('aisetting.top_p')" class="inline-layout">
                 <div class="slider-container">
                   <el-slider v-model="item.top_p" :max="1" :min="0.01" :step="0.01" />
                   <el-popover placement="left" :width="400" trigger="click">
@@ -270,7 +264,7 @@ async function changeDir() {
                   </el-popover>
                 </div>
               </el-form-item>
-              <el-form-item :label="t('setting.temperature')" class="inline-layout">
+              <el-form-item :label="t('aisetting.temperature')" class="inline-layout">
                 <div class="slider-container">
                   <el-slider v-model="item.temperature" :max="0.99" :min="0.01" :step="0.01" />
                   <el-popover placement="left" :width="400" trigger="click">
@@ -284,11 +278,6 @@ async function changeDir() {
                     </template>
                   </el-popover>
                 </div>
-              </el-form-item>
-              <el-form-item>
-                <el-button @click="saveChatConfig" type="info" plain>
-                  {{ t("common.confim") }}
-                </el-button>
               </el-form-item>
             </el-form>
           </el-tab-pane>
