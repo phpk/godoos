@@ -1,0 +1,155 @@
+.ce-table-tool__row {
+  position: absolute;
+  width: 12px;
+  border-radius: 6.5px;
+  overflow: hidden;
+  background-color: #E2E6ED;
+}
+
+.ce-table-tool__row .ce-table-tool__row__item {
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+  transition: all .3s;
+}
+
+.ce-table-tool__row .ce-table-tool__row__item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 2px;
+  width: 8px;
+  height: 1px;
+  background-color: #C0C6CF;
+}
+
+.ce-table-tool__row .ce-table-tool__row__item:hover {
+  background-color: #dadce0;
+}
+
+.ce-table-tool__row .ce-table-tool__row__item:last-child:after {
+  display: none;
+}
+
+.ce-table-tool__quick__add {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  border-radius: 50%;
+  background-color: #E2E6ED;
+  cursor: pointer;
+}
+
+.ce-table-tool__quick__add::after {
+  content: '+';
+  color: #ffffff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+}
+
+.ce-table-tool__select {
+  width: 16px;
+  height: 18px;
+  position: absolute;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.ce-table-tool__select:hover {
+  background-color: #E2E6ED;
+}
+
+.ce-table-tool__select::after {
+  content: ':::';
+  color: #AAAAAB;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-75%, -50%) rotate(-90deg);
+}
+
+.ce-table-tool__col {
+  position: absolute;
+  height: 12px;
+  border-radius: 6.5px;
+  overflow: hidden;
+  background-color: #E2E6ED;
+  display: flex;
+}
+
+.ce-table-tool__col .ce-table-tool__col__item {
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+  transition: all .3s;
+}
+
+.ce-table-tool__col .ce-table-tool__col__item::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: -1px;
+  width: 1px;
+  height: 8px;
+  z-index: 1;
+  background-color: #C0C6CF;
+}
+
+.ce-table-tool__col .ce-table-tool__col__item:hover {
+  background-color: #dadce0;
+}
+
+.ce-table-tool__col .ce-table-tool__col__item:first-child:after {
+  display: none;
+}
+
+.ce-table-tool__row .ce-table-tool__row__item.active,
+.ce-table-tool__col .ce-table-tool__col__item.active {
+  background-color: #C4D7FA;
+}
+
+.ce-table-tool__col .ce-table-tool__anchor {
+  right: -5px;
+  width: 10px;
+  height: 12px;
+  z-index: 9;
+  position: absolute;
+  cursor: col-resize;
+}
+
+.ce-table-tool__row .ce-table-tool__anchor {
+  bottom: -5px;
+  left: 0;
+  width: 12px;
+  height: 10px;
+  z-index: 9;
+  position: absolute;
+  cursor: row-resize;
+}
+
+.ce-table-anchor__line {
+  z-index: 9;
+  position: absolute;
+  border: 1px dotted #000000;
+}
+
+.ce-table-tool__border {
+  position: absolute;
+  z-index: 1;
+  background: transparent;
+  pointer-events: none;
+}
+
+.ce-table-tool__border__row {
+  position: absolute;
+  cursor: row-resize;
+  pointer-events: auto;
+}
+
+.ce-table-tool__border__col {
+  position: absolute;
+  cursor: col-resize;
+  pointer-events: auto;
+}

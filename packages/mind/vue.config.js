@@ -5,7 +5,7 @@ const isLibrary = process.env.NODE_ENV === 'library'
 const WebpackDynamicPublicPathPlugin = require('webpack-dynamic-public-path')
 
 module.exports = {
-  publicPath: isDev ? '' : './dist',
+  publicPath: isDev ? '' : './',
   outputDir: '../../frontend/public/mind',
   lintOnSave: false,
   productionSourceMap: false,

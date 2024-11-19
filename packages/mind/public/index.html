@@ -10,7 +10,7 @@
   <title>思维导图</title>
   <script>
     // 自定义静态资源的路径
-    window.externalPublicPath = './dist/'
+    window.externalPublicPath = './'
     // 接管应用
     window.takeOverApp = true
     window.isSave = false
@@ -26,6 +26,7 @@
   <div id="app"></div>
   <!-- built files will be auto injected -->
   <script>
+    
     var initData = {
       mindMapData: {
         root: {
@@ -45,8 +46,8 @@
       lang: 'zh',
       localConfig: null
     }
-    
-    
+
+
     const setTakeOverAppMethods = data => {
       window.takeOverAppMethods = {}
       // 获取思维导图数据的函数
@@ -74,49 +75,7 @@
         console.log(config)
       }
     }
-    function isBase64(str) {
-  if (str === '' || str.trim() === '') {
-    return false
-  }
-  try {
-    return btoa(atob(str)) == str
-  } catch (err) {
-    return false
-  }
-}
-function decodeBase64(base64String) {
-  // 将Base64字符串分成每64个字符一组
-  const padding =
-    base64String.length % 4 === 0 ? 0 : 4 - (base64String.length % 4)
-  base64String += '='.repeat(padding)
-
-  // 使用atob()函数解码Base64字符串
-  const binaryString = atob(base64String)
-
-  // 将二进制字符串转换为TypedArray
-  const bytes = new Uint8Array(binaryString.length)
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i)
-  }
-
-  // 将TypedArray转换为字符串
-  return new TextDecoder('utf-8').decode(bytes)
-}
-    const eventHandler = e => {
-      const eventData = e.data
-      if (eventData.type === 'init') {
-        //markdownTitle = eventData.title ? eventData.title : '未命名文稿'
-        const data = eventData.data
-        //console.log(data)
-        if (!data) {
-          //setTakeOverAppMethods(initData)
-          return;
-        }
-        initData.mindMapData = JSON.parse(decodeBase64(data.content))
-        //console.log(initData.mindMapData)
-       
-      }
-    }
+    
     window.onload = async () => {
       if (!window.takeOverApp) return
 

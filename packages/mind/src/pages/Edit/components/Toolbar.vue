@@ -143,7 +143,7 @@ import exampleData from 'simple-mind-map/example/exampleData'
 import { getData, storeData } from '../../../api'
 import ToolbarNodeBtnList from './ToolbarNodeBtnList.vue'
 import { throttle, isMobile } from 'simple-mind-map/src/utils/index'
-
+import markdown from 'simple-mind-map/src/parse/markdown.js'
 /**
  * @Author: 王林
  * @Date: 2021-06-24 22:54:58
@@ -198,6 +198,42 @@ function deepToRaw(obj) {
   }
   return obj;
 }
+function isBase64(str) {
+  if (str === '' || str.trim() === '') {
+    return false
+  }
+  try {
+    return btoa(atob(str)) == str
+  } catch (err) {
+    return false
+  }
+}
+function isJson(str) {
+  try {
+    return JSON.parse(str) && !!str
+  } catch (e) {
+    return false
+  }
+}
+function decodeBase64(base64String) {
+  // 将Base64字符串分成每64个字符一组
+  const padding =
+    base64String.length % 4 === 0 ? 0 : 4 - (base64String.length % 4)
+  base64String += '='.repeat(padding)
+
+  // 使用atob()函数解码Base64字符串
+  const binaryString = atob(base64String)
+
+  // 将二进制字符串转换为TypedArray
+  const bytes = new Uint8Array(binaryString.length)
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+
+  // 将TypedArray转换为字符串
+  return new TextDecoder('utf-8').decode(bytes)
+}
+
 export default {
   name: 'Toolbar',
   components: {
@@ -270,7 +306,7 @@ export default {
     this.$bus.$on('lang_change', this.computeToolbarShowThrottle)
     document.addEventListener('keydown', this.debouncedHandleKeyDown)
     window.addEventListener('beforeunload', this.onUnload)
-    
+
   },
   beforeDestroy() {
     this.$bus.$off('write_local_file', this.onWriteLocalFile)
@@ -496,7 +532,30 @@ export default {
     async createNewLocalFile() {
       await this.createLocalFile(exampleData)
     },
+    eventHandler(e) {
+      const eventData = e.data
+      let mindData = getData()
+      if (eventData.type === 'init') {
+        //markdownTitle = eventData.title ? eventData.title : '未命名文稿'
+        const data = eventData.data
+        //console.log(data)
+        if (!data) {
+          //setTakeOverAppMethods(initData)
+          return;
+        }
+        if (isBase64(data.content)) {
+          data.content = decodeBase64(data.content)
+        }
+        if(isJson(data.content)) {
+          mindData.mindMapData = JSON.parse(data.content)
+        }else{
+          mindData.mindMapData = markdown.transformMarkdownTo(data.content)
+        }
+        //initData.mindMapData = JSON.parse(data.content)
+        console.log(mindData.mindMapData)
 
+      }
+    },
     // 另存为
     async saveLocalFile() {
       let data = getData()

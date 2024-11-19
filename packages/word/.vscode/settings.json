@@ -1,0 +1,53 @@
+{
+  "cSpell.words": [
+    "atrule",
+    "Chainable",
+    "colspan",
+    "compositionend",
+    "compositionstart",
+    "contenteditable",
+    "contextmenu",
+    "CRDT",
+    "deletable",
+    "dppx",
+    "esbenp",
+    "eventbus",
+    "inputarea",
+    "keyof",
+    "linebreak",
+    "noopener",
+    "Parens",
+    "prismjs",
+    "resizer",
+    "richtext",
+    "rowmargin",
+    "rowspan",
+    "srcdoc",
+    "TEXTLIKE",
+    "trlist",
+    "updown",
+    "vite",
+    "vitepress",
+    "Yahei"
+  ],
+  "cSpell.ignorePaths": [
+    ".github",
+    "dist",
+    "node_modules",
+    "yarn.lock",
+    "src/editor/core/draw/particle/latex/utils"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
