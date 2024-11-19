@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport"
+    content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0" />
+  <link rel="icon" href="dist/logo.ico" />
+  <title>思维导图</title>
+  <script>
+    // 自定义静态资源的路径
+    window.externalPublicPath = './dist/'
+    // 接管应用
+    window.takeOverApp = true
+    window.isSave = false
+  </script>
+</head>
+
+<body>
+  <noscript>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work
+        properly without JavaScript enabled. Please enable it to
+        continue.</strong>
+  </noscript>
+  <div id="app"></div>
+  <!-- built files will be auto injected -->
+  <script>
+    var initData = {
+      mindMapData: {
+        root: {
+          data: {
+            text: '未命名导图'
+          },
+          children: []
+        },
+        theme: {
+          template: 'gold',
+          config: {}
+        },
+        layout: 'logicalStructure',
+        config: {},
+        view: null
+      },
+      lang: 'zh',
+      localConfig: null
+    }
+    
+    
+    const setTakeOverAppMethods = data => {
+      window.takeOverAppMethods = {}
+      // 获取思维导图数据的函数
+      window.takeOverAppMethods.getMindMapData = () => {
+        return data.mindMapData
+      }
+      // 保存思维导图数据的函数
+      window.takeOverAppMethods.saveMindMapData = data => {
+        console.log(data)
+      }
+      // 获取语言的函数
+      window.takeOverAppMethods.getLanguage = () => {
+        return data.lang
+      }
+      // 保存语言的函数
+      window.takeOverAppMethods.saveLanguage = lang => {
+        console.log(lang)
+      }
+      // 获取本地配置的函数
+      window.takeOverAppMethods.getLocalConfig = () => {
+        return data.localConfig
+      }
+      // 保存本地配置的函数
+      window.takeOverAppMethods.saveLocalConfig = config => {
+        console.log(config)
+      }
+    }
+    function isBase64(str) {
+  if (str === '' || str.trim() === '') {
+    return false
+  }
+  try {
+    return btoa(atob(str)) == str
+  } catch (err) {
+    return false
+  }
+}
+function decodeBase64(base64String) {
+  // 将Base64字符串分成每64个字符一组
+  const padding =
+    base64String.length % 4 === 0 ? 0 : 4 - (base64String.length % 4)
+  base64String += '='.repeat(padding)
+
+  // 使用atob()函数解码Base64字符串
+  const binaryString = atob(base64String)
+
+  // 将二进制字符串转换为TypedArray
+  const bytes = new Uint8Array(binaryString.length)
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+
+  // 将TypedArray转换为字符串
+  return new TextDecoder('utf-8').decode(bytes)
+}
+    const eventHandler = e => {
+      const eventData = e.data
+      if (eventData.type === 'init') {
+        //markdownTitle = eventData.title ? eventData.title : '未命名文稿'
+        const data = eventData.data
+        //console.log(data)
+        if (!data) {
+          //setTakeOverAppMethods(initData)
+          return;
+        }
+        initData.mindMapData = JSON.parse(decodeBase64(data.content))
+        //console.log(initData.mindMapData)
+       
+      }
+    }
+    window.onload = async () => {
+      if (!window.takeOverApp) return
+
+      // 请求数据
+      //const data = await getDataFromBackend()
+      window.parent.postMessage({ type: 'initSuccess' }, '*')
+      window.addEventListener('message', eventHandler)
+      // 设置全局的方法
+      setTakeOverAppMethods(initData)
+
+      // 思维导图实例创建完成事件
+      window.$bus.$on('app_inited', mindMap => {
+        console.log(mindMap)
+      })
+      // 可以通过window.$bus.$on()来监听应用的一些事件
+      // 实例化页面
+      window.initApp()
+    }
+    window.addEventListener('unload', () => {
+      window.removeEventListener('message', eventHandler)
+    })
+  </script>
+</body>
+
+</html>

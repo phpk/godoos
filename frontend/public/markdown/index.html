@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cherry Editor - Markdown Editor</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    video {
+      max-width: 400px;
+    }
+
+    #demo-val {
+      display: none;
+    }
+
+    img {
+      max-width: 100%;
+    }
+    iframe.cherry-dialog-iframe {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+  <link rel="stylesheet" type="text/css" href="./dist/cherry-markdown.min.css">
+  <link rel="stylesheet" href="./katex/katex.min.css"
+    integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+ 
+</head>
+
+<body>
+  <div id="dom_mask" style="position: absolute; top: 40px; height: 20px; width: 100%;"></div>
+  <div id="markdown"></div>
+  <script type="text/javascript" src="./echarts/echarts.min.js"></script>
+  <!--<script src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>-->
+  <script src="./dist/cherry-markdown.min.js"></script>
+  <script src="./scripts/pinyin/pinyin_dist.js"></script>
+  <script src="./scripts/index.js"></script>
+</body>
+
+</html>

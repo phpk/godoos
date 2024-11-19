@@ -52,15 +52,15 @@ const eventHandler = async (e: MessageEvent) => {
 		if (win.config && win.config.path) {
 			path = win.config.path;
 			//去除重复文件名后的（1）
-			// let fileTitleArr = path.split(SP).pop().split(".");
-			// let oldExt = fileTitleArr.pop();
-			// let fileTitle = fileTitleArr.join(".");
-			// if (fileTitle != title) {
-			// 	path = path.replace(fileTitle, title);
-			// }
-			// if (oldExt != ext) {
-			// 	path = path.replace("." + oldExt, "." + ext);
-			// }
+			let fileTitleArr = path.split(SP).pop().split(".");
+			let oldExt = fileTitleArr.pop();
+			let fileTitle = fileTitleArr.join(".");
+			if (fileTitle != title) {
+				path = path.replace(fileTitle, title);
+			}
+			if (oldExt != ext) {
+				path = path.replace("." + oldExt, "." + ext);
+			}
 		} else {
 			path = `${SP}C${SP}Users${SP}Desktop${SP}${title}.${ext}`;
 		}
@@ -155,6 +155,36 @@ const eventHandler = async (e: MessageEvent) => {
 				"*"
 			);
 		}
+	}
+	else if (eventData.type == "close") {
+		// console.log("关闭");
+		win.close();
+	}
+	else if (eventData.type == "saveMind") {
+		// console.log("保存");
+		const data = eventData.data;
+		const path = win?.config?.path;
+		//console.log(path,data)
+		const winMind = new BrowserWindow({
+            title:data.title,
+			url: "/mind/index.html",
+			frame: true,
+            config: {
+                ext: 'mind',
+                path: path,
+				content: data.content
+            },
+            icon: "gallery",
+            width: 700,
+            height: 500,
+            x: 100,
+            y: 100,
+            //center: true,
+            minimizable: false,
+            resizable: true,
+        });
+        winMind.show()
+		
 	}
 };
 //删除本地暂存的文件密码

@@ -1,16 +1,17 @@
-<!DOCTYPE html><html lang=""><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="icon" href="./logo.ico"><title>思维导图</title><script>// 自定义静态资源的路径
-    window.externalPublicPath = './'
+<!DOCTYPE html><html lang=""><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1"><link rel="icon" href="dist/logo.ico"><title>思维导图</title><script>// 自定义静态资源的路径
+    window.externalPublicPath = './dist/'
     // 接管应用
-    window.takeOverApp = true</script><link href="css/chunk-vendors.css?ef62811a143384fba848" rel="stylesheet"><link href="css/app.css?ef62811a143384fba848" rel="stylesheet"></head><body><noscript><strong>We're sorry but thoughts doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div><script>let defNode = {
+    window.takeOverApp = true
+    window.isSave = false</script><link href="dist/css/chunk-vendors.css?c48161cf1ebc8df73898" rel="stylesheet"><link href="dist/css/app.css?c48161cf1ebc8df73898" rel="stylesheet"></head><body><noscript><strong>We're sorry but thoughts doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div><script>var initData = {
       mindMapData: {
         root: {
           data: {
-            text: '根节点'
+            text: '未命名导图'
           },
           children: []
         },
         theme: {
-          template: 'avocado',
+          template: 'gold',
           config: {}
         },
         layout: 'logicalStructure',
@@ -20,112 +21,8 @@
       lang: 'zh',
       localConfig: null
     }
-
-    function isBase64(str) {
-      if (str === '' || str.trim() === '') {
-        return false
-      }
-      try {
-        return btoa(atob(str)) == str
-      } catch (err) {
-        return false
-      }
-    }
-    function decodeBase64(base64String) {
-      // 将Base64字符串分成每64个字符一组
-      const padding =
-        base64String.length % 4 === 0 ? 0 : 4 - (base64String.length % 4)
-      base64String += '='.repeat(padding)
-
-      // 使用atob()函数解码Base64字符串
-      const binaryString = atob(base64String)
-
-      // 将二进制字符串转换为TypedArray
-      const bytes = new Uint8Array(binaryString.length)
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i)
-      }
-
-      // 将TypedArray转换为字符串
-      return new TextDecoder('utf-8').decode(bytes)
-    }
-    function findInnermostTextNode(node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return node
-      }
-
-      for (var child of node.childNodes) {
-        var innerTextNode = findInnermostTextNode(child)
-        if (innerTextNode) {
-          return innerTextNode
-        }
-      }
-
-      return null
-    }
-    function getTitle(data) {
-      //console.log(data)
-      const htmlStr = data.mindMapData.root.data.text
-      //console.log(htmlStr)
-      var div = document.createElement('div')
-      div.innerHTML = htmlStr
-
-      var innerTextNode = findInnermostTextNode(div)
-      if (innerTextNode) {
-        return innerTextNode.textContent
-      } else {
-        return '未命名思维导图'
-      }
-    }
-    function setData(data) {
-      // const data = await getDataFromBackend()
-      // // 设置全局的方法
-      setTakeOverAppMethods(data)
-      // 思维导图实例创建完成事件
-      window.$bus.$on('app_inited', mindMap => {
-        //console.log(mindMap)
-      })
-      // 可以通过window.$bus.$on()来监听应用的一些事件
-      // 实例化页面
-      window.initApp()
-    }
-    function eventHandler(e) {
-      const eventData = e.data
-
-      if (eventData.type === 'start') {
-        //console.log(eventData)
-        const initTitle =
-          eventData.title.substring(0, eventData.title.lastIndexOf('.')) ||
-          '根节点'
-        defNode.mindMapData.root.data.text = initTitle
-        setData(defNode)
-        return
-      }
-      if (eventData.type === 'init') {
-        const data = eventData.data
-        if (data.content) {
-          if (typeof data.content === 'string' && isBase64(data.content)) {
-            data.content = decodeBase64(data.content)
-            //console.log(data.content)
-            setData(JSON.parse(data.content))
-          } else {
-            setData(data.content)
-          }
-        } else {
-          //console.log(evTitle)
-        }
-        return
-      }
-      //setData(defNode)
-    }
-    window.SaveOsData = function () {
-      const save = {
-        data: JSON.stringify({ content: defNode, title: getTitle(defNode) }),
-        type: 'exportMind'
-      }
-      console.log(save)
-      window.parent.postMessage(save, '*')
-    }
+    
+    
     const setTakeOverAppMethods = data => {
       window.takeOverAppMethods = {}
       // 获取思维导图数据的函数
@@ -134,15 +31,7 @@
       }
       // 保存思维导图数据的函数
       window.takeOverAppMethods.saveMindMapData = data => {
-        //console.log("========")
-        defNode.mindMapData = data
-        //console.log(JSON.stringify(defNode))
-        // const save = {
-        //   data: JSON.stringify({ content, title }),
-        //   type: 'exportMind'
-        // }
-        // console.log(save)
-        // window.parent.postMessage(save, '*')
+        console.log(data)
       }
       // 获取语言的函数
       window.takeOverAppMethods.getLanguage = () => {
@@ -150,8 +39,7 @@
       }
       // 保存语言的函数
       window.takeOverAppMethods.saveLanguage = lang => {
-        //console.log(lang)
-        defNode.lang = lang
+        console.log(lang)
       }
       // 获取本地配置的函数
       window.takeOverAppMethods.getLocalConfig = () => {
@@ -159,13 +47,70 @@
       }
       // 保存本地配置的函数
       window.takeOverAppMethods.saveLocalConfig = config => {
-        //console.log(config)
-        //console.log("=======")
-        defNode.localConfig = config
+        console.log(config)
+      }
+    }
+    function isBase64(str) {
+  if (str === '' || str.trim() === '') {
+    return false
+  }
+  try {
+    return btoa(atob(str)) == str
+  } catch (err) {
+    return false
+  }
+}
+function decodeBase64(base64String) {
+  // 将Base64字符串分成每64个字符一组
+  const padding =
+    base64String.length % 4 === 0 ? 0 : 4 - (base64String.length % 4)
+  base64String += '='.repeat(padding)
+
+  // 使用atob()函数解码Base64字符串
+  const binaryString = atob(base64String)
+
+  // 将二进制字符串转换为TypedArray
+  const bytes = new Uint8Array(binaryString.length)
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+
+  // 将TypedArray转换为字符串
+  return new TextDecoder('utf-8').decode(bytes)
+}
+    const eventHandler = e => {
+      const eventData = e.data
+      if (eventData.type === 'init') {
+        //markdownTitle = eventData.title ? eventData.title : '未命名文稿'
+        const data = eventData.data
+        //console.log(data)
+        if (!data) {
+          //setTakeOverAppMethods(initData)
+          return;
+        }
+        initData.mindMapData = JSON.parse(decodeBase64(data.content))
+        //console.log(initData.mindMapData)
+       
       }
     }
     window.onload = async () => {
       if (!window.takeOverApp) return
+
+      // 请求数据
+      //const data = await getDataFromBackend()
       window.parent.postMessage({ type: 'initSuccess' }, '*')
       window.addEventListener('message', eventHandler)
-    }</script><script src="js/chunk-vendors.js?ef62811a143384fba848"></script><script src="js/app.js?ef62811a143384fba848"></script></body></html>
+      // 设置全局的方法
+      setTakeOverAppMethods(initData)
+
+      // 思维导图实例创建完成事件
+      window.$bus.$on('app_inited', mindMap => {
+        console.log(mindMap)
+      })
+      // 可以通过window.$bus.$on()来监听应用的一些事件
+      // 实例化页面
+      window.initApp()
+    }
+    window.addEventListener('unload', () => {
+      window.removeEventListener('message', eventHandler)
+    })</script><script src="dist/js/chunk-vendors.js?c48161cf1ebc8df73898"></script><script src="dist/js/app.js?c48161cf1ebc8df73898"></script></body></html>
