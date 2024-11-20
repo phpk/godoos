@@ -7,8 +7,6 @@ An efficient intranet office platform that includes various tools such as Word, 
 
 <div align="center">
 
-[![license][license-image]][license-url] 
-
 English | [简体中文](README.md)
 
 [FAQ](./docs/Faq.md) | [API](./docs/Api.md) | [AppStore](./docs/Store.en.md)
