@@ -237,6 +237,14 @@ window.onload = function () {
     instance.command.executeSubscript()
   }
 
+  //ai
+  const aiEditDom = document.querySelector<HTMLDivElement>('.menu-item__ai-edit')!
+  aiEditDom.title = `ai帮助`
+  aiEditDom.onclick = function () {
+    console.log('ai-edit')
+    instance.command.executeAiEdit('')
+  }
+
   const colorControlDom = document.querySelector<HTMLInputElement>('#color')!
   colorControlDom.oninput = function () {
     instance.command.executeColor(colorControlDom.value)
@@ -1540,6 +1548,9 @@ window.onload = function () {
   // 8. 内部事件监听
   instance.listener.rangeStyleChange = function (payload) {
     // 控件类型
+    payload.type === ElementType.AIEDIT
+      ? aiEditDom.classList.add('active')
+      : aiEditDom.classList.remove('active')
     payload.type === ElementType.SUBSCRIPT
       ? subscriptDom.classList.add('active')
       : subscriptDom.classList.remove('active')

@@ -131,7 +131,8 @@ export const TEXTLIKE_ELEMENT_TYPE: ElementType[] = [
   ElementType.SUBSCRIPT,
   ElementType.SUPERSCRIPT,
   ElementType.CONTROL,
-  ElementType.DATE
+  ElementType.DATE,
+  ElementType.AIEDIT
 ]
 
 export const IMAGE_ELEMENT_TYPE: ElementType[] = [

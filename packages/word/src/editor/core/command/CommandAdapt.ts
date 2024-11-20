@@ -475,6 +475,7 @@ export class CommandAdapt {
     const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
     if (isDisabled) return
     const selection = this.range.getSelectionElementList()
+    
     if (selection?.length) {
       const noBoldIndex = selection.findIndex(s => !s.bold)
       selection.forEach(el => {
@@ -631,6 +632,20 @@ export class CommandAdapt {
       }
     })
     this.draw.render({ isSetCursor: false })
+  }
+
+  public aiEdit(operate: string | null) {
+    console.log('ai edit:', operate)
+    const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
+    if (isDisabled) return
+    const selection = this.range.getSelectionElementList()
+    if (!selection) return
+    let content = ''
+    selection.forEach(el => {
+      content += el.value
+    })
+    //console.log('操作内容：', content);
+    return content
   }
 
   public color(payload: string | null) {

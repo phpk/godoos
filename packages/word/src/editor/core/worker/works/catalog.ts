@@ -18,6 +18,7 @@ enum ElementType {
   SUPERSCRIPT = 'superscript',
   SUBSCRIPT = 'subscript',
   SEPARATOR = 'separator',
+  AIEDIT = 'aiEdit',
   PAGE_BREAK = 'pageBreak',
   CONTROL = 'control',
   CHECKBOX = 'checkbox',
@@ -54,7 +55,8 @@ const TEXTLIKE_ELEMENT_TYPE: ElementType[] = [
   ElementType.SUBSCRIPT,
   ElementType.SUPERSCRIPT,
   ElementType.CONTROL,
-  ElementType.DATE
+  ElementType.DATE,
+  ElementType.AIEDIT
 ]
 
 const ZERO = '\u200B'

@@ -6,7 +6,6 @@ import { ToolbarType } from './enum'
 import { IToolbarRegister } from './interface'
 import { PLUGIN_PREFIX } from './constant'
 import { Svgs } from './icons/Svgs'
-
 function createPickerToolbar(
   container: HTMLDivElement,
   toolbarType: ToolbarType,
@@ -63,55 +62,54 @@ function createPickerToolbar(
 }
 export const defaultAiPanelMenus = [
   {
-    prompt: `<content>{content}</content>\n请帮我优化一下这段内容，并直接返回优化后的结果。\n注意：你应该先判断一下这句话是中文还是英文，如果是中文，请给我返回中文的内容，如果是英文，请给我返回英文内容，只需要返回内容即可，不需要告知我是中文还是英文。`,
     icon: Svgs.optimize,
-    title: '改进写作'
+    // title: '改进写作',
+    title: '优化',
+    key: 'creation_optimization'
   },
   {
-    prompt: `<content>{content}</content>\n请帮我检查一下这段内容，是否有拼写错误或者语法上的错误。\n注意：你应该先判断一下这句话是中文还是英文，如果是中文，请给我返回中文的内容，如果是英文，请给我返回英文内容，只需要返回内容即可，不需要告知我是中文还是英文。`,
     icon: Svgs.checkGrammar,
-    title: '检查拼写和语法'
+    // title: '检查拼写和语法'
+    title: '纠错',
+    key: 'creation_proofreading'
   },
+  // {
+  //   icon: Svgs.simplification,
+  //   title: '简化内容'
+  // },
   {
-    prompt: `<content>{content}</content>\n这句话的内容较长，帮我简化一下这个内容，并直接返回简化后的内容结果。\n注意：你应该先判断一下这句话是中文还是英文，如果是中文，请给我返回中文的内容，如果是英文，请给我返回英文内容，只需要返回内容即可，不需要告知我是中文还是英文。`,
-    icon: Svgs.simplification,
-    title: '简化内容'
-  },
-  {
-    prompt: `<content>{content}</content>\n这句话的内容较简短，帮我简单的优化和丰富一下内容，并直接返回优化后的结果。注意：优化的内容不能超过原来内容的 2 倍。\n注意：你应该先判断一下这句话是中文还是英文，如果是中文，请给我返回中文的内容，如果是英文，请给我返回英文内容，只需要返回内容即可，不需要告知我是中文还是英文。`,
     icon: Svgs.richContent,
-    title: '丰富内容'
+    // title: '丰富内容'
+    title: '续写',
+    key: 'creation_continuation'
   },
   '<hr/>',
   {
-    prompt: `<content>{content}</content>\n请帮我翻译以上内容，在翻译之前，想先判断一下这个内容是不是中文，如果是中文，则翻译问英文，如果是其他语言，则需要翻译为中文，注意，你只需要返回翻译的结果，不需要对此进行任何解释，不需要除了翻译结果以外的其他任何内容。`,
     icon: Svgs.translation,
-    title: '翻译'
+    title: '翻译',
+    key: 'creation_translation'
   },
   {
-    prompt: `<content>{content}</content>\n请帮我总结以上内容，并直接返回总结的结果\n注意：你应该先判断一下这句话是中文还是英文，如果是中文，请给我返回中文的内容，如果是英文，请给我返回英文内容，只需要返回内容即可，不需要告知我是中文还是英文。`,
     icon: Svgs.summary,
-    title: '总结'
+    title: '总结',
+    key: 'creation_summarize'
   }
 ]
 // 创建ai选择栏
 function createAIToolbar(
   container: HTMLDivElement,
   toolbarType: ToolbarType,
-  changed: (color: string) => void
+  editor: Editor
 ) {
   const toolbarItem = document.createElement('div')
   toolbarItem.classList.add(`${PLUGIN_PREFIX}-picker-ai`)
   toolbarItem.classList.add(`${PLUGIN_PREFIX}-${toolbarType}`)
-  const chooseBox = document.createElement('div')
-  chooseBox.classList.add('ce-picker-container')
-  toolbarItem.append(chooseBox)
   const aiBubbleMenuItems = defaultAiPanelMenus
   toolbarItem.innerHTML = `
-      <i></i>
-      <div class="aie-container">
+      <i id="${toolbarType}-btn"></i>
+      <div class="aie-container ce-picker-container ai-hide">
         <div class="aie-ai-panel-body">
-            <div class="aie-ai-panel-body-content" style="display: none"><div class="loader">
+            <div class="aie-ai-panel-body-content ai-hide"><div class="loader">
               ${Svgs.refresh}
             </div><textarea readonly></textarea></div>
             <div class="aie-ai-panel-body-input"><input id="prompt" placeholder="告诉 AI 下一步应该如何？比如：帮我翻译成英语" type="text" />
@@ -123,7 +121,7 @@ function createAIToolbar(
               提示：您可以在上面输入文字或者选择下方的操作
             </div>
         </div>
-        <div class="aie-ai-panel-footer" style="display: none">
+        <div class="aie-ai-panel-footer ai-hide" id="footer-one">
           <div class="aie-ai-panel-footer-tips">
             您可以进行以下操作:
           </div>
@@ -134,32 +132,130 @@ function createAIToolbar(
         </div>
         
         <!--aie-ai-panel-actions-->
-        <div class="aie-ai-panel-footer aie-ai-panel-actions" >
-        <div class="aie-ai-panel-footer-tips">您可以进行以下操作:</div>
-        ${aiBubbleMenuItems
-      .map(menuItem => {
-        return typeof menuItem === 'string'
-          ? menuItem
-          : `<p data-prompt="${menuItem.prompt}">${menuItem.icon} ${menuItem.title} </p>`
-      })
-      .join('')}
+        <div class="aie-ai-panel-footer aie-ai-panel-actions" id="footer-two">
+          <div class="aie-ai-panel-footer-tips">您可以进行以下操作:</div>
+          ${aiBubbleMenuItems
+            .map(menuItem => {
+              return typeof menuItem === 'string'
+                ? menuItem
+                : `<p id="ai-operate" data-type="${menuItem.key}">${menuItem.icon} ${menuItem.title} </p>`
+            })
+            .join('')}
         </div>
       </div>
       `
   container.append(toolbarItem)
+  bindAiPanelEvent(container, editor)
 }
+//AI弹窗绑定点击事件
+function bindAiPanelEvent(container: HTMLDivElement, editor: Editor) {
+  // 菜单栏AI选项
+  container.querySelector<HTMLDivElement>(`#ai-edit-btn`)?.addEventListener('click', () => {
+    // const target = e.currentTarget as HTMLDivElement
+    const target = container.querySelector<HTMLDivElement>(`.${PLUGIN_PREFIX}-ai-edit`)!
+    const isActive = target.classList.contains('ai-active')
+    isActive ? target.classList.remove('ai-active') : target.classList.add('ai-active')
+    const aiDialog = container.querySelector<HTMLDivElement>('.aie-container')
+    !isActive ? aiDialog?.classList.remove('ai-hide') : aiDialog?.classList.add('ai-hide')
+  })
 
+  //选中操作，进行处理
+  const aiOptions = Array.from(container.querySelectorAll('#ai-operate'))
+  aiOptions.forEach((item) => {
+    item.addEventListener('click', () => {
+      container.querySelector('#footer-one')?.classList.remove('ai-hide')
+      container.querySelector('#footer-two')?.classList.add('ai-hide')
+      container.querySelector('.aie-ai-panel-body-content')?.classList.remove('ai-hide')
+      //console.log('选项点击');
+      const aiContent = editor.command.executeAiEdit(item.getAttribute('data-type'))
+      const textarea = container.querySelector<HTMLTextAreaElement>('textarea')!
+      if (aiContent) {
+        textarea.textContent = aiContent  
+        //console.log('textarea内容：', textarea, aiContent);
+        
+      }
+    })
+  })
+
+  container.querySelector('#replace')!.addEventListener('click', () => {
+    console.log('替换');
+    
+    // const textarea = container.querySelector('textarea')!
+    // if (textarea.value) {
+    //   const {
+    //     state: { selection, tr },
+    //     view: { dispatch },
+    //     schema
+    //   } = holder.editor!
+    //   const textNode = schema.text(textarea.value)
+    //   dispatch(tr.replaceRangeWith(selection.from, selection.to, textNode))
+    //   holder.aiPanelInstance?.hide()
+    //   holder.tippyInstance?.show()
+    // }
+  })
+
+  container.querySelector('#insert')!.addEventListener('click', () => {
+    console.log('插入');
+    
+    // const textarea = container.querySelector('textarea')!
+    // if (textarea.value) {
+    //   const {
+    //     state: { selection, tr },
+    //     view: { dispatch }
+    //   } = holder.editor!
+    //   dispatch(tr.insertText(textarea.value, selection.to))
+    //   holder.aiPanelInstance?.hide()
+    //   holder.tippyInstance?.show()
+    // }
+  })
+
+  container.querySelector('#hide')!.addEventListener('click', () => {
+    console.log('舍弃');
+    
+    // holder.aiPanelInstance?.hide()
+    // holder.tippyInstance?.show()
+  })
+
+  container.querySelector('#go')!.addEventListener('click', () => {
+    // const prompt = (container.querySelector('#prompt') as HTMLInputElement)
+    //   .value
+    // startChat(holder, container, prompt)
+  })
+
+  container.querySelectorAll('.aie-ai-panel-actions p').forEach(element => {
+    // const prompt = element.getAttribute('data-prompt')!
+    // element.addEventListener('click', () => {
+    //   startChat(holder, container, prompt)
+    // })
+  })
+
+  container.addEventListener('click', e => {
+    // if (e.target === container) {
+    //   holder.aiPanelInstance?.hide()
+    //   holder.tippyInstance?.show()
+    // }
+  })
+}
+//ai弹窗初始化
+function initAiDialog(container: HTMLDivElement) {
+  container.querySelector<HTMLDivElement>('.aie-container')?.classList.add('ai-hide')
+  container.querySelector<HTMLDivElement>(`.${PLUGIN_PREFIX}-ai-edit`)?.classList.remove('ai-active')
+  container.querySelector<HTMLDivElement>('#footer-one')?.classList.add('ai-hide')
+  container.querySelector<HTMLDivElement>('#footer-two')?.classList.remove('ai-hide')
+  container.querySelector('.aie-ai-panel-body-content')?.classList.add('ai-hide')
+  const textarea = container.querySelector<HTMLTextAreaElement>('textarea')!
+  textarea.textContent = ""
+}
 // 工具栏列表
 const toolbarRegisterList: IToolbarRegister[] = [
   {
     // key: ToolbarType.AI_EDIT,
     // callback(editor) {
-    //   console.log('editor:', editor)
+    //   editor.command.executeAiEdit('')
     // }
     render(container, editor) {
-      createAIToolbar(container, ToolbarType.AI_EDIT, color => {
-        editor.command.executeColor(color)
-      })
+      console.log('是否会重复');
+      createAIToolbar(container, ToolbarType.AI_EDIT, editor)
     }
   },
   {
@@ -245,11 +341,21 @@ function createToolbar(editor: Editor): HTMLDivElement {
       toolbarContainer.append(toolbarItem)
     }
   }
+  // let aiShow = false
+  // toolbarContainer.querySelector(`.${PLUGIN_PREFIX}-ai-edit`)?.addEventListener('click', () => {
+  //   const aiDialog = toolbarContainer.querySelector<HTMLDivElement>('.aie-container')
+  //   // aiDialog ? toggleToolbarItemActive(aiDialog, false) : ''
+  //   // console.log('点击事件：', aiDialog);
+  //   aiShow ? aiDialog?.classList.add('hide') : aiDialog?.classList.remove('hide')
+  //   aiShow = !aiShow
+  // })
   return toolbarContainer
 }
 
 function toggleToolbarVisible(toolbar: HTMLDivElement, visible: boolean) {
   visible ? toolbar.classList.remove('hide') : toolbar.classList.add('hide')
+  // console.log('元素：', visible, toolbar);
+  
 }
 
 function toggleToolbarItemActive(toolbarItem: HTMLDivElement, active: boolean) {
@@ -273,6 +379,7 @@ export default function floatingToolbarPlugin(editor: Editor) {
     const context = editor.command.getRangeContext()
     if (!context || context.isCollapsed || !context.rangeRects[0]) {
       toggleToolbarVisible(toolbarContainer, false)
+      initAiDialog(toolbarContainer)
       return
     }
     // 定位
@@ -280,12 +387,20 @@ export default function floatingToolbarPlugin(editor: Editor) {
     toolbarContainer.style.left = `${position.x}px`
     toolbarContainer.style.top = `${position.y + position.height}px`
     // 样式回显
-    const aiDom = toolbarContainer.querySelector<HTMLDivElement>(
-      `.${PLUGIN_PREFIX}-ai-edit`
-    )
-    if (aiDom) {
-      toggleToolbarItemActive(aiDom, rangeStyle.aiEdit)
-    }
+    // const aiDom = toolbarContainer.querySelector<HTMLDivElement>(
+    //   `.${PLUGIN_PREFIX}-ai-edit`
+    // )
+    // // console.log('样式变化：', rangeStyle);
+    
+    // if (aiDom) {
+    //   toggleToolbarItemActive(aiDom, rangeStyle.aiEdit)
+    //   // console.log('AI变化：', rangeStyle.aiEdit);
+      
+    //   // if (rangeStyle.aiEdit) {
+    //   //   const aiDialog = toolbarContainer.querySelector<HTMLDivElement>('.aie-container')
+    //   //   aiDialog ? toggleToolbarItemActive(aiDialog, rangeStyle.aiEdit) : ''
+    //   // }
+    // }
     const boldDom = toolbarContainer.querySelector<HTMLDivElement>(
       `.${PLUGIN_PREFIX}-bold`
     )

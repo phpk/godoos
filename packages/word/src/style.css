@@ -1069,3 +1069,7 @@ ul {
 .menu-item__save i {
   background-image: url('./assets/images/save.svg');
 }
+
+.menu-item__ai-edit i{
+  background-image: url('./assets/images/ai-edit.svg');
+}

@@ -28,6 +28,7 @@ export class Command {
   public executeStrikeout: CommandAdapt['strikeout']
   public executeSuperscript: CommandAdapt['superscript']
   public executeSubscript: CommandAdapt['subscript']
+  public executeAiEdit: CommandAdapt['aiEdit']
   public executeColor: CommandAdapt['color']
   public executeHighlight: CommandAdapt['highlight']
   public executeTitle: CommandAdapt['title']
@@ -152,6 +153,7 @@ export class Command {
     this.executeStrikeout = adapt.strikeout.bind(adapt)
     this.executeSuperscript = adapt.superscript.bind(adapt)
     this.executeSubscript = adapt.subscript.bind(adapt)
+    this.executeAiEdit = adapt.aiEdit.bind(adapt)
     this.executeColor = adapt.color.bind(adapt)
     this.executeHighlight = adapt.highlight.bind(adapt)
     // 标题、对齐方式、列表

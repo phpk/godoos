@@ -6,6 +6,7 @@ export enum ElementType {
   SUPERSCRIPT = 'superscript',
   SUBSCRIPT = 'subscript',
   SEPARATOR = 'separator',
+  AIEDIT = 'aiEdit',
   PAGE_BREAK = 'pageBreak',
   CONTROL = 'control',
   CHECKBOX = 'checkbox',

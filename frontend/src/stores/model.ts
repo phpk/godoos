@@ -153,6 +153,8 @@ export const useModelStore = defineStore('modelStore', () => {
     return modelList.filter((d: any) => d.action == action)
   }
   async function addDownList(data: any) {
+    console.log(data);
+    
     //modelList.value.unshift(data)
     // const has = modelList.value.find((d: any) => d.model == data.model)
     // //console.log(has)
