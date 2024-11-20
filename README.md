@@ -6,7 +6,6 @@
 一款高效的内网办公操作系统，内含word/excel/ppt/pdf/内网聊天/白板/思维导图等多个办公系统工具，支持原生文件存储。平台界面精仿windows风格，操作简便，同时保持低资源消耗和高性能运行。无需注册即可自动连接内网用户，实现即时通讯和文件共享。灵活高配置的应用商店，可无限扩展。
 <div align="center">
 
-[![license][license-image]][license-url] 
 
 [English](README.en.md) | 简体中文
 
@@ -342,8 +341,8 @@ wails build
 
 ## 开源
 
-- 承诺永久免费开源
-- 允许企业/个人单独使用
+- 承诺永久开源
+- 允许企业/个人单独使用，但需保留版权信息
 - 如用于商业活动或二次开发后发售，请购买相关版权
 - 不提供私下维护工作，如有bug请 [issures](https://gitee.com/ruitao_admin/godoos/issues) 提交
 - 请尊重作者的劳动成果
