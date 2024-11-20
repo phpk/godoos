@@ -111,7 +111,6 @@ func Tagshandler(w http.ResponseWriter, r *http.Request) {
 		rb, ok := value.(ReqBody)
 		if ok {
 			reqBodies = append(reqBodies, rb)
-
 		}
 		return true // 继续遍历
 	})

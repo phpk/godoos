@@ -126,7 +126,7 @@
         if (typeof data.content === 'string' && isBase64(data.content)) {
           data.content = decodeBase64(data.content)
         }
-        
+
         if (isJson(data.content)) {
           initData.mindMapData = JSON.parse(data.content)
         } else {
@@ -134,8 +134,7 @@
           initData.mindMapData.root = markdownParse.transformMarkdownTo(data.content)
         }
         //initData.mindMapData = JSON.parse(data.content)
-       //console.log(initData.mindMapData)
-
+        //console.log(initData.mindMapData)
       }
     }
     window.onload = async () => {

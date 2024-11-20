@@ -36,7 +36,7 @@
 }
 
 body {
-  background-color: #F2F4F7;
+  background-color: #fff;
 }
 
 ul {
@@ -54,8 +54,9 @@ ul {
   flex-wrap: wrap;
   align-items: center;
   justify-content: left;
-  background: #F2F4F7;
-  box-shadow: 0 2px 4px 0 transparent;
+  background: #fff;
+  /* box-shadow: 0 2px 4px 0 transparent; */
+  box-shadow: 0 0 10px rgba(128,145,165,.2);
 }
 
 .menu-divider {

@@ -69,18 +69,34 @@ func GetModelPath(urls string, model string, reqType string) (string, error) {
 	}
 	return filePath, nil
 }
+func Var(key string) string {
+	return strings.Trim(strings.TrimSpace(os.Getenv(key)), "\"'")
+}
 func GetHfModelDir() (string, error) {
 	dataDir := libs.GetDataDir()
 	return filepath.Join(dataDir, "hfmodels"), nil
 }
 func GetOllamaModelDir() string {
-	dataDir := libs.GetDataDir()
-	return filepath.Join(dataDir, "models")
+	// dataDir := libs.GetDataDir()
+	// return filepath.Join(dataDir, "models")
+	if s := Var("OLLAMA_MODELS"); s != "" {
+		return s
+	}
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	return filepath.Join(home, ".ollama", "models")
 }
 func getOModelsDir() (string, error) {
 	return GetOllamaModelDir(), nil
 }
 func GetOllamaUrl() string {
+	if s := strings.TrimSpace(Var("OLLAMA_HOST")); s != "" {
+		return s
+	}
 	return "http://localhost:11434"
 }
 func ReplaceModelName(modelName string) string {
