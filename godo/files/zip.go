@@ -1,6 +1,6 @@
 /*
- * godoos - A lightweight cloud desktop
- * Copyright (C) 2024 godoos.com
+ * GodoOS - A lightweight cloud desktop
+ * Copyright (C) 2024 https://godoos.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
