@@ -9,9 +9,11 @@ import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
 import i18n from './i18n'
 import { getLang } from '@/api'
+import markdown from 'simple-mind-map/src/parse/markdown.js';
 // import VConsole from 'vconsole'
 // const vConsole = new VConsole()
 
+window.markdownParse = markdown;
 Vue.config.productionTip = false
 const bus = new Vue()
 Vue.prototype.$bus = bus

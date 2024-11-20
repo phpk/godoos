@@ -297,7 +297,7 @@ export default {
     }
   },
   created() {
-    this.$bus.$on('write_local_file', this.onWriteLocalFile)
+    //this.$bus.$on('write_local_file', this.onWriteLocalFile)
   },
   mounted() {
     this.computeToolbarShow()
@@ -309,7 +309,7 @@ export default {
 
   },
   beforeDestroy() {
-    this.$bus.$off('write_local_file', this.onWriteLocalFile)
+    // this.$bus.$off('write_local_file', this.onWriteLocalFile)
     window.removeEventListener('resize', this.computeToolbarShowThrottle)
     this.$bus.$off('lang_change', this.computeToolbarShowThrottle)
     window.removeEventListener('beforeunload', this.onUnload)
@@ -343,219 +343,196 @@ export default {
     },
 
     // 监听本地文件读写
-    onWriteLocalFile(content) {
-      clearTimeout(this.timer)
-      if (fileHandle && this.isHandleLocalFile) {
-        this.waitingWriteToLocalFile = true
-      }
-      this.timer = setTimeout(() => {
-        this.writeLocalFile(content)
-      }, 1000)
-    },
+    // onWriteLocalFile(content) {
+    //   clearTimeout(this.timer)
+    //   if (fileHandle && this.isHandleLocalFile) {
+    //     this.waitingWriteToLocalFile = true
+    //   }
+    //   this.timer = setTimeout(() => {
+    //     this.writeLocalFile(content)
+    //   }, 1000)
+    // },
 
     onUnload(e) {
-      if (this.waitingWriteToLocalFile) {
-        const msg = '存在未保存的数据'
-        e.returnValue = msg
-        return msg
-      }
+      // if (this.waitingWriteToLocalFile) {
+      //   const msg = '存在未保存的数据'
+      //   e.returnValue = msg
+      //   return msg
+      // }
     },
 
     // 加载本地文件树
-    async loadFileTreeNode(node, resolve) {
-      try {
-        let dirHandle
-        if (node.level === 0) {
-          dirHandle = await window.showDirectoryPicker()
-          this.rootDirName = dirHandle.name
-        } else {
-          dirHandle = node.data.handle
-        }
-        const dirList = []
-        const fileList = []
-        for await (const [key, value] of dirHandle.entries()) {
-          const isFile = value.kind === 'file'
-          if (isFile && !/\.(smm|xmind|md|json)$/.test(value.name)) {
-            continue
-          }
-          const enableEdit = isFile && /\.smm$/.test(value.name)
-          const data = {
-            id: key,
-            name: value.name,
-            type: value.kind,
-            handle: value,
-            leaf: isFile,
-            enableEdit
-          }
-          if (isFile) {
-            fileList.push(data)
-          } else {
-            dirList.push(data)
-          }
-        }
-        resolve([...dirList, ...fileList])
-      } catch (error) {
-        console.log(error)
-        this.fileTreeVisible = false
-        resolve([])
-        if (error.toString().includes('aborted')) {
-          return
-        }
-        this.$message.warning(this.$t('toolbar.notSupportTip'))
-      }
-    },
+    // async loadFileTreeNode(node, resolve) {
+    //   try {
+    //     let dirHandle
+    //     if (node.level === 0) {
+    //       dirHandle = await window.showDirectoryPicker()
+    //       this.rootDirName = dirHandle.name
+    //     } else {
+    //       dirHandle = node.data.handle
+    //     }
+    //     const dirList = []
+    //     const fileList = []
+    //     for await (const [key, value] of dirHandle.entries()) {
+    //       const isFile = value.kind === 'file'
+    //       if (isFile && !/\.(smm|xmind|md|json)$/.test(value.name)) {
+    //         continue
+    //       }
+    //       const enableEdit = isFile && /\.smm$/.test(value.name)
+    //       const data = {
+    //         id: key,
+    //         name: value.name,
+    //         type: value.kind,
+    //         handle: value,
+    //         leaf: isFile,
+    //         enableEdit
+    //       }
+    //       if (isFile) {
+    //         fileList.push(data)
+    //       } else {
+    //         dirList.push(data)
+    //       }
+    //     }
+    //     resolve([...dirList, ...fileList])
+    //   } catch (error) {
+    //     console.log(error)
+    //     this.fileTreeVisible = false
+    //     resolve([])
+    //     if (error.toString().includes('aborted')) {
+    //       return
+    //     }
+    //     this.$message.warning(this.$t('toolbar.notSupportTip'))
+    //   }
+    // },
 
     // 扫描本地文件夹
-    openDirectory() {
-      this.fileTreeVisible = false
-      this.fileTreeExpand = true
-      this.rootDirName = ''
-      this.$nextTick(() => {
-        this.fileTreeVisible = true
-      })
-    },
+    // openDirectory() {
+    //   this.fileTreeVisible = false
+    //   this.fileTreeExpand = true
+    //   this.rootDirName = ''
+    //   this.$nextTick(() => {
+    //     this.fileTreeVisible = true
+    //   })
+    // },
 
     // 编辑指定文件
-    editLocalFile(data) {
-      if (data.handle) {
-        fileHandle = data.handle
-        this.readFile()
-      }
-    },
+    // editLocalFile(data) {
+    //   if (data.handle) {
+    //     fileHandle = data.handle
+    //     this.readFile()
+    //   }
+    // },
 
     // 导入指定文件
-    async importLocalFile(data) {
-      try {
-        const file = await data.handle.getFile()
-        this.$refs.ImportRef.onChange({
-          raw: file,
-          name: file.name
-        })
-        this.$refs.ImportRef.confirm()
-      } catch (error) {
-        console.log(error)
-      }
-    },
+    // async importLocalFile(data) {
+    //   try {
+    //     const file = await data.handle.getFile()
+    //     this.$refs.ImportRef.onChange({
+    //       raw: file,
+    //       name: file.name
+    //     })
+    //     this.$refs.ImportRef.confirm()
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
+    // },
 
     // 打开本地文件
-    async openLocalFile() {
-      try {
-        let [_fileHandle] = await window.showOpenFilePicker({
-          types: [
-            {
-              description: '',
-              accept: {
-                'application/json': ['.smm']
-              }
-            }
-          ],
-          excludeAcceptAllOption: true,
-          multiple: false
-        })
-        if (!_fileHandle) {
-          return
-        }
-        fileHandle = _fileHandle
-        if (fileHandle.kind === 'directory') {
-          this.$message.warning(this.$t('toolbar.selectFileTip'))
-          return
-        }
-        this.readFile()
-      } catch (error) {
-        console.log(error)
-        if (error.toString().includes('aborted')) {
-          return
-        }
-        this.$message.warning(this.$t('toolbar.notSupportTip'))
-      }
-    },
+    // async openLocalFile() {
+    //   try {
+    //     let [_fileHandle] = await window.showOpenFilePicker({
+    //       types: [
+    //         {
+    //           description: '',
+    //           accept: {
+    //             'application/json': ['.smm']
+    //           }
+    //         }
+    //       ],
+    //       excludeAcceptAllOption: true,
+    //       multiple: false
+    //     })
+    //     if (!_fileHandle) {
+    //       return
+    //     }
+    //     fileHandle = _fileHandle
+    //     if (fileHandle.kind === 'directory') {
+    //       this.$message.warning(this.$t('toolbar.selectFileTip'))
+    //       return
+    //     }
+    //     this.readFile()
+    //   } catch (error) {
+    //     console.log(error)
+    //     if (error.toString().includes('aborted')) {
+    //       return
+    //     }
+    //     this.$message.warning(this.$t('toolbar.notSupportTip'))
+    //   }
+    // },
 
-    // 读取本地文件
-    async readFile() {
-      let file = await fileHandle.getFile()
-      let fileReader = new FileReader()
-      fileReader.onload = async () => {
-        this.$store.commit('setIsHandleLocalFile', true)
-        this.setData(fileReader.result)
-        Notification.closeAll()
-        Notification({
-          title: this.$t('toolbar.tip'),
-          message: `${this.$t('toolbar.editingLocalFileTipFront')}${file.name
-            }${this.$t('toolbar.editingLocalFileTipEnd')}`,
-          duration: 0,
-          showClose: true
-        })
-      }
-      fileReader.readAsText(file)
-    },
+    // // 读取本地文件
+    // async readFile() {
+    //   let file = await fileHandle.getFile()
+    //   let fileReader = new FileReader()
+    //   fileReader.onload = async () => {
+    //     this.$store.commit('setIsHandleLocalFile', true)
+    //     this.setData(fileReader.result)
+    //     Notification.closeAll()
+    //     Notification({
+    //       title: this.$t('toolbar.tip'),
+    //       message: `${this.$t('toolbar.editingLocalFileTipFront')}${file.name
+    //         }${this.$t('toolbar.editingLocalFileTipEnd')}`,
+    //       duration: 0,
+    //       showClose: true
+    //     })
+    //   }
+    //   fileReader.readAsText(file)
+    // },
 
     // 渲染读取的数据
-    setData(str) {
-      try {
-        let data = JSON.parse(str)
-        if (typeof data !== 'object') {
-          throw new Error(this.$t('toolbar.fileContentError'))
-        }
-        if (data.root) {
-          this.isFullDataFile = true
-        } else {
-          this.isFullDataFile = false
-          data = {
-            ...exampleData,
-            root: data
-          }
-        }
-        this.$bus.$emit('setData', data)
-      } catch (error) {
-        console.log(error)
-        this.$message.error(this.$t('toolbar.fileOpenFailed'))
-      }
-    },
+    // setData(str) {
+    //   try {
+    //     let data = JSON.parse(str)
+    //     if (typeof data !== 'object') {
+    //       throw new Error(this.$t('toolbar.fileContentError'))
+    //     }
+    //     if (data.root) {
+    //       this.isFullDataFile = true
+    //     } else {
+    //       this.isFullDataFile = false
+    //       data = {
+    //         ...exampleData,
+    //         root: data
+    //       }
+    //     }
+    //     this.$bus.$emit('setData', data)
+    //   } catch (error) {
+    //     console.log(error)
+    //     this.$message.error(this.$t('toolbar.fileOpenFailed'))
+    //   }
+    // },
 
     // 写入本地文件
-    async writeLocalFile(content) {
-      if (!fileHandle || !this.isHandleLocalFile) {
-        this.waitingWriteToLocalFile = false
-        return
-      }
-      if (!this.isFullDataFile) {
-        content = content.root
-      }
-      let string = JSON.stringify(content)
-      const writable = await fileHandle.createWritable()
-      await writable.write(string)
-      await writable.close()
-      this.waitingWriteToLocalFile = false
-    },
+    // async writeLocalFile(content) {
+    //   if (!fileHandle || !this.isHandleLocalFile) {
+    //     this.waitingWriteToLocalFile = false
+    //     return
+    //   }
+    //   if (!this.isFullDataFile) {
+    //     content = content.root
+    //   }
+    //   let string = JSON.stringify(content)
+    //   const writable = await fileHandle.createWritable()
+    //   await writable.write(string)
+    //   await writable.close()
+    //   this.waitingWriteToLocalFile = false
+    // },
 
     // 创建本地文件
-    async createNewLocalFile() {
-      await this.createLocalFile(exampleData)
-    },
-    eventHandler(e) {
-      const eventData = e.data
-      let mindData = getData()
-      if (eventData.type === 'init') {
-        //markdownTitle = eventData.title ? eventData.title : '未命名文稿'
-        const data = eventData.data
-        //console.log(data)
-        if (!data) {
-          //setTakeOverAppMethods(initData)
-          return;
-        }
-        if (isBase64(data.content)) {
-          data.content = decodeBase64(data.content)
-        }
-        if(isJson(data.content)) {
-          mindData.mindMapData = JSON.parse(data.content)
-        }else{
-          mindData.mindMapData = markdown.transformMarkdownTo(data.content)
-        }
-        //initData.mindMapData = JSON.parse(data.content)
-        console.log(mindData.mindMapData)
-
-      }
-    },
+    // async createNewLocalFile() {
+    //   await this.createLocalFile(exampleData)
+    // },
+    
     // 另存为
     async saveLocalFile() {
       let data = getData()
@@ -577,40 +554,40 @@ export default {
       }
     },
     // 创建本地文件
-    async createLocalFile(content) {
-      try {
-        let _fileHandle = await window.showSaveFilePicker({
-          types: [
-            {
-              description: '',
-              accept: { 'application/json': ['.smm'] }
-            }
-          ],
-          suggestedName: this.$t('toolbar.defaultFileName')
-        })
-        if (!_fileHandle) {
-          return
-        }
-        const loading = this.$loading({
-          lock: true,
-          text: this.$t('toolbar.creatingTip'),
-          spinner: 'el-icon-loading',
-          background: 'rgba(0, 0, 0, 0.7)'
-        })
-        fileHandle = _fileHandle
-        this.$store.commit('setIsHandleLocalFile', true)
-        this.isFullDataFile = true
-        await this.writeLocalFile(content)
-        await this.readFile()
-        loading.close()
-      } catch (error) {
-        console.log(error)
-        if (error.toString().includes('aborted')) {
-          return
-        }
-        this.$message.warning(this.$t('toolbar.notSupportTip'))
-      }
-    }
+    // async createLocalFile(content) {
+    //   try {
+    //     let _fileHandle = await window.showSaveFilePicker({
+    //       types: [
+    //         {
+    //           description: '',
+    //           accept: { 'application/json': ['.smm'] }
+    //         }
+    //       ],
+    //       suggestedName: this.$t('toolbar.defaultFileName')
+    //     })
+    //     if (!_fileHandle) {
+    //       return
+    //     }
+    //     const loading = this.$loading({
+    //       lock: true,
+    //       text: this.$t('toolbar.creatingTip'),
+    //       spinner: 'el-icon-loading',
+    //       background: 'rgba(0, 0, 0, 0.7)'
+    //     })
+    //     fileHandle = _fileHandle
+    //     this.$store.commit('setIsHandleLocalFile', true)
+    //     this.isFullDataFile = true
+    //     await this.writeLocalFile(content)
+    //     await this.readFile()
+    //     loading.close()
+    //   } catch (error) {
+    //     console.log(error)
+    //     if (error.toString().includes('aborted')) {
+    //       return
+    //     }
+    //     this.$message.warning(this.$t('toolbar.notSupportTip'))
+    //   }
+    // }
   }
 }
 </script>

@@ -26,7 +26,7 @@
   <div id="app"></div>
   <!-- built files will be auto injected -->
   <script>
-    
+    // markdown from 'simple-mind-map/src/parse/markdown.js'
     var initData = {
       mindMapData: {
         root: {
@@ -75,10 +75,71 @@
         console.log(config)
       }
     }
-    
+    function isBase64(str) {
+      if (str === '' || str.trim() === '') {
+        return false
+      }
+      try {
+        return btoa(atob(str)) == str
+      } catch (err) {
+        return false
+      }
+    }
+    function isJson(str) {
+      try {
+        return JSON.parse(str) && !!str
+      } catch (e) {
+        return false
+      }
+    }
+    function decodeBase64(base64String) {
+      //console.log(base64String)
+      // 将Base64字符串分成每64个字符一组
+      const padding =
+        base64String.length % 4 === 0 ? 0 : 4 - (base64String.length % 4)
+      base64String += '='.repeat(padding)
+
+      // 使用atob()函数解码Base64字符串
+      const binaryString = atob(base64String)
+
+      // 将二进制字符串转换为TypedArray
+      const bytes = new Uint8Array(binaryString.length)
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
+      }
+
+      // 将TypedArray转换为字符串
+      return new TextDecoder('utf-8').decode(bytes)
+    }
+    const eventHandler = e => {
+      const eventData = e.data
+      //console.log(eventData)
+      if (eventData.type === 'init') {
+        //markdownTitle = eventData.title ? eventData.title : '未命名文稿'
+        const data = eventData.data
+        //console.log(data)
+        if (!data) {
+          //setTakeOverAppMethods(initData)
+          return;
+        }
+        //console.log(data.content)
+        if (typeof data.content === 'string' && isBase64(data.content)) {
+          data.content = decodeBase64(data.content)
+        }
+        
+        if (isJson(data.content)) {
+          initData.mindMapData = JSON.parse(data.content)
+        } else {
+          //console.log(data.content)
+          initData.mindMapData.root = markdownParse.transformMarkdownTo(data.content)
+        }
+        //initData.mindMapData = JSON.parse(data.content)
+       //console.log(initData.mindMapData)
+
+      }
+    }
     window.onload = async () => {
       if (!window.takeOverApp) return
-
       // 请求数据
       //const data = await getDataFromBackend()
       window.parent.postMessage({ type: 'initSuccess' }, '*')

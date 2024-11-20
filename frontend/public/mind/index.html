@@ -2,7 +2,8 @@
     window.externalPublicPath = './'
     // 接管应用
     window.takeOverApp = true
-    window.isSave = false</script><link href="css/chunk-vendors.css?f6765d552217b21768b4" rel="stylesheet"><link href="css/app.css?f6765d552217b21768b4" rel="stylesheet"></head><body><noscript><strong>We're sorry but thoughts doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div><script>var initData = {
+    window.isSave = false</script><link href="css/chunk-vendors.css?11388431daeea24e08ab" rel="stylesheet"><link href="css/app.css?11388431daeea24e08ab" rel="stylesheet"></head><body><noscript><strong>We're sorry but thoughts doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div><script>// markdown from 'simple-mind-map/src/parse/markdown.js'
+    var initData = {
       mindMapData: {
         root: {
           data: {
@@ -21,8 +22,8 @@
       lang: 'zh',
       localConfig: null
     }
-    
-    
+
+
     const setTakeOverAppMethods = data => {
       window.takeOverAppMethods = {}
       // 获取思维导图数据的函数
@@ -51,35 +52,44 @@
       }
     }
     function isBase64(str) {
-  if (str === '' || str.trim() === '') {
-    return false
-  }
-  try {
-    return btoa(atob(str)) == str
-  } catch (err) {
-    return false
-  }
-}
-function decodeBase64(base64String) {
-  // 将Base64字符串分成每64个字符一组
-  const padding =
-    base64String.length % 4 === 0 ? 0 : 4 - (base64String.length % 4)
-  base64String += '='.repeat(padding)
+      if (str === '' || str.trim() === '') {
+        return false
+      }
+      try {
+        return btoa(atob(str)) == str
+      } catch (err) {
+        return false
+      }
+    }
+    function isJson(str) {
+      try {
+        return JSON.parse(str) && !!str
+      } catch (e) {
+        return false
+      }
+    }
+    function decodeBase64(base64String) {
+      //console.log(base64String)
+      // 将Base64字符串分成每64个字符一组
+      const padding =
+        base64String.length % 4 === 0 ? 0 : 4 - (base64String.length % 4)
+      base64String += '='.repeat(padding)
 
-  // 使用atob()函数解码Base64字符串
-  const binaryString = atob(base64String)
+      // 使用atob()函数解码Base64字符串
+      const binaryString = atob(base64String)
 
-  // 将二进制字符串转换为TypedArray
-  const bytes = new Uint8Array(binaryString.length)
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i)
-  }
+      // 将二进制字符串转换为TypedArray
+      const bytes = new Uint8Array(binaryString.length)
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
+      }
 
-  // 将TypedArray转换为字符串
-  return new TextDecoder('utf-8').decode(bytes)
-}
+      // 将TypedArray转换为字符串
+      return new TextDecoder('utf-8').decode(bytes)
+    }
     const eventHandler = e => {
       const eventData = e.data
+      //console.log(eventData)
       if (eventData.type === 'init') {
         //markdownTitle = eventData.title ? eventData.title : '未命名文稿'
         const data = eventData.data
@@ -88,14 +98,24 @@ function decodeBase64(base64String) {
           //setTakeOverAppMethods(initData)
           return;
         }
-        initData.mindMapData = JSON.parse(decodeBase64(data.content))
-        //console.log(initData.mindMapData)
-       
+        //console.log(data.content)
+        if (typeof data.content === 'string' && isBase64(data.content)) {
+          data.content = decodeBase64(data.content)
+        }
+        
+        if (isJson(data.content)) {
+          initData.mindMapData = JSON.parse(data.content)
+        } else {
+          //console.log(data.content)
+          initData.mindMapData.root = markdownParse.transformMarkdownTo(data.content)
+        }
+        //initData.mindMapData = JSON.parse(data.content)
+       //console.log(initData.mindMapData)
+
       }
     }
     window.onload = async () => {
       if (!window.takeOverApp) return
-
       // 请求数据
       //const data = await getDataFromBackend()
       window.parent.postMessage({ type: 'initSuccess' }, '*')
@@ -113,4 +133,4 @@ function decodeBase64(base64String) {
     }
     window.addEventListener('unload', () => {
       window.removeEventListener('message', eventHandler)
-    })</script><script src="js/chunk-vendors.js?f6765d552217b21768b4"></script><script src="js/app.js?f6765d552217b21768b4"></script></body></html>
+    })</script><script src="js/chunk-vendors.js?11388431daeea24e08ab"></script><script src="js/app.js?11388431daeea24e08ab"></script></body></html>
