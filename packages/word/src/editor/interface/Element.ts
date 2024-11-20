@@ -33,6 +33,7 @@ export interface IElementStyle {
   italic?: boolean
   underline?: boolean
   strikeout?: boolean
+  aiEdit?: boolean
   rowFlex?: RowFlex
   rowMargin?: number
   letterSpacing?: number

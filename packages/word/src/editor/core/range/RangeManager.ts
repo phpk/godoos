@@ -433,6 +433,7 @@ export class RangeManager {
       el => !el.underline && !el.control?.underline
     )
     const strikeout = !~curElementList.findIndex(el => !el.strikeout)
+    const aiEdit = !~curElementList.findIndex(el => !el.aiEdit)
     const color = curElement.color || null
     const highlight = curElement.highlight || null
     const rowFlex = curElement.rowFlex || null
@@ -461,6 +462,7 @@ export class RangeManager {
       italic,
       underline,
       strikeout,
+      aiEdit,
       color,
       highlight,
       rowFlex,
@@ -503,6 +505,7 @@ export class RangeManager {
       italic: false,
       underline: false,
       strikeout: false,
+      aiEdit: false,
       color: null,
       highlight: null,
       rowFlex: null,

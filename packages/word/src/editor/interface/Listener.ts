@@ -23,6 +23,7 @@ export interface IRangeStyle {
   italic: boolean
   underline: boolean
   strikeout: boolean
+  aiEdit: boolean
   color: string | null
   highlight: string | null
   rowFlex: RowFlex | null

@@ -6,5 +6,6 @@ export enum ToolbarType {
   UNDERLINE = 'underline',
   STRIKEOUT = 'strikeout',
   COLOR = 'color',
-  HIGHLIGHT = 'highlight'
+  HIGHLIGHT = 'highlight',
+  AI_EDIT = 'ai-edit'
 }
