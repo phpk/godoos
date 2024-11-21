@@ -148,6 +148,9 @@ export const getSystemConfig = (ifset = false) => {
       'fourthEnd': '254'
     }
   }
+  if(!config.ollamaUrl) {
+    config.ollamaUrl = 'http://localhost:11434'
+  }
   // 初始化桌面快捷方式列表，若本地存储中已存在则不进行覆盖
   if (!config.desktopList) {
     config.desktopList = [];

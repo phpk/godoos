@@ -67,10 +67,10 @@ const saveConfig = async () => {
       value: config.value.dataDir.trim(),
     })
   }
-  if (config.value.IpList.trim() != "") {
+  if (config.value.ollamaUrl.trim() != "") {
     postData.push({
-      name: "dataDir",
-      value: config.value.IpList.trim().split("\n").map((line: string) => line.trim()),
+      name: "ollamaUrl",
+      value: config.value.ollamaUrl.trim(),
     })
   }
   if (postData.length > 0) {

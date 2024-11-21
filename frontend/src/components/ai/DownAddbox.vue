@@ -71,7 +71,7 @@ function setLocalInfo() {
   }
   modelData = toRaw(modelData);
   const urls: any = [];
-  const url = `http://${formData.value.ip}:56711/server?path=`;
+  const url = `http://${formData.value.ip}:56780/server?path=`;
   modelData.paths.forEach((item: any) => {
     urls.push(url + item);
   });
