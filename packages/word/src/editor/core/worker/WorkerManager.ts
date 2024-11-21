@@ -26,7 +26,6 @@ export class WorkerManager {
       this.wordCountWorker.onerror = evt => {
         reject(evt)
       }
-
       const elementList = this.draw.getOriginalMainElementList()
       this.wordCountWorker.postMessage(elementList)
     })

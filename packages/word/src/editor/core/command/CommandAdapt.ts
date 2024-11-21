@@ -121,6 +121,7 @@ export class CommandAdapt {
   private i18n: I18n
   private zone: Zone
   private tableOperate: TableOperate
+  private aiContent: string
 
   constructor(draw: Draw) {
     this.draw = draw
@@ -135,6 +136,7 @@ export class CommandAdapt {
     this.i18n = draw.getI18n()
     this.zone = draw.getZone()
     this.tableOperate = draw.getTableOperate()
+    this.aiContent = ''
   }
 
   public mode(payload: EditorMode) {
@@ -633,7 +635,10 @@ export class CommandAdapt {
     })
     this.draw.render({ isSetCursor: false })
   }
-
+  public aiResult (result?: string) {
+    result ? this.aiContent = result : ''
+    return this.aiContent
+  }
   public aiEdit(operate: string | null) {
     console.log('ai edit:', operate)
     const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
@@ -643,8 +648,20 @@ export class CommandAdapt {
     let content = ''
     selection.forEach(el => {
       content += el.value
-    })
-    //console.log('操作内容：', content);
+    }) 
+    // const eventBus = this.draw.getEventBus()
+    
+    this.search(content)
+    if (operate && content) {
+      window.parent.postMessage(
+        {
+          type: 'aiCreater',
+          data: content,
+          action: operate
+        },
+        '*'
+      )
+    }
     return content
   }
 
@@ -1163,6 +1180,8 @@ export class CommandAdapt {
   }
 
   public replace(payload: string) {
+    console.log('替换：', payload);
+    
     const isReadonly = this.draw.isReadonly()
     if (isReadonly) return
     if (!payload || new RegExp(`${ZERO}`, 'g').test(payload)) return
