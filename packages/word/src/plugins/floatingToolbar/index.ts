@@ -112,7 +112,7 @@ function createAIToolbar(
             <div class="aie-ai-panel-body-content ai-hide"><div class="loader">
               ${Svgs.refresh}
             </div><textarea readonly></textarea></div>
-            <div class="aie-ai-panel-body-input"><input id="prompt" placeholder="告诉 AI 下一步应该如何？比如：帮我翻译成英语" type="text" />
+            <div class="aie-ai-panel-body-input"><input id="inputOption" placeholder="告诉 AI 下一步应该如何？比如：帮我翻译成英语" type="text" />
             <button type="button" id="go" style="width: 30px;height: 30px">
               ${Svgs.aiPanelStart}
             </button></div>
@@ -166,60 +166,62 @@ function bindAiPanelEvent(container: HTMLDivElement, editor: Editor) {
       container.querySelector('#footer-one')?.classList.remove('ai-hide')
       container.querySelector('#footer-two')?.classList.add('ai-hide')
       container.querySelector('.aie-ai-panel-body-content')?.classList.remove('ai-hide')
+      // const goBtn =  container.querySelector('#go')
+      // goBtn ? goBtn.innerHTML = Svgs.aiPanelStop : ''
       //console.log('选项点击');
-      const aiContent = editor.command.executeAiEdit(item.getAttribute('data-type'))
+      const chooseType = item.getAttribute('data-type')
+      // const aiContent = editor.command.excuteAiResult()
+      let aiContent = editor.command.executeAiEdit(chooseType)
+      // editor.eventBus.on('aiProcessedData', (msg: string) => {
+      //   console.log('收到');
+        
+      //   aiContent = msg
+      // })
+      
       const textarea = container.querySelector<HTMLTextAreaElement>('textarea')!
       if (aiContent) {
         textarea.textContent = aiContent  
-        //console.log('textarea内容：', textarea, aiContent);
-        
       }
     })
   })
 
+  // 替换
   container.querySelector('#replace')!.addEventListener('click', () => {
+    const aiResult = editor.command.excuteAiResult()
+    editor.command.executeReplace(aiResult)
     console.log('替换');
-    
-    // const textarea = container.querySelector('textarea')!
-    // if (textarea.value) {
-    //   const {
-    //     state: { selection, tr },
-    //     view: { dispatch },
-    //     schema
-    //   } = holder.editor!
-    //   const textNode = schema.text(textarea.value)
-    //   dispatch(tr.replaceRangeWith(selection.from, selection.to, textNode))
-    //   holder.aiPanelInstance?.hide()
-    //   holder.tippyInstance?.show()
-    // }
   })
-
+  //  插入
   container.querySelector('#insert')!.addEventListener('click', () => {
+    const aiContent = editor.command.executeAiEdit('')
+    const aiResult = editor.command.excuteAiResult()
+    editor.command.executeReplace(aiContent + aiResult)
+    editor.command.executeSearch('')
     console.log('插入');
-    
-    // const textarea = container.querySelector('textarea')!
-    // if (textarea.value) {
-    //   const {
-    //     state: { selection, tr },
-    //     view: { dispatch }
-    //   } = holder.editor!
-    //   dispatch(tr.insertText(textarea.value, selection.to))
-    //   holder.aiPanelInstance?.hide()
-    //   holder.tippyInstance?.show()
-    // }
   })
-
+  // 舍弃
   container.querySelector('#hide')!.addEventListener('click', () => {
-    console.log('舍弃');
-    
-    // holder.aiPanelInstance?.hide()
-    // holder.tippyInstance?.show()
+    editor.command.executeSearch('')
+    initAiDialog(container, editor)
+    console.log('舍弃')
   })
-
+  // 搜索
   container.querySelector('#go')!.addEventListener('click', () => {
-    // const prompt = (container.querySelector('#prompt') as HTMLInputElement)
-    //   .value
-    // startChat(holder, container, prompt)
+    console.log('搜索');
+    const inputOption = container.querySelector<HTMLInputElement>('#inputOption')!
+    if (inputOption.value) {
+      // const goBtn =  container.querySelector('#go')
+      // goBtn ? goBtn.innerHTML = Svgs.aiPanelStop : ''
+      // goBtn ? (goBtn.innerHTML = Svgs.aiPanelStart) : ''
+      container.querySelector('#footer-one')?.classList.remove('ai-hide')
+      container.querySelector('#footer-two')?.classList.add('ai-hide')
+      container.querySelector('.aie-ai-panel-body-content')?.classList.remove('ai-hide')
+      const aiContent = editor.command.executeAiEdit(inputOption.value)
+      const textarea = container.querySelector<HTMLTextAreaElement>('textarea')!
+      if (aiContent) {
+        textarea.textContent = aiContent
+      }
+    }
   })
 
   container.querySelectorAll('.aie-ai-panel-actions p').forEach(element => {
@@ -237,12 +239,15 @@ function bindAiPanelEvent(container: HTMLDivElement, editor: Editor) {
   })
 }
 //ai弹窗初始化
-function initAiDialog(container: HTMLDivElement) {
+function initAiDialog(container: HTMLDivElement, editor: Editor) {
+  editor.command.executeSearch('')
   container.querySelector<HTMLDivElement>('.aie-container')?.classList.add('ai-hide')
   container.querySelector<HTMLDivElement>(`.${PLUGIN_PREFIX}-ai-edit`)?.classList.remove('ai-active')
   container.querySelector<HTMLDivElement>('#footer-one')?.classList.add('ai-hide')
   container.querySelector<HTMLDivElement>('#footer-two')?.classList.remove('ai-hide')
   container.querySelector('.aie-ai-panel-body-content')?.classList.add('ai-hide')
+  const inputOption = container.querySelector<HTMLInputElement>('#inputOption')!
+  inputOption.value = ''
   const textarea = container.querySelector<HTMLTextAreaElement>('textarea')!
   textarea.textContent = ""
 }
@@ -254,7 +259,6 @@ const toolbarRegisterList: IToolbarRegister[] = [
     //   editor.command.executeAiEdit('')
     // }
     render(container, editor) {
-      console.log('是否会重复');
       createAIToolbar(container, ToolbarType.AI_EDIT, editor)
     }
   },
@@ -379,7 +383,7 @@ export default function floatingToolbarPlugin(editor: Editor) {
     const context = editor.command.getRangeContext()
     if (!context || context.isCollapsed || !context.rangeRects[0]) {
       toggleToolbarVisible(toolbarContainer, false)
-      initAiDialog(toolbarContainer)
+      initAiDialog(toolbarContainer, editor)
       return
     }
     // 定位

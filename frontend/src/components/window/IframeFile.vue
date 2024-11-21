@@ -35,7 +35,7 @@ const storeRef = ref<HTMLIFrameElement | null>(null);
 let hasInit = false;
 const eventHandler = async (e: MessageEvent) => {
 	const eventData = e.data;
-
+  
 	if (eventData.type == props.eventType) {
 		let data = JSON.parse(eventData.data);
 		let title = data.title;
@@ -186,6 +186,25 @@ const eventHandler = async (e: MessageEvent) => {
         winMind.show()
 		
 	}
+  else if (eventData.type == 'aiCreater') {
+    // 模拟AI返回数据
+    storeRef.value?.contentWindow?.postMessage(
+      {
+        type: 'aiReciver',
+        data: '-------------经过AI处理后的数据-----------',
+      },
+      "*"
+    );
+  }
+  else if (eventData.type == 'aiReciver') {
+    storeRef.value?.contentWindow?.postMessage(
+      {
+        type: eventData.type,
+        data: '----经过AI处理后的数据-----',
+      },
+      "*"
+    );
+  }
 };
 //删除本地暂存的文件密码
 const delFileInputPwd = async () => {

@@ -2030,6 +2030,8 @@ window.onload = function () {
   }
   const eventHandler = (e: any) => {
     const eventData = e.data
+    // console.log('');
+    
     wordTitle = eventData.title ? eventData.title : '未命名文档'
     if (eventData.type === 'init') {
       const data = eventData.data
@@ -2042,6 +2044,10 @@ window.onload = function () {
         arrayBuffer: buffer,
       });
 
+    } else if (eventData.type === 'aiReciver') {
+      // const buffer = base64ToArrayBuffer(eventData.data)
+      // console.log('接收到来自伏组件数据：', eventData.data);
+      instance.command.excuteAiResult(eventData.data)
     }
 
   }
