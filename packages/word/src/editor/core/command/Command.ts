@@ -30,6 +30,7 @@ export class Command {
   public executeSubscript: CommandAdapt['subscript']
   public excuteAiResult: CommandAdapt['aiResult']
   public executeAiEdit: CommandAdapt['aiEdit']
+  public executeAiArticle: CommandAdapt['aiArticle']
   public executeColor: CommandAdapt['color']
   public executeHighlight: CommandAdapt['highlight']
   public executeTitle: CommandAdapt['title']
@@ -156,6 +157,7 @@ export class Command {
     this.executeSubscript = adapt.subscript.bind(adapt)
     this.excuteAiResult = adapt.aiResult.bind(adapt)
     this.executeAiEdit = adapt.aiEdit.bind(adapt)
+    this.executeAiArticle = adapt.aiArticle.bind(adapt)
     this.executeColor = adapt.color.bind(adapt)
     this.executeHighlight = adapt.highlight.bind(adapt)
     // 标题、对齐方式、列表
