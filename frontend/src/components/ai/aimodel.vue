@@ -18,10 +18,6 @@ const labelId = ref(0);
 const searchKey = ref("");
 const currentCate = ref("all");
 
-const help_label = ref();
-const help_adddown = ref();
-const help_addlabel = ref();
-const help_showdown = ref();
 const showDetail = ref(false);
 const detailModel = ref("")
 let downloadAbort:any = {};
@@ -40,15 +36,17 @@ function downAddUpdate(val:any) {
 }
 async function downLabel(modelData:any, labelData:any) {
   labelData = toRaw(labelData);
+  modelData = toRaw(modelData);
+  //console.log(modelData, labelData)
   const saveData = {
     model: modelData.model,
     label: labelData.name,
     action: labelData.action,
-    engine: labelData.engine,
-    url: modelData.url ?? [],
-    from: modelData.from ? modelData.from : labelData.from,
+    engine: modelData.info.engine,
+    url: modelData.info.url ?? [],
+    from: modelData.info.from,
     type: modelData.type ?? "",
-    file_name: modelData.file_name ?? "",
+    file_name: modelData.info.file_name ?? "",
     //options: modelData.options ?? {},
     params: modelData.params ?? {},
     info: modelData.info ?? {},
@@ -66,7 +64,7 @@ async function saveBox(modelData: any) {
 async function download(saveData:any) {
   saveData = toRaw(saveData);
   saveData.info = toRaw(saveData.info);
-  saveData.url = toRaw(saveData.url);
+  //saveData.url = toRaw(saveData.url);
   saveData.params = toRaw(saveData.params);
   downAdd.value = false;
   downLeft.value = true;
@@ -76,7 +74,7 @@ async function download(saveData:any) {
     return;
   }
   //console.log(saveData);
-  const downUrl = config.modelDownApi;
+  const downUrl = config.apiUrl + "/ai/download";
 
   try {
     const completion = await fetch(downUrl, {
@@ -126,6 +124,7 @@ async function handleDown(modelData:any, completion:any) {
       const rawjson = new TextDecoder().decode(value);
       //console.log(rawjson);
       const msg = modelStore.parseMsg(rawjson);
+      //console.log(msg)
       if(msg.message && msg.code) {
         notifyError(msg.message);
         break;
@@ -134,9 +133,14 @@ async function handleDown(modelData:any, completion:any) {
         continue;
       }
       modelData.status = msg.status;
+
       if (msg.total && msg.completed && msg.total > 0) {
-        modelData.isLoading = 1;
-        modelData.progress = Math.ceil((msg.completed / msg.total) * 100);
+        if(msg.total == msg.completed){
+          msg.status = "success"
+        }else{
+          modelData.isLoading = 1;
+          modelData.progress = Math.ceil((msg.completed / msg.total) * 100);
+        }
       } else {
         modelData.progress = 0;
       }
@@ -165,13 +169,9 @@ async function deleteModel(modelData: any) {
     //return
     const postData = {
       method: "POST",
-      body: JSON.stringify({
-        url: modelData.url,
-        model: modelData.model,
-        engine: modelData.engine,
-      }),
+      body: JSON.stringify(modelData.info),
     };
-    const delUrl = config.modelDeleteApi;
+    const delUrl = config.apiUrl + "/ai/delete";
     const completion = await fetch(delUrl, postData);
     if (completion.status === 404) {
       notifyError(completion.statusText);
@@ -246,7 +246,7 @@ function showModel(model: string) {
               <div class="card-header">
                 <span>{{ val.model }}</span>
               </div>
-              <div class="text item" v-if="val.progress && val.progress > 0">
+              <div class="text item" v-if="val.progress && val.isLoading > 0">
                 <el-progress
                   :text-inside="true"
                   :stroke-width="15"
@@ -254,14 +254,14 @@ function showModel(model: string) {
                 />
               </div>
               <div class="drawer-model-actions" style="margin-top: 10px">
-                <el-tag size="small">{{ val.status }}</el-tag>
+                <el-tag size="small" v-if="val.isLoading > 0">{{ val.status }}</el-tag>
                 <el-icon :size="18" color="red" @click="cancelDownload(val.model)">
                   <Delete />
                 </el-icon>
                 <el-icon
                   :size="18"
                   color="blue"
-                  v-if="val.progress > 0 && val.isLoading < 1 && val.status != 'success'"
+                  v-if="val.isLoading < 1 && val.status != 'success'"
                   @click="download(toRaw(val))"
                 >
                   <VideoPlay />
@@ -310,15 +310,19 @@ function showModel(model: string) {
           @click.stop="downLeft = !downLeft"
           icon="Menu"
           circle
-          ref="help_showdown"
         />
-        <el-button @click.stop="downAdd = true" icon="Plus" circle ref="help_adddown" />
+        <el-button @click.stop="downAdd = true" icon="Plus" circle  />
         <el-button
           @click.stop="labelShow(0)"
           icon="CollectionTag"
           circle
-          ref="help_addlabel"
         />
+        <el-button
+          @click.stop="modelStore.refreshOllama"
+          icon="RefreshRight"
+          circle
+        />
+        
       </template>
       <template #extra>
         <el-space class="mr-10">
@@ -334,7 +338,7 @@ function showModel(model: string) {
     </el-page-header>
 
     <div class="flex-fill ml-10 mr-10">
-      <el-tabs v-model="currentCate" @tab-click="showCate" ref="help_label">
+      <el-tabs v-model="currentCate" @tab-click="showCate">
         <el-tab-pane :label="t('model.all')" name="all" />
         <el-tab-pane
           :label="t('model.' + item)"

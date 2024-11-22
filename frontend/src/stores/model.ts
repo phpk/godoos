@@ -5,8 +5,8 @@ import { aiLabels } from "./labels/index.ts"
 const modelEngines = [
   {
     name: "ollama",
-    cpp:"llama.cpp",
-    needQuant : true
+    cpp: "llama.cpp",
+    needQuant: true
   },
   {
     name: "sd",
@@ -46,50 +46,50 @@ export const useModelStore = defineStore('modelStore', () => {
   const modelList: any = ref([])
   const downList: any = ref([])
   const chatConfig: any = ref({
-    chat : {
-        key:"chat",
-        contextLength: 10,
-        num_keep: 5, //保留多少个最有可能的预测结果。这与top_k一起使用，决定模型在生成下一个词时考虑的词汇范围。
-        num_predict: 3, //生成多少个预测结果
-        top_p: 0.95,
-        top_k: 40, //影响生成的随机性。较高的top_k值将使模型考虑更多的词汇
-        temperature: 0.7, //影响生成的随机性。较低的温度产生更保守的输出，较高的温度产生更随机的输出。
+    chat: {
+      key: "chat",
+      contextLength: 10,
+      num_keep: 5, //保留多少个最有可能的预测结果。这与top_k一起使用，决定模型在生成下一个词时考虑的词汇范围。
+      num_predict: 3, //生成多少个预测结果
+      top_p: 0.95,
+      top_k: 40, //影响生成的随机性。较高的top_k值将使模型考虑更多的词汇
+      temperature: 0.7, //影响生成的随机性。较低的温度产生更保守的输出，较高的温度产生更随机的输出。
     },
     translation: {
-        key:"translation",
-        num_keep: 5,
-        num_predict: 1, 
-        top_k: 40, 
-        top_p: 0.95,
-        temperature: 0.2,
+      key: "translation",
+      num_keep: 5,
+      num_predict: 1,
+      top_k: 40,
+      top_p: 0.95,
+      temperature: 0.2,
     },
-    creation:{
-        key:"creation",
-        num_keep: 3,
-        num_predict: 1, 
-        top_k: 40, 
-        top_p: 0.95,
-        temperature: 0.2,
+    creation: {
+      key: "creation",
+      num_keep: 3,
+      num_predict: 1,
+      top_k: 40,
+      top_p: 0.95,
+      temperature: 0.2,
     },
-    knowledge:{
-        key:"knowledge",
-        contextLength: 10,
-        num_keep: 5,
-        num_predict: 1, 
-        top_k: 40, 
-        top_p: 0.95,
-        temperature: 0.2,
+    knowledge: {
+      key: "knowledge",
+      contextLength: 10,
+      num_keep: 5,
+      num_predict: 1,
+      top_k: 40,
+      top_p: 0.95,
+      temperature: 0.2,
     },
-    spoken:{
-        key:"spoken",
-        contextLength: 10,
-        num_keep: 5,
-        num_predict: 1, 
-        top_k: 40, 
-        top_p: 0.95,
-        temperature: 0.2,
-    }  
-})
+    spoken: {
+      key: "spoken",
+      contextLength: 10,
+      num_keep: 5,
+      num_predict: 1,
+      top_k: 40,
+      top_p: 0.95,
+      temperature: 0.2,
+    }
+  })
 
   async function getLabelCate(cateName: string) {
     const list = await getLabelList()
@@ -145,31 +145,45 @@ export const useModelStore = defineStore('modelStore', () => {
       downList.value[index].isLoading = 0
     })
   }
-  async function setCurrentModel(action:string, model:string) {
+  async function setCurrentModel(action: string, model: string) {
     await db.modify("modelslist", "action", action, { isdef: 0 })
     return await db.modify("modelslist", "model", model, { isdef: 1 })
   }
-  function getCurrentModelList(modelList: any, action:string){
+  function getCurrentModelList(modelList: any, action: string) {
     return modelList.filter((d: any) => d.action == action)
   }
   async function addDownList(data: any) {
     console.log(data);
-    
-    //modelList.value.unshift(data)
-    // const has = modelList.value.find((d: any) => d.model == data.model)
-    // //console.log(has)
-    // if (!has) {
-    //   //data = toRaw(data)
-    //   const save = await getBaseModelInfo(data.model)
-    //   //console.log(save)
-    //   if (save) {
-    //     modelList.value.unshift(save)
-    //     return await db.addOne("modelslist", save)
-    //   } else {
-    //     console.log("not get model" + data.model)
-    //   }
 
-    // }
+    modelList.value.unshift(data)
+    const has = modelList.value.find((d: any) => d.model == data.model)
+    //console.log(has)
+    if (!has) {
+      //data = toRaw(data)
+      const save = await getBaseModelInfo(data.model)
+      //console.log(save)
+      if (save) {
+        //modelList.value.unshift(save)
+        return await db.addOne("modelslist", save)
+      } else {
+        console.log("not get model" + data.model)
+      }
+
+    }
+  }
+  async function getBaseModelInfo(model: string) {
+    const baseModel = await db.get("modelslist", { model: model })
+    if (baseModel) {
+      return baseModel
+    }
+    const modelInfo = await db.get("modelslist", { model: model.split(":")[0] })
+    if (modelInfo) {
+      return modelInfo
+    }
+    return null
+  }
+  async function refreshOllama() {
+
   }
   async function deleteModelList(data: any) {
     //console.log(data)
@@ -221,13 +235,13 @@ export const useModelStore = defineStore('modelStore', () => {
       }
     }
   }
-  function parseJson(str: string) {
+  function parseJson(str: string): any {
     try {
-        return JSON.parse(str);
+      return JSON.parse(str);
     } catch (e) {
-        return undefined;
+      return undefined;
     }
-}
+  }
   function parseMsg(str: string) {
     const nres = { status: "" }
     try {
@@ -238,19 +252,23 @@ export const useModelStore = defineStore('modelStore', () => {
       const raw: any = str.split("\n")
       if (raw.length < 1) return nres
       // deno-lint-ignore no-explicit-any
-      const rt: any = raw.filter((d: any) => d.trim() != "")
+      const rt: string[] = raw.filter((d: string) => d.trim() !== "");
       //console.log(rt)
       if (rt.length > 0) {
-        let msg = parseJson(rt.pop())
-        if (msg) {
-          return msg
+        let res: any[] = [];
+        rt.forEach((d: string) => {
+          const msg = parseJson(d);
+          if (msg) {
+            res.push(msg);
+          }
+        });
+        if (res.length > 0) {
+          return res[res.length - 1]
         } else {
-          msg = parseJson(rt.pop())
-          return msg
+          return nres
         }
-        //return JSON.parse(rt.pop())
       } else {
-        return nres
+        return nres;
       }
     } catch (error) {
       console.log(error);
@@ -288,7 +306,8 @@ export const useModelStore = defineStore('modelStore', () => {
     initModel,
     setCurrentModel,
     getCurrentModelList,
-    parseMsg
+    parseMsg,
+    refreshOllama
   }
 
 }, {

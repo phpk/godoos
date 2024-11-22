@@ -54,7 +54,12 @@ $shadow-color: rgba(0, 0, 0, 0.1); // 阴影颜色
     margin-left: 24px;
     margin-right: 24px; // 增加外边距
 }
-
+.ml-10{
+    margin-left: 10px;
+}
+.mr-10{
+    margin-right: 10px;
+}
 .font-weight-bold {
     font-weight: bold;
     font-size: 18px; // 增大字体大小

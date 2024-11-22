@@ -19,7 +19,7 @@ func GetConfigFile() (string, error) {
 	if !libs.PathExists(modelDir) {
 		os.MkdirAll(modelDir, 0755)
 	}
-	configFile := filepath.Join(modelDir, "model.json")
+	configFile := filepath.Join(modelDir, "aimodel.json")
 	if !libs.PathExists(configFile) {
 		// 如果文件不存在，则创建一个空的配置文件
 		err := os.WriteFile(configFile, []byte("[]"), 0644)
