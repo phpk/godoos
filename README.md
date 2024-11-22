@@ -126,6 +126,7 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 - 精仿windows风格
 - 桌面文件管理
 - 支持原生文件拖拽上传
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/home.png" width="600" />
 
 ### 二、文件管理
@@ -133,59 +134,73 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 - 文件搜索
 - 原生文件存储
 - 直接压缩/解压文件夹（本地存储支持zip/tar/gz/bz2）
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/file.png" width="600" />
 
 ### 三、内网聊天
 - 无需注册流程，只需在同一内网，即可自动发现并列出所有可用的聊天对象，支持基于局域网的即时消息传输、文件传输等功能。
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/localchat.png" width="600" />
 
 ### 四、文档
 - 简便的word编辑器，原生存储，支持二维码、手写签名，导入导出
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/doc.png" width="600" />
 
 ### 五、表格
 - 原生存储，Excel编辑器，支持导入、导出，支持图片、公式
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/excel.png" width="600" />
 
 ### 六、markdown
 - 原生存储，采用vditor，支持导入、导出，支持大纲、实时预览
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/markdown.png" width="600" />
 
 ### 七、思维导图
 - 内置多种主题；支持快捷键；节点内容支持图片、图标、超链接、备注、标签。
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/mind.png" width="600" />
 
 ### 八、演示文稿
 - 原生存储，采用pptist，支持文字、图片、形状、线条、图表、表格、视频、公式等。
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/ppt.png" width="600" />
 
 ### 九、文件编辑器
 - 原生存储，支持打开text/html/css/js/svg/xml/md等，可以当作一个简单的在线editplus。
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/fileeditor.png" width="600" />
 
 ### 十、白板
-- 集自由布局、画笔、便签多种创意表达能力于一体，激发团队创造力，随时随地，围绕一块白板沟通。 
+- 集自由布局、画笔、便签多种创意表达能力于一体，激发团队创造力，随时随地，围绕一块白板沟通。
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/baiban.png" width="600" />
 
 ### 十一、图片编辑
 - 一个小型的photoshop，原生存储，支持搜索图片，支持图片裁剪、旋转、缩放、滤镜等功能
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/pic.png" width="600" />
 
 ### 十二、甘特图
 - 项目管理必备工具，支持自定义项目人员和角色，支持拖拽/管理分配（资源、角色、工作）等。
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/gant.png" width="600" />
 
 ### 十三、浏览器
 - 一款简单的内置浏览器
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/ie.png" width="600" />
 
 
 ### 十四、系统设置
 - 可在这里切换存储方式，可切换系统背景。
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/setting-store.png" width="600" />
 
 ### 十五、应用商店
 - 应用商店管理，丰富的外部接口，可导入/添加/下载外部应用。支持依赖库安装/卸载。
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/store.png" width="600" />
 
 ### 十六、截图
@@ -196,6 +211,7 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 
 ### 十八、计算器
 - 一个仿windows10的计算器，支持历史记录。
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/cal.png" width="600" />
 
 ### 十九、音乐库
@@ -206,6 +222,7 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 
 ### 二十一、看板
 - 支持标准看板，项目管理必备工具，可快速创建看板并放置到不同的文件夹
+
 <img src="https://gitee.com/ruitao_admin/godoos-image/raw/master/img/kanban.png" width="600" />
 
 ### 二十二、进程管理
