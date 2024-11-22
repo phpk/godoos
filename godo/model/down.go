@@ -35,9 +35,7 @@ func noticeSuccess(w http.ResponseWriter) {
 }
 
 func Download(w http.ResponseWriter, r *http.Request) {
-	reqBody := ReqBody{
-		Info: make(map[string]interface{}),
-	}
+	reqBody := ReqBody{}
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		libs.ErrorMsg(w, "first Decode request body error")
@@ -54,14 +52,14 @@ func Download(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-	if reqBody.From == "ollama" {
+	if reqBody.Info.From == "ollama" && reqBody.Info.Engine == "ollama" {
 		setOllamaInfo(w, r, reqBody)
 		return
 	}
 
 	var paths []string
 	var tsize int64
-	for _, urls := range reqBody.Url {
+	for _, urls := range reqBody.Info.URL {
 		urls = replaceUrl(urls)
 		if !strings.HasPrefix(strings.ToLower(urls), "http://") && !strings.HasPrefix(strings.ToLower(urls), "https://") {
 			fileInfo, err := os.Stat(urls)
@@ -83,7 +81,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 		md5url := md5Url(urls)
 		if rsp, ok := downloads[md5url]; ok {
 			// 如果URL正在下载，跳过创建新的下载器实例
-			go trackProgress(w, rsp, reqBody, md5url)
+			go trackProgress(w, rsp, md5url)
 			return
 		}
 		// 创建新的下载器实例
@@ -105,7 +103,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 		//log.Printf("Download urls: %v\n", reqBody.DownloadUrl)
 
 		// // 跟踪进度
-		go trackProgress(w, resp, reqBody, md5url)
+		go trackProgress(w, resp, md5url)
 		tsize += resp.Size()
 		// 等待下载完成并检查错误
 		if err := resp.Err(); err != nil {
@@ -113,20 +111,20 @@ func Download(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	delUrls(reqBody.Url)
+	delUrls(reqBody.Info.URL)
 	if tsize <= 0 {
-		libs.ErrorMsg(w, "Download size is zero")
+		libs.ErrorMsg(w, "download size is zero")
 		return
 	}
-	reqBody.Paths = paths
+	reqBody.Info.Path = paths
 	reqBody.Status = "success"
 	reqBody.CreatedAt = time.Now()
-	reqBody.Info["tsize"] = tsize
-	reqBody.Info["size"] = humanReadableSize(tsize)
-	if reqBody.Type == "llm" {
+	// reqBody.Info["tsize"] = tsize
+	// reqBody.Info["size"] = humanReadableSize(tsize)
+	if reqBody.Info.From == "network" && reqBody.Info.Engine == "ollama" {
 		ConvertOllama(w, r, reqBody)
-		reqBody.From = "ollama"
-		reqBody.Paths = []string{}
+		// reqBody.From = "ollama"
+		// reqBody.Paths = []string{}
 	}
 
 	if err := SetModel(reqBody); err != nil {
@@ -136,7 +134,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 
 	noticeSuccess(w)
 }
-func trackProgress(w http.ResponseWriter, resp *grab.Response, reqBody ReqBody, md5url string) {
+func trackProgress(w http.ResponseWriter, resp *grab.Response, md5url string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Recovered panic in trackProgress: %v", r)
@@ -219,14 +217,14 @@ func DeleteFileHandle(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "Error deleting model")
 		return
 	}
-	if reqBody.Engine == "ollama" {
+	if reqBody.Info.Engine == "ollama" {
 		postQuery := map[string]interface{}{"name": reqBody.Model}
 		url := GetOllamaUrl() + "/api/delete"
 
 		ForwardHandler(w, r, postQuery, url, "DELETE")
 		return
 	}
-	delUrls(reqBody.Url)
+	delUrls(reqBody.Info.URL)
 
 	// 尝试删除目录，注意这会递归删除目录下的所有内容
 	//dirPath := filepath.Dir(filePath)

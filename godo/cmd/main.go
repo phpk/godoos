@@ -24,6 +24,7 @@ import (
 	"godo/files"
 	"godo/libs"
 	"godo/localchat"
+	"godo/model"
 	"godo/store"
 	"godo/sys"
 	"godo/webdav"
@@ -126,6 +127,22 @@ func OsStart() {
 	webdavRouter.HandleFunc("/copyfile", webdav.HandleCopyFile).Methods(http.MethodGet)
 	webdavRouter.HandleFunc("/writefile", webdav.HandleWriteFile).Methods(http.MethodPost)
 	webdavRouter.HandleFunc("/appendfile", webdav.HandleAppendFile).Methods(http.MethodPost)
+	// 注册ai路由
+	aiRouter := router.PathPrefix("/ai").Subrouter()
+	aiRouter.HandleFunc("/download", model.Download).Methods(http.MethodPost)
+	aiRouter.HandleFunc("/server", model.DownServerHandler).Methods(http.MethodGet)
+	aiRouter.HandleFunc("/delete", model.DeleteFileHandle).Methods(http.MethodPost)
+	aiRouter.HandleFunc("/tags", model.Tagshandler).Methods(http.MethodGet)
+	aiRouter.HandleFunc("/show", model.ShowHandler).Methods(http.MethodGet)
+	aiRouter.HandleFunc("/chat", model.ChatHandler).Methods(http.MethodPost)
+	aiRouter.HandleFunc("/embeddings", model.EmbeddingHandler).Methods(http.MethodPost)
+	// router.Handle("/model/uploadimage", http.MethodPost, sd.UploadHandler)
+	// router.Handle("/model/image", http.MethodPost, sd.CreateImage)
+	// router.Handle("/model/deleteimage", http.MethodPost, sd.DeleteImageHandler)
+	// router.Handle("/model/viewimage", http.MethodGet, sd.ServeImage)
+	// router.Handle("/model/voice", http.MethodPost, voice.UploadHandler)
+	// router.Handle("/model/tts", http.MethodPost, voice.TtsHandler)
+	// router.Handle("/model/audio", http.MethodGet, voice.ServeAudio)
 
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")
 	fileServer := http.FileServer(http.FS(distFS))

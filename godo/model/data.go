@@ -99,20 +99,6 @@ func SetModel(reqBody ReqBody) error {
 
 	return nil
 }
-func GetModelByDownloadUrl(downloadUrl string) (ReqBody, bool) {
-	var matchedReqBody ReqBody
-	found := false
-	reqBodyMap.Range(func(key, value interface{}) bool {
-		rb, ok := value.(ReqBody)
-		if ok && rb.Info["md5url"] == downloadUrl {
-			matchedReqBody = rb
-			found = true
-			return false // Stop iteration once a match is found
-		}
-		return true // Continue iteration
-	})
-	return matchedReqBody, found
-}
 
 func UpdateModel(reqBody ReqBody) error {
 	_, loaded := reqBodyMap.Load(reqBody.Model)

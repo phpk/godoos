@@ -1,24 +1,25 @@
 export const nemoLabel = {
     name: "nemo",
     family: "lstm",
-    engine: "voice",
-    from:"network",
-    action: ["audio"],
-    models:[
+    action: "audio",
+    models: [
         {
-            model:"nomo",
-            file_name: "model.int8.onnx",
-            url: [
-                "https://hf-mirror.com/csukuangfj/sherpa-onnx-nemo-ctc-zh-citrinet-1024-gamma-0-25/resolve/main/model.int8.onnx",
-                "https://hf-mirror.com/csukuangfj/sherpa-onnx-nemo-ctc-zh-citrinet-1024-gamma-0-25/resolve/main/tokens.txt"
-            ],
-            params:{
-                type:"nomo",
-                model:"model.int8.onnx",
-                token:"tokens.txt",
+            model: "nomo",
+
+            params: {
+                type: "nomo",
+                model: "model.int8.onnx",
+                token: "tokens.txt",
             },
-            info:{
-                size:"147MB",
+            info: {
+                engine: "voice",
+                from: "network",
+                file_name: "model.int8.onnx",
+                url: [
+                    "https://hf-mirror.com/csukuangfj/sherpa-onnx-nemo-ctc-zh-citrinet-1024-gamma-0-25/resolve/main/model.int8.onnx",
+                    "https://hf-mirror.com/csukuangfj/sherpa-onnx-nemo-ctc-zh-citrinet-1024-gamma-0-25/resolve/main/tokens.txt"
+                ],
+                size: "147MB",
                 desk: "200MB",
                 cpu: "8GB",
                 gpu: "6GB",
