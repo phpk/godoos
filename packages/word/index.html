@@ -337,6 +337,65 @@
         <div class="menu-item__ai-edit" data-menu="save">
           <i></i>
         </div>
+        <div class="menu-item__ai-edit-box hide">
+          <span>×</span>
+          <div class="ai-edit-outline-box">
+            <div class="ai-menu">
+              <p class="outline-svg active-ai"><i></i>生成大纲</p>
+            </div>
+            <div class="ai-content-box">
+              <div>
+                <label for="">标题：</label>
+                <input type="text">
+              </div>
+              <div>
+                <label for="">分类：</label>
+                <select name="articleClassification" id="aiSelect">
+                  <option value="">论文</option>
+                  <option value="">合同</option>
+                  <option value="">项目</option>
+                  <option value="">投标</option>
+                  <option value="">招标</option>
+                  <option value="">散文</option>
+                  <option value="">产品说明</option>
+                  <option value="">销售计划</option>
+                  <option value="">年度计划</option>
+                  <option value="">战略规划</option>
+                </select>
+              </div>
+              <button id="aiArticle">生成大纲</button>
+            </div>
+          </div>
+          <div class="ai-edit-content-box hide">
+            <div class="ai-menu">
+              <p id="watchOutline" class="outline-svg"><i></i>查看大纲</p>
+              <p id="watchArticle" class="article-svg active-ai"><i></i>查看文章</p>
+              <button id="articleInsert">插入</button>
+            </div>
+            <div id="outlineView" class="ai-content-box hide">
+              <textarea name="" id="outlineText" readonly></textarea>
+            </div>
+            <div id="articleView" class="ai-content-box">
+              <textarea name="" id="articleText" readonly>
+                将进酒
+作者：李白
+
+　　君不见，黄河之水天上来，奔流到海不复回。
+　　君不见，高堂明镜悲白发，朝如青丝暮成雪！
+　　人生得意须尽欢，莫使金樽空对月。
+　　天生我材必有用，千金散尽还复来。
+　　烹羊宰牛且为乐，会须一饮三百杯。
+　　岑夫子，丹丘生，将进酒，杯莫停。
+　　与君歌一曲，请君为我倾耳听。
+　　钟鼓馔玉不足贵，但愿长醉不复醒。
+　　古来圣贤皆寂寞，惟有饮者留其名。
+　　陈王昔时宴平乐，斗酒十千恣欢谑。
+　　主人何为言少钱，径须沽取对君酌。
+　　五花马、千金裘，呼儿将出换美酒，与尔同销万古愁！
+              </textarea>
+            </div>
+          </div>
+        </div>
         <div class="menu-item__save" data-menu="save">
           <i></i>
         </div>

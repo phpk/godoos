@@ -238,12 +238,12 @@ window.onload = function () {
   }
 
   //ai
-  const aiEditDom = document.querySelector<HTMLDivElement>('.menu-item__ai-edit')!
-  aiEditDom.title = `ai帮助`
-  aiEditDom.onclick = function () {
-    console.log('ai-edit')
-    instance.command.executeAiEdit('')
-  }
+  // const aiEditDom = document.querySelector<HTMLDivElement>('.menu-item__ai-edit')!
+  // aiEditDom.title = `ai帮助`
+  // aiEditDom.onclick = function () {
+  //   console.log('ai-edit')
+  //   instance.command.executeAiEdit('')
+  // }
 
   const colorControlDom = document.querySelector<HTMLInputElement>('#color')!
   colorControlDom.oninput = function () {
@@ -1131,6 +1131,76 @@ window.onload = function () {
     })
   }
 
+  //添加AI功能
+  const aiEditDom = document.querySelector<HTMLDivElement>('.menu-item__ai-edit')!
+  const aiMenuBox = document.querySelector<HTMLDivElement>('.menu-item__ai-edit-box')!
+  const aiMenuBoxClose = document.querySelector<HTMLDivElement>('.menu-item__ai-edit-box span')!
+  const aiOutlineDom = document.querySelector<HTMLDivElement>('.ai-edit-outline-box')!
+  const aiContentDom = document.querySelector<HTMLDivElement>('.ai-edit-content-box')!
+  aiEditDom.title = `ai写作`
+  aiEditDom.onclick = function () {
+    console.log('ai-edit')
+    instance.command.executeAiEdit('')
+    aiMenuBox.classList.contains('hide') ? aiMenuBox.classList.remove('hide') : aiMenuBox.classList.add('hide')
+  }
+
+  function initAiDialog() {
+    aiMenuBox.classList.add('hide')
+    aiMenuBox.classList.remove('add-height')
+    aiOutlineDom?.classList.remove('hide')
+    aiContentDom?.classList.add('hide')
+  }
+  aiMenuBoxClose.onclick = function () {
+    initAiDialog()
+  }
+  // 点击生成大纲，弹窗切换
+  document.querySelector<HTMLButtonElement>('#aiArticle')!.onclick =
+    function () {
+      aiOutlineDom?.classList.add('hide')
+      aiContentDom?.classList.remove('hide')
+      aiMenuBox.classList.add('add-height')
+    }
+  const watchOutline = document.querySelector<HTMLPreElement>('#watchOutline')!
+  const watchArticle = document.querySelector<HTMLPreElement>('#watchArticle')!
+  const outlineViewDom = document.querySelector<HTMLDivElement>('#outlineView')!
+  const articleViewDom = document.querySelector<HTMLDivElement>('#articleView')!
+  const aiInertBtn = document.querySelector<HTMLButtonElement>('#articleInsert')!
+  watchOutline.onclick = 
+    function() {
+      watchOutline.classList.add('active-ai')
+      watchArticle.classList.remove('active-ai')
+      aiInertBtn?.classList.add('hide')
+      outlineViewDom.classList.remove('hide')
+      articleViewDom.classList.add('hide')
+    }
+  watchArticle.onclick = 
+    function() {
+      watchArticle.classList.add('active-ai')
+      watchOutline.classList.remove('active-ai')
+      aiInertBtn?.classList.remove('hide')
+      outlineViewDom.classList.add('hide')
+      articleViewDom.classList.remove('hide')
+    }
+  //插入文章
+  aiInertBtn.onclick = function () {
+    const text = document.querySelector<HTMLTextAreaElement>('#articleText')?.textContent || ''
+    // instance.command.executeSelectAll()
+    // instance.command.executeSearch()
+    // text ? instance.command.executeReplace(text) : ''
+    // const temp = {
+    //   type: ElementType.TEXT,
+    //   value: '',
+    //   url: '',
+    //   valueList: splitText(text).map(n => ({
+    //     value: n,
+    //     size: 16
+    //   }))
+    // }
+    // console.log('数字：', temp);
+    
+    instance.command.executeAiArticle(text)
+    initAiDialog()
+  }
   // 5. | 搜索&替换 | 打印 |
   const searchCollapseDom = document.querySelector<HTMLDivElement>(
     '.menu-item__search__collapse'

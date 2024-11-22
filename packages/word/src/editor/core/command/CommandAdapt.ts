@@ -477,7 +477,7 @@ export class CommandAdapt {
     const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
     if (isDisabled) return
     const selection = this.range.getSelectionElementList()
-    
+
     if (selection?.length) {
       const noBoldIndex = selection.findIndex(s => !s.bold)
       selection.forEach(el => {
@@ -635,9 +635,74 @@ export class CommandAdapt {
     })
     this.draw.render({ isSetCursor: false })
   }
-  public aiResult (result?: string) {
-    result ? this.aiContent = result : ''
+  public aiResult(result?: string) {
+    result ? (this.aiContent = result) : ''
     return this.aiContent
+  }
+  public aiArticle(payload: string) {
+    // const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
+    // if (isDisabled) return
+    // const activeControl = this.control.getActiveControl()
+    // if (activeControl) return
+    // let { startIndex, endIndex } = this.range.getRange()
+    // console.log('range:', startIndex, endIndex)
+
+    // if (!~startIndex && !~endIndex) {
+    //   startIndex = 0
+    //   endIndex = 0
+    // }
+    // const elementList = this.draw.getElementList()
+    // console.log('hyperlink temp: ', payload, elementList)
+
+    // const { valueList, url } = payload
+    // const hyperlinkId = getUUID()
+    // const newElementList = valueList?.map<IElement>(v => ({
+    //   url,
+    //   hyperlinkId,
+    //   value: v.value,
+    //   type: ElementType.HYPERLINK
+    // }))
+    // if (!newElementList) return
+    // const start = startIndex + 1
+    // formatElementContext(elementList, newElementList, startIndex, {
+    //   editorOptions: this.options
+    // })
+    // this.draw.spliceElementList(
+    //   elementList,
+    //   start,
+    //   startIndex === endIndex ? 0 : endIndex - startIndex,
+    //   ...newElementList
+    // )
+    // const articalLength = newElementList?.length || 0
+    // const curIndex = start + articalLength - 1
+    // this.range.setRange(curIndex, curIndex)
+    // this.draw.render({ curIndex })
+
+    // console.log('ai article:')
+    this.selectAll()
+    const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
+    // console.log('isDisables:', isDisabled);
+
+    if (isDisabled) return
+    const selection = this.range.getSelectionElementList()
+    // if (!selection) return
+    let content = ''
+    selection?.forEach(el => {
+      content += el.value
+    })
+    this.search(content)
+    this.replace(content + payload)
+    // if (operate && content) {
+    //   window.parent.postMessage(
+    //     {
+    //       type: 'aiCreater',
+    //       data: content,
+    //       action: operate
+    //     },
+    //     '*'
+    //   )
+    // }
+    return content
   }
   public aiEdit(operate: string | null) {
     console.log('ai edit:', operate)
@@ -648,9 +713,9 @@ export class CommandAdapt {
     let content = ''
     selection.forEach(el => {
       content += el.value
-    }) 
+    })
     // const eventBus = this.draw.getEventBus()
-    
+
     this.search(content)
     if (operate && content) {
       window.parent.postMessage(
@@ -905,10 +970,12 @@ export class CommandAdapt {
     const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
     if (isDisabled) return
     const activeControl = this.control.getActiveControl()
+    //console.log(' hyperlink:', activeControl)
     if (activeControl) return
     const { startIndex, endIndex } = this.range.getRange()
     if (!~startIndex && !~endIndex) return
     const elementList = this.draw.getElementList()
+
     const { valueList, url } = payload
     const hyperlinkId = getUUID()
     const newElementList = valueList?.map<IElement>(v => ({
@@ -1180,12 +1247,14 @@ export class CommandAdapt {
   }
 
   public replace(payload: string) {
-    console.log('替换：', payload);
-    
+    // console.log('替换', payload)
+
     const isReadonly = this.draw.isReadonly()
     if (isReadonly) return
     if (!payload || new RegExp(`${ZERO}`, 'g').test(payload)) return
     const matchList = this.draw.getSearch().getSearchMatchList()
+    // console.log('ssssss:', matchList)
+
     if (!matchList.length) return
     // 匹配index变化的差值
     let pageDiffCount = 0
@@ -1231,6 +1300,8 @@ export class CommandAdapt {
       } else {
         const curIndex = match.index + pageDiffCount
         const element = elementList[curIndex]
+        console.log(element);
+        
         if (
           element.type === ElementType.CONTROL &&
           element.controlComponent !== ControlComponent.VALUE

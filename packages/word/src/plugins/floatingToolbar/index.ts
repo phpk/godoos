@@ -63,23 +63,16 @@ function createPickerToolbar(
 export const defaultAiPanelMenus = [
   {
     icon: Svgs.optimize,
-    // title: '改进写作',
     title: '优化',
     key: 'creation_optimization'
   },
   {
     icon: Svgs.checkGrammar,
-    // title: '检查拼写和语法'
     title: '纠错',
     key: 'creation_proofreading'
   },
-  // {
-  //   icon: Svgs.simplification,
-  //   title: '简化内容'
-  // },
   {
     icon: Svgs.richContent,
-    // title: '丰富内容'
     title: '续写',
     key: 'creation_continuation'
   },
@@ -166,18 +159,8 @@ function bindAiPanelEvent(container: HTMLDivElement, editor: Editor) {
       container.querySelector('#footer-one')?.classList.remove('ai-hide')
       container.querySelector('#footer-two')?.classList.add('ai-hide')
       container.querySelector('.aie-ai-panel-body-content')?.classList.remove('ai-hide')
-      // const goBtn =  container.querySelector('#go')
-      // goBtn ? goBtn.innerHTML = Svgs.aiPanelStop : ''
-      //console.log('选项点击');
       const chooseType = item.getAttribute('data-type')
-      // const aiContent = editor.command.excuteAiResult()
       let aiContent = editor.command.executeAiEdit(chooseType)
-      // editor.eventBus.on('aiProcessedData', (msg: string) => {
-      //   console.log('收到');
-        
-      //   aiContent = msg
-      // })
-      
       const textarea = container.querySelector<HTMLTextAreaElement>('textarea')!
       if (aiContent) {
         textarea.textContent = aiContent  
@@ -222,20 +205,6 @@ function bindAiPanelEvent(container: HTMLDivElement, editor: Editor) {
         textarea.textContent = aiContent
       }
     }
-  })
-
-  container.querySelectorAll('.aie-ai-panel-actions p').forEach(element => {
-    // const prompt = element.getAttribute('data-prompt')!
-    // element.addEventListener('click', () => {
-    //   startChat(holder, container, prompt)
-    // })
-  })
-
-  container.addEventListener('click', e => {
-    // if (e.target === container) {
-    //   holder.aiPanelInstance?.hide()
-    //   holder.tippyInstance?.show()
-    // }
   })
 }
 //ai弹窗初始化
