@@ -1137,6 +1137,16 @@ window.onload = function () {
   const aiMenuBoxClose = document.querySelector<HTMLDivElement>('.menu-item__ai-edit-box span')!
   const aiOutlineDom = document.querySelector<HTMLDivElement>('.ai-edit-outline-box')!
   const aiContentDom = document.querySelector<HTMLDivElement>('.ai-edit-content-box')!
+  const articleTitle = document.querySelector<HTMLInputElement>('#aiTitle')!
+  const articleType = document.querySelector<HTMLSelectElement>('#aiSelect')!
+  const watchOutline = document.querySelector<HTMLPreElement>('#watchOutline')!
+  const watchArticle = document.querySelector<HTMLPreElement>('#watchArticle')!
+  const outlineViewDom = document.querySelector<HTMLDivElement>('#outlineView')!
+  const articleViewDom = document.querySelector<HTMLDivElement>('#articleView')!
+  const aiInertBtn = document.querySelector<HTMLButtonElement>('#articleInsert')!
+  const createArticleBtn = document.querySelector<HTMLButtonElement>('#createArticle')!
+  const outlineTextarea = document.querySelector<HTMLTextAreaElement>('#outlineText')!
+  const articleTextarea = document.querySelector<HTMLTextAreaElement>('#articleText')!
   aiEditDom.title = `ai写作`
   aiEditDom.onclick = function () {
     console.log('ai-edit')
@@ -1149,6 +1159,9 @@ window.onload = function () {
     aiMenuBox.classList.remove('add-height')
     aiOutlineDom?.classList.remove('hide')
     aiContentDom?.classList.add('hide')
+    switchView('outline')
+    articleTextarea.textContent = ''
+    outlineTextarea.textContent = ''
   }
   aiMenuBoxClose.onclick = function () {
     initAiDialog()
@@ -1156,48 +1169,80 @@ window.onload = function () {
   // 点击生成大纲，弹窗切换
   document.querySelector<HTMLButtonElement>('#aiArticle')!.onclick =
     function () {
+      const title = articleTitle.value
+      const category = articleType.value
+      //console.log('类型：',title, category);
+      
+      if (title == '' || category == '') {
+        // alert()
+        // new Dialog({
+        //   title: '请输入标题和分类',
+        //   data: {}
+        // })
+        return
+      }
+      window.parent.postMessage(
+        {
+          type: 'aiCreater',
+          data: {
+            title,
+            category
+          },
+          action: 'creation_leader'
+        },
+        '*'
+      )
+      outlineTextarea.textContent = instance.command.excuteAiResult()
       aiOutlineDom?.classList.add('hide')
       aiContentDom?.classList.remove('hide')
       aiMenuBox.classList.add('add-height')
     }
-  const watchOutline = document.querySelector<HTMLPreElement>('#watchOutline')!
-  const watchArticle = document.querySelector<HTMLPreElement>('#watchArticle')!
-  const outlineViewDom = document.querySelector<HTMLDivElement>('#outlineView')!
-  const articleViewDom = document.querySelector<HTMLDivElement>('#articleView')!
-  const aiInertBtn = document.querySelector<HTMLButtonElement>('#articleInsert')!
-  watchOutline.onclick = 
-    function() {
-      watchOutline.classList.add('active-ai')
-      watchArticle.classList.remove('active-ai')
-      aiInertBtn?.classList.add('hide')
-      outlineViewDom.classList.remove('hide')
-      articleViewDom.classList.add('hide')
+  // 视图切换
+  function switchView(view: string) {
+    switch (view) {
+      case 'outline':
+        watchOutline.classList.add('active-ai')
+        watchArticle.classList.remove('active-ai')
+        createArticleBtn?.classList.remove('hide')
+        aiInertBtn?.classList.add('hide')
+        outlineViewDom.classList.remove('hide')
+        articleViewDom.classList.add('hide')
+        break
+      case 'article': 
+        watchArticle.classList.add('active-ai')
+        watchOutline.classList.remove('active-ai')
+        createArticleBtn?.classList.add('hide')
+        aiInertBtn?.classList.remove('hide')
+        outlineViewDom.classList.add('hide')
+        articleViewDom.classList.remove('hide')
+        break
+      default:
+        break
     }
-  watchArticle.onclick = 
-    function() {
-      watchArticle.classList.add('active-ai')
-      watchOutline.classList.remove('active-ai')
-      aiInertBtn?.classList.remove('hide')
-      outlineViewDom.classList.add('hide')
-      articleViewDom.classList.remove('hide')
-    }
+  }
+  // 查看大纲
+  watchOutline.onclick = () => switchView('outline')
+  // 查看文章
+  watchArticle.onclick = () =>  switchView('article')
+  // 生成文章
+  createArticleBtn.onclick = function () {
+    switchView('article')
+    window.parent.postMessage(
+      {
+        type: 'aiCreater',
+        data: {
+          title: articleTitle.value,
+          outline: outlineTextarea.textContent
+        },
+        action: 'creation_builder'
+      },
+      '*'
+    )
+    articleTextarea.textContent = instance.command.excuteAiResult()
+  }
   //插入文章
   aiInertBtn.onclick = function () {
-    const text = document.querySelector<HTMLTextAreaElement>('#articleText')?.textContent || ''
-    // instance.command.executeSelectAll()
-    // instance.command.executeSearch()
-    // text ? instance.command.executeReplace(text) : ''
-    // const temp = {
-    //   type: ElementType.TEXT,
-    //   value: '',
-    //   url: '',
-    //   valueList: splitText(text).map(n => ({
-    //     value: n,
-    //     size: 16
-    //   }))
-    // }
-    // console.log('数字：', temp);
-    
+    const text = articleTextarea.textContent || ''
     instance.command.executeAiArticle(text)
     initAiDialog()
   }
@@ -2116,7 +2161,7 @@ window.onload = function () {
 
     } else if (eventData.type === 'aiReciver') {
       // const buffer = base64ToArrayBuffer(eventData.data)
-      // console.log('接收到来自伏组件数据：', eventData.data);
+      //console.log('接收到来自伏组件数据：', eventData.data);
       instance.command.excuteAiResult(eventData.data)
     }
 
