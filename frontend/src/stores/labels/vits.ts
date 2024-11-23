@@ -4,6 +4,7 @@ export const vitsLabel = {
     action: "tts",
     models: [
         {
+            model: "vits-zh-aishell3",
             params: {
                 type: "vits",
                 model: "vits-aishell3.int8.onnx",

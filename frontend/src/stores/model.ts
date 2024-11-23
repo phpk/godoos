@@ -137,7 +137,7 @@ export const useModelStore = defineStore('modelStore', () => {
     const res = await fetchGet(`${aiUrl}/ai/tags`)
     //console.log(res)
     if (res.ok) {
-      resetData(res)
+      await resetData(res)
     }
     return modelList.value
   }
@@ -147,7 +147,10 @@ export const useModelStore = defineStore('modelStore', () => {
     if (data && data.length > 0) {
       await db.clear("modelslist")
       await db.addAll("modelslist", data)
-      modelList.value = data
+      nextTick(() => {
+        modelList.value = data
+      })
+      
     }
   }
   async function refreshOllama() {
@@ -160,11 +163,11 @@ export const useModelStore = defineStore('modelStore', () => {
   function getModelInfo(model: string) {
     return modelList.value.find((d: any) => d.model == model)
   }
-  async function getModel(action : string) {
-    const model = await db.get("modelslist", { action,isdef:1 })
-    if(!model){
+  async function getModel(action: string) {
+    const model = await db.get("modelslist", { action, isdef: 1 })
+    if (!model) {
       return await db.addOne("modelslist", { action })
-    }else{
+    } else {
       return model
     }
   }
@@ -177,20 +180,21 @@ export const useModelStore = defineStore('modelStore', () => {
   }
   async function setCurrentModel(action: string, model?: string) {
     await db.modify("modelslist", "action", action, { isdef: 0 })
+    //console.log(model)
     if (model !== "") {
       return await db.modify("modelslist", "model", model, { isdef: 1 })
     } else {
       const data = await db.get("modelslist", { action })
-      if(data){
+      if (data) {
         return await db.update("modelslist", data.id, { isdef: 1 })
       }
     }
   }
   async function setDefModel(action: string) {
     const has = await db.get("modelslist", { action, isdef: 1 })
-    if(!has){
+    if (!has) {
       const data = await db.get("modelslist", { action })
-      if(data){
+      if (data) {
         return await db.update("modelslist", data.id, { isdef: 1 })
       }
     }
@@ -204,16 +208,28 @@ export const useModelStore = defineStore('modelStore', () => {
   async function deleteModelList(data: any) {
     //console.log(data)
     if (!data || !data.model) return
-    modelList.value.forEach((d: any, index: number) => {
-      if (d.model == data.model) {
-        modelList.value.splice(index, 1);
-      }
-    });
-    await db.deleteByField("modelslist", "model", data.model)
-    if(data.isdef*1 == 1){
-      await setCurrentModel(data.action, "")
+    const postData = {
+      method: "POST",
+      body: JSON.stringify(data),
+    };
+    const delUrl = aiUrl + "/ai/delete";
+    const completion = await fetch(delUrl, postData);
+    if (completion.status === 404) {
+      return completion.statusText;
     }
-    
+    if (completion.status === 200) {
+      modelList.value.forEach((d: any, index: number) => {
+        if (d.model == data.model) {
+          modelList.value.splice(index, 1);
+        }
+      });
+      await db.deleteByField("modelslist", "model", data.model)
+      if (data.isdef * 1 == 1) {
+        await setCurrentModel(data.action, "")
+      }
+    }
+
+
     //await db.delete("modelslist", data.id)
     //await getModelList()
   }

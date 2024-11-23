@@ -81,11 +81,11 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
         chatChatStore.onlineUserData(message.data)
         break;
       case 'user':
-        console.log(message.data)
+        //console.log(message.data)
         chatChatStore.userChatMessage(message.data)
         break
       case 'group':
-        console.log(message.data)
+        //console.log(message.data)
         chatChatStore.groupChatMessage(message.data);
         break;
       case 'update_group':
@@ -99,7 +99,7 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
     }
   }
   async function checkUpdate(res: any) {
-    console.log(res)
+    //console.log(res)
     if (!res) return
     const config = getSystemConfig();
     if (!config.account.ad) return;

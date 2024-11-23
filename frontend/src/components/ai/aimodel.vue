@@ -165,21 +165,8 @@ async function deleteModel(modelData: any) {
   modelData = toRaw(modelData);
   //console.log(modelData)
   try {
-    await modelStore.deleteModelList(modelData);
-    //return
-    const postData = {
-      method: "POST",
-      body: JSON.stringify(modelData.info),
-    };
-    const delUrl = config.aiUrl + "/ai/delete";
-    const completion = await fetch(delUrl, postData);
-    if (completion.status === 404) {
-      notifyError(completion.statusText);
-      return;
-    }
-    if (completion.status === 200) {
-      notifySuccess("success!");
-    }
+    const res:any = await modelStore.deleteModelList(modelData);
+    notifySuccess(res);
   } catch (error: any) {
     console.log(error);
     notifyError(error.message);
