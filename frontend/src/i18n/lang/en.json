@@ -319,7 +319,9 @@
     "requiredCPU": "Required CPU:",
     "requiredGPU": "Required GPU:",
     "modelTemplate": "Model Template:",
-    "modelParameters": "Model Parameters:"
+    "modelParameters": "Model Parameters:",
+    "refreshSuccess": "Refresh Success",
+    "refreshFailed": "Refresh Success"
   },
   "aisetting": {
     "modelSetting": "Model Setting",

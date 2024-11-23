@@ -134,6 +134,7 @@ func OsStart() {
 	aiRouter.HandleFunc("/delete", model.DeleteFileHandle).Methods(http.MethodPost)
 	aiRouter.HandleFunc("/tags", model.Tagshandler).Methods(http.MethodGet)
 	aiRouter.HandleFunc("/show", model.ShowHandler).Methods(http.MethodGet)
+	aiRouter.HandleFunc("/refreshOllama", model.RefreshOllamaHandler).Methods(http.MethodGet)
 	aiRouter.HandleFunc("/chat", model.ChatHandler).Methods(http.MethodPost)
 	aiRouter.HandleFunc("/embeddings", model.EmbeddingHandler).Methods(http.MethodPost)
 	// router.Handle("/model/uploadimage", http.MethodPost, sd.UploadHandler)

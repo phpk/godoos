@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { db } from "./db.ts"
 import { aiLabels } from "./labels/index.ts"
+import { fetchGet, getSystemKey } from "@/system/config"
 const modelEngines = [
   {
     name: "ollama",
@@ -90,6 +91,7 @@ export const useModelStore = defineStore('modelStore', () => {
       temperature: 0.2,
     }
   })
+  const aiUrl = getSystemKey("aiUrl")
 
   async function getLabelCate(cateName: string) {
     const list = await getLabelList()
@@ -132,12 +134,40 @@ export const useModelStore = defineStore('modelStore', () => {
   }
 
   async function getModelList() {
-    return await db.getAll("modelslist")
+    const res = await fetchGet(`${aiUrl}/ai/tags`)
+    //console.log(res)
+    if (res.ok) {
+      resetData(res)
+    }
+    return modelList.value
+  }
+  async function resetData(res: any) {
+    const data = await res.json()
+    //console.log(data)
+    if (data && data.length > 0) {
+      await db.clear("modelslist")
+      await db.addAll("modelslist", data)
+      modelList.value = data
+    }
+  }
+  async function refreshOllama() {
+    const res = await fetchGet(`${aiUrl}/ai/refreshOllama`)
+    //console.log(res)
+    if (res.ok) {
+      resetData(res)
+    }
   }
   function getModelInfo(model: string) {
     return modelList.value.find((d: any) => d.model == model)
   }
-
+  async function getModel(action : string) {
+    const model = await db.get("modelslist", { action,isdef:1 })
+    if(!model){
+      return await db.addOne("modelslist", { action })
+    }else{
+      return model
+    }
+  }
   async function getList() {
     labelList.value = await getLabelList()
     await getModelList()
@@ -145,46 +175,32 @@ export const useModelStore = defineStore('modelStore', () => {
       downList.value[index].isLoading = 0
     })
   }
-  async function setCurrentModel(action: string, model: string) {
+  async function setCurrentModel(action: string, model?: string) {
     await db.modify("modelslist", "action", action, { isdef: 0 })
-    return await db.modify("modelslist", "model", model, { isdef: 1 })
-  }
-  function getCurrentModelList(modelList: any, action: string) {
-    return modelList.filter((d: any) => d.action == action)
-  }
-  async function addDownList(data: any) {
-    console.log(data);
-
-    modelList.value.unshift(data)
-    const has = modelList.value.find((d: any) => d.model == data.model)
-    //console.log(has)
-    if (!has) {
-      //data = toRaw(data)
-      const save = await getBaseModelInfo(data.model)
-      //console.log(save)
-      if (save) {
-        //modelList.value.unshift(save)
-        return await db.addOne("modelslist", save)
-      } else {
-        console.log("not get model" + data.model)
+    if (model !== "") {
+      return await db.modify("modelslist", "model", model, { isdef: 1 })
+    } else {
+      const data = await db.get("modelslist", { action })
+      if(data){
+        return await db.update("modelslist", data.id, { isdef: 1 })
       }
+    }
+  }
+  async function setDefModel(action: string) {
+    const has = await db.get("modelslist", { action, isdef: 1 })
+    if(!has){
+      const data = await db.get("modelslist", { action })
+      if(data){
+        return await db.update("modelslist", data.id, { isdef: 1 })
+      }
+    }
+  }
+  function getCurrentModelList(action: string) {
+    //if (!modelList || modelList.length == 0) return
+    return modelList.value.filter((d: any) => d.action == action)
+  }
 
-    }
-  }
-  async function getBaseModelInfo(model: string) {
-    const baseModel = await db.get("modelslist", { model: model })
-    if (baseModel) {
-      return baseModel
-    }
-    const modelInfo = await db.get("modelslist", { model: model.split(":")[0] })
-    if (modelInfo) {
-      return modelInfo
-    }
-    return null
-  }
-  async function refreshOllama() {
 
-  }
   async function deleteModelList(data: any) {
     //console.log(data)
     if (!data || !data.model) return
@@ -194,8 +210,12 @@ export const useModelStore = defineStore('modelStore', () => {
       }
     });
     await db.deleteByField("modelslist", "model", data.model)
+    if(data.isdef*1 == 1){
+      await setCurrentModel(data.action, "")
+    }
+    
     //await db.delete("modelslist", data.id)
-    await getModelList()
+    //await getModelList()
   }
 
   function checkDownload(name: string) {
@@ -230,7 +250,9 @@ export const useModelStore = defineStore('modelStore', () => {
         isLoading: modelData.isLoading ?? 0,
       });
       if (modelData.status === "success") {
-        await addDownList(modelData);
+        //await addDownList(modelData);
+        await getModelList();
+        await setDefModel(modelData.action);
         await checkLabelData(modelData);
       }
     }
@@ -292,6 +314,7 @@ export const useModelStore = defineStore('modelStore', () => {
     getList,
     getModelList,
     getModelInfo,
+    getModel,
     checkDownload,
     addDownload,
     deleteDownload,
@@ -301,7 +324,7 @@ export const useModelStore = defineStore('modelStore', () => {
     getLabelSearch,
     getLabelList,
     delLabel,
-    addDownList,
+    //addDownList,
     deleteModelList,
     initModel,
     setCurrentModel,

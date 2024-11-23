@@ -322,7 +322,9 @@
     "requiredCPU": "所需CPU：",
     "requiredGPU": "所需GPU：",
     "modelTemplate": "模型模版：",
-    "modelParameters": "模型参数："
+    "modelParameters": "模型参数：",
+    "refreshSuccess": "更新成功！",
+    "refreshFailed": "更新失败！"
   },
   "aisetting": {
     "modelSetting": "模型设置",

@@ -40,7 +40,6 @@ const hoverTxt = {
 const config: any = ref({});
 //const chatConfig: any = ref({});
 const currentsModel: any = ref({});
-const modelList = ref([]);
 const pageLoading = ref(true);
 import type { TabsPaneContext } from "element-plus";
 
@@ -92,7 +91,7 @@ const saveConfig = async () => {
   }
 
   await changeConfig();
-  modelList.value = await modelStore.getModelList();
+  //await modelStore.getModelList();
   //modelStore.updateCurrentModels(modelList.value);
   notifySuccess(t('common.saveSuccess'));
 };
@@ -110,7 +109,9 @@ const initConfig = async () => {
 };
 onMounted(async () => {
   await initConfig();
-  modelList.value = await modelStore.getModelList();
+  await modelStore.getModelList();
+  //modelList.value = modelStore.modelList;
+  //console.log(modelList.value)
   pageLoading.value = false;
 });
 async function changeDir() {
@@ -143,7 +144,7 @@ async function changeDir() {
             </el-form-item>
             <el-form-item :label="t('aisetting.serverUrl')">
               <div class="slider-container">
-                <el-input v-model="config.apiUrl" :placeholder="t('aisetting.serverUrl')" prefix-icon="Notification"
+                <el-input v-model="config.aiUrl" :placeholder="t('aisetting.serverUrl')" prefix-icon="Notification"
                   clearable></el-input>
                 <el-popover placement="left" :width="400" trigger="click">
                   <template #reference>
@@ -177,7 +178,7 @@ async function changeDir() {
           <el-form label-width="150px" style="padding: 0 30px 50px 0">
             <el-form-item :label="t('model.' + item)" v-for="(item, index) in modelStore.cateList" :key="index">
               <el-select v-model="currentsModel[item]" @change="(val: any) => modelStore.setCurrentModel(item, val)">
-                <el-option v-for="(el, key) in modelStore.getCurrentModelList(modelList, item)" :key="key"
+                <el-option v-for="(el, key) in modelStore.getCurrentModelList(item)" :key="key"
                   :label="el.model" :value="el.model" />
               </el-select>
             </el-form-item>

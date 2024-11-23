@@ -151,6 +151,12 @@ export const getSystemConfig = (ifset = false) => {
   if(!config.ollamaUrl) {
     config.ollamaUrl = 'http://localhost:11434'
   }
+  if(!config.dataDir) {
+    config.dataDir = ''
+  }
+  if(!config.aiUrl){
+    config.aiUrl = config.apiUrl
+  }
   // 初始化桌面快捷方式列表，若本地存储中已存在则不进行覆盖
   if (!config.desktopList) {
     config.desktopList = [];

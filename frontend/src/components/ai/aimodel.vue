@@ -20,7 +20,7 @@ const currentCate = ref("all");
 
 const showDetail = ref(false);
 const detailModel = ref("")
-let downloadAbort:any = {};
+let downloadAbort: any = {};
 onMounted(async () => {
   await modelStore.getList();
 });
@@ -31,10 +31,10 @@ async function showCate(name: any) {
 async function showSearch() {
   await modelStore.getLabelSearch(searchKey.value);
 }
-function downAddUpdate(val:any) {
+function downAddUpdate(val: any) {
   downAdd.value = val;
 }
-async function downLabel(modelData:any, labelData:any) {
+async function downLabel(modelData: any, labelData: any) {
   labelData = toRaw(labelData);
   modelData = toRaw(modelData);
   //console.log(modelData, labelData)
@@ -61,7 +61,7 @@ async function saveBox(modelData: any) {
   }
   downLabel(modelData, labelData);
 }
-async function download(saveData:any) {
+async function download(saveData: any) {
   saveData = toRaw(saveData);
   saveData.info = toRaw(saveData.info);
   //saveData.url = toRaw(saveData.url);
@@ -74,7 +74,7 @@ async function download(saveData:any) {
     return;
   }
   //console.log(saveData);
-  const downUrl = config.apiUrl + "/ai/download";
+  const downUrl = config.aiUrl + "/ai/download";
 
   try {
     const completion = await fetch(downUrl, {
@@ -92,7 +92,7 @@ async function download(saveData:any) {
     saveData.progress = 0;
     modelStore.addDownload(saveData);
     await handleDown(saveData, completion);
-  } catch (error:any) {
+  } catch (error: any) {
     notifyError(error.message);
   }
 }
@@ -104,7 +104,7 @@ function cancelDownload(model: string) {
   }
 }
 
-async function handleDown(modelData:any, completion:any) {
+async function handleDown(modelData: any, completion: any) {
   const reader: any = completion.body?.getReader();
   if (!reader) {
     notifyError(t("common.cantStream"));
@@ -125,7 +125,7 @@ async function handleDown(modelData:any, completion:any) {
       //console.log(rawjson);
       const msg = modelStore.parseMsg(rawjson);
       //console.log(msg)
-      if(msg.message && msg.code) {
+      if (msg.message && msg.code) {
         notifyError(msg.message);
         break;
       }
@@ -135,9 +135,9 @@ async function handleDown(modelData:any, completion:any) {
       modelData.status = msg.status;
 
       if (msg.total && msg.completed && msg.total > 0) {
-        if(msg.total == msg.completed){
+        if (msg.total == msg.completed) {
           msg.status = "success"
-        }else{
+        } else {
           modelData.isLoading = 1;
           modelData.progress = Math.ceil((msg.completed / msg.total) * 100);
         }
@@ -171,7 +171,7 @@ async function deleteModel(modelData: any) {
       method: "POST",
       body: JSON.stringify(modelData.info),
     };
-    const delUrl = config.apiUrl + "/ai/delete";
+    const delUrl = config.aiUrl + "/ai/delete";
     const completion = await fetch(delUrl, postData);
     if (completion.status === 404) {
       notifyError(completion.statusText);
@@ -180,12 +180,12 @@ async function deleteModel(modelData: any) {
     if (completion.status === 200) {
       notifySuccess("success!");
     }
-  } catch (error:any) {
+  } catch (error: any) {
     console.log(error);
     notifyError(error.message);
   }
 }
-function labelShow(val:any) {
+function labelShow(val: any) {
   labelId.value = val;
   labelEditor.value = true;
 }
@@ -202,10 +202,10 @@ async function delLabel(id: number) {
 }
 function getModelStatus(model: string) {
   let name = t('model.noDown');
-  if (modelStore.modelList.find((item:any) => item.model === model)) {
+  if (modelStore.modelList.find((item: any) => item.model === model)) {
     name = t('model.hasDown');
   }
-  if (modelStore.downList.find((item:any) => item.model === model)) {
+  if (modelStore.downList.find((item: any) => item.model === model)) {
     name = t('model.downloading');
   }
   return name;
@@ -214,56 +214,42 @@ function showModel(model: string) {
   detailModel.value = model;
   showDetail.value = true;
 }
+async function refreshOllama() {
+  try {
+    await modelStore.refreshOllama();
+    notifySuccess(t('model.refreshSuccess'));
+  } catch (error) {
+    notifyError(t('model.refreshFail'));
+  }
+
+}
 </script>
 <template>
-   <el-dialog v-model="showDetail" width="600" append-to-body>
+  <el-dialog v-model="showDetail" width="600" append-to-body>
     <DownModelInfo :model="detailModel" />
   </el-dialog>
   <div class="app-container">
-    <el-drawer
-      v-model="downLeft"
-      direction="ltr"
-      :show-close="false"
-      :with-header="false"
-      :size="300"
-    >
+    <el-drawer v-model="downLeft" direction="ltr" :show-close="false" :with-header="false" :size="300">
       <div>
         <el-tag size="large" style="margin-bottom: 10px">{{ t('model.downloading') }}</el-tag>
         <div class="pa-2">
-          <Vue3Lottie
-            animationLink="/bot/search.json"
-            :height="200"
-            :width="200"
-            v-if="modelStore.downList.length < 1"
-          />
+          <Vue3Lottie animationLink="/bot/search.json" :height="200" :width="200"
+            v-if="modelStore.downList.length < 1" />
           <el-space direction="vertical" v-else>
-            <el-card
-              v-for="(val, key) in modelStore.downList"
-              :key="key"
-              class="box-card"
-              style="width: 250px"
-            >
+            <el-card v-for="(val, key) in modelStore.downList" :key="key" class="box-card" style="width: 250px">
               <div class="card-header">
                 <span>{{ val.model }}</span>
               </div>
               <div class="text item" v-if="val.progress && val.isLoading > 0">
-                <el-progress
-                  :text-inside="true"
-                  :stroke-width="15"
-                  :percentage="val.progress"
-                />
+                <el-progress :text-inside="true" :stroke-width="15" :percentage="val.progress" />
               </div>
               <div class="drawer-model-actions" style="margin-top: 10px">
                 <el-tag size="small" v-if="val.isLoading > 0">{{ val.status }}</el-tag>
                 <el-icon :size="18" color="red" @click="cancelDownload(val.model)">
                   <Delete />
                 </el-icon>
-                <el-icon
-                  :size="18"
-                  color="blue"
-                  v-if="val.isLoading < 1 && val.status != 'success'"
-                  @click="download(toRaw(val))"
-                >
+                <el-icon :size="18" color="blue" v-if="val.isLoading < 1 && val.status != 'success'"
+                  @click="download(toRaw(val))">
                   <VideoPlay />
                 </el-icon>
               </div>
@@ -272,31 +258,17 @@ function showModel(model: string) {
         </div>
         <el-tag size="large" style="margin: 10px auto">{{ t('model.hasDown') }}</el-tag>
         <div class="pa-2">
-          <div
-            class="list-item"
-            v-for="(item, index) in modelStore.modelList"
-            :key="index"
-          >
+          <div class="list-item" v-for="(item, index) in modelStore.modelList" :key="index">
             <div class="list-title" @click="showModel(item.model)">
               {{ item.model }}
             </div>
-            <el-button
-              class="delete-btn"
-              icon="Delete"
-              size="small"
-              @click.stop="deleteModel(item)"
-              circle
-            ></el-button>
+            <el-button class="delete-btn" icon="Delete" size="small" @click.stop="deleteModel(item)" circle></el-button>
           </div>
         </div>
       </div>
     </el-drawer>
     <el-dialog v-model="labelEditor" width="600" :title="t('model.modelLabel')">
-      <down-labeleditor
-        @closeFn="closeLabel"
-        @refreshFn="refreshList"
-        :labelId="labelId"
-      />
+      <down-labeleditor @closeFn="closeLabel" @refreshFn="refreshList" :labelId="labelId" />
     </el-dialog>
     <el-dialog v-model="downAdd" width="600" :title="t('model.modelDown')">
       <down-addbox @closeFn="downAddUpdate" @saveFn="saveBox" />
@@ -306,33 +278,16 @@ function showModel(model: string) {
         <div></div>
       </template>
       <template #content>
-        <el-button
-          @click.stop="downLeft = !downLeft"
-          icon="Menu"
-          circle
-        />
-        <el-button @click.stop="downAdd = true" icon="Plus" circle  />
-        <el-button
-          @click.stop="labelShow(0)"
-          icon="CollectionTag"
-          circle
-        />
-        <el-button
-          @click.stop="modelStore.refreshOllama"
-          icon="RefreshRight"
-          circle
-        />
-        
+        <el-button @click.stop="downLeft = !downLeft" icon="Menu" circle />
+        <el-button @click.stop="downAdd = true" icon="Plus" circle />
+        <el-button @click.stop="labelShow(0)" icon="CollectionTag" circle />
+        <el-button @click.stop="refreshOllama" icon="RefreshRight" circle />
+
       </template>
       <template #extra>
         <el-space class="mr-10">
-          <el-input
-            :placeholder="t('model.search')"
-            v-model="searchKey"
-            v-on:keydown.enter="showSearch"
-            style="width: 200px"
-            :suffix-icon="Search"
-          />
+          <el-input :placeholder="t('model.search')" v-model="searchKey" v-on:keydown.enter="showSearch"
+            style="width: 200px" :suffix-icon="Search" />
         </el-space>
       </template>
     </el-page-header>
@@ -340,22 +295,13 @@ function showModel(model: string) {
     <div class="flex-fill ml-10 mr-10">
       <el-tabs v-model="currentCate" @tab-click="showCate">
         <el-tab-pane :label="t('model.all')" name="all" />
-        <el-tab-pane
-          :label="t('model.' + item)"
-          :name="item"
-          v-for="(item, key) in modelStore.cateList"
-          :key="key"
-        />
+        <el-tab-pane :label="t('model.' + item)" :name="item" v-for="(item, key) in modelStore.cateList" :key="key" />
       </el-tabs>
     </div>
 
     <el-scrollbar class="scrollbarHeightList">
       <div class="model-list">
-        <div
-          v-for="item in modelStore.labelList"
-          :key="item.name"
-          class="model-item flex align-center pa-5"
-        >
+        <div v-for="item in modelStore.labelList" :key="item.name" class="model-item flex align-center pa-5">
           <div class="flex-fill mx-5">
             <div class="font-weight-bold">
               {{ item.name }}
@@ -371,13 +317,8 @@ function showModel(model: string) {
                 <el-button icon="Download" circle />
               </template>
               <template #default>
-                <div
-                  v-for="(el, index) in item.models"
-                  :key="index"
-                  :value="el.model"
-                  @click="downLabel(el, item)"
-                  class="list-column"
-                >
+                <div v-for="(el, index) in item.models" :key="index" :value="el.model" @click="downLabel(el, item)"
+                  class="list-column">
                   <div class="list-column-title">
                     {{ el.model }}
                     <el-tag size="small" type="info">{{
@@ -393,12 +334,7 @@ function showModel(model: string) {
               </template>
             </el-popover>
             <el-button icon="Edit" circle @click="labelShow(item.id)" />
-            <el-button
-              @click.stop="delLabel(item.id)"
-              icon="Delete"
-              v-if="item.models.length === 0"
-              circle
-            />
+            <el-button @click.stop="delLabel(item.id)" icon="Delete" v-if="item.models.length === 0" circle />
           </div>
         </div>
       </div>

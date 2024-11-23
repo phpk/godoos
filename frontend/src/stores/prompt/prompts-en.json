@@ -669,7 +669,7 @@
   },
   {
     "name": "Act as a system creator",
-    "prompt": "Write a highly concise and comprehensive {cate} outline based on the following topic: {title}",
+    "prompt": "Write a highly concise and comprehensive {category} outline based on the following topic: {title}",
     "isdef": 1,
     "action": "creation_leader"
   },

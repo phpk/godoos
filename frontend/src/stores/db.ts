@@ -9,7 +9,7 @@ dbInit.version(1).stores({
   // 模型标签
   modelslabel: '++id,name,zhdesc,endesc,family,chanel,models,action,engine',
   // 模型列表
-  modelslist: '++id,model,label,status,progress,url,file_name,isdef,action,chanel,engine,info,options',
+  modelslist: '++id,model,label,action,status,params,type,isdef,info,created_at',
   // 用户列表
   workbenchChatUser: '++id,ip,userName,chatId,avatar,mobile,phone,nickName,isOnline,updatedAt,createdAt',
   // 会话列表

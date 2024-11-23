@@ -160,8 +160,6 @@ func ShowHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func extractParameterSize(sizeStr string, model string) (float64, bool) {
-	// log.Printf("extractParameterSize: %s", sizeStr)
-	// log.Printf("extractParameterModel: %s", model)
 	// 尝试直接从原始sizeStr中提取数字，包括小数
 	if size, err := strconv.ParseFloat(strings.TrimSuffix(sizeStr, "B"), 64); err == nil {
 		return size, true
@@ -224,6 +222,65 @@ func getOllamaModels() ([]OllamaModelsInfo, error) {
 	return rest.Models, nil
 
 }
+func RefreshOllamaHandler(w http.ResponseWriter, r *http.Request) {
+	err := refreshOllamaModels(r)
+	if err != nil {
+		libs.ErrorMsg(w, "Refresh Ollama Models error")
+		return
+	}
+	//libs.SuccessMsg(w, nil, "Refresh Ollama Models success")
+	Tagshandler(w, r)
+}
+func refreshOllamaModels(r *http.Request) error {
+	modelList, err := getOllamaModels()
+	if err != nil {
+		return fmt.Errorf("load ollama error: %v", err)
+	}
+	// 将modelList中的数据写入reqBodyMap
+	for _, modelInfo := range modelList {
+		model := modelInfo.Model
+		if _, exists := reqBodyMap.Load(model); !exists {
+			// 创建一个新的ReqBody对象并填充相关信息
+			oinfo := parseOllamaInfo(modelInfo)
+			details, err := getOllamaInfo(r, model)
+			if err != nil {
+				log.Printf("Error getting ollama info: %v", err)
+				continue
+			}
+			architecture := details.ModelInfo["general.architecture"].(string)
+			contextLength := convertInt(details.ModelInfo, architecture+".context_length")
+			embeddingLength := convertInt(details.ModelInfo, architecture+".embedding_length")
+			paths, err := getManifests(model)
+			if err != nil {
+				log.Printf("Error parsing Manifests: %v", err)
+				continue
+			}
+			reqBody := ReqBody{
+				Model:     model,
+				Status:    "success",
+				CreatedAt: time.Now(),
+			}
+			reqBody.Info = ModelInfo{
+				Engine:          "ollama",
+				From:            "ollama",
+				Path:            paths,
+				Size:            oinfo.Size,
+				Quant:           oinfo.Quant,
+				Desk:            oinfo.Desk,
+				CPU:             oinfo.CPU,
+				GPU:             oinfo.GPU,
+				Template:        details.Template,
+				Parameters:      details.Parameters,
+				ContextLength:   contextLength,
+				EmbeddingLength: embeddingLength,
+			}
+
+			// 将新的ReqBody对象写入reqBodyMap
+			reqBodyMap.Store(model, reqBody)
+		}
+	}
+	return nil
+}
 func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody ReqBody) {
 	model := reqBody.Model
 	postQuery := map[string]interface{}{
@@ -251,8 +308,8 @@ func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody ReqBody) {
 		if model.Model == reqBody.Model {
 			oinfo := parseOllamaInfo(model)
 			architecture := details.ModelInfo["general.architecture"].(string)
-			contextLength := details.ModelInfo[architecture+".context_length"].(int)
-			embeddingLength := details.ModelInfo[architecture+".embedding_length"].(int)
+			contextLength := convertInt(details.ModelInfo, architecture+".context_length")
+			embeddingLength := convertInt(details.ModelInfo, architecture+".embedding_length")
 			paths, err := getManifests(model.Model)
 			if err != nil {
 				log.Printf("Error parsing Manifests: %v", err)
@@ -260,6 +317,8 @@ func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody ReqBody) {
 			}
 
 			reqBody.Info = ModelInfo{
+				Engine:          reqBody.Info.Engine,
+				From:            reqBody.Info.From,
 				Path:            paths,
 				Size:            oinfo.Size,
 				Quant:           oinfo.Quant,
@@ -281,6 +340,20 @@ func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody ReqBody) {
 			return
 		}
 	}
+}
+func convertInt(data map[string]interface{}, str string) int {
+	res := 0
+	if val, ok := data[str]; ok {
+		switch v := val.(type) {
+		case int:
+			res = v
+		case float64:
+			res = int(v)
+		default:
+			log.Printf("Unexpected type for embedding_length: %T", v)
+		}
+	}
+	return res
 }
 func getOllamaInfo(r *http.Request, model string) (OllamaModelDetail, error) {
 	infoQuery := map[string]interface{}{

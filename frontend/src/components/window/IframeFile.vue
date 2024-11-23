@@ -8,6 +8,7 @@ import { getSplit, getSystemConfig, setSystemKey } from "@/system/config";
 import { base64ToBuffer, isBase64 } from "@/util/file";
 import { isShareFile } from "@/util/sharePath.ts";
 import { inject, onMounted, onUnmounted, ref, toRaw } from "vue";
+import { askAi } from "@/hook/useAi";
 const SP = getSplit();
 
 const sys: any = inject<System>("system");
@@ -187,24 +188,36 @@ const eventHandler = async (e: MessageEvent) => {
 		
 	}
   else if (eventData.type == 'aiCreater') {
+	console.log(eventData)
+	let postData:any = {}
+	if(eventData.data){
+		postData.content = eventData.data
+	}
+	if(eventData.title){
+		postData.title = eventData.title
+	}
+	if(eventData.category){
+		postData.category = eventData.category
+	}
     // 模拟AI返回数据
+	const res = await askAi(postData, eventData.action);
     storeRef.value?.contentWindow?.postMessage(
       {
         type: 'aiReciver',
-        data: '-------------经过AI处理后的数据-----------',
+        data: res,
       },
       "*"
     );
   }
-  else if (eventData.type == 'aiReciver') {
-    storeRef.value?.contentWindow?.postMessage(
-      {
-        type: eventData.type,
-        data: '----经过AI处理后的数据-----',
-      },
-      "*"
-    );
-  }
+//   else if (eventData.type == 'aiReciver') {
+//     storeRef.value?.contentWindow?.postMessage(
+//       {
+//         type: eventData.type,
+//         data: '----经过AI处理后的数据-----',
+//       },
+//       "*"
+//     );
+//   }
 };
 //删除本地暂存的文件密码
 const delFileInputPwd = async () => {

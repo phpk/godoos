@@ -513,7 +513,7 @@
   },
   {
     "name": "充当系统创作总纲",
-    "prompt": "根据以下主题，写一篇高度凝练且全面的{cate}提纲：{title}",
+    "prompt": "根据以下主题，写一篇高度凝练且全面的{category}提纲：{title}",
     "isdef": 1,
     "action": "creation_leader"
   },
