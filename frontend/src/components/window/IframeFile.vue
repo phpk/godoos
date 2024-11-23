@@ -199,9 +199,9 @@ const eventHandler = async (e: MessageEvent) => {
 	if(eventData.category){
 		postData.category = eventData.category
 	}
-  
+	//console.log(postData,eventData.action)
     // 模拟AI返回数据
-	const res = await askAi(postData, eventData.action);
+	const res:any = await askAi(postData, eventData.action);
     storeRef.value?.contentWindow?.postMessage(
       {
         type: 'aiReciver',

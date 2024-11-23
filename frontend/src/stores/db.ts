@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'prompts' | 'modelslabel' | 'modelslist' | 'chatuser' | 'chatmsg' |'systemChatRecord'| 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage';
+export type ChatTable = 'prompts' | 'modelslabel' | 'modelslist' | 'chatuser' | 'chatmsg' | 'systemChatRecord' | 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
@@ -110,9 +110,14 @@ export const db = {
   },
   async get(tableName: ChatTable, whereObj: any) {
     //console.log(whereObj)
-    const data = await dbInit[tableName].where(whereObj).first()
-    //console.log(data)
-    return data ? data : false
+    try {
+      const data = await dbInit[tableName].where(whereObj).first()
+      //console.log(data)
+      return data ? data : false
+    } catch (error) {
+      return false
+    }
+
   },
   async rows(tableName: ChatTable, whereObj: any) {
     return dbInit[tableName].where(whereObj).toArray()
