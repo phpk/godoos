@@ -26,7 +26,8 @@ export async function askAi(question: any, action: string) {
     const postMsg: any = {
         messages: [
             {
-                role: "assistant",
+                //role: "assistant",
+                role: "user",
                 content: prompt
             },
         ],
