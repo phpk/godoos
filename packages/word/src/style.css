@@ -1178,6 +1178,7 @@ ul {
 }
 .menu-item .ai-content-box {
   display: inline-block;
+  position: relative;
   width: 70%;
   height: 100%;
   /* padding: 10px 15px; */
@@ -1198,4 +1199,23 @@ ul {
 }
 .ai-content-box div {
   margin: 5px 0;
+}
+.menu-item #articleLoader,
+.menu-item #outlineLoader {
+  position: absolute;
+  top: 40%;
+  left: 40%;
+  /* transform: translate(-50%, -50%); */
+  width: 48px;
+  height: 48px;
+  background-image: url('./assets/images/loader.svg');
+  animation: rotate 2s linear infinite;
+}
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
