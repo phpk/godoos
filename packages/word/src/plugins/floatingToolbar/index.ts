@@ -6,6 +6,7 @@ import { ToolbarType } from './enum'
 import { IToolbarRegister } from './interface'
 import { PLUGIN_PREFIX } from './constant'
 import { Svgs } from './icons/Svgs'
+import { AiResult } from '../../editor/dataset/constant/AIResult'
 function createPickerToolbar(
   container: HTMLDivElement,
   toolbarType: ToolbarType,
@@ -163,24 +164,22 @@ function bindAiPanelEvent(container: HTMLDivElement, editor: Editor) {
       let aiContent = editor.command.executeAiEdit(chooseType)
       const textarea = container.querySelector<HTMLTextAreaElement>('textarea')!
       if (aiContent) {
-        textarea.textContent = aiContent  
+        textarea.value = AiResult.aiContent  
       }
     })
   })
 
   // 替换
   container.querySelector('#replace')!.addEventListener('click', () => {
-    const aiResult = editor.command.excuteAiResult()
-    editor.command.executeReplace(aiResult)
+    editor.command.executeReplace(AiResult.aiContent)
     console.log('替换');
   })
   //  插入
   container.querySelector('#insert')!.addEventListener('click', () => {
     const aiContent = editor.command.executeAiEdit('')
-    const aiResult = editor.command.excuteAiResult()
-    editor.command.executeReplace(aiContent + aiResult)
+    editor.command.executeReplace(aiContent + AiResult.aiContent)
     editor.command.executeSearch('')
-    console.log('插入');
+    console.log('插入:')
   })
   // 舍弃
   container.querySelector('#hide')!.addEventListener('click', () => {

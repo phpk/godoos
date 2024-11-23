@@ -28,7 +28,6 @@ export class Command {
   public executeStrikeout: CommandAdapt['strikeout']
   public executeSuperscript: CommandAdapt['superscript']
   public executeSubscript: CommandAdapt['subscript']
-  public excuteAiResult: CommandAdapt['aiResult']
   public executeAiEdit: CommandAdapt['aiEdit']
   public executeAiArticle: CommandAdapt['aiArticle']
   public executeColor: CommandAdapt['color']
@@ -155,7 +154,6 @@ export class Command {
     this.executeStrikeout = adapt.strikeout.bind(adapt)
     this.executeSuperscript = adapt.superscript.bind(adapt)
     this.executeSubscript = adapt.subscript.bind(adapt)
-    this.excuteAiResult = adapt.aiResult.bind(adapt)
     this.executeAiEdit = adapt.aiEdit.bind(adapt)
     this.executeAiArticle = adapt.aiArticle.bind(adapt)
     this.executeColor = adapt.color.bind(adapt)

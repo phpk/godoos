@@ -635,10 +635,6 @@ export class CommandAdapt {
     })
     this.draw.render({ isSetCursor: false })
   }
-  public aiResult(result?: string) {
-    result ? (this.aiContent = result) : ''
-    return this.aiContent
-  }
   public aiArticle(payload: string) {
     this.selectAll()
     const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
@@ -678,8 +674,6 @@ export class CommandAdapt {
     selection.forEach(el => {
       content += el.value
     })
-    // const eventBus = this.draw.getEventBus()
-
     this.search(content)
     if (operate && content) {
       window.parent.postMessage(
@@ -1218,6 +1212,8 @@ export class CommandAdapt {
     if(aiArticle && aiArticle == true) {
       if (!payload) return
     } else {
+      // console.log('zero:', new RegExp(`${ZERO}`, 'g').test(payload))
+      
       if (!payload || new RegExp(`${ZERO}`, 'g').test(payload)) return
     }
     // if (!payload || (isZero && aiArticle)) return

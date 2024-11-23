@@ -188,7 +188,7 @@ const eventHandler = async (e: MessageEvent) => {
 		
 	}
   else if (eventData.type == 'aiCreater') {
-	console.log(eventData)
+	// console.log(eventData)
 	let postData:any = {}
 	if(eventData.data){
 		postData.content = eventData.data
@@ -199,12 +199,14 @@ const eventHandler = async (e: MessageEvent) => {
 	if(eventData.category){
 		postData.category = eventData.category
 	}
+  
     // 模拟AI返回数据
 	const res = await askAi(postData, eventData.action);
     storeRef.value?.contentWindow?.postMessage(
       {
         type: 'aiReciver',
         data: res,
+        action: eventData.action
       },
       "*"
     );

@@ -30,6 +30,7 @@ import barcode2dPlugin from "./plugins/barcode2d"
 import floatingToolbarPlugin from "./plugins/floatingToolbar"
 import excelPlugin from "./plugins/excel"
 import docxPlugin from './plugins/docx'
+import { AiResult } from './editor/dataset/constant/AIResult'
 window.onload = function () {
   const isApple =
     typeof navigator !== 'undefined' && /Mac OS X/.test(navigator.userAgent)
@@ -1149,8 +1150,7 @@ window.onload = function () {
   const articleTextarea = document.querySelector<HTMLTextAreaElement>('#articleText')!
   aiEditDom.title = `ai写作`
   aiEditDom.onclick = function () {
-    console.log('ai-edit')
-    instance.command.executeAiEdit('')
+    // instance.command.executeAiEdit('')
     aiMenuBox.classList.contains('hide') ? aiMenuBox.classList.remove('hide') : aiMenuBox.classList.add('hide')
   }
 
@@ -1160,8 +1160,8 @@ window.onload = function () {
     aiOutlineDom?.classList.remove('hide')
     aiContentDom?.classList.add('hide')
     switchView('outline')
-    articleTextarea.textContent = ''
-    outlineTextarea.textContent = ''
+    articleTextarea.value = ''
+    outlineTextarea.value = ''
   }
   aiMenuBoxClose.onclick = function () {
     initAiDialog()
@@ -1171,7 +1171,6 @@ window.onload = function () {
     function () {
       const title = articleTitle.value
       const category = articleType.value
-      //console.log('类型：',title, category);
       
       if (title == '' || category == '') {
         // alert()
@@ -1192,7 +1191,9 @@ window.onload = function () {
         },
         '*'
       )
-      outlineTextarea.textContent = instance.command.excuteAiResult()
+      outlineTextarea.value = AiResult.aiOutline
+      console.log('结果：', AiResult);
+      
       aiOutlineDom?.classList.add('hide')
       aiContentDom?.classList.remove('hide')
       aiMenuBox.classList.add('add-height')
@@ -1232,17 +1233,17 @@ window.onload = function () {
         type: 'aiCreater',
         data: {
           title: articleTitle.value,
-          outline: outlineTextarea.textContent
+          outline: outlineTextarea.value
         },
         action: 'creation_builder'
       },
       '*'
     )
-    articleTextarea.textContent = instance.command.excuteAiResult()
+    articleTextarea.value = AiResult.aiArticle
   }
   //插入文章
   aiInertBtn.onclick = function () {
-    const text = articleTextarea.textContent || ''
+    const text = articleTextarea.value || ''
     instance.command.executeAiArticle(text)
     initAiDialog()
   }
@@ -2159,13 +2160,19 @@ window.onload = function () {
         arrayBuffer: buffer,
       });
 
-    } else if (eventData.type === 'aiReciver') {
-      // const buffer = base64ToArrayBuffer(eventData.data)
-      //console.log('接收到来自伏组件数据：', eventData.data);
-      instance.command.excuteAiResult(eventData.data)
+    } else if (eventData.type == 'aiReciver') {
+      console.log('接收到来自伏组件数据：', eventData.data);
+      if (eventData.action == 'creation_leader') {
+        AiResult.aiOutline = eventData.data
+      } else if (eventData.action == 'creation_builder') {
+        AiResult.aiArticle = eventData.data
+      } else {
+        AiResult.aiContent = eventData.data
+      }
     }
 
   }
+      
   //window.addEventListener('load', () => {
     window.parent.postMessage({ type: 'initSuccess' }, '*')
     window.addEventListener('message', eventHandler)
