@@ -1,43 +1,47 @@
 export const telespeechLabel = {
     name: "telespeech",
     family: "telespeech",
-    engine: "voice",
-    from:"network",
-    action: ["audio"],
+
+    action: "audio",
     models: [
-        // {
-        //     model: "telespeech",
-        //     file_name: "model.onnx",
-        //     url: [
-        //         "https://hf-mirror.com/csukuangfj/sherpa-onnx-telespeech-ctc-zh-2024-06-04/blob/main/model.onnx",
-        //         "https://hf-mirror.com/csukuangfj/sherpa-onnx-telespeech-ctc-zh-2024-06-04/blob/main/tokens.txt"
-        //     ],
-        //     params:{
-        //         type:"telespeech",
-        //         model:"model.onnx",
-        //         token:"tokens.txt",
-        //     },
-        //     info: {
-        //         size: "341MB",
-        //         desk: "400MB",
-        //         cpu: "8GB",
-        //         gpu: "6GB",
-        //         quant: "q8"
-        //     }
-        // },
         {
-            model: "telespeech-int8",
-            file_name: "model.int8.onnx",
-            url: [
-                "https://hf-mirror.com/csukuangfj/sherpa-onnx-telespeech-ctc-int8-zh-2024-06-04/blob/main/model.int8.onnx",
-                "https://hf-mirror.com/csukuangfj/sherpa-onnx-telespeech-ctc-int8-zh-2024-06-04/blob/main/tokens.txt"
-            ],
-            params:{
-                type:"telespeech",
-                model:"model.int8.onnx",
-                token:"tokens.txt",
+            model: "telespeech",
+            params: {
+                type: "telespeech",
+                model: "model.onnx",
+                token: "tokens.txt",
             },
             info: {
+                file_name: "model.onnx",
+                url: [
+                    "https://hf-mirror.com/csukuangfj/sherpa-onnx-telespeech-ctc-zh-2024-06-04/blob/main/model.onnx",
+                    "https://hf-mirror.com/csukuangfj/sherpa-onnx-telespeech-ctc-zh-2024-06-04/blob/main/tokens.txt"
+                ],
+                engine: "voice",
+                from: "network",
+                size: "341MB",
+                desk: "400MB",
+                cpu: "8GB",
+                gpu: "6GB",
+                quant: "q8"
+            }
+        },
+        {
+            model: "telespeech-int8",
+
+            params: {
+                type: "telespeech",
+                model: "model.int8.onnx",
+                token: "tokens.txt",
+            },
+            info: {
+                file_name: "model.int8.onnx",
+                url: [
+                    "https://hf-mirror.com/csukuangfj/sherpa-onnx-telespeech-ctc-int8-zh-2024-06-04/blob/main/model.int8.onnx",
+                    "https://hf-mirror.com/csukuangfj/sherpa-onnx-telespeech-ctc-int8-zh-2024-06-04/blob/main/tokens.txt"
+                ],
+                engine: "voice",
+                from: "network",
                 size: "341MB",
                 desk: "400MB",
                 cpu: "8GB",

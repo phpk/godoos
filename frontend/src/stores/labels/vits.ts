@@ -1,29 +1,29 @@
 export const vitsLabel = {
     name: "vits",
     family: "vits",
-    engine: "voice",
-    from:"network",
-    action: ["tts"],
-    models:[
+    action: "tts",
+    models: [
         {
-            model: "vits-zh-aishell3",
-            file_name: "vits-aishell3.int8.onnx",
-            url: [
-                "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/vits-aishell3.int8.onnx",
-                "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/tokens.txt",
-                "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/phone.fst",
-                "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/number.fst",
-                "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/lexicon.txt",
-                "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/date.fst"
-            ],
-            params : {
-                type:"vits",
-                model:"vits-aishell3.int8.onnx",
-                token:"tokens.txt",
-                lexicon:"lexicon.txt",
-                ruleFsts:["date.fst","phone.fst","number.fst"]
+            params: {
+                type: "vits",
+                model: "vits-aishell3.int8.onnx",
+                token: "tokens.txt",
+                lexicon: "lexicon.txt",
+                ruleFsts: ["date.fst", "phone.fst", "number.fst"]
             },
             info: {
+                engine: "voice",
+                from: "network",
+                model: "vits-zh-aishell3",
+                file_name: "vits-aishell3.int8.onnx",
+                url: [
+                    "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/vits-aishell3.int8.onnx",
+                    "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/tokens.txt",
+                    "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/phone.fst",
+                    "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/number.fst",
+                    "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/lexicon.txt",
+                    "https://hf-mirror.com/csukuangfj/vits-zh-aishell3/resolve/main/date.fst"
+                ],
                 size: "121MB",
                 desk: "200MB",
                 cpu: "8GB",

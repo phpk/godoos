@@ -59,21 +59,32 @@ type FileProgress struct {
 type ModelStruct struct {
 	Model string `json:"model"`
 }
+type ModelInfo struct {
+	FileName        string   `json:"file_name"`
+	URL             []string `json:"url"`
+	Path            []string `json:"path"`
+	Engine          string   `json:"engine"`
+	From            string   `json:"from"`
+	Size            string   `json:"size"`
+	Desk            string   `json:"desk"`
+	CPU             string   `json:"cpu"`
+	GPU             string   `json:"gpu"`
+	Quant           string   `json:"quant"`
+	Parameters      string   `json:"parameters"`
+	ContextLength   int      `json:"context_length"`
+	EmbeddingLength int      `json:"embedding_length"`
+	Template        string   `json:"template"`
+}
 type ReqBody struct {
 	//DownloadUrl string                 `json:"url"`
 	//Options  ModelConfig            `json:"options"`
 	Model     string                 `json:"model"`
-	Url       []string               `json:"url"`
-	Engine    string                 `json:"engine"`
+	Action    string                 `json:"action"`
 	Type      string                 `json:"type"`
-	From      string                 `json:"from"`
-	Action    []string               `json:"action"`
 	Label     string                 `json:"label"`
-	Info      map[string]interface{} `json:"info"`
+	Info      ModelInfo              `json:"info"`
 	Status    string                 `json:"status"`
-	Paths     []string               `json:"paths"`
 	Params    map[string]interface{} `json:"params"`
-	FileName  string                 `json:"file_name"`
 	CreatedAt time.Time              `json:"created_at"`
 }
 type DownloadsRequest struct {

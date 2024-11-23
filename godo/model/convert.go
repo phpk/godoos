@@ -1,23 +1,19 @@
 package model
 
 import (
-	"fmt"
 	"godo/libs"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func ConvertOllama(w http.ResponseWriter, r *http.Request, req ReqBody) {
-	modelFile := "FROM " + req.Paths[0] + "\n"
-	modelFile += `TEMPLATE """` + req.Info["template"].(string) + `"""`
-	if parameters, ok := req.Info["parameters"].([]interface{}); ok {
+	modelFile := "FROM " + req.Info.Path[0] + "\n"
+	modelFile += `TEMPLATE """` + req.Info.Template + `"""`
+	if req.Info.Parameters != "" {
+		parameters := strings.Split(req.Info.Parameters, "\n")
 		for _, param := range parameters {
-			if strParam, ok := param.(string); ok {
-				modelFile += "\nPARAMETER " + strParam
-			} else {
-				// 处理非字符串的情况，根据需要可以选择忽略或报告错误
-				fmt.Fprintf(os.Stderr, "Unexpected parameter type: %T\n", param)
-			}
+			modelFile += "\nPARAMETER " + param
 		}
 	}
 

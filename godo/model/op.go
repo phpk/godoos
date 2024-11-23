@@ -38,17 +38,18 @@ type OllamaModelDetail struct {
 	Details    map[string]interface{} `json:"details"`
 	ModelInfo  map[string]interface{} `json:"model_info"`
 }
-type ResModelInfo struct {
-	Parameters      string `json:"parameters"`
-	Template        string `json:"template"`
-	ContextLength   int64  `json:"context_length"`
-	EmbeddingLength int64  `json:"embedding_length"`
-	Size            string `json:"size"`
-	Quant           string `json:"quant"`
-	Desk            string `json:"desk"`
-	Cpu             string `json:"cpu"`
-	Gpu             string `json:"gpu"`
-}
+
+// type ResModelInfo struct {
+// 	Parameters      string `json:"parameters"`
+// 	Template        string `json:"template"`
+// 	ContextLength   int64  `json:"context_length"`
+// 	EmbeddingLength int64  `json:"embedding_length"`
+// 	Size            string `json:"size"`
+// 	Quant           string `json:"quant"`
+// 	Desk            string `json:"desk"`
+// 	Cpu             string `json:"cpu"`
+// 	Gpu             string `json:"gpu"`
+// }
 
 type Layer struct {
 	MediaType string `json:"mediaType"`
@@ -177,29 +178,29 @@ func extractParameterSize(sizeStr string, model string) (float64, bool) {
 	return 0, false
 }
 
-func parseOllamaInfo(info OllamaModelsInfo) ResModelInfo {
-	res := ResModelInfo{
+func parseOllamaInfo(info OllamaModelsInfo) ModelInfo {
+	res := ModelInfo{
 		Size:  humanReadableSize(info.Size),
 		Quant: info.Details.QuantizationLevel,
 	}
 	res.Desk = res.Size
 	paramSize, ok := extractParameterSize(info.Details.ParameterSize, info.Model)
 	if !ok {
-		res.Cpu = CPU_8GB
-		res.Gpu = GPU_6GB
+		res.CPU = CPU_8GB
+		res.GPU = GPU_6GB
 		return res
 	}
 
 	switch {
 	case paramSize < 3:
-		res.Cpu = CPU_8GB
-		res.Gpu = GPU_6GB
+		res.CPU = CPU_8GB
+		res.GPU = GPU_6GB
 	case paramSize < 9:
-		res.Cpu = CPU_16GB
-		res.Gpu = GPU_8GB
+		res.CPU = CPU_16GB
+		res.GPU = GPU_8GB
 	default:
-		res.Cpu = CPU_32GB
-		res.Gpu = GPU_12GB
+		res.CPU = CPU_32GB
+		res.GPU = GPU_12GB
 	}
 
 	return res
@@ -250,28 +251,27 @@ func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody ReqBody) {
 		if model.Model == reqBody.Model {
 			oinfo := parseOllamaInfo(model)
 			architecture := details.ModelInfo["general.architecture"].(string)
-			contextLength := details.ModelInfo[architecture+".context_length"]
-			embeddingLength := details.ModelInfo[architecture+".embedding_length"]
-			info := map[string]interface{}{
-				"size":             oinfo.Size,
-				"quant":            oinfo.Quant,
-				"Desk":             oinfo.Desk,
-				"cpu":              oinfo.Cpu,
-				"gpu":              oinfo.Gpu,
-				"pb":               model.Details.ParameterSize,
-				"template":         details.Template,
-				"parameters":       details.Parameters,
-				"context_length":   contextLength,
-				"embedding_length": embeddingLength,
-			}
+			contextLength := details.ModelInfo[architecture+".context_length"].(int)
+			embeddingLength := details.ModelInfo[architecture+".embedding_length"].(int)
 			paths, err := getManifests(model.Model)
 			if err != nil {
 				log.Printf("Error parsing Manifests: %v", err)
 				continue
 			}
 
-			reqBody.Info = info
-			reqBody.Paths = paths
+			reqBody.Info = ModelInfo{
+				Path:            paths,
+				Size:            oinfo.Size,
+				Quant:           oinfo.Quant,
+				Desk:            oinfo.Desk,
+				CPU:             oinfo.CPU,
+				GPU:             oinfo.GPU,
+				Template:        details.Template,
+				Parameters:      details.Parameters,
+				ContextLength:   contextLength,
+				EmbeddingLength: embeddingLength,
+			}
+			//reqBody.Paths = paths
 			reqBody.Status = "success"
 			reqBody.CreatedAt = time.Now()
 			if err := SetModel(reqBody); err != nil {

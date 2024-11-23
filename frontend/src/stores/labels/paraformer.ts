@@ -1,23 +1,23 @@
 export const paraformerLabel = {
     name: "paraformer",
     family: "paraformer",
-    engine: "voice",
-    from:"network",
-    action: ["audio"],
+    action: "audio",
     models: [
         {
             model: "paraformer",
-            file_name: "model.int8.onnx",
-            url: [
-                "https://hf-mirror.com/csukuangfj/sherpa-onnx-paraformer-zh-2023-03-28/resolve/main/model.int8.onnx",
-                "https://hf-mirror.com/csukuangfj/sherpa-onnx-paraformer-zh-2023-03-28/resolve/main/tokens.txt"
-            ],
-            params:{
-                type:"paraformer",
-                model:"model.int8.onnx",
-                token:"tokens.txt",
+            params: {
+                type: "paraformer",
+                model: "model.int8.onnx",
+                token: "tokens.txt",
             },
             info: {
+                file_name: "model.int8.onnx",
+                url: [
+                    "https://hf-mirror.com/csukuangfj/sherpa-onnx-paraformer-zh-2023-03-28/resolve/main/model.int8.onnx",
+                    "https://hf-mirror.com/csukuangfj/sherpa-onnx-paraformer-zh-2023-03-28/resolve/main/tokens.txt"
+                ],
+                engine: "voice",
+                from: "network",
                 size: "223MB",
                 desk: "300MB",
                 cpu: "8GB",

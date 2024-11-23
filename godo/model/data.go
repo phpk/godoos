@@ -19,7 +19,7 @@ func GetConfigFile() (string, error) {
 	if !libs.PathExists(modelDir) {
 		os.MkdirAll(modelDir, 0755)
 	}
-	configFile := filepath.Join(modelDir, "model.json")
+	configFile := filepath.Join(modelDir, "aimodel.json")
 	if !libs.PathExists(configFile) {
 		// 如果文件不存在，则创建一个空的配置文件
 		err := os.WriteFile(configFile, []byte("[]"), 0644)
@@ -98,20 +98,6 @@ func SetModel(reqBody ReqBody) error {
 	}
 
 	return nil
-}
-func GetModelByDownloadUrl(downloadUrl string) (ReqBody, bool) {
-	var matchedReqBody ReqBody
-	found := false
-	reqBodyMap.Range(func(key, value interface{}) bool {
-		rb, ok := value.(ReqBody)
-		if ok && rb.Info["md5url"] == downloadUrl {
-			matchedReqBody = rb
-			found = true
-			return false // Stop iteration once a match is found
-		}
-		return true // Continue iteration
-	})
-	return matchedReqBody, found
 }
 
 func UpdateModel(reqBody ReqBody) error {
