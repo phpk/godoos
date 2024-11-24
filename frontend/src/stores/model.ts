@@ -142,17 +142,29 @@ export const useModelStore = defineStore('modelStore', () => {
     return modelList.value
   }
   async function resetData(res: any) {
-    const data = await res.json()
-    //console.log(data)
+    const data = await res.json();
+    // console.log(data);
     if (data && data.length > 0) {
-      await db.clear("modelslist")
-      await db.addAll("modelslist", data)
-      nextTick(() => {
-        modelList.value = data
-      })
-      
+        // 获取当前modelList中的模型名称
+        const existingModels:any = [];
+        const has = await db.getAll("modelslist");
+        has.forEach((model: any) => {
+          if(model.isdef && model.isdef > 0) {
+            existingModels.push(model.model)
+          }
+        })
+        data.forEach((d:any) => {
+          if (existingModels.includes(d.model)) {
+            d.isdef = 1
+          }
+        });
+        await db.clear("modelslist");
+        await db.addAll("modelslist", data);
+        modelList.value = data;
     }
-  }
+    // 重新获取所有模型列表
+    
+}
   async function refreshOllama() {
     const res = await fetchGet(`${aiUrl}/ai/refreshOllama`)
     //console.log(res)
@@ -182,7 +194,10 @@ export const useModelStore = defineStore('modelStore', () => {
     await db.modify("modelslist", "action", action, { isdef: 0 })
     //console.log(model)
     if (model !== "") {
-      return await db.modify("modelslist", "model", model, { isdef: 1 })
+      const data = await db.get("modelslist", { model })
+      if (data) {
+        return await db.update("modelslist", data.id, { isdef: 1 })
+      }
     } else {
       const data = await db.get("modelslist", { action })
       if (data) {

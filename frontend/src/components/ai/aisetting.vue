@@ -113,6 +113,16 @@ onMounted(async () => {
   //modelList.value = modelStore.modelList;
   //console.log(modelList.value)
   pageLoading.value = false;
+  modelStore.cateList.forEach((item: any) => {
+    const currentModel = modelStore.modelList.find((el: any) => el.category === item && el.isdef === 1);
+    if (currentModel) {
+      currentsModel.value[item] = currentModel.model;
+    } else {
+      const firstModel = modelStore.getCurrentModelList(item)[0];
+      currentsModel.value[item] = firstModel ? firstModel.model : '';
+    }
+  });
+
 });
 async function changeDir() {
   const path: any = await OpenDirDialog();
@@ -164,7 +174,7 @@ async function changeDir() {
                   clearable></el-input>
               </div>
             </el-form-item>
-            
+
             <el-form-item>
               <el-button @click="saveConfig" type="info" plain>
                 {{ t("common.confim") }}
@@ -178,8 +188,8 @@ async function changeDir() {
           <el-form label-width="150px" style="padding: 0 30px 50px 0">
             <el-form-item :label="t('model.' + item)" v-for="(item, index) in modelStore.cateList" :key="index">
               <el-select v-model="currentsModel[item]" @change="(val: any) => modelStore.setCurrentModel(item, val)">
-                <el-option v-for="(el, key) in modelStore.getCurrentModelList(item)" :key="key"
-                  :label="el.model" :value="el.model" />
+                <el-option v-for="(el, key) in modelStore.getCurrentModelList(item)" :key="key" :label="el.model"
+                  :value="el.model" />
               </el-select>
             </el-form-item>
           </el-form>
