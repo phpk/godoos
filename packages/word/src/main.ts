@@ -27,10 +27,9 @@ import { Signature } from './components/signature/Signature'
 import { debounce, nextTick, scrollIntoView } from './utils'
 import barcode1DPlugin from "./plugins/barcode1d"
 import barcode2dPlugin from "./plugins/barcode2d"
-import floatingToolbarPlugin from "./plugins/floatingToolbar"
+import { floatingToolbarPlugin, changeAiTextarea} from "./plugins/floatingToolbar"
 import excelPlugin from "./plugins/excel"
 import docxPlugin from './plugins/docx'
-import { AiResult } from './editor/dataset/constant/AIResult'
 window.onload = function () {
   const isApple =
     typeof navigator !== 'undefined' && /Mac OS X/.test(navigator.userAgent)
@@ -1148,6 +1147,8 @@ window.onload = function () {
   const createArticleBtn = document.querySelector<HTMLButtonElement>('#createArticle')!
   const outlineTextarea = document.querySelector<HTMLTextAreaElement>('#outlineText')!
   const articleTextarea = document.querySelector<HTMLTextAreaElement>('#articleText')!
+  const articleLoader = document.querySelector<HTMLSpanElement>('#articleLoader')!
+  const outlineLoader = document.querySelector<HTMLSpanElement>('#outlineLoader')!
   aiEditDom.title = `ai写作`
   aiEditDom.onclick = function () {
     // instance.command.executeAiEdit('')
@@ -1191,15 +1192,16 @@ window.onload = function () {
         },
         '*'
       )
-      outlineTextarea.value = AiResult.aiOutline
-      console.log('结果：', AiResult);
-      
+      // outlineTextarea.value = AiResult.aiOutline
       aiOutlineDom?.classList.add('hide')
       aiContentDom?.classList.remove('hide')
       aiMenuBox.classList.add('add-height')
+      outlineLoader.classList.remove('hide')
     }
   // 视图切换
   function switchView(view: string) {
+    outlineTextarea.value == '' ? outlineLoader.classList.remove('hide') : ''
+    articleTextarea.value == '' ? articleLoader.classList.remove('hide') : ''
     switch (view) {
       case 'outline':
         watchOutline.classList.add('active-ai')
@@ -1208,6 +1210,8 @@ window.onload = function () {
         aiInertBtn?.classList.add('hide')
         outlineViewDom.classList.remove('hide')
         articleViewDom.classList.add('hide')
+        // outlineLoader.classList.remove('hide')
+        // articleLoader.classList.add('hide')
         break
       case 'article': 
         watchArticle.classList.add('active-ai')
@@ -1216,6 +1220,8 @@ window.onload = function () {
         aiInertBtn?.classList.remove('hide')
         outlineViewDom.classList.add('hide')
         articleViewDom.classList.remove('hide')
+        // articleLoader.classList.remove('hide')
+        // outlineLoader.classList.add('hide')
         break
       default:
         break
@@ -1239,7 +1245,17 @@ window.onload = function () {
       },
       '*'
     )
-    articleTextarea.value = AiResult.aiArticle
+    // articleTextarea.value = AiResult.aiArticle
+  }
+  // 替换textarea内容
+  function changeAiArticleTextarea (data: string , type: string) {
+    if (type == 'outline') {
+      outlineTextarea.value = data
+      outlineLoader.classList.add('hide')
+    } else {
+      articleTextarea.value = data
+      articleLoader.classList.add('hide')
+    }
   }
   //插入文章
   aiInertBtn.onclick = function () {
@@ -2161,13 +2177,13 @@ window.onload = function () {
       });
 
     } else if (eventData.type == 'aiReciver') {
-      console.log('接收到来自伏组件数据：', eventData.data);
+      console.log('接收到来自伏组件数据：', eventData);
       if (eventData.action == 'creation_leader') {
-        AiResult.aiOutline = eventData.data
+        changeAiArticleTextarea(eventData.data, 'outline')
       } else if (eventData.action == 'creation_builder') {
-        AiResult.aiArticle = eventData.data
+        changeAiArticleTextarea(eventData.data, 'article')
       } else {
-        AiResult.aiContent = eventData.data
+        changeAiTextarea(eventData.data)
       }
     }
 

@@ -1209,7 +1209,7 @@ export class CommandAdapt {
 
     const isReadonly = this.draw.isReadonly()
     if (isReadonly) return
-    if(aiArticle && aiArticle == true) {
+    if(aiArticle == true) {
       if (!payload) return
     } else {
       // console.log('zero:', new RegExp(`${ZERO}`, 'g').test(payload))
