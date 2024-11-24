@@ -261,6 +261,7 @@ wails build
 
 ## GodoOS企业版介绍
 
+[使用文档](https://docs.godoos.com/zh/godoos/enterprise/)
 
 ### 一、分客户端和服务端
 
@@ -303,7 +304,6 @@ wails build
 - 支持表单设计器，可自定义表单字段，支持表单联动，支持表单校验
 - 支持表单数据归档，支持自定义时间范围
 - 支持数据查看/编辑，搜索定义，自动类型定义（数字和字符串）
-
 
 ### 五、完善的企业聊天沟通工具
 
@@ -351,6 +351,22 @@ wails build
 - 支持不同操作系统对应不同的应用版本
 - 支持应用版本依赖
 
+## 💻 ** 企业版下载试用（一个月试用期） **:
+   
+- Windows (AMD64) [**Web版**](https://godoos.com/upload/godoos-server/1.0.0/close-pro/osadmin_windows_amd64.exe)
+- Windows (ARM64) [**Web版**](https://godoos.com/upload/godoos-server/1.0.0/close-pro/osadmin_windows_arm64.exe)
+- MacOS (AMD64) [**Web版**](https://godoos.com/upload/godoos-server/1.0.0/close-pro/osadmin_darwin_amd64)
+- MacOS (ARM64) [**Web版**](https://godoos.com/upload/godoos-server/1.0.0/close-pro/osadmin_darwin_arm64)
+- Linux (AMD64) [**Web版**](https://godoos.com/upload/godoos-server/1.0.0/close-pro/osadmin_linux_amd64)
+- Linux (ARM64) [**Web版**](https://godoos.com/upload/godoos-server/1.0.0/close-pro/osadmin_linux_arm64)
+
+提示：下载后以osadmin_linux_amd64为例，root账号登录，命令行：
+```
+chmod +x osadmin_linux_amd64
+./osadmin_linux_amd64
+```
+
+- 备注：web版下载后启动服务端(需先安装mysql)。访问地址为：http://localhost:8816/。
 
 ## ❤️ 感谢
 - [element-plus](http://element-plus.org/)
