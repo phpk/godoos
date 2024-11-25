@@ -45,7 +45,7 @@ async function getLocalModel() {
     notifyError(t('model.invalidIp'));
     return;
   }
-  const url = `http://${formData.value.ip}:56711/tags`;
+  const url = `http://${formData.value.ip}:56780/ai/tags`;
   try {
     const res = await fetch(url);
     if (!res.ok) {
@@ -71,7 +71,7 @@ function setLocalInfo() {
   }
   modelData = toRaw(modelData);
   const urls: any = [];
-  const url = `http://${formData.value.ip}:56780/server?path=`;
+  const url = `http://${formData.value.ip}:56780/ai/server?path=`;
   modelData.paths.forEach((item: any) => {
     urls.push(url + item);
   });
