@@ -351,7 +351,7 @@ wails build
 - 支持不同操作系统对应不同的应用版本
 - 支持应用版本依赖
 
-## 💻 **企业版下载试用（一个月试用期）**:
+## 💻 **企业版下载试用**:
    
 - Windows (AMD64) [**Web版**](https://godoos.com/upload/godoos-server/1.0.0/close-pro/osadmin_windows_amd64.exe)
 - Windows (ARM64) [**Web版**](https://godoos.com/upload/godoos-server/1.0.0/close-pro/osadmin_windows_arm64.exe)
@@ -366,7 +366,7 @@ chmod +x osadmin_linux_amd64
 ./osadmin_linux_amd64
 ```
 
-- 备注：web版下载后启动服务端(需先安装mysql)。访问地址为：http://localhost:8816/。
+- 备注：web版下载后启动服务端(需先安装mysql)。访问地址为：http://localhost:8816/。测试版试用期为一个月）
 
 ## ❤️ 感谢
 - [element-plus](http://element-plus.org/)
