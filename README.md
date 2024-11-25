@@ -366,7 +366,7 @@ chmod +x osadmin_linux_amd64
 ./osadmin_linux_amd64
 ```
 
-- 备注：web版下载后启动服务端(需先安装mysql)。访问地址为：http://localhost:8816/。测试版试用期为一个月）
+- 备注：需先安装mysql，测试版试用期为一个月。访问地址为：http://localhost:8816/。
 
 ## ❤️ 感谢
 - [element-plus](http://element-plus.org/)
