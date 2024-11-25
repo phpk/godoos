@@ -81,7 +81,6 @@ docker-compose up --build
 docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 ```
 
-- 访问地址：http://localhost:8185/
 - 如果设置本地存储，存储地址为 /root/.godoos/os，设置成功后保存
 
 
