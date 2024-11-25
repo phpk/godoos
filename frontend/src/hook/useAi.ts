@@ -10,19 +10,32 @@ export async function askAi(question: any, action: string) {
         if (!model) {
             return '请先设置模型'
         }
-        let prompt = await assistantStore.getPrompt(action)
-        if (!prompt) {
-            return '请先设置prompt'
+        let prompt = ""
+        if (action === 'creation_ask') {
+            if (question.title) {
+                prompt = question.title
+            } else {
+                return ""
+            }
+            if (question.content || question.content != "") {
+                prompt = `${prompt} \n ${question.content}`
+            }
+        } else {
+            prompt = await assistantStore.getPrompt(action)
+            if (!prompt) {
+                return '请先设置prompt'
+            }
+            if (question.content) {
+                prompt = prompt.replace('{content}', question.content)
+            }
+            if (question.title) {
+                prompt = prompt.replace('{title}', question.title)
+            }
+            if (question.category) {
+                prompt = prompt.replace('{category}', question.category)
+            }
         }
-        if (question.content) {
-            prompt = prompt.replace('{content}', question.content)
-        }
-        if (question.title) {
-            prompt = prompt.replace('{title}', question.title)
-        }
-        if (question.category) {
-            prompt = prompt.replace('{category}', question.category)
-        }
+
         const apiUrl = config.aiUrl + '/ai/chat'
         const postMsg: any = {
             messages: [
@@ -43,7 +56,7 @@ export async function askAi(question: any, action: string) {
         const data = await complain.json()
         return data.choices[0].message.content
     } catch (error) {
-        return '请求失败'+error
+        return '请求失败' + error
     }
 
 
