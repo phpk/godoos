@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref,watch } from "vue";
 import {
   getSystemConfig,
   setSystemConfig,
@@ -40,7 +40,6 @@ const hoverTxt = {
 const config: any = ref({});
 //const chatConfig: any = ref({});
 const currentsModel: any = ref({});
-const pageLoading = ref(true);
 import type { TabsPaneContext } from "element-plus";
 
 const activeName = ref("system");
@@ -91,8 +90,6 @@ const saveConfig = async () => {
   }
 
   await changeConfig();
-  //await modelStore.getModelList();
-  //modelStore.updateCurrentModels(modelList.value);
   notifySuccess(t('common.saveSuccess'));
 };
 
@@ -107,14 +104,10 @@ const initConfig = async () => {
   //currentsModel.value = getCurrents();
   //chatConfig.value = getChatConfig();
 };
-onMounted(async () => {
-  await initConfig();
-  await modelStore.getModelList();
-  //modelList.value = modelStore.modelList;
-  //console.log(modelList.value)
-  pageLoading.value = false;
-  modelStore.cateList.forEach((item: any) => {
-    const currentModel = modelStore.modelList.find((el: any) => el.category === item && el.isdef === 1);
+// 更新 currentsModel 的函数
+function updateCurrentsModel() {
+  modelStore.cateList.forEach((item:any) => {
+    const currentModel = modelStore.modelList.find((el:any) => el.action === item && el.isdef === 1);
     if (currentModel) {
       currentsModel.value[item] = currentModel.model;
     } else {
@@ -122,7 +115,15 @@ onMounted(async () => {
       currentsModel.value[item] = firstModel ? firstModel.model : '';
     }
   });
+}
+onMounted(async () => {
+  await initConfig();
+  await modelStore.getModelList();
+  updateCurrentsModel();
 
+});
+watch(modelStore.modelList, () => {
+  updateCurrentsModel();
 });
 async function changeDir() {
   const path: any = await OpenDirDialog();
@@ -131,7 +132,7 @@ async function changeDir() {
 }
 </script>
 <template>
-  <div v-loading="pageLoading">
+  <div>
     <el-tabs v-model="activeName" class="setting-tabs" style="margin: 12px" @tab-click="handleClick">
       <el-tab-pane :label="t('aisetting.modelSetting')" name="system">
         <el-scrollbar class="scrollbarSettingHeight">

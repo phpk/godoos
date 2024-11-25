@@ -80,7 +80,7 @@ type ReqBody struct {
 	//Options  ModelConfig            `json:"options"`
 	Model     string                 `json:"model"`
 	Action    string                 `json:"action"`
-	Type      string                 `json:"type"`
+	Type      string                 `json:"type"` //local or net
 	Label     string                 `json:"label"`
 	Info      ModelInfo              `json:"info"`
 	Status    string                 `json:"status"`

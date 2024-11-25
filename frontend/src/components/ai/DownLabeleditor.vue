@@ -17,17 +17,12 @@ const labelData:any = ref({
   zhdesc : "",
   endesc : "",
   family: "",
-  engine:"llm",
   action:[],
 })
 async function save() {
   const saveData = toRaw(labelData.value)
   if(saveData.name == "") {
     notifyError(t('common.inputTitle'))
-    return;
-  }
-  if(saveData.type == "") {
-    notifyError(t('model.selectEngine'))
     return;
   }
   if(saveData.action.length == 0){
@@ -54,7 +49,6 @@ watchEffect(async () => {
       zhdesc : "",
       endesc : "",
       family: "",
-      engine:"llm",
       action:[],
     }
   }
@@ -91,16 +85,7 @@ watchEffect(async () => {
         />
     </el-select>
     </el-form-item>
-    <el-form-item :label="t('model.engine')">
-      <el-select v-model="labelData.engine"  :placeholder="t('model.selectEngine')">
-      <el-option
-        v-for="item,key in modelStore.modelEngines"
-        :key="key"
-        :label="item.name"
-        :value="item.name"
-      />
-    </el-select>
-    </el-form-item>
+    
     
     <el-form-item :label="t('model.chineseDescription')">
       <el-input
