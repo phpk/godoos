@@ -652,19 +652,9 @@ export class CommandAdapt {
     }
     this.search(content)
     this.replace(content + payload, true)
-    // if (operate && content) {
-    //   window.parent.postMessage(
-    //     {
-    //       type: 'aiCreater',
-    //       data: content,
-    //       action: operate
-    //     },
-    //     '*'
-    //   )
-    // }
     return content
   }
-  public aiEdit(operate: string | null) {
+  public aiEdit(operate: string | null, question?: string) {
     console.log('ai edit:', operate)
     const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
     if (isDisabled) return
@@ -675,7 +665,19 @@ export class CommandAdapt {
       content += el.value
     })
     this.search(content)
-    if (operate && content) {
+    if (operate && operate == 'creation_ask') {
+      window.parent.postMessage(
+        {
+          type: 'aiCreater',
+          data: {
+            title: question,
+            category: content
+          },
+          action: operate
+        },
+        '*'
+      )
+    } else if (operate && content) {
       window.parent.postMessage(
         {
           type: 'aiCreater',
