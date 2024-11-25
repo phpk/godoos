@@ -111,6 +111,7 @@
 	import { throttle } from "@/util/debounce";
 	import { dealSize } from "@/util/file";
 	import { markRaw, onMounted, ref } from "vue";
+
 	const { openPropsWindow, copyFile, createLink, deleteFile } =
 		useContextMenu();
 	const sys = useSystem();
@@ -495,8 +496,7 @@
 				// 		win.show();
 				// 	},
 				// });
-			}
-			// eslint-disable-next-line prefer-spread
+			} 
 			menuArr.push.apply(menuArr, fileMenus);
 		}
 		const sysEndMenu = [

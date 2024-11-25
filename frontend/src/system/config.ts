@@ -33,7 +33,7 @@ export const getSystemConfig = (ifset = false) => {
     config.file = {
       isPwd: 0,
       pwd: '',
-      salt: 'vIf_wIUedciAd0nTm6qjJA=='
+      // salt: 'vIf_wIUedciAd0nTm6qjJA=='
     }
   }
   if (!config.fileInputPwd) {
@@ -255,7 +255,8 @@ export function fetchPost(url: string, data: any, headerConfig?: { [key: string]
   if (config.userType == 'person') {
     return fetch(url, {
       method: 'POST',
-      body: data
+      body: data,
+      headers: headerConfig
     })
   } else {
     return fetch(url, {

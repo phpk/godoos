@@ -1,7 +1,5 @@
 import { ElMessageBox } from 'element-plus'
 import { BrowserWindow } from "./BrowserWindow"
-// import { setSystemKey } from "@/system/config"
-// import { md5 } from "js-md5"
 class Dialog {
   constructor() {
     // static class

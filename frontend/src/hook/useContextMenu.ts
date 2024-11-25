@@ -7,6 +7,7 @@ import { Dialog } from '../system/window/Dialog';
 import { Menu } from '../system/menu/Menu';
 import { uniqBy } from '../util/modash';
 import { UnwrapNestedRefs } from 'vue';
+import { getSystemConfig } from "@/system/config";
 
 export function createTaskbarIconContextMenu(e: MouseEvent, windowNode: UnwrapNestedRefs<BrowserWindow>) {
   Menu.buildFromTemplate([
@@ -159,7 +160,26 @@ function useContextMenu() {
     }
 
     const content = '';
+    initPwd(newFilePath)
     return await system.fs.writeFile(newFilePath, content);
+  }
+  // 开源版新建文件初始化密码
+  function initPwd(path: string) {
+    //console.log('新建路径：',path);
+    
+    if (getSystemConfig().userType == 'person' && getSystemConfig().file.isPwd == 1) {
+      const win = new BrowserWindow({
+        title: "初始化文件密码",
+        content: "FilePwd",
+        config: {
+          path: path,
+        },
+        width: 400,
+        height: 200,
+        center: true,
+      });
+      win.show()
+    }
   }
   async function createNewDir(path: string) {
     const system = useSystem();

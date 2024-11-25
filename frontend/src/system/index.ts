@@ -455,9 +455,7 @@ export class System {
         this._flieOpenerMap.get('dir')?.func.call(this, path, '');
         return;
       } else {
-        const filePwd = getSystemConfig()
         const header = {
-          salt: '',
           pwd: ''
         }
         //判断文件是否需要输入密码
@@ -466,19 +464,17 @@ export class System {
           if (temp.response !== 1) {
             return
           }
-          header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
+          // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
           header.pwd = temp?.inputPwd || ''
         }
         // 读取文件内容
         const fileContent = await this.fs.readFile(path, header);
-        // console.log('文件：', fileContent);
-
         if (fileContent === false && fileStat.isPwd) {
           notifyError('密码错误')
           return
         }
-        //企业用户文件加密密码存储
-        if (fileStat.isPwd && getSystemConfig().userType === 'member') {
+        //用户文件加密密码存储
+        if (fileStat.isPwd) {
           let fileInputPwd = getSystemConfig().fileInputPwd
           const pos = fileInputPwd.findIndex((item: any) => item.path == path)
           if (pos !== -1) {

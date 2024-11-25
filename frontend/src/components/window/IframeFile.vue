@@ -9,6 +9,7 @@ import { base64ToBuffer, isBase64 } from "@/util/file";
 import { isShareFile } from "@/util/sharePath.ts";
 import { inject, onMounted, onUnmounted, ref, toRaw } from "vue";
 import { askAi } from "@/hook/useAi";
+import { md5 } from "js-md5";
 const SP = getSplit();
 
 const sys: any = inject<System>("system");
@@ -131,11 +132,16 @@ const eventHandler = async (e: MessageEvent) => {
 		title = title.split(SP).pop();
 
 		if (!content && win?.config.path) {
-			const file = getSystemConfig().file;
 			const header = {
-				salt: file.salt,
-				pwd: file.pwd,
+				pwd: ''
 			};
+      const filePwd = getSystemConfig().fileInputPwd
+      const pos = filePwd.findIndex((item: any) => item.path == win?.config.path)
+      //console.log('路径：', win?.config.path, pos, filePwd);
+      const userType = getSystemConfig().userType
+      if (pos !== -1) {
+        header.pwd = userType == 'person' ? md5(filePwd[pos].pwd) : filePwd[pos].pwd
+      }
 			content = await sys?.fs.readFile(win?.config.path, header);
 		}
 		content = toRaw(content);
@@ -188,7 +194,7 @@ const eventHandler = async (e: MessageEvent) => {
 		
 	}
   else if (eventData.type == 'aiCreater') {
-	// console.log(eventData)
+	console.log('传递内容： ',eventData)
 	let postData:any = {}
 	if(eventData.data){
 		postData.content = eventData.data

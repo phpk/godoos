@@ -115,18 +115,16 @@ export async function handleExists(path: string): Promise<any> {
 
 export async function handleReadFile(path: string, header?: { [key: string]: string }): Promise<any> {
   const userType = getSystemConfig().userType
-  //console.log('请求头：', header);
-  // let head = userType === 'member' ? { pwd: header?.pwd || '' } : { ...header }
   let head = {}
-  if (userType === 'member') {
+  //console.log('read header:', header);
+  
+  if (userType == 'member') {
     head = {
       pwd: header?.pwd || ''
     }
-    // } else if (getSystemConfig().file.isPwd === 1) {
   } else if (header) {
     head = {
       pwd: header?.pwd === '' ? '' : md5(header?.pwd),
-      salt: header?.salt || ''
     }
   }
   const res = await fetchGet(`${API_BASE_URL}/readfile?path=${encodeURIComponent(path)}`, head);
@@ -308,19 +306,6 @@ export const useOsFile = () => {
         return response.data
       }
       return []
-      // const response = await handleShareDir(id, file.path);
-      // useShareFile().setCurrentFile(file)
-      // if (response && response.data) {
-      //     const result = response.data.map((item: {[key: string]: OsFile}) => {
-      //         item.fi.isShare = true
-      //         item.fi.parentPath = turnLocalPath(item.fi.parentPath ,file.path,1)
-      //         item.fi.path = turnLocalPath(item.fi.path ,file.path,1)
-      //         // item.fi.titleName = turnLocalPath(item.fi.titleName, file.path, 1)
-      //         return item.fi
-      //     })
-      //     return result
-      // }
-      // return [];
     },
     async getShareInfo(path: string) {
       const response = await handleShareDetail(path);
@@ -416,21 +401,21 @@ export const useOsFile = () => {
     },
     async writeFile(path: string, content: string | Blob, header?: { [key: string]: any }) {
       let head = {}
-      if (getSystemConfig().userType == 'member') {
-        if (header) {
-          head = { ...header }
-        } else {
-          const filePwd = getSystemConfig().fileInputPwd
-          const pos = filePwd.findIndex((item: any) => item.path == path)
-          if (pos !== -1) {
-            head = {
-              pwd: filePwd[pos].pwd
-            }
+      
+      if (header) {
+        head = { ...header }
+      } else {
+        const filePwd = getSystemConfig().fileInputPwd
+        const pos = filePwd.findIndex((item: any) => item.path == path)
+        //console.log('路径：', path, pos, filePwd);
+        const userType = getSystemConfig().userType
+        if (pos !== -1) {
+          head = {
+            pwd: userType == 'person' ? md5(filePwd[pos].pwd) : filePwd[pos].pwd
           }
         }
-      } else {
-        head = { ...header }
       }
+      console.log('请求头：', head);
 
       const response = await handleWriteFile(path, content, head);
       if (response) {
