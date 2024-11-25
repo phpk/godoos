@@ -3,94 +3,13 @@ import { ref } from "vue";
 import { db } from "./db.ts"
 import { aiLabels } from "./labels/index.ts"
 import { fetchGet, getSystemKey } from "@/system/config"
-const modelEngines = [
-  {
-    name: "ollama",
-    cpp: "llama.cpp",
-    needQuant: true
-  },
-  {
-    name: "sd",
-    cpp: "stable-diffusion.cpp",
-    needQuant: false
-  },
-  {
-    name: "voice",
-    cpp: "sherpa.cpp",
-    needQuant: false
-  }
-]
-const llamaQuant = [
-  "q2_K",
-  "q3_K",
-  "q3_K_S",
-  "q3_K_M",
-  "q3_K_L",
-  "q4_0",
-  "q4_1",
-  "q4_K",
-  "q4_K_S",
-  "q4_K_M",
-  "q5_0",
-  "q5_1",
-  "q5_K",
-  "q5_K_S",
-  "q5_K_M",
-  "q6_K",
-  "q8_0",
-  "f16",
-]
+import { cateList, modelEngines, netEngines, llamaQuant, chatInitConfig } from "./modelconfig"
 export const useModelStore = defineStore('modelStore', () => {
 
   const labelList: any = ref([])
-  const cateList: any = ["chat", "translation", "code", "img2txt", "image", "tts", "audio", "embeddings"]
   const modelList: any = ref([])
   const downList: any = ref([])
-  const chatConfig: any = ref({
-    chat: {
-      key: "chat",
-      contextLength: 10,
-      num_keep: 5, //保留多少个最有可能的预测结果。这与top_k一起使用，决定模型在生成下一个词时考虑的词汇范围。
-      num_predict: 3, //生成多少个预测结果
-      top_p: 0.95,
-      top_k: 40, //影响生成的随机性。较高的top_k值将使模型考虑更多的词汇
-      temperature: 0.7, //影响生成的随机性。较低的温度产生更保守的输出，较高的温度产生更随机的输出。
-    },
-    translation: {
-      key: "translation",
-      num_keep: 5,
-      num_predict: 1,
-      top_k: 40,
-      top_p: 0.95,
-      temperature: 0.2,
-    },
-    creation: {
-      key: "creation",
-      num_keep: 3,
-      num_predict: 1,
-      top_k: 40,
-      top_p: 0.95,
-      temperature: 0.2,
-    },
-    knowledge: {
-      key: "knowledge",
-      contextLength: 10,
-      num_keep: 5,
-      num_predict: 1,
-      top_k: 40,
-      top_p: 0.95,
-      temperature: 0.2,
-    },
-    spoken: {
-      key: "spoken",
-      contextLength: 10,
-      num_keep: 5,
-      num_predict: 1,
-      top_k: 40,
-      top_p: 0.95,
-      temperature: 0.2,
-    }
-  })
+  const chatConfig: any = ref(chatInitConfig)
   const aiUrl = getSystemKey("aiUrl")
 
   async function getLabelCate(cateName: string) {
@@ -145,26 +64,26 @@ export const useModelStore = defineStore('modelStore', () => {
     const data = await res.json();
     // console.log(data);
     if (data && data.length > 0) {
-        // 获取当前modelList中的模型名称
-        const existingModels:any = [];
-        const has = await db.getAll("modelslist");
-        has.forEach((model: any) => {
-          if(model.isdef && model.isdef > 0) {
-            existingModels.push(model.model)
-          }
-        })
-        data.forEach((d:any) => {
-          if (existingModels.includes(d.model)) {
-            d.isdef = 1
-          }
-        });
-        await db.clear("modelslist");
-        await db.addAll("modelslist", data);
-        modelList.value = data;
+      // 获取当前modelList中的模型名称
+      const existingModels: any = [];
+      const has = await db.getAll("modelslist");
+      has.forEach((model: any) => {
+        if (model.isdef && model.isdef > 0) {
+          existingModels.push(model.model)
+        }
+      })
+      data.forEach((d: any) => {
+        if (existingModels.includes(d.model)) {
+          d.isdef = 1
+        }
+      });
+      await db.clear("modelslist");
+      await db.addAll("modelslist", data);
+      modelList.value = data;
     }
     // 重新获取所有模型列表
-    
-}
+
+  }
   async function refreshOllama() {
     const res = await fetchGet(`${aiUrl}/ai/refreshOllama`)
     //console.log(res)
@@ -340,6 +259,7 @@ export const useModelStore = defineStore('modelStore', () => {
     modelList,
     downList,
     modelEngines,
+    netEngines,
     llamaQuant,
     chatConfig,
     getList,

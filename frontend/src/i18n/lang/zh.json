@@ -290,7 +290,7 @@
     "chineseDescription": "中文描述",
     "englishDescription": "英文描述",
     "labelNameEmpty": "名称不能为空",
-    "local": "本地",
+    "local": "内网",
     "network": "网络",
     "invalidModel": "请输入正确的模型！",
     "invalidContextLength": "请输入正确的上下文长度！",
