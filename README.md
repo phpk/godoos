@@ -69,6 +69,10 @@ chmod +x godoos_web_darwin_amd64
 #### 构建并启动服务
 
 ```
+cd frontend
+pnpm i
+pnpm build
+cd ..
 docker-compose up --build
 ```
 
