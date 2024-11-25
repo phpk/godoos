@@ -1205,16 +1205,24 @@ export class CommandAdapt {
   public getSearchNavigateInfo(): null | INavigateInfo {
     return this.searchManager.getSearchNavigateInfo()
   }
-
+  public checkPayload(payload: string): boolean {
+    if (!payload || payload.includes(ZERO)) {
+      return true;
+    }
+    return false;
+  }
   public replace(payload: string, aiArticle?: boolean) {
     // console.log('替换', payload)
 
     const isReadonly = this.draw.isReadonly()
     if (isReadonly) return
-    if(aiArticle == true) {
+    if (aiArticle == true) {
       if (!payload) return
     } else {
-      if (!payload || new RegExp(`${ZERO}`, 'g').test(payload)) return
+      // console.log('zero:', new RegExp(`${ZERO}`, 'g').test(payload))
+
+      //if (!payload || new RegExp(`${ZERO}`, 'g').test(payload)) return
+      if(this.checkPayload(payload))return
     }
     // if (!payload || (isZero && aiArticle)) return
     const matchList = this.draw.getSearch().getSearchMatchList()
@@ -1841,8 +1849,8 @@ export class CommandAdapt {
     const getElementList = (htmlText?: string) =>
       htmlText !== undefined
         ? getElementListByHTML(htmlText, {
-            innerWidth
-          })
+          innerWidth
+        })
         : undefined
     this.setValue({
       header: getElementList(header),
@@ -2076,7 +2084,7 @@ export class CommandAdapt {
           if (
             nextElement.level &&
             titleOrderNumberMapping[nextElement.level] <=
-              titleOrderNumberMapping[element.level!]
+            titleOrderNumberMapping[element.level!]
           ) {
             break
           }
