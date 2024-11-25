@@ -64,10 +64,19 @@ chmod +x godoos_web_darwin_amd64
 
 - 备注：web版下载后启动服务端。访问地址为：http://localhost:56780/。
 
-### 🚢 **Docker安装(v1.0.1)**
+### 🚢 **Docker安装**
+
+#### 构建并启动服务
+
+```
+docker-compose up --build
+```
+
+或者直接拉取(v1.0.1)
 ```
 docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 ```
+
 - 访问地址：http://localhost:8185/
 - 如果设置本地存储，存储地址为 /root/.godoos/os，设置成功后保存
 
