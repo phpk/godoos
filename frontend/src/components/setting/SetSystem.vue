@@ -47,7 +47,6 @@
             {{ t("confirm") }}
           </el-button>
         </div>
-        <SetFilePwd  v-if="config.userType === 'person'"></SetFilePwd>
       </div>
 
       <div v-if="2 === activeIndex">
@@ -95,6 +94,9 @@
           </el-button>
         </div>
       </div>
+      <div v-if="3 === activeIndex" class="setting-area">
+        <SetFilePwd  v-if="config.userType === 'person'"></SetFilePwd>
+      </div>
     </div>
   </div>
 </template>
@@ -131,7 +133,7 @@ const storeList = [
   },
 ];
 
-const items = ["用户角色","个人存储", "备份还原"];
+const items = ["用户角色","个人存储", "备份还原","文件密码箱"];
 const urlRegex = /^(https?:\/\/)/;
 const userTypes = [
   {
@@ -412,5 +414,9 @@ async function importBackup(path = "") {
 .setting-item {
   display: flex;
   align-items: center;
+}
+.setting-area {
+  width: 100%;
+  height: 90%;
 }
 </style>

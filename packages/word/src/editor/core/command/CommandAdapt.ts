@@ -121,7 +121,6 @@ export class CommandAdapt {
   private i18n: I18n
   private zone: Zone
   private tableOperate: TableOperate
-  private aiContent: string
 
   constructor(draw: Draw) {
     this.draw = draw
@@ -136,7 +135,6 @@ export class CommandAdapt {
     this.i18n = draw.getI18n()
     this.zone = draw.getZone()
     this.tableOperate = draw.getTableOperate()
-    this.aiContent = ''
   }
 
   public mode(payload: EditorMode) {
@@ -651,11 +649,11 @@ export class CommandAdapt {
       content = '\t'
     }
     this.search(content)
-    this.replace(content + payload, true)
+    this.replace(content + payload)
     return content
   }
   public aiEdit(operate: string | null, question?: string) {
-    console.log('ai edit:', operate)
+    // console.log('ai edit:', operate)
     const isDisabled = this.draw.isReadonly() || this.draw.isDisabled()
     if (isDisabled) return
     const selection = this.range.getSelectionElementList()
@@ -671,7 +669,7 @@ export class CommandAdapt {
           type: 'aiCreater',
           data: {
             title: question,
-            category: content
+            content
           },
           action: operate
         },
@@ -1211,19 +1209,15 @@ export class CommandAdapt {
     }
     return false;
   }
-  public replace(payload: string, aiArticle?: boolean) {
-    // console.log('替换', payload)
-
+  public replace(payload: string) {
     const isReadonly = this.draw.isReadonly()
     if (isReadonly) return
-    if (aiArticle == true) {
-      if (!payload) return
-    } else {
-      // console.log('zero:', new RegExp(`${ZERO}`, 'g').test(payload))
-
-      //if (!payload || new RegExp(`${ZERO}`, 'g').test(payload)) return
-      if(this.checkPayload(payload))return
-    }
+    if (!payload) return
+    // if (aiArticle == true) {
+    //   if (!payload) return
+    // } else {
+    //   if (!payload) return
+    // }
     // if (!payload || (isZero && aiArticle)) return
     const matchList = this.draw.getSearch().getSearchMatchList()
     if (!matchList.length) return

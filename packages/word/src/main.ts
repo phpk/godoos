@@ -2183,7 +2183,7 @@ window.onload = function () {
       } else if (eventData.action == 'creation_builder') {
         changeAiArticleTextarea(eventData.data, 'article')
       } else {
-        changeAiTextarea(eventData.data)
+        changeAiTextarea(eventData)
       }
     }
 

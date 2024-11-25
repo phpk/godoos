@@ -102,12 +102,14 @@ function createAIToolbar(
       <i id="${toolbarType}-btn"></i>
       <div class="aie-container ce-picker-container ai-hide">
         <div class="aie-ai-panel-body">
-            <div class="aie-ai-panel-body-content ai-hide"><div class="loader" id="aiLoader">
-              ${Svgs.refresh}
-            </div><textarea readonly id="aiTextarea"></textarea></div>
+            <div class="aie-ai-panel-body-content ai-hide">
+              <div class="loader" id="aiLoader">${Svgs.refresh}</div>
+              <textarea readonly id="aiTextarea"></textarea>
+            </div>
             <div class="aie-ai-panel-body-input"><input id="inputOption" placeholder="告诉 AI 下一步应该如何？比如：帮我翻译成英语" type="text" />
-            <button type="button" id="go" style="width: 30px;height: 30px">
-              ${Svgs.aiPanelStart}
+            <button id="goAskAi" >
+              <p id="aiStart">${Svgs.aiPanelStart}</p>
+              <p id="aiStop" class="ai-hide">${Svgs.aiPanelStop}</p>
             </button></div>
             <div class="aie-ai-panel-body-tips">
               ${Svgs.tips}
@@ -139,33 +141,50 @@ function createAIToolbar(
       `
   container.append(toolbarItem)
   bindAiPanelEvent(container, editor)
-}//AI弹窗绑定点击事件
+}
+//ai回答问题，切换视图
+function viewChange(container: HTMLDivElement) {
+  const aiLoader = container.querySelector('#aiLoader')
+  aiLoader?.classList.remove('ai-hide')
+  container.querySelector('#footer-one')?.classList.remove('ai-hide')
+  container.querySelector('#footer-two')?.classList.add('ai-hide')
+  container.querySelector('.aie-ai-panel-body-content')?.classList.remove('ai-hide')
+  container.querySelector('#aiStart')!.classList.add('ai-hide')
+  container.querySelector('#aiStop')!.classList.remove('ai-hide')
+  container.querySelector<HTMLButtonElement>('#goAskAi')!.disabled = true
+}
+//AI弹窗绑定点击事件
 function bindAiPanelEvent(container: HTMLDivElement, editor: Editor) {
   const textarea = container.querySelector<HTMLTextAreaElement>('#aiTextarea')!
   // 菜单栏AI选项
   container.querySelector<HTMLDivElement>(`#ai-edit-btn`)?.addEventListener('click', () => {
-    // const target = e.currentTarget as HTMLDivElement
     const target = container.querySelector<HTMLDivElement>(`.${PLUGIN_PREFIX}-ai-edit`)!
     const isActive = target.classList.contains('ai-active')
     isActive ? target.classList.remove('ai-active') : target.classList.add('ai-active')
     const aiDialog = container.querySelector<HTMLDivElement>('.aie-container')
     !isActive ? aiDialog?.classList.remove('ai-hide') : aiDialog?.classList.add('ai-hide')
   })
-
+  
   //选中操作，进行处理
   const aiOptions = Array.from(container.querySelectorAll('#ai-operate'))
   aiOptions.forEach((item) => {
     item.addEventListener('click', () => {
-      const aiLoader = container.querySelector('#aiLoader')
-      aiLoader?.classList.remove('ai-hide')
-      container.querySelector('#footer-one')?.classList.remove('ai-hide')
-      container.querySelector('#footer-two')?.classList.add('ai-hide')
-      container.querySelector('.aie-ai-panel-body-content')?.classList.remove('ai-hide')
+      viewChange(container)
       const chooseType = item.getAttribute('data-type')
       editor.command.executeAiEdit(chooseType)
     })
   })
 
+  // 搜索
+  container.querySelector('#goAskAi')!.addEventListener('click', () => {
+    // console.log('搜索');
+    const inputOption = container.querySelector<HTMLInputElement>('#inputOption')!
+    if (inputOption.value) {
+      viewChange(container)
+      editor.command.executeAiEdit('creation_ask', inputOption.value)
+      // container.querySelector<HTMLButtonElement>('#goAskAi')!.disabled = true
+    }
+  })
   // 替换
   container.querySelector('#replace')!.addEventListener('click', () => {
     // console.log('替换', textarea)
@@ -184,36 +203,24 @@ function bindAiPanelEvent(container: HTMLDivElement, editor: Editor) {
     initAiDialog(container, editor)
     // console.log('舍弃')
   })
-  // 搜索
-  container.querySelector('#go')!.addEventListener('click', () => {
-    console.log('搜索');
-    const inputOption = container.querySelector<HTMLInputElement>('#inputOption')!
-    if (inputOption.value) {
-      // const goBtn =  container.querySelector('#go')
-      // goBtn ? goBtn.innerHTML = Svgs.aiPanelStop : ''
-      // goBtn ? (goBtn.innerHTML = Svgs.aiPanelStart) : ''
-      container.querySelector('#footer-one')?.classList.remove('ai-hide')
-      container.querySelector('#footer-two')?.classList.add('ai-hide')
-      container.querySelector('.aie-ai-panel-body-content')?.classList.remove('ai-hide')
-      const aiContent = editor.command.executeAiEdit(inputOption.value)
-      const textarea = container.querySelector<HTMLTextAreaElement>('textarea')!
-      if (aiContent) {
-        textarea.value = aiContent
-      }
-    }
-  })
 }
-export function changeAiTextarea(data: string) {
+export function changeAiTextarea(eventData: {[key: string]: any}) {
   const aiLoader = document.querySelector('#aiLoader')
   const textarea = document.querySelector<HTMLTextAreaElement>('#aiTextarea')!
-  if (data) {
-    textarea.value = data
+  if (eventData.data) {
+    textarea.value = eventData.data
   }
   aiLoader?.classList.add('ai-hide')
+  document.querySelector('#aiStart')!.classList.remove('ai-hide')
+  document.querySelector('#aiStop')!.classList.add('ai-hide')
+  document.querySelector<HTMLButtonElement>('#goAskAi')!.disabled = false
 }
 //ai弹窗初始化
 function initAiDialog(container: HTMLDivElement, editor: Editor) {
   editor.command.executeSearch('')
+  container.querySelector('#aiStart')!.classList.remove('ai-hide')
+  container.querySelector('#aiStop')!.classList.add('ai-hide')
+  container.querySelector<HTMLButtonElement>('#goAskAi')!.disabled = false
   container.querySelector<HTMLDivElement>('.aie-container')?.classList.add('ai-hide')
   container.querySelector<HTMLDivElement>(`.${PLUGIN_PREFIX}-ai-edit`)?.classList.remove('ai-active')
   container.querySelector<HTMLDivElement>('#footer-one')?.classList.add('ai-hide')
@@ -227,10 +234,6 @@ function initAiDialog(container: HTMLDivElement, editor: Editor) {
 // 工具栏列表
 const toolbarRegisterList: IToolbarRegister[] = [
   {
-    // key: ToolbarType.AI_EDIT,
-    // callback(editor) {
-    //   editor.command.executeAiEdit('')
-    // }
     render(container, editor) {
       createAIToolbar(container, ToolbarType.AI_EDIT, editor)
     }
