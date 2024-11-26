@@ -76,12 +76,14 @@ export const useModelStore = defineStore('modelStore', () => {
         if (existingModels.includes(d.model)) {
           d.isdef = 1
         }
+        if(d.action == ""){
+          d.action = "chat"
+        }
       });
       await db.clear("modelslist");
       await db.addAll("modelslist", data);
       modelList.value = data;
     }
-    // 重新获取所有模型列表
 
   }
   async function refreshOllama() {
@@ -159,13 +161,9 @@ export const useModelStore = defineStore('modelStore', () => {
       });
       await db.deleteByField("modelslist", "model", data.model)
       if (data.isdef * 1 == 1) {
-        await setCurrentModel(data.action, "")
+        await setDefModel(data.action)
       }
     }
-
-
-    //await db.delete("modelslist", data.id)
-    //await getModelList()
   }
 
   function checkDownload(name: string) {
@@ -178,7 +176,6 @@ export const useModelStore = defineStore('modelStore', () => {
     } else {
       updateDownload(data)
     }
-
     return data
   }
   function deleteDownload(model: string) {
@@ -200,10 +197,12 @@ export const useModelStore = defineStore('modelStore', () => {
         isLoading: modelData.isLoading ?? 0,
       });
       if (modelData.status === "success") {
-        //await addDownList(modelData);
+        modelData.isLoading = 0;
+        modelData.progress = 0;
+        deleteDownload(modelData.model);
         await getModelList();
-        await setDefModel(modelData.action);
         await checkLabelData(modelData);
+        await setCurrentModel(modelData.action, modelData.model);
       }
     }
   }

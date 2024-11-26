@@ -16,10 +16,6 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
   const showChooseFile = ref(false)
   const currentPage = ref(1)
   const pageSize = ref(50)
-  const navList = ref([
-    { index: 1, lable: "消息列表", icon: "ChatDotRound", type: "success" },
-    { index: 2, lable: "用户列表", icon: "UserFilled", type: "info" },
-  ])
   const navId = ref(1)
   const sendInfo:any = ref()
   const chatTargetId = ref(0)
@@ -463,7 +459,6 @@ export const useLocalChatStore = defineStore('localChatStore', () => {
   }
   return {
     userList,
-    navList,
     sendInfo,
     navId,
     chatTargetId,

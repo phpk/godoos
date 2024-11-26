@@ -38,7 +38,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 	reqBody := ReqBody{}
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
-		libs.ErrorMsg(w, "first Decode request body error")
+		libs.ErrorMsg(w, "first Decode request body error:"+err.Error())
 		return
 	}
 	err = LoadConfig()

@@ -148,14 +148,34 @@ export const getSystemConfig = (ifset = false) => {
       'fourthEnd': '254'
     }
   }
-  if(!config.ollamaUrl) {
+  if (!config.ollamaUrl) {
     config.ollamaUrl = 'http://localhost:11434'
   }
-  if(!config.dataDir) {
+  if (!config.dataDir) {
     config.dataDir = ''
   }
-  if(!config.aiUrl){
+  if (!config.aiUrl) {
     config.aiUrl = config.apiUrl
+  }
+  if (!config.openaiUrl) {
+    config.openaiUrl = 'https://api.openai.com/v1'
+  }
+  if (!config.aiKey) {
+    config.aiKey = {
+      "openai": "",
+      "gitee": "",
+      // "google": "",
+      // "baidu": "",
+      // "ali": "",
+      // "tencent": "",
+      // "bigmodel": "",
+      // "xai": "",
+      // "azure": "",
+      // "stability": "",
+      // "claude": "",
+      // "groq": ""
+
+    }
   }
   // 初始化桌面快捷方式列表，若本地存储中已存在则不进行覆盖
   if (!config.desktopList) {

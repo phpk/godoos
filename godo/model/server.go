@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 	"godo/libs"
 	"io"
@@ -8,7 +9,67 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 )
+
+func Tagshandler(w http.ResponseWriter, r *http.Request) {
+	err := LoadConfig()
+	if err != nil {
+		libs.ErrorMsg(w, "Load config error")
+		return
+	}
+	var reqBodies []ReqBody
+	reqBodyMap.Range(func(key, value interface{}) bool {
+		rb, ok := value.(ReqBody)
+		if ok {
+			reqBodies = append(reqBodies, rb)
+		}
+		return true // 继续遍历
+	})
+	// 对reqBodies按CreatedAt降序排列
+	sort.Slice(reqBodies, func(i, j int) bool {
+		return reqBodies[i].CreatedAt.After(reqBodies[j].CreatedAt) // 降序排列
+	})
+	// 设置响应内容类型为JSON
+	w.Header().Set("Content-Type", "application/json")
+
+	// 使用json.NewEncoder将reqBodies编码为JSON并写入响应体
+	if err := json.NewEncoder(w).Encode(reqBodies); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+func ShowHandler(w http.ResponseWriter, r *http.Request) {
+	err := LoadConfig()
+	if err != nil {
+		libs.ErrorMsg(w, "Load config error")
+		return
+	}
+	model := r.URL.Query().Get("model")
+	if model == "" {
+		libs.ErrorMsg(w, "Model name is empty")
+		return
+	}
+	//log.Printf("ShowHandler: %s", model)
+	var reqBodies ReqBody
+	reqBodyMap.Range(func(key, value interface{}) bool {
+		rb, ok := value.(ReqBody)
+		if ok && rb.Model == model {
+			reqBodies = rb
+			return false
+		}
+		return true
+	})
+	//log.Printf("ShowHandler: %s", reqBodies)
+	// 设置响应内容类型为JSON
+	w.Header().Set("Content-Type", "application/json")
+
+	// 使用json.NewEncoder将reqBodies编码为JSON并写入响应体
+	if err := json.NewEncoder(w).Encode(reqBodies); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
 
 type DownserverStucct struct {
 	Path string `json:"path"`

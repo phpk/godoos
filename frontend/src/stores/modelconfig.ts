@@ -1,25 +1,25 @@
-export const cateList: any = ["chat", "translation", "code", "img2txt", "image", "tts", "audio", "embeddings"]
+export const cateList: any = ["chat", "translation", "code", "img2txt", "image", "tts", "audio", "embeddings", "reranker"]
 export const modelEngines = [
   {
     name: "ollama",
     cpp: "ollama",
     needQuant: true
   },
-  {
-    name: "llama",
-    cpp: "llama.cpp",
-    needQuant: true
-  },
-  {
-    name: "cortex",
-    cpp: "cortex.cpp",
-    needQuant: true
-  },
-  {
-    name: "llamafile",
-    cpp: "llamafile",
-    needQuant: false
-  },
+  // {
+  //   name: "llama",
+  //   cpp: "llama.cpp",
+  //   needQuant: true
+  // },
+  // {
+  //   name: "cortex",
+  //   cpp: "cortex.cpp",
+  //   needQuant: true
+  // },
+  // {
+  //   name: "llamafile",
+  //   cpp: "llamafile",
+  //   needQuant: false
+  // },
   {
     name: "sd",
     cpp: "stable-diffusion.cpp",
@@ -42,7 +42,7 @@ export const netEngines = [
     cpp: "gemini"
   },
   {
-    name: "giteeAI",
+    name: "GiteeAI",
     cpp: "giteeAI",
   },
   {

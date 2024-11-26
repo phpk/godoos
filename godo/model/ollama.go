@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"godo/libs"
 	"io"
@@ -13,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -101,64 +99,6 @@ func humanReadableSize(size int64) string {
 	}
 }
 
-func Tagshandler(w http.ResponseWriter, r *http.Request) {
-	err := LoadConfig()
-	if err != nil {
-		libs.ErrorMsg(w, "Load config error")
-		return
-	}
-	var reqBodies []ReqBody
-	reqBodyMap.Range(func(key, value interface{}) bool {
-		rb, ok := value.(ReqBody)
-		if ok {
-			reqBodies = append(reqBodies, rb)
-		}
-		return true // 继续遍历
-	})
-	// 对reqBodies按CreatedAt降序排列
-	sort.Slice(reqBodies, func(i, j int) bool {
-		return reqBodies[i].CreatedAt.After(reqBodies[j].CreatedAt) // 降序排列
-	})
-	// 设置响应内容类型为JSON
-	w.Header().Set("Content-Type", "application/json")
-
-	// 使用json.NewEncoder将reqBodies编码为JSON并写入响应体
-	if err := json.NewEncoder(w).Encode(reqBodies); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-func ShowHandler(w http.ResponseWriter, r *http.Request) {
-	err := LoadConfig()
-	if err != nil {
-		libs.ErrorMsg(w, "Load config error")
-		return
-	}
-	model := r.URL.Query().Get("model")
-	if model == "" {
-		libs.ErrorMsg(w, "Model name is empty")
-		return
-	}
-	//log.Printf("ShowHandler: %s", model)
-	var reqBodies ReqBody
-	reqBodyMap.Range(func(key, value interface{}) bool {
-		rb, ok := value.(ReqBody)
-		if ok && rb.Model == model {
-			reqBodies = rb
-			return false
-		}
-		return true
-	})
-	//log.Printf("ShowHandler: %s", reqBodies)
-	// 设置响应内容类型为JSON
-	w.Header().Set("Content-Type", "application/json")
-
-	// 使用json.NewEncoder将reqBodies编码为JSON并写入响应体
-	if err := json.NewEncoder(w).Encode(reqBodies); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
 func extractParameterSize(sizeStr string, model string) (float64, bool) {
 	// 尝试直接从原始sizeStr中提取数字，包括小数
 	if size, err := strconv.ParseFloat(strings.TrimSuffix(sizeStr, "B"), 64); err == nil {
@@ -414,13 +354,10 @@ func getOpName(model string) OmodelPath {
 func getManifests(model string) ([]string, error) {
 	res := []string{}
 	opName := getOpName(model)
-	modelsDir, err := getOModelsDir()
-	if err != nil {
-		return res, fmt.Errorf("failed to get user home directory: %w", err)
-	}
+	modelsDir := GetOllamaModelDir()
 	manifestsFile := filepath.Join(modelsDir, "manifests", opName.Space, opName.LibPath, opName.Name, opName.Tag)
 	if !libs.PathExists(manifestsFile) {
-		return res, fmt.Errorf("failed to get manifests file: %w", err)
+		return res, fmt.Errorf("failed to get manifests file: %s", manifestsFile)
 	}
 	res = append(res, manifestsFile)
 	var manifest ManifestV2
@@ -450,19 +387,50 @@ func getManifests(model string) ([]string, error) {
 }
 
 func GetBlobsPath(digest string) (string, error) {
-	dir, err := getOModelsDir()
-	if err != nil {
-		return "", err
-	}
+	dir := GetOllamaModelDir()
 	// only accept actual sha256 digests
 	pattern := "^sha256[:-][0-9a-fA-F]{64}$"
 	re := regexp.MustCompile(pattern)
 
 	if digest != "" && !re.MatchString(digest) {
-		return "", errors.New("invalid digest format")
+		return "", fmt.Errorf("invalid digest format")
 	}
 
 	digest = strings.ReplaceAll(digest, ":", "-")
 	path := filepath.Join(dir, "blobs", digest)
 	return path, nil
+}
+
+func ConvertOllama(w http.ResponseWriter, r *http.Request, req ReqBody) {
+	modelFile := "FROM " + req.Info.Path[0] + "\n"
+	modelFile += `TEMPLATE """` + req.Info.Template + `"""`
+	if req.Info.Parameters != "" {
+		parameters := strings.Split(req.Info.Parameters, "\n")
+		for _, param := range parameters {
+			modelFile += "\nPARAMETER " + param
+		}
+	}
+
+	url := GetOllamaUrl() + "/api/create"
+	postParams := map[string]string{
+		"name":      req.Model,
+		"modelfile": modelFile,
+	}
+	ForwardHandler(w, r, postParams, url, "POST")
+	modelDir, err := GetModelDir(req.Model)
+	if err != nil {
+		libs.ErrorMsg(w, "GetModelDir")
+		return
+	}
+
+	// modelFilePath := filepath.Join(modelDir, "Modelfile")
+	// if err := os.WriteFile(modelFilePath, []byte(modelFile), 0644); err != nil {
+	// 	ErrMsg("WriteFile", err, w)
+	// 	return
+	// }
+	err = os.RemoveAll(modelDir)
+	if err != nil {
+		libs.ErrorMsg(w, "Error removing directory")
+		return
+	}
 }

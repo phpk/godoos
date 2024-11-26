@@ -256,6 +256,7 @@
     "video": "Video",
     "embed": "Embeding",
     "embeddings": "Embeddings",
+    "reranker":"Reranker",
     "tts": "Txt2Audio",
     "audio": "Audio2Txt",
     "assistant": "Assistant",

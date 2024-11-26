@@ -45,6 +45,7 @@ export async function askAi(question: any, action: string) {
                     content: prompt
                 },
             ],
+            engine: model.info.engine,
             model: model.model,
             stream: false,
             options: modelStore.chatConfig.creation,

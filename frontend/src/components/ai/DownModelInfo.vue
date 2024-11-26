@@ -30,13 +30,13 @@ const modelInfo = modelStore.getModelInfo(model);
         <el-row justify="space-around">
             <el-col :span="10" class="tc"><el-text>{{ t('model.modelEngine') }}</el-text></el-col>
             <el-col :span="14">
-                <el-tag type="primary">{{modelInfo.engine}}</el-tag>
+                <el-tag type="primary">{{modelInfo.info.engine}}</el-tag>
             </el-col>
         </el-row>
         <el-row justify="space-around" v-if="modelInfo.action">
             <el-col :span="10" class="tc"><el-text>{{ t('model.applicableScope') }}</el-text></el-col>
             <el-col :span="14">
-                <el-tag type="primary" v-for="item in modelInfo.action" style="margin-right: 5px;">{{t('model.' + item)}}</el-tag>
+                <el-tag type="primary">{{t('model.' + modelInfo.action)}}</el-tag>
             </el-col>
         </el-row>
         <el-row justify="space-around" v-if="modelInfo.info.context_length">

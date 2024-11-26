@@ -1,7 +1,7 @@
 <template>
   <div class="win11-msg-container">
     <el-scrollbar>
-      <div v-if="store.navId < 2" class="user-list-area">
+      <div v-if="store.navId == 1" class="user-list-area">
         <el-row class="user-list" justify="space-around" v-for="(msg, key) in store.contentList" :key="key"
           v-if="store.contentList.length > 0">
           <!-- <el-col :span="5" class="avatar-col">
@@ -33,7 +33,7 @@
         <el-empty v-else :image-size="100" description="消息列表为空" />
       </div>
 
-      <div v-else class="user-list-area">
+      <div v-else-if="store.navId == 2" class="user-list-area">
         <el-row justify="space-between">
           <el-icon :size="18" @click="store.refreshUserList">
             <RefreshRight />

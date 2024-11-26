@@ -26,6 +26,7 @@ import { deepseekcoderLabels } from './deepseekcoder.ts'
 import { starcoder2Labels } from './starcoder2.ts'
 import { duckdbnsqlLabels } from './duckdbnsql.ts'
 import { bgeLabels } from './bge.ts'
+import { bgeRerankerLabels } from './bgereranker.ts'
 import { dmetaLabels } from './dmeta.ts'
 import { nomicLabels } from './nomic.ts'
 import { snowflakeLabels } from './snowflake.ts'
@@ -66,6 +67,7 @@ export const aiLabels = [
     starcoder2Labels,
     duckdbnsqlLabels,
     bgeLabels,
+    bgeRerankerLabels,
     dmetaLabels,
     nomicLabels,
     snowflakeLabels,

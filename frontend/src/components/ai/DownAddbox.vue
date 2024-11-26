@@ -6,10 +6,10 @@ import { t } from "@/i18n/index";
 const modelStore = useModelStore();
 
 const formInit = {
-  model: "",
   labelId: "",
   ip: "",
   info: {
+    model: "",
     url: "",
     from: "ollama",
     file_name: "",
@@ -86,7 +86,7 @@ async function getLocalModel() {
 }
 function setLocalInfo() {
   let modelData: any = localModels.value.find((item: any) => {
-    return item.model === formData.value.model;
+    return item.model === formData.value.info.model;
   });
   if (!modelData) {
     notifyError(t('model.invalidModel'));
@@ -116,42 +116,46 @@ async function download() {
     return;
   }
 
-  if (saveData.from == "ollama") {
-    if (saveData.model == "") {
+  if (saveData.info.from == "ollama") {
+    if (saveData.info.model == "") {
       notifyError(t('model.labelNameEmpty'));
       return;
     }
-    if (saveData.model.indexOf(":") === -1) {
-      saveData.model = saveData.model + ":latest";
+    if (saveData.info.model.indexOf(":") === -1) {
+      saveData.info.model = saveData.info.model + ":latest";
     }
+    if (saveData.info.url == "") {
+      saveData.info.url = []
+    }
+    saveData.info.context_length = 1024
   }
 
-  if (saveData.from == "local") {
-    if (!saveData.url || saveData.url.length == 0) {
+  if (saveData.info.from == "local") {
+    if (!saveData.info.url || saveData.info.url.length == 0) {
       notifyError(t('model.invalidModel'));
       return;
     }
   }
-  if (saveData.from == "network") {
-    if (isNaN(saveData.context_length) || saveData.context_length < 1) {
+  if (saveData.info.from == "network") {
+    if (isNaN(saveData.context_length) || saveData.info.context_length < 1) {
       notifyError(t('model.invalidContextLength'));
       return;
     }
-    saveData.context_length = saveData.context_length * 1;
+    saveData.info.context_length = saveData.info.context_length * 1;
 
-    if (saveData.url == "") {
+    if (saveData.info.url == "") {
       notifyError(t('model.invalidModelUrl'));
       return;
     }
 
-    if (saveData.url != "" && typeof saveData.url === "string") {
-      saveData.url = saveData.url.split("\n");
+    if (saveData.info.url != "" && typeof saveData.url === "string") {
+      saveData.info.url = saveData.info.url.split("\n");
     } else {
-      saveData.url = [];
+      saveData.info.url = [];
     }
     if (saveData.engine == "ollama") {
-      saveData.type = 'llm'
-      saveData.params = {
+      saveData.type = 'local'
+      saveData.info.params = {
         top_p: 0.95,
         stream: true,
         num_keep: 5,
@@ -160,18 +164,18 @@ async function download() {
         temperature: 0.7,
 
       };
-      if (saveData.parameters != "" && typeof saveData.parameters === "string") {
-        saveData.parameters = saveData.parameters.split("\n");
+      if (saveData.info.parameters != "" && typeof saveData.info.parameters === "string") {
+        saveData.info.parameters = saveData.info.parameters.split("\n");
       } else {
-        saveData.parameters = [];
+        saveData.info.parameters = [];
       }
-      saveData.info = {
-        quant: saveData.quant,
-        context_length: saveData.context_length,
-        template: saveData.template,
-        parameters: saveData.parameters,
-        pb: saveData.pb.toUpperCase(),
-      };
+      // saveData.info = {
+      //   quant: saveData.quant,
+      //   context_length: saveData.context_length,
+      //   template: saveData.template,
+      //   parameters: saveData.parameters,
+      //   pb: saveData.pb.toUpperCase(),
+      // };
       const lowerName = saveData.info.pb.replace("B", "") * 1;
       if (lowerName < 3) {
         saveData.info.cpu = "8GB";
@@ -184,8 +188,8 @@ async function download() {
         saveData.info.cpu = "32GB";
         saveData.info.gpu = "12GB";
       }
-      if (saveData.model.indexOf(":") === -1) {
-        saveData.model = saveData.model + ":latest";
+      if (saveData.info.model.indexOf(":") === -1) {
+        saveData.info.model = saveData.info.model + ":latest";
       }
     }
   }
@@ -211,7 +215,7 @@ async function download() {
       </el-select>
     </el-form-item>
     <el-form-item :label="t('model.modelName')" v-if="formData.info.from !== 'local'">
-      <el-input v-model="formData.model" prefix-icon="House" clearable
+      <el-input v-model="formData.info.model" prefix-icon="House" clearable
         :placeholder="t('model.enterModelName')"></el-input>
     </el-form-item>
 
@@ -221,7 +225,7 @@ async function download() {
           @blur="getLocalModel"></el-input>
       </el-form-item>
       <el-form-item :label="t('model.selectModel')" v-if="localModels.length > 0">
-        <el-select v-model="formData.model" @change="setLocalInfo">
+        <el-select v-model="formData.info.model" @change="setLocalInfo">
           <el-option v-for="(item, key) in localModels" :key="key" :label="item.model" :value="item.model" />
         </el-select>
       </el-form-item>

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"godo/libs"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -54,17 +53,14 @@ func GetModelPath(urls string, model string, reqType string) (string, error) {
 	// 构建完整的文件路径
 	filePath := filepath.Join(modelDir, fileName)
 	if reqType == "local" {
-		dir, err := getOModelsDir()
-		if err != nil {
-			return "", err
-		}
+		dir := GetOllamaModelDir()
 		if strings.Contains(fileName, "sha256-") && len(fileName) == 71 {
 			filePath = filepath.Join(dir, "blobs", fileName)
-			log.Printf("====filePath1: %s", filePath)
+			//log.Printf("====filePath1: %s", filePath)
 		} else {
 			opName := getOpName(model)
 			filePath = filepath.Join(dir, "manifests", opName.Space, opName.LibPath, opName.Name, opName.Tag)
-			log.Printf("====filePath2: %s", filePath)
+			//log.Printf("====filePath2: %s", filePath)
 		}
 	}
 	return filePath, nil
@@ -73,31 +69,33 @@ func Var(key string) string {
 	return strings.Trim(strings.TrimSpace(os.Getenv(key)), "\"'")
 }
 func GetHfModelDir() (string, error) {
-	dataDir := libs.GetDataDir()
-	return filepath.Join(dataDir, "hfmodels"), nil
+	aiDir, ok := libs.GetConfig("aiDir")
+	if ok {
+		return aiDir.(string), nil
+	} else {
+		dataDir := libs.GetDataDir()
+		return filepath.Join(dataDir, "aiModels"), nil
+	}
+
 }
+
 func GetOllamaModelDir() string {
-	// dataDir := libs.GetDataDir()
-	// return filepath.Join(dataDir, "models")
 	if s := Var("OLLAMA_MODELS"); s != "" {
 		return s
 	}
-
-	home, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-
+	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".ollama", "models")
-}
-func getOModelsDir() (string, error) {
-	return GetOllamaModelDir(), nil
 }
 func GetOllamaUrl() string {
 	if s := strings.TrimSpace(Var("OLLAMA_HOST")); s != "" {
 		return s
 	}
-	return "http://localhost:11434"
+	ollamaUrl, ok := libs.GetConfig("ollamaUrl")
+	if ok {
+		return ollamaUrl.(string)
+	} else {
+		return "http://localhost:11434"
+	}
 }
 func ReplaceModelName(modelName string) string {
 	reg := regexp.MustCompile(`[/\s:]`)

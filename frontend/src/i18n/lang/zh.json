@@ -109,7 +109,7 @@
   "whiteBoard": "白板",
   "piceditor": "图片编辑",
   "gantt": "甘特图",
-  "aiHelper":"AI助手",
+  "aiHelper": "AI助手",
   "aiModule": "模型管理",
   "browser": "浏览器",
   "aiSetting": "AI设置",
@@ -161,7 +161,7 @@
     "installSuccess": "安装成功！",
     "uninstallSuccess": "卸载成功",
     "downloadError": "下载失败！",
-    "downloadSuccess":"下载成功！",
+    "downloadSuccess": "下载成功！",
     "cantStream": "暂不支持流下载！",
     "setting": "设置",
     "stop": "停止",
@@ -259,6 +259,7 @@
     "recording": "听录",
     "video": "视频",
     "embeddings": "嵌入",
+    "reranker": "排序",
     "tts": "文字转声音",
     "audio": "声音转文字",
     "assistant": "助手",
@@ -272,14 +273,6 @@
     "downloading": "下载中",
     "modelLabel": "模型标签",
     "modelDown": "模型下载",
-    "help_label": "选择分类",
-    "help_labelDesc": "选择你想要下载的模型类目",
-    "help_showdown": "查看下载",
-    "help_showdownDesc": "点击此处查看下载列表和已下载的文件",
-    "help_adddown": "添加新的下载",
-    "help_adddownDesc": "点击此处可以添加新的下载，属于高级操作",
-    "help_addlabel": "添加新的标签",
-    "help_addlabelDesc": "点击此处可以添加新的标签，标签内没有下载列表方可删除",
     "labelName": "标签名称",
     "family": "家族",
     "category": "分类",
@@ -361,5 +354,4 @@
     "tips_num_predict": "num_predict通常是指在文本生成任务中，指定模型生成的token数量或预测步数。简单来说，就是指定了生成文本的长度，单位通常是token（可能是词、子词或其他单位，依据模型而定）。<br />最小值1：表示生成最少一个token的文本，这在实际应用中可能意义不大，除非模型的输出是高度结构化的，单个token也能构成完整信息。<br />最大值5000：最大生成长度，适合于生成较短的文本片段，如简短的回答、总结或短句。实际应用中，num_predict的具体取值范围应根据模型的能力、应用场景的需求以及资源限制（如计算成本和响应时间）来设定。对于需要生成较长文本的任务，比如文章创作、故事生成等，num_predict的上限可能会设置得更高，比如几百甚至上千。但需要注意的是，随着生成长度的增加，不仅计算成本会上升，生成文本的连贯性和质量控制也会变得更加复杂。",
     "tips_num_keep": "num_keep的值可以影响生成文本与原始输入的关联度和连贯性。较大的num_keep值有助于保持生成内容与输入的连续性和一致性，而较小的值则可能让模型生成更加自由、多变的文本。"
   }
-
 }

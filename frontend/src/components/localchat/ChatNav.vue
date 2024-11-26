@@ -2,6 +2,14 @@
   <el-row>
     <el-avatar shape="square" :size="40" class="userAvatar" src="/logo.png"/>
   </el-row>
+  <el-row @click="store.handleSelect(0)">
+    <el-icon v-if="store.navId === 0" class="menu-icon-on">
+      <Promotion />
+    </el-icon>
+    <el-icon v-else class="menu-icon">
+      <Position />
+    </el-icon>
+  </el-row>
   <el-row @click="store.handleSelect(1)">
     <el-icon v-if="store.navId === 1" class="menu-icon-on">
       <ChatLineRound />
@@ -18,13 +26,6 @@
       <User />
     </el-icon>
   </el-row>
-  <!-- <el-space direction="vertical" :size="20" class="win11-chat-nav">
-    <div :class="store.navId === item.index ? 'nav-item active' : 'nav-item'" v-for="item in store.navList" :key="item.index">
-      <el-icon size="18" @click="store.handleSelect(item.index)">
-        <component :is="item.icon" />
-      </el-icon>
-    </div>
-  </el-space> -->
 </template>
 
 <script setup lang="ts">

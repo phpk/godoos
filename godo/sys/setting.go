@@ -51,14 +51,30 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				libs.SetConfig(req)
 			}
-		}
-		if req.Name == "webdavClient" {
+		} else if req.Name == "aiDir" {
+			aiPath := req.Value.(string)
+			aiDir, ok := libs.GetConfig("aiDir")
+			if !ok || aiDir != aiPath {
+				if !libs.PathExists(aiPath) {
+					libs.ErrorMsg(w, "The Path is not exists!")
+					return
+				}
+				err = os.Chmod(aiPath, 0755)
+				if err != nil {
+					libs.ErrorMsg(w, "The Path chmod is error!")
+					return
+				}
+				libs.SetConfig(req)
+			}
+		} else if req.Name == "webdavClient" {
 			libs.SetConfig(req)
 			err := webdav.InitWebdav()
 			if err != nil {
 				libs.ErrorMsg(w, "The webdav client init is error："+err.Error())
 				return
 			}
+		} else {
+			libs.SetConfig(req)
 		}
 	}
 

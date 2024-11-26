@@ -39,7 +39,7 @@ async function downLabel(modelData: any, labelData: any) {
   modelData = toRaw(modelData);
   //console.log(modelData, labelData)
   const saveData = {
-    model: modelData.model,
+    model: modelData.info.model,
     label: labelData.name,
     action: labelData.action,
     engine: modelData.info.engine,
@@ -59,6 +59,7 @@ async function saveBox(modelData: any) {
     notifyError(t('model.chooseLabel'));
     return;
   }
+  //console.log(modelData)
   downLabel(modelData, labelData);
 }
 async function download(saveData: any) {
@@ -135,25 +136,15 @@ async function handleDown(modelData: any, completion: any) {
       modelData.status = msg.status;
 
       if (msg.total && msg.completed && msg.total > 0) {
-        if (msg.total == msg.completed) {
+        modelData.isLoading = 1;
+        modelData.progress = Math.ceil((msg.completed / msg.total) * 100);
+        if (modelData.progress == 100 || msg.total == msg.completed) {
           msg.status = "success"
-        } else {
-          modelData.isLoading = 1;
-          modelData.progress = Math.ceil((msg.completed / msg.total) * 100);
         }
       } else {
         modelData.progress = 0;
       }
-      if (msg.status == "success") {
-        modelData.isLoading = 0;
-        modelData.progress = 0;
-      }
-      //console.log(modelData);
       await modelStore.updateDownload(modelData);
-      if (msg.status == "success") {
-        modelStore.deleteDownload(modelData.model);
-        modelStore.setCurrentModel(toRaw(modelData.action), modelData.model);
-      }
     } catch (error) {
       console.error("An error occurred:", error);
       break;
@@ -165,10 +156,10 @@ async function deleteModel(modelData: any) {
   modelData = toRaw(modelData);
   //console.log(modelData)
   try {
-    const res:any = await modelStore.deleteModelList(modelData);
-    notifySuccess(res);
+    await modelStore.deleteModelList(modelData);
+    notifySuccess(t('prompt.delSuccess'));
   } catch (error: any) {
-    console.log(error);
+    //console.log(error);
     notifyError(error.message);
   }
 }

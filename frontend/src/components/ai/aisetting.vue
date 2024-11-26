@@ -61,7 +61,7 @@ const saveConfig = async () => {
   let postData: any = []
   if (config.value.dataDir.trim() != "") {
     postData.push({
-      name: "dataDir",
+      name: "aiDir",
       value: config.value.dataDir.trim(),
     })
   }
@@ -69,6 +69,12 @@ const saveConfig = async () => {
     postData.push({
       name: "ollamaUrl",
       value: config.value.ollamaUrl.trim(),
+    })
+  }
+  if (config.value.openaiUrl.trim() != "") {
+    postData.push({
+      name: "openaiUrl",
+      value: config.value.openaiUrl.trim(),
     })
   }
   if (postData.length > 0) {
@@ -172,6 +178,12 @@ async function changeDir() {
             <el-form-item :label="t('aisetting.ollamaUrl')">
               <div class="slider-container">
                 <el-input v-model="config.ollamaUrl" :placeholder="t('aisetting.ollamaUrl')" prefix-icon="Notification"
+                  clearable></el-input>
+              </div>
+            </el-form-item>
+            <el-form-item label="OpenAI URL">
+              <div class="slider-container">
+                <el-input v-model="config.openaiUrl" placeholder="OpenAI URL" prefix-icon="Notification"
                   clearable></el-input>
               </div>
             </el-form-item>
@@ -307,7 +319,7 @@ async function changeDir() {
 }
 
 .scrollbarSettingHeight {
-  height: 80vh;
+  height: 85vh;
   padding-bottom: 30px;
 }
 
