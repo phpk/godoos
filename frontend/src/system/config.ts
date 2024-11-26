@@ -24,7 +24,7 @@ export const getSystemConfig = (ifset = false) => {
   }
   // 初始化API相关URL，若本地存储中已存在则不进行覆盖
   if (!config.apiUrl) {
-    config.apiUrl = 'http://localhost:56780';
+    config.apiUrl = 'http://' + window.location.host + ':56780';
   }
   if (!config.userType) {
     config.userType = 'person'
@@ -149,7 +149,7 @@ export const getSystemConfig = (ifset = false) => {
     }
   }
   if (!config.ollamaUrl) {
-    config.ollamaUrl = 'http://localhost:11434'
+    config.ollamaUrl = 'http://' + window.location.host + ':11434'
   }
   if (!config.dataDir) {
     config.dataDir = ''

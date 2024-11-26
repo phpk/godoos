@@ -13,28 +13,30 @@
 
       <input class="url-input" v-model="urlinput" @keydown.enter="changeUrl" placeholder="Enter URL" />
     </div>
-    <!-- <div class="webframe" v-html="webContent"></div> -->
     <iframe
+      ref="iframeRef"
       class="webframe"
       :srcdoc="webContent"
       frameborder="0"
       allowfullscreen
+      @load="onIframeLoad"
     ></iframe>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, Ref } from 'vue';
 import { getSystemKey } from '@/system/config';
 
 const urlinput = ref('https://godoos.com/');
 const webContent = ref('');
 const canGoBack = ref(false);
 const canGoForward = ref(false);
+const iframeRef: Ref<HTMLIFrameElement | null> = ref(null);
 
 async function callApi(endpoint: string) {
   const apiUrl = await getSystemKey('apiUrl');
-  let fetchUrl = `${apiUrl}/ie/${endpoint}?url=${encodeURIComponent(urlinput.value)}`
+  let fetchUrl = `${apiUrl}/ie/${endpoint}?url=${encodeURIComponent(urlinput.value)}`;
   const response = await fetch(fetchUrl);
   if (response.ok) {
     const data = await response.text();
@@ -71,14 +73,40 @@ function changeUrl() {
   callApi('navigate');
 }
 
+function onIframeLoad() {
+  if (iframeRef.value) {
+    let currentUrl = '';
+    if (iframeRef.value.srcdoc) {
+      // 当使用 srcdoc 时，从外部获取实际 URL
+      currentUrl = urlinput.value;
+    } else {
+      // 当使用 src 时，从 contentWindow 获取实际 URL
+      currentUrl = iframeRef.value.contentWindow?.location.href || '';
+    }
+    console.log('Current URL:', currentUrl);
+    //urlinput.value = currentUrl;
+    callApi('navigate'); // 每次 iframe 加载时调用 callApi
+    updateNavigationButtons();
+  }
+}
+function handleIframeMessage(event: MessageEvent) {
+  if (event.origin !== 'https://your-iframe-origin') return; // 替换为实际的 origin
+  const currentUrl = event.data;
+  console.log('Current URL from iframe:', currentUrl);
+  urlinput.value = currentUrl;
+  updateNavigationButtons();
+}
 onMounted(() => {
   window.addEventListener('popstate', updateNavigationButtons);
+  window.addEventListener('message', handleIframeMessage);
+
   updateNavigationButtons();
   callApi('navigate');
 });
 
 onUnmounted(() => {
   window.removeEventListener('popstate', updateNavigationButtons);
+  window.removeEventListener('message', handleIframeMessage);
 });
 </script>
 

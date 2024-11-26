@@ -42,6 +42,11 @@ func fetchPageContent(url string) (string, error) {
 	// 移除 X-Frame-Options 和 Content-Security-Policy 头
 	resp.Header.Del("X-Frame-Options")
 	resp.Header.Del("Content-Security-Policy")
+	html += `<script>
+        window.onload = function() {
+          window.parent.postMessage(window.location.href, '*');
+        };
+      </script>`
 	return html, nil
 }
 

@@ -44,7 +44,8 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	configPwd, ishas := libs.GetConfig("filePwd")
-	if !ishas {
+	// 如果不是加密文件或者exe文件
+	if !ishas || strings.HasPrefix(string(fileData), "link::") {
 		// 没开启加密，直接明文写入
 		_, err := newFile.Write(fileData)
 		if err != nil {

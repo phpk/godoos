@@ -18,7 +18,7 @@
 - 新增ai模型管理，可下载管理ollama模型
 - 新增ai助手，可控制整个系统的prompt
 - word新增ai优化/续写/纠错/翻译/总结，生成大纲，根据大纲一键创建文章
-- markdown更换为更实用的cherry-markdown，可绘图，支持导出为思维导图/pdf/长图/md/html格式
+- markdown更换为更实用的cherry-markdown，支持draw.io绘图，支持导出为思维导图/pdf/长图/md/html格式
 - 修复截图/截屏路径
 - 新增文件密码箱（系统设置里），可根据不同文件进行加密存储
 
