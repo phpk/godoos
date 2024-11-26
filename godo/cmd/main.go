@@ -98,8 +98,6 @@ func OsStart() {
 	fileRouter.HandleFunc("/unzip", files.HandleUnZip).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/watch", files.WatchHandler).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/setfilepwd", files.HandleSetFilePwd).Methods(http.MethodGet)
-	fileRouter.HandleFunc("/changefilepwd", files.HandleChangeFilePwd).Methods(http.MethodGet)
-	fileRouter.HandleFunc("/changeispwd", files.HandleSetIsPwd).Methods(http.MethodGet)
 
 	localchatRouter := router.PathPrefix("/localchat").Subrouter()
 	localchatRouter.HandleFunc("/message", localchat.HandleMessage).Methods(http.MethodPost)

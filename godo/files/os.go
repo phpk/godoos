@@ -23,8 +23,6 @@ import (
 	"godo/libs"
 	"io"
 	"io/fs"
-	"log/slog"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -332,75 +330,11 @@ func CheckDeleteDesktop(filePath string) error {
 	}
 	return nil
 }
-
-// 校验文件密码
-func CheckFilePwd(fpwd, salt string) bool {
-	// 1. 对输入的密码进行哈希
-	pwd := libs.HashPassword(fpwd, salt)
-	// 2. 获取存储的密码哈希
-	oldPwd, isHas := libs.GetConfig("filePwd")
-	if !isHas {
-		slog.Error("文件密码获取失败")
+func IsPwdFile(fileData []byte) bool {
+	if len(fileData) < 34 {
+		return false
+	} else if fileData[0] != '@' || fileData[33] != '@' {
 		return false
 	}
-	// 3. 比对密码哈希
-	return oldPwd == pwd
-}
-
-func IsHavePwd(pwd string) bool {
-	if len(pwd) > 0 {
-		return true
-	} else {
-		return false
-	}
-}
-
-// salt值优先从server端获取，如果没有则从header获取
-func GetSalt(r *http.Request) (string, error) {
-	data, ishas := libs.GetConfig("salt")
-	if ishas {
-		// 断言成功则返回
-		if salt, ok := data.(string); ok {
-			return salt, nil
-		}
-		return "", fmt.Errorf("类型断言失败，期望类型为 string")
-	}
-	salt := r.Header.Get("salt")
-	if salt != "" {
-		return salt, nil
-	}
-	return "", fmt.Errorf("无法获取salt")
-}
-
-// 该函数用于获取文件是否加密的标志
-func GetPwdFlag() (bool, error) {
-	// 从配置中获取加密标志
-	isPwd, has := libs.GetConfig("isPwd")
-	if !has {
-		// 如果没有设置加密标志，默认设置为不加密
-		err := libs.SetConfigByName("isPwd", false)
-		if err != nil {
-			return false, err // 返回错误信息
-		}
-		return false, nil // 返回默认值和无错误
-	}
-
-	// 尝试将获取的值转换为布尔类型
-	if pwdFlag, ok := isPwd.(bool); ok {
-		return pwdFlag, nil // 返回加密标志和无错误
-	}
-
-	// 如果类型断言失败，返回默认值和错误信息
-	return false, fmt.Errorf("类型断言失败，期望类型为 bool")
-}
-
-// 检查文件是否加密
-func IsHaveHiddenFile(basePath, filePath string) bool {
-	// 通过查找同名隐藏文件判断
-	// 获取文件名和目录
-	dir := filepath.Dir(filePath)
-	fileName := filepath.Base(filePath)
-	hiddenFilePath := filepath.Join(basePath, dir, "."+fileName)
-	_, err := os.Stat(hiddenFilePath)
-	return err == nil
+	return true
 }

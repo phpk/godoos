@@ -82,8 +82,8 @@ func HandleReadDir(w http.ResponseWriter, r *http.Request) {
 				libs.HTTPError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to read file content: %v", err))
 				return
 			}
+			osFileInfo.IsPwd = IsPwdFile(content)
 			osFileInfo.Content = string(content)
-			osFileInfo.IsPwd = IsHaveHiddenFile(basePath, osFileInfo.Path)
 			// 检查文件内容是否以"link::"开头
 			if strings.HasPrefix(osFileInfo.Content, "link::") {
 				osFileInfo.IsSymlink = true
@@ -124,7 +124,29 @@ func HandleStat(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	osFileInfo.IsPwd = IsHaveHiddenFile(basePath, osFileInfo.Path)
+	// 是否为加密文件
+	file, err := os.Open(filepath.Join(basePath, path))
+	if err != nil {
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	buffer := make([]byte, 34)
+	_, err = file.Read(buffer)
+	if err != nil {
+		if err == io.EOF {
+			// EOF说明文件大小小于34字节
+			osFileInfo.IsPwd = false
+			res := libs.APIResponse{
+				Message: "File information retrieved successfully.",
+				Data:    osFileInfo,
+			}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	osFileInfo.IsPwd = IsPwdFile(buffer)
 	res := libs.APIResponse{
 		Message: "File information retrieved successfully.",
 		Data:    osFileInfo,
@@ -231,15 +253,6 @@ func HandleRename(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusConflict, err.Error())
 		return
 	}
-	// 如果是一个加密文件，则隐藏文件的名字也要改
-	if IsHaveHiddenFile(basePath, oldPath) {
-		oldHiddenFilePath := filepath.Join(basePath, filepath.Dir(oldPath), "."+filepath.Base(oldPath))
-		newHiddenFilePath := filepath.Join(basePath, filepath.Dir(newPath), "."+filepath.Base(newPath))
-		err = os.Rename(oldHiddenFilePath, newHiddenFilePath)
-		if err != nil {
-			log.Printf("Error renaming hidden file: %s", err.Error())
-		}
-	}
 	err = CheckAddDesktop(newPath)
 	if err != nil {
 		log.Printf("Error adding file to desktop: %s", err.Error())
@@ -320,93 +333,8 @@ func HandleCopyFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error adding file to desktop: %s", err.Error())
 	}
-	// 如果是一个复制的加密文件，则隐藏的文件也要复制过去
-	if IsHaveHiddenFile(basePath, srcPath) {
-		hiddenSrcPath := filepath.Join(basePath, filepath.Dir(srcPath), "."+filepath.Base(srcPath))
-		hiddenDstPath := filepath.Join(basePath, filepath.Dir(dstPath), "."+filepath.Base(dstPath))
-		if err := CopyFile(hiddenSrcPath, hiddenDstPath); err != nil {
-			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-	}
 	res := libs.APIResponse{Message: fmt.Sprintf("File '%s' successfully copied to '%s'.", srcPath, dstPath)}
 	json.NewEncoder(w).Encode(res)
-}
-
-// 带加密写
-func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
-	filePath := r.URL.Query().Get("path")
-	basePath, err := libs.GetOsDir()
-	if err != nil {
-		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	// 获取文件内容
-	fileContent, _, err := r.FormFile("content")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	defer fileContent.Close()
-	filedata, err := io.ReadAll(fileContent)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// 创建文件
-	file, err := os.Create(filepath.Join(basePath, filePath))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
-
-	// 内容为空直接返回
-	if len(filedata) == 0 {
-		CheckAddDesktop(filePath)
-		libs.SuccessMsg(w, "", "success")
-		return
-	}
-
-	// 判读是否加密
-	ispwd, err := GetPwdFlag()
-	if err != nil {
-		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	// 没有加密写入明文
-	if !ispwd {
-		if _, err := file.Write(filedata); err != nil {
-			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-		CheckAddDesktop(filePath)
-		libs.SuccessMsg(w, "", "success")
-		return
-	}
-	// 加密
-	data, err := libs.EncryptData(filedata, libs.EncryptionKey)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	_, err = file.Write(data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	// 加密文件在同级目录下创建一个同名隐藏文件
-	hiddenFilePath := filepath.Join(basePath, filepath.Dir(filePath), "."+filepath.Base(filePath))
-	_, err = os.Create(hiddenFilePath)
-	if err != nil {
-		libs.ErrorMsg(w, "创建隐藏文件失败")
-	}
-	// 判断下是否添加到桌面上
-	CheckAddDesktop(filePath)
-	libs.SuccessMsg(w, "", "success")
 }
 
 // HandleAppendFile appends content to a file
