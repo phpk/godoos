@@ -49,7 +49,7 @@ const getImg = function (content: any) {
 
   const title = formattedTime + "截图";
   //console.log(title)
-  const path = "/C/Users/Photo/" + title + ".png";
+  const path = "/C/Users/Pictures/" + title + ".png";
   // const save = {
   //   title,
   //   content,

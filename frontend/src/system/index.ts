@@ -314,6 +314,7 @@ export class System {
         `link::${loc}::${options.name}::${options.icon}`
       );
     }
+    //if(!options.window.content)return
     if (typeof options.window.content !== 'string') {
       console.log('index.ts:', options.window.content)
       //options.window.content = markRaw(options.window.content);

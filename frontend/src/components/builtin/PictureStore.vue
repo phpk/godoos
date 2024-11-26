@@ -52,7 +52,7 @@ onMounted(async () => {
   refershFileLst();
 });
 async function refershFileLst() {
-  const list = await sys.fs.readdir(join(sys._options.userLocation || "", "Photo"));
+  const list = await sys.fs.readdir(join(sys._options.userLocation || "", "Pictures"));
   photoList.value = list;
 }
 
@@ -70,7 +70,7 @@ function upload(ev: Event) {
         const file = tar.files[0];
         sys.fs
           .writeFile(
-            join(sys._options.userLocation || "", "Photo", file.name),
+            join(sys._options.userLocation || "", "Pictures", file.name),
             reader.result
           )
           .then(() => {

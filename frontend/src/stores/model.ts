@@ -99,10 +99,13 @@ export const useModelStore = defineStore('modelStore', () => {
   async function getModel(action: string) {
     const model = await db.get("modelslist", { action, isdef: 1 })
     if (!model) {
-      return await db.addOne("modelslist", { action })
+      return await db.get("modelslist", { action })
     } else {
       return model
     }
+  }
+  async function getModelAction(action:string) {
+    return await db.rows("modelslist", { action })
   }
   async function getList() {
     labelList.value = await getLabelList()
@@ -265,6 +268,7 @@ export const useModelStore = defineStore('modelStore', () => {
     getModelList,
     getModelInfo,
     getModel,
+    getModelAction,
     checkDownload,
     addDownload,
     deleteDownload,

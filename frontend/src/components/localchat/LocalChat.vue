@@ -4,36 +4,28 @@
       <chat-nav />
     </el-aside>
     <el-container class="side">
-      <chat-domain />
+      <chat-domain v-if="store.navId > 0" />
+      <ai-chat-left v-else />
     </el-container>
     <el-container class="chat-box">
-      <chat-content />
+      <chat-content v-if="store.navId > 0" />
+      <ai-chat-main v-else />
     </el-container>
   </el-container>
-  <!-- <el-row justify="space-between">
-    <el-col :span="1">
-      <chat-nav />
-    </el-col>
-    <el-col :span="6">
-      <chat-domain />
-    </el-col>
-    <el-col :span="17">
-      <chat-content />
-    </el-col>
-  </el-row> -->
 </template>
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-
+import { useAiChatStore } from "@/stores/aichat";
 import { useLocalChatStore } from "@/stores/localchat";
 
 const store = useLocalChatStore();
-
+const aiStore = useAiChatStore();
 
 //let source:any;
 onMounted(async () => {
   await store.init()
+  await aiStore.initChat()
 });
 
 </script>
@@ -54,6 +46,7 @@ onMounted(async () => {
   overflow-x: hidden;
   -webkit-app-region: drag;
 }
+
 .side {
   flex: 1;
   /* 占据剩余宽度 */
@@ -63,12 +56,11 @@ onMounted(async () => {
   overflow-x: hidden;
   background-color: #F7F7F7;
 }
+
 .chat-box {
   flex: 3;
   /* 占据剩余宽度的三倍 */
   max-height: max-content;
   background-color: #F5F5F5;
 }
-
-
 </style>

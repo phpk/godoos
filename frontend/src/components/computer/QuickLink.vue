@@ -76,6 +76,11 @@ const quickLinks = [
     name: t("music"),
     path: "/C/Users/Music",
   },
+  {
+    img: "video",
+    name: t("video"),
+    path: "/C/Users/Videos",
+  },
 ];
 function quick(item: any) {
   props.onOpen(item.path);

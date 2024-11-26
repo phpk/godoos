@@ -9,6 +9,10 @@ declare module 'vue' {
   export interface GlobalComponents {
     Ad: typeof import('./src/components/desktop/Ad.vue')['default']
     AddApp: typeof import('./src/components/store/AddApp.vue')['default']
+    AiChatInfo: typeof import('./src/components/localchat/AiChatInfo.vue')['default']
+    AiChatLeft: typeof import('./src/components/localchat/AiChatLeft.vue')['default']
+    AiChatMain: typeof import('./src/components/localchat/AiChatMain.vue')['default']
+    AiChatMessage: typeof import('./src/components/localchat/AiChatMessage.vue')['default']
     Aimodel: typeof import('./src/components/ai/aimodel.vue')['default']
     Aisetting: typeof import('./src/components/ai/aisetting.vue')['default']
     AppIcon: typeof import('./src/components/taskbar/AppIcon.vue')['default']
@@ -24,6 +28,7 @@ declare module 'vue' {
     ChatBox: typeof import('./src/components/chat/ChatBox.vue')['default']
     ChatContent: typeof import('./src/components/localchat/ChatContent.vue')['default']
     ChatDomain: typeof import('./src/components/localchat/ChatDomain.vue')['default']
+    ChatEditInfo: typeof import('./src/components/localchat/ChatEditInfo.vue')['default']
     ChatEditor: typeof import('./src/components/localchat/ChatEditor.vue')['default']
     ChatFoot: typeof import('./src/components/localchat/ChatFoot.vue')['default']
     ChatGroupMember: typeof import('./src/components/chat/chatGroupMember.vue')['default']

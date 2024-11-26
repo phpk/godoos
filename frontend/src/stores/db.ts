@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'prompts' | 'modelslabel' | 'modelslist' | 'chatuser' | 'chatmsg' | 'systemChatRecord' | 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage' | 'filePwdBox';
+export type ChatTable = 'prompts' | 'modelslabel' | 'modelslist'| 'aichatlist' | 'aichatmsg' | 'chatuser' | 'chatmsg' | 'systemChatRecord' | 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage' | 'filePwdBox';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
@@ -10,6 +10,10 @@ dbInit.version(1).stores({
   modelslabel: '++id,name,zhdesc,endesc,family,chanel,models,action,engine',
   // 模型列表
   modelslist: '++id,model,label,action,status,params,type,isdef,info,created_at',
+  // ai对话列表
+  aichatlist: '++id,title,modelId,promptId,prompt,ext,knowledgeId,createdAt',
+  // ai对话消息
+  aichatmsg: '++id,chatId,role,content,createdAt',
   // 用户列表
   workbenchChatUser: '++id,ip,userName,chatId,avatar,mobile,phone,nickName,isOnline,updatedAt,createdAt',
   // 会话列表

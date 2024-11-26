@@ -38,7 +38,7 @@ function keyDown(event: any) {
   }
 }
 const handleDrop = (event:any) => {
-  console.log("handleDrop")
+  //console.log("handleDrop")
   const frompathArrStr = event?.dataTransfer?.getData('frompath');
   event.preventDefault()
   const files = JSON.parse(frompathArrStr) as string[];

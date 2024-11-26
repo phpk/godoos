@@ -95,7 +95,7 @@ const saveRecorder = async function () {
 
   const title = formattedTime + "录屏";
   //console.log(title)
-  const path = "/C/Users/Photo/" + title + ".mp4";
+  const path = "/C/Users/Videos/" + title + ".mp4";
   const buffer: any = await blobToArrayBuffer(screenRecorder.blob);
   await sys.fs.writeFile(path, buffer);
   screenRecorder.actions.resetRecording();

@@ -1,0 +1,74 @@
+.chat-bot {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    .messsage-area {
+        display: flex;
+        flex-direction: column;
+        /* 默认就是column，但明确写出以增强可读性 */
+        height: 100%;
+        /* 确保messsage-area占据其父元素的全部高度 */
+    }
+
+    .input-area {
+        padding: 0.6rem;
+
+        align-items: center;
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+
+        .input-panel {
+            border-radius: 5px;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+    }
+}
+
+.user-message {
+    background-color: #f6f6fd;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.assitant-message {
+    background-color: #fff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.message {
+    margin: 0 auto;
+    max-width: 98%;
+    display: flex;
+}
+
+.message-container {
+    padding-bottom: 120px;
+}
+
+// @media (max-height: 900px) {
+//     .message-container {
+//       height: calc(100vh - 300px); /* 或者根据实际情况调整 */
+//     }
+// }
+
+.no-message-container {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 500;
+    }
+}
+
+:deep(.md-editor-preview-wrapper) {
+    padding: 0px;
+}
