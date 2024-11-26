@@ -144,6 +144,11 @@ func OsStart() {
 	// router.Handle("/model/voice", http.MethodPost, voice.UploadHandler)
 	// router.Handle("/model/tts", http.MethodPost, voice.TtsHandler)
 	// router.Handle("/model/audio", http.MethodGet, voice.ServeAudio)
+	ieRouter := router.PathPrefix("/ie").Subrouter()
+	ieRouter.HandleFunc("/navigate", store.HandleNavigate).Methods(http.MethodGet)
+	ieRouter.HandleFunc("/back", store.HandleBack).Methods(http.MethodGet)
+	ieRouter.HandleFunc("/forward", store.HandleForward).Methods(http.MethodGet)
+	ieRouter.HandleFunc("/refresh", store.HandleRefresh).Methods(http.MethodGet)
 
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")
 	fileServer := http.FileServer(http.FS(distFS))
