@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 
-export type ChatTable = 'prompts' | 'modelslabel' | 'modelslist' | 'chatuser' | 'chatmsg' | 'systemChatRecord' | 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage';
+export type ChatTable = 'prompts' | 'modelslabel' | 'modelslist' | 'chatuser' | 'chatmsg' | 'systemChatRecord' | 'workbenchChatRecord' | 'workbenchChatUser' | 'workbenchSessionList' | 'groupSessionList' | 'workbenchGroupChatRecord' | 'workbenchGroupUserList' | 'workbenchGroupInviteMessage' | 'filePwdBox';
 
 export const dbInit: any = new Dexie('GodoOSDatabase');
 dbInit.version(1).stores({
@@ -29,6 +29,8 @@ dbInit.version(1).stores({
   // 用户列表
   chatuser: '++id,ip,hostname,userName,avatar,mobile,nickName,isOnline,updatedAt,createdAt',
   chatmsg: '++id,toUserId,targetIp,senderInfo,reciperInfo,previewMessage,content,type,status,isRead,isMe,readAt,createdAt',
+  // 文件密码箱
+  filePwdBox: '++id, pwdName, pwd, isDefault'
 }).upgrade((tx: {
   workbenchSessionList: any;
   workbenchChatUser: any;
@@ -82,6 +84,9 @@ export const db = {
     return dbInit[tableName].count()
   },
   async countSearch(tableName: ChatTable, whereObj?: any) {
+    if (whereObj === undefined) {
+      return dbInit[tableName].count()
+    }
     return dbInit[tableName].where(whereObj).count()
   },
   async pageSearch(tableName: ChatTable, page?: number, size?: number, whereObj?: any) {
