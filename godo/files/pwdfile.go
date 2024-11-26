@@ -44,6 +44,7 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	configPwd, ishas := libs.GetConfig("filePwd")
+	//log.Printf("configPwd: %s", configPwd)
 	// 如果不是加密文件或者exe文件
 	if !ishas || strings.HasPrefix(string(fileData), "link::") {
 		// 没开启加密，直接明文写入
@@ -111,6 +112,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	strData := string(fileData)
+	//log.Printf("isPwd: %v", strData)
 	if strings.HasPrefix(strData, "link::") {
 		res := libs.APIResponse{Message: "文件读取成功", Data: strData}
 		json.NewEncoder(w).Encode(res)
@@ -118,6 +120,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	// 判断是否为加密文件
 	isPwd := IsPwdFile(fileData)
+
 	if !isPwd {
 		// 未加密文件，直接返回
 		content := base64.StdEncoding.EncodeToString(fileData)
