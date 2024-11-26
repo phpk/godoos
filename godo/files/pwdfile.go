@@ -39,17 +39,11 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer fileContent.Close()
 	fileData, err := io.ReadAll(fileContent)
-	fmt.Println("表单数据为:", string(fileData))
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 	configPwd, ishas := libs.GetConfig("filePwd")
-	configPwdStr, ok := configPwd.(string)
-	if !ok {
-		libs.HTTPError(w, http.StatusInternalServerError, "配置文件密码格式错误")
-		return
-	}
 	if !ishas {
 		// 没开启加密，直接明文写入
 		_, err := newFile.Write(fileData)
@@ -63,28 +57,34 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 		}
 		libs.SuccessMsg(w, "", "文件写入成功")
 		return
+	} else {
+		// 开启加密后，写入加密数据
+		configPwdStr, ok := configPwd.(string)
+		if !ok {
+			libs.HTTPError(w, http.StatusInternalServerError, "配置文件密码格式错误")
+			return
+		}
+		_, err = newFile.WriteString(fmt.Sprintf("@%s@", configPwdStr))
+		if err != nil {
+			libs.HTTPError(w, http.StatusInternalServerError, "密码写入失败")
+			return
+		}
+		entryData, err := libs.EncryptData(fileData, []byte(configPwdStr))
+		if err != nil {
+			libs.HTTPError(w, http.StatusInternalServerError, "文件加密失败")
+			return
+		}
+		_, err = newFile.Write(entryData)
+		if err != nil {
+			libs.HTTPError(w, http.StatusInternalServerError, "文件写入失败")
+			return
+		}
+		err = CheckAddDesktop(path)
+		if err != nil {
+			log.Printf("Error adding file to desktop: %s", err.Error())
+		}
+		libs.SuccessMsg(w, "", "文件写入成功")
 	}
-	// 开启加密后，写入加密数据
-	_, err = newFile.WriteString(fmt.Sprintf("@%s@", configPwdStr))
-	if err != nil {
-		libs.HTTPError(w, http.StatusInternalServerError, "密码写入失败")
-		return
-	}
-	entryData, err := libs.EncryptData(fileData, []byte(configPwdStr))
-	if err != nil {
-		libs.HTTPError(w, http.StatusInternalServerError, "文件加密失败")
-		return
-	}
-	_, err = newFile.Write(entryData)
-	if err != nil {
-		libs.HTTPError(w, http.StatusInternalServerError, "文件写入失败")
-		return
-	}
-	err = CheckAddDesktop(path)
-	if err != nil {
-		log.Printf("Error adding file to desktop: %s", err.Error())
-	}
-	libs.SuccessMsg(w, "", "文件写入成功")
 }
 
 func HandleReadFile(w http.ResponseWriter, r *http.Request) {
@@ -153,21 +153,22 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		res := libs.APIResponse{Message: "加密文件读取成功", Data: content}
 		json.NewEncoder(w).Encode(res)
 		return
-	}
-	// Pwd不为空，Pwd与文件密码做比对
-	if Pwd != filePwd {
-		res := libs.APIResponse{Message: "密码错误,请输入正确的密码", Code: -1, Error: "needPwd"}
+	} else {
+		// Pwd不为空，Pwd与文件密码做比对
+		if Pwd != filePwd {
+			res := libs.APIResponse{Message: "密码错误,请输入正确的密码", Code: -1, Error: "needPwd"}
+			json.NewEncoder(w).Encode(res)
+			return
+		}
+		decryptData, err := libs.DecryptData(fileData[34:], []byte(filePwd))
+		if err != nil {
+			libs.ErrorMsg(w, err.Error())
+			return
+		}
+		content := base64.StdEncoding.EncodeToString(decryptData)
+		res := libs.APIResponse{Message: "加密文件读取成功", Data: content}
 		json.NewEncoder(w).Encode(res)
-		return
 	}
-	decryptData, err := libs.DecryptData(fileData[34:], []byte(filePwd))
-	if err != nil {
-		libs.ErrorMsg(w, err.Error())
-		return
-	}
-	content := base64.StdEncoding.EncodeToString(decryptData)
-	res := libs.APIResponse{Message: "加密文件读取成功", Data: content}
-	json.NewEncoder(w).Encode(res)
 }
 
 func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
