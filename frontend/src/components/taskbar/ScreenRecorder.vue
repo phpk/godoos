@@ -101,7 +101,7 @@ const saveRecorder = async function () {
   screenRecorder.actions.resetRecording();
   new Notify({
     title: "提示",
-    content: "录屏已保存到图片库",
+    content: "录屏已保存到视频库",
   });
 };
 </script>

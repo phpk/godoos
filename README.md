@@ -13,6 +13,15 @@
 
 </div>
 
+## 🎉 V1.0.3更新日志（未打包）
+
+- 新增ai模型管理，可下载管理ollama模型
+- 新增ai助手，可控制整个系统的prompt
+- word新增ai优化/续写/纠错/翻译/总结，生成大纲，根据大纲一键创建文章
+- markdown更换为更实用的cherry-markdown，可绘图，支持导出为思维导图/pdf/长图/md/html格式
+- 修复截图/截屏路径
+- 新增文件密码箱（系统设置里），可根据不同文件进行加密存储
+
 ## 🏭 第三阶段目标（十二月底发布）
 1. **文档处理与Markdown智能升级**：
 	- **AI续写**：借助先进的自然语言处理技术，让您的文档创作灵感不断，续写流畅无阻。
@@ -242,28 +251,31 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 
 ## 🏆 开发
 ### 构建
-- 前端构建
+- 前端构建（必须）
 ```bash
 cd frontend
 pnpm i
 pnpm build
 ```
-- 后端构建
+- 桌面端构建
 ```bash
 # go install github.com/wailsapp/wails/v2/cmd/wails@latest
 wails build
 # wails build -nsis -upx //you need install nsis and upx
 ```
+- web端构建
+```bash
+cd godo
+chmod +x quick_build.sh //linux or mac必须有执行权限，windows不需要
+./quick_build.sh
+```
 
 ## 📊 帮助
 
-1. 为什么找不到本地文件？
-- 程序默认为浏览器存储。进入系统设置，修改存储方式为本地存储。
-
-2. 是否支持切换存储目录？
+1. 是否支持切换存储目录？
 - 支持。进入系统设置页面，修改存储目录即可。修改后程序会重启一次。
 
-3. 如何上传文件？
+2. 如何上传文件？
 - 支持拖拽上传。
 
 ## 📆 使用场景：
@@ -385,7 +397,7 @@ chmod +x osadmin_linux_amd64
 - [vue3](https://v3.cn.vuejs.org/)
 - [wails](https://wails.io/)
 - [pptist](https://github.com/pipipi-pikachu/PPTist)
-- [vditor](https://github.com/Vanessa219/vditor)
+- [cherry-markdown](https://github.com/Tencent/cherry-markdown)
 - [mind-map](https://github.com/wanglin2/mind-map)
 - [canvas-editor](https://github.com/Hufe921/canvas-editor)
 - [Luckysheet](https://gitee.com/mengshukeji/Luckysheet/)
