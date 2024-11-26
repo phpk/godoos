@@ -29,6 +29,7 @@ import { defaultConfig } from './initConfig';
 import { Tray, TrayOptions } from './menu/Tary';
 import { Notify, NotifyConstructorOptions } from './notification/Notification';
 import { Dialog } from './window/Dialog';
+import { md5 } from 'js-md5';
 
 export type OsPlugin = (system: System) => void;
 export type FileOpener = {
@@ -460,19 +461,28 @@ export class System {
           pwd: ''
         }
         //判断文件是否需要输入密码
-        if (fileStat.isPwd && path.indexOf('.exe') === -1) {
+        // if (fileStat.isPwd && path.indexOf('.exe') === -1) {
+        //   const temp = await Dialog.showInputBox()
+        //   if (temp.response !== 1) {
+        //     return
+        //   }
+        //   // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
+        //   header.pwd = temp?.inputPwd || ''
+        // }
+        // 读取文件内容
+        const fileContent = await this.fs.readFile(path, header);
+        // if (fileContent === false && fileStat.isPwd) {
+        //   notifyError('密码错误')
+        //   return
+        // }
+        if (fileContent && fileContent.error == 'neepPwd') {
           const temp = await Dialog.showInputBox()
           if (temp.response !== 1) {
             return
           }
           // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
-          header.pwd = temp?.inputPwd || ''
-        }
-        // 读取文件内容
-        const fileContent = await this.fs.readFile(path, header);
-        if (fileContent === false && fileStat.isPwd) {
-          notifyError('密码错误')
-          return
+          header.pwd = temp?.inputPwd ? md5(temp?.inputPwd) : ''
+          const reOpen =  await this.fs.readFile(path, header);
         }
         //用户文件加密密码存储
         if (fileStat.isPwd) {

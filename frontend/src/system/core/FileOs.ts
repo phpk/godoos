@@ -359,6 +359,9 @@ export const useOsFile = () => {
       const response = await handleReadFile(path, header);
       if (response && response.code === 0) {
         return response.data;
+      } 
+      if (response && response.Error == 'needPwd') {
+        return response
       }
       return false;
     },
