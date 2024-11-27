@@ -148,7 +148,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		}
 		// 校验密码
 		if filePwd != configPwdStr {
-			libs.Error(w, "密码错误,请输入正确的密码", "errPwd")
+			libs.Error(w, "密码错误,请输入正确的密码", "needPwd")
 			// res := libs.APIResponse{Message: "密码错误,请输入正确的密码", Code: -1, Error: "needPwd"}
 			// json.NewEncoder(w).Encode(res)
 			return
