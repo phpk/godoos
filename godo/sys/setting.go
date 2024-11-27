@@ -56,6 +56,7 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 					libs.ErrorMsg(w, "The InitOsSystem is error："+err.Error())
 					return
 				}
+
 			}
 		} else if req.Name == "aiDir" {
 			aiPath := req.Value.(string)
@@ -82,6 +83,11 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			libs.SetConfig(req)
 		}
+	}
+	err = libs.LoadConfig()
+	if err != nil {
+		libs.ErrorMsg(w, "The LoadConfig is error："+err.Error())
+		return
 	}
 
 	libs.SuccessMsg(w, "success", "The config set success!")

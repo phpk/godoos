@@ -126,6 +126,7 @@ func HandleStat(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusNotFound, err.Error())
 		return
 	}
+	// fmt.Printf("basePath: %+s", basePath)
 	if osFileInfo.IsFile {
 		// 是否为加密文件
 		file, err := os.Open(filepath.Join(basePath, path))
