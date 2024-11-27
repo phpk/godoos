@@ -460,29 +460,22 @@ export class System {
         const header = {
           pwd: ''
         }
-        //判断文件是否需要输入密码
-        if (fileStat.isPwd && path.indexOf('.exe') === -1) {
-          const temp = await Dialog.showInputBox()
-          if (temp.response !== 1) {
-            return
-          }
-          // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
-          header.pwd = temp?.inputPwd || ''
-        }
         // 读取文件内容
-        const fileContent = await this.fs.readFile(path, header);
-        // if (fileContent === false && fileStat.isPwd) {
-        //   notifyError('密码错误')
-        //   return
-        // }
-        if (fileContent && fileContent.error == 'neepPwd') {
+        let fileContent = await this.fs.readFile(path, header);
+        // 改文件需要输入密码
+        if (fileContent && fileContent.error == 'needPwd') {
           const temp = await Dialog.showInputBox()
           if (temp.response !== 1) {
             return
           }
           // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
-          header.pwd = temp?.inputPwd ? md5(temp?.inputPwd) : ''
-          //const reOpen =  await this.fs.readFile(path, header);
+          header.pwd = temp?.inputPwd ? temp?.inputPwd : ''
+          const reOpen = await this.fs.readFile(path, header);
+          if (reOpen && reOpen.error == 'needPwd') {
+            notifyError(reOpen.message)
+            return
+          }
+          fileContent = reOpen
         }
         //用户文件加密密码存储
         if (fileStat.isPwd) {

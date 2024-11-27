@@ -9,7 +9,6 @@ import { base64ToBuffer, isBase64 } from "@/util/file";
 import { isShareFile } from "@/util/sharePath.ts";
 import { inject, onMounted, onUnmounted, ref, toRaw } from "vue";
 import { askAi } from "@/hook/useAi";
-import { md5 } from "js-md5";
 const SP = getSplit();
 
 const sys: any = inject<System>("system");

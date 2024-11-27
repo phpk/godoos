@@ -23,7 +23,7 @@
 <script lang="ts" setup>
 import { BrowserWindow, useSystem } from "@/system";
 import { notifyError, notifySuccess } from "@/util/msg";
-import { md5 } from "js-md5";
+// import { md5 } from "js-md5";
 import { ref } from "vue";
 import { getSystemConfig, setSystemKey } from "@/system/config";
 const window: BrowserWindow | undefined = inject("browserWindow");
@@ -37,7 +37,8 @@ async function setFilePwd() {
   ) {
     const path = window?.config.path || "";
     const header = {
-      pwd: getSystemConfig().userType == 'person' ? md5(filePwd.value) : filePwd.value
+      pwd: filePwd.value
+      // pwd: getSystemConfig().userType == 'person' ? md5(filePwd.value) : filePwd.value
     };
     const file = await sys.fs.readFile(path);
     if (file === false) return;

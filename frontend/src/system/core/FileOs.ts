@@ -116,15 +116,13 @@ export async function handleExists(path: string): Promise<any> {
 export async function handleReadFile(path: string, header?: { [key: string]: string }): Promise<any> {
   const userType = getSystemConfig().userType
   let head = {}
-  //console.log('read header:', header);
-  
   if (userType == 'member') {
     head = {
       pwd: header?.pwd || ''
     }
   } else if (header) {
     head = {
-      pwd: header?.pwd === '' ? '' : md5(header?.pwd),
+      pwd: header?.pwd !== '' ? md5(header?.pwd) : ''
     }
   }
   const res = await fetchGet(`${API_BASE_URL}/readfile?path=${encodeURIComponent(path)}`, head);
@@ -360,7 +358,7 @@ export const useOsFile = () => {
       if (response && response.code === 0) {
         return response.data;
       } 
-      if (response && response.Error == 'needPwd') {
+      if (response && response.error == 'needPwd') {
         return response
       }
       return false;
@@ -418,8 +416,6 @@ export const useOsFile = () => {
           }
         }
       }
-      console.log('请求头：', head);
-
       const response = await handleWriteFile(path, content, head);
       if (response) {
         return response;
