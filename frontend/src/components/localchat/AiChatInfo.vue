@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useKnowStore } from "@/stores/know.ts";
-import {getModelList,getPromptList} from "@/stores/config";
+// import { useKnowStore } from "@/stores/know.ts";
+// import {getModelList,getPromptList} from "@/stores/config";
 import { onMounted,ref } from "vue";
 import { t } from "@/i18n/index";
-const knowStore = useKnowStore();
+// const knowStore = useKnowStore();
 const props = defineProps<{
   dataInfo: any
 }>()
@@ -24,9 +24,9 @@ function saveData(){
   emit('saveFn', props.dataInfo)
 }
 onMounted(async () => {
-  modelList.value = await getModelList('chat')
-  knowList.value = await knowStore.getKnowAll()
-  promptList.value = await getPromptList('chat')
+  // modelList.value = await getModelList('chat')
+  //knowList.value = await knowStore.getKnowAll()
+  // promptList.value = await getPromptList('chat')
 })
 </script>
 <template>

@@ -82,7 +82,7 @@ func HandleReadDir(w http.ResponseWriter, r *http.Request) {
 				libs.HTTPError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to read file content: %v", err))
 				return
 			}
-			osFileInfo.IsPwd = IsPwdFile(content)
+
 			osFileInfo.Content = string(content)
 			// 检查文件内容是否以"link::"开头
 			if strings.HasPrefix(osFileInfo.Content, "link::") {
@@ -90,6 +90,8 @@ func HandleReadDir(w http.ResponseWriter, r *http.Request) {
 			} else {
 				osFileInfo.Content = ""
 			}
+
+			osFileInfo.IsPwd = IsPwdFile(content)
 		}
 
 		osFileInfos = append(osFileInfos, *osFileInfo)
@@ -124,29 +126,32 @@ func HandleStat(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	// 是否为加密文件
-	file, err := os.Open(filepath.Join(basePath, path))
-	if err != nil {
-		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	buffer := make([]byte, 34)
-	_, err = file.Read(buffer)
-	if err != nil {
-		if err == io.EOF {
-			// EOF说明文件大小小于34字节
-			osFileInfo.IsPwd = false
-			res := libs.APIResponse{
-				Message: "File information retrieved successfully.",
-				Data:    osFileInfo,
-			}
-			json.NewEncoder(w).Encode(res)
+	if osFileInfo.IsFile {
+		// 是否为加密文件
+		file, err := os.Open(filepath.Join(basePath, path))
+		if err != nil {
+			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-		return
+		buffer := make([]byte, 34)
+		_, err = file.Read(buffer)
+		if err != nil {
+			if err == io.EOF {
+				// EOF说明文件大小小于34字节
+				osFileInfo.IsPwd = false
+				res := libs.APIResponse{
+					Message: "File information retrieved successfully.",
+					Data:    osFileInfo,
+				}
+				json.NewEncoder(w).Encode(res)
+				return
+			}
+			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		osFileInfo.IsPwd = IsPwdFile(buffer)
 	}
-	osFileInfo.IsPwd = IsPwdFile(buffer)
+
 	res := libs.APIResponse{
 		Message: "File information retrieved successfully.",
 		Data:    osFileInfo,

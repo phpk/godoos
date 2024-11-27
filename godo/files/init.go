@@ -110,7 +110,7 @@ func InitOsSystem() error {
 				"PPT",
 				"Baiban",
 				"Kanban",
-				"Execl",
+				"Excel",
 				"Mind",
 				"Screenshot",
 				"ScreenRecording",

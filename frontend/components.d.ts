@@ -28,7 +28,6 @@ declare module 'vue' {
     ChatBox: typeof import('./src/components/chat/ChatBox.vue')['default']
     ChatContent: typeof import('./src/components/localchat/ChatContent.vue')['default']
     ChatDomain: typeof import('./src/components/localchat/ChatDomain.vue')['default']
-    ChatEditInfo: typeof import('./src/components/localchat/ChatEditInfo.vue')['default']
     ChatEditor: typeof import('./src/components/localchat/ChatEditor.vue')['default']
     ChatFoot: typeof import('./src/components/localchat/ChatFoot.vue')['default']
     ChatGroupMember: typeof import('./src/components/chat/chatGroupMember.vue')['default']
@@ -126,12 +125,10 @@ declare module 'vue' {
     LocalChat: typeof import('./src/components/localchat/LocalChat.vue')['default']
     LockDesktop: typeof import('./src/components/desktop/LockDesktop.vue')['default']
     Magnet: typeof import('./src/components/taskbar/Magnet.vue')['default']
-    MarkDown: typeof import('./src/components/builtin/MarkDown.vue')['default']
     MenuBar: typeof import('./src/components/window/MenuBar.vue')['default']
     MenuList: typeof import('./src/components/taskbar/MenuList.vue')['default']
     MessageCenterPop: typeof import('./src/components/taskbar/MessageCenterPop.vue')['default']
     MessageIcon: typeof import('./src/components/taskbar/MessageIcon.vue')['default']
-    Model: typeof import('./src/components/ai/model.vue')['default']
     MusicStore: typeof import('./src/components/builtin/MusicStore.vue')['default']
     MusicViewer: typeof import('./src/components/builtin/MusicViewer.vue')['default']
     NetWork: typeof import('./src/components/taskbar/NetWork.vue')['default']
@@ -185,8 +182,5 @@ declare module 'vue' {
     WinProcess: typeof import('./src/components/ui/WinProcess.vue')['default']
     WinSelect: typeof import('./src/components/ui/WinSelect.vue')['default']
     WinUpButtonGroup: typeof import('./src/components/ui/WinUpButtonGroup.vue')['default']
-  }
-  export interface ComponentCustomProperties {
-    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

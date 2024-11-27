@@ -78,7 +78,7 @@ const InitUserFile = {
       mode: OsFileMode.ReadWriteExecute,
     },
     {
-      name: 'Execl',
+      name: 'Excel',
       type: 'dir',
       mode: OsFileMode.ReadWriteExecute,
     },

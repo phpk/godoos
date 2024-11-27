@@ -21,6 +21,7 @@ package sys
 import (
 	"encoding/json"
 	"fmt"
+	"godo/files"
 	"godo/libs"
 	"godo/webdav"
 	"net"
@@ -50,6 +51,11 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				libs.SetConfig(req)
+				err := files.InitOsSystem()
+				if err != nil {
+					libs.ErrorMsg(w, "The InitOsSystem is error："+err.Error())
+					return
+				}
 			}
 		} else if req.Name == "aiDir" {
 			aiPath := req.Value.(string)

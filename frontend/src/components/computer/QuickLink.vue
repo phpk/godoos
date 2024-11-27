@@ -39,7 +39,7 @@ const quickLinks = [
   {
     img: "excel",
     name: t("excel"),
-    path: "/C/Users/Documents/Execl",
+    path: "/C/Users/Documents/Excel",
   },
   {
     img: "pptexe",

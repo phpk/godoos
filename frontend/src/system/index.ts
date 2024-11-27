@@ -29,7 +29,7 @@ import { defaultConfig } from './initConfig';
 import { Tray, TrayOptions } from './menu/Tary';
 import { Notify, NotifyConstructorOptions } from './notification/Notification';
 import { Dialog } from './window/Dialog';
-import { md5 } from 'js-md5';
+// import { md5 } from 'js-md5';
 
 export type OsPlugin = (system: System) => void;
 export type FileOpener = {
@@ -447,6 +447,7 @@ export class System {
           ?.func.call(this, path, fileContent || '');
       }
     } else {
+      //console.log(path)
       const fileStat = await this.fs.stat(path)
       if (!fileStat) {
         throw new Error('文件不存在');
