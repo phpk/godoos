@@ -111,6 +111,191 @@ var exportDataHook = Cherry.createMenuHook('导出', {
     },
   ]
 });
+
+class AiDialogClass {
+  actionArr = {
+    creation_leader: "生成大纲",
+    creation_builder: "根据主题和提纲进行撰写",
+    creation_continuation: "续写",
+    creation_optimization: "优化",
+    creation_proofreading: "纠错",
+    creation_summarize: "总结",
+    creation_translation: "翻译"
+  }
+  buttons = [
+    {
+      title: '追加',
+      action: 'aiAdd',
+      method: this.addAiContent
+    },
+    {
+      title: '替换',
+      action: 'aiReplace',
+      method: this.replaceAiContent
+    },
+    {
+      title: '舍弃',
+      action: 'aiCancle',
+      method: this.closeDialog
+    },
+    {
+      title: '生成大纲',
+      action: 'aiOutline',
+      method: this.createAiOutline
+    },
+    {
+      title: '生成文章',
+      action: 'aiArticle',
+      method: this.createAiArticle
+    },
+  ]
+  constructor() {
+    this.container = document.querySelector('#aiDialog')
+    this.createDialog()
+  }
+  // 生成弹窗的基本框架
+  createDialog() {
+    const dialog = document.createElement('div')
+    dialog.innerHTML = `
+      <div class="ai-markdown-dialog" style="padding: 0px 15px;">
+        <div class="ai-dialog-title">${this.action}</div>
+        <textarea class="ai-dialog-content" readonly></textarea>
+        <div class="button-box">
+          <button class="ai-dialog-button" data-type="aiAdd">追加</button>
+          <button class="ai-dialog-button" data-type="aiReplace">替换</button>
+          <button class="ai-dialog-button"  data-type="aiCancle">取消</button>
+        </div>
+        <div class="button-box hide">
+          <button class="ai-dialog-button" data-type="aiReplace">生成大纲</button>
+          <button class="ai-dialog-button"  data-type="aiCancle">取消</button>
+        </div>
+        <div class="button-box hide">
+          <button class="ai-dialog-button" data-type="aiArticle">生成文章</button>
+          <button class="ai-dialog-button"  data-type="aiCancle">取消</button>
+        </div>
+      </div>`
+    this.container.appendChild(dialog)
+     // 绑定事件
+    const aiOptions = Array.from(this.container.querySelectorAll('.ai-dialog-button'))
+    aiOptions.forEach(item => {
+      item.addEventListener('click', () => {
+        const actionType = item.getAttribute('data-type')
+        const btn = this.buttons.find(item => item.action == actionType)
+        if (btn && btn.method) {
+          btn.method(this.container)
+        }
+      })
+    })
+  }
+  // 添加不同按钮
+  addButton(action) {
+    let pos = 0
+    action == '大纲' ? pos = 1 : pos = 0
+    const btnArr = Array.from(this.container.querySelectorAll('.button-box'))
+    for (let i = 0; i < btnArr.length; i++) {
+      if (i == pos) {
+        btnArr[i].classList.remove('hide')
+      }else {
+        btnArr[i].classList.add('hide')
+      }
+    }
+  }
+  // 点击不同按钮生成不同弹窗
+  showDialog(action, content) {
+    // this.sendRequest(action,content)
+    this.container.querySelector('textarea').value = content
+    this.addButton(action)
+  }
+  // 发送请求
+  sendRequest(action, data) {
+    let title = 'ai助手'
+    Object.keys(this.actionArr).forEach(item => {
+      if (item == action) {
+        title = 'AI' + this.actionArr[item]
+      }
+    })
+    this.container.querySelector('.ai-dialog-title').innerText = title
+    window.parent.postMessage({
+      type: 'aiCreater',
+      data,
+      action
+    }, '*')
+    this.container.classList.remove('hide')
+  }
+  // 关闭弹窗
+  closeDialog(dialog) {
+    dialog?.classList.add('hide')
+  }
+  // 追加
+  addAiContent(dialog) {
+    const content = dialog.querySelector('textarea').value
+    // cherry.insert(content,false)
+    cherry.setMarkdown(content)
+    // this.closeDialog(dialog)
+  }
+  // 替换
+  replaceAiContent() {
+    console.log('替换');
+    
+  }
+  // 生成大纲
+  createAiOutline() {
+    console.log('生成大纲');
+    
+  }
+  // 生成文章
+  createAiArticle() {
+    console.log('生成文章');
+  }
+}
+const aiDialog = new AiDialogClass()
+var aiEditMenu = Cherry.createMenuHook('AI', {
+  subMenuConfig: [
+    {
+      noIcon: true,
+      name: '优化',
+      onclick: () => {
+        console.log(' AI优化', cherry.getMarkdown());
+        aiDialog.sendRequest('creation_optimization', cherry.getMarkdown())
+      }
+    },
+    {
+      noIcon: true,
+      name: '纠错',
+      onclick: () => {
+        aiDialog.sendRequest('creation_proofreading', cherry.getMarkdown())
+      }
+    },
+    {
+      noIcon: true,
+      name: '续写',
+      onclick: () => {
+        aiDialog.sendRequest('creation_continuation', cherry.getMarkdown())
+      }
+    },
+    {
+      noIcon: true,
+      name: '翻译',
+      onclick: () => {
+        aiDialog.sendRequest('creation_translation', cherry.getMarkdown())
+      }
+    },
+    {
+      noIcon: true,
+      name: '总结',
+      onclick: () => {
+        aiDialog.sendRequest('creation_summarize', cherry.getMarkdown())
+      }
+    },
+    {
+      noIcon: true,
+      name: '大纲',
+      onclick: () => {
+        aiDialog.sendRequest('creation_leader', cherry.getMarkdown())
+      }
+    }
+  ]
+})
 const saveData = () => {
   //console.log(markdownTitle)
   if (!markdownTitle || markdownTitle == "") {
@@ -261,7 +446,7 @@ var basicConfig = {
       'search',
       'togglePreview'
     ],
-    toolbarRight: ['saveMenu', '|', 'exportDataHook', 'changeLocale', 'wordCount'],
+    toolbarRight: ['saveMenu', '|', 'exportDataHook', 'changeLocale', 'wordCount', 'aiEditMenu'],
     bubble: ['bold', 'italic', 'underline', 'strikethrough', 'sub', 'sup', 'quote', 'ruby', '|', 'size', 'color'], // array or false
     //sidebar: ['mobilePreview', 'copy', 'theme', 'publish'],
     sidebar: ['mobilePreview', 'copy', 'shortcutKey', 'theme'],
@@ -276,6 +461,7 @@ var basicConfig = {
       saveMenu,
       customMenuTable,
       exportDataHook,
+      aiEditMenu
     },
     shortcutKeySettings: {
       /** 是否替换已有的快捷键, true: 替换默认快捷键； false： 会追加到默认快捷键里，相同的shortcutKey会覆盖默认的 */
@@ -393,6 +579,9 @@ const eventHandler = (e) => {
     }
     
     cherry.setMarkdown(content);
+  }
+  if (eventData.type == 'aiReciver') {
+    aiDialog.showDialog(eventData.action, eventData.data)
   }
 }
 window.addEventListener('load', () => {
