@@ -915,18 +915,18 @@ const eventHandler = (e) => {
         renameEditor({ name: eventData.title });
     }
     if (eventData.type === 'init') {
-        console.log(eventData)
+        //console.log(eventData)
         //const data = JSON.parse(eventData.data)
         const data = eventData.data
         if (!data || !data.title) {
             return;
         }
-        console.log(data)
+        //console.log(data)
         if(data.ext && data.ext != 'txt') {
             //Editor.query().setName("extension", data.ext);
             data.title = data.title + "." + data.ext;
         }
-        console.log(data.title)
+        //console.log(data.title)
         renameEditor({ name: data.title });
         //console.log(data)
         if (data.content) {

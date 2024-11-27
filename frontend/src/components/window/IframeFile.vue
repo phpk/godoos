@@ -37,7 +37,7 @@ const storeRef = ref<HTMLIFrameElement | null>(null);
 let hasInit = false;
 const eventHandler = async (e: MessageEvent) => {
 	const eventData = e.data;
-  
+
 	if (eventData.type == props.eventType) {
 		let data = JSON.parse(eventData.data);
 		let title = data.title;
@@ -48,6 +48,9 @@ const eventHandler = async (e: MessageEvent) => {
 		}
 		if (data.ext) {
 			ext = data.ext;
+		}
+		if (title.indexOf('.' + ext) > -1) {
+			title = title.replace('.' + ext, "");
 		}
 		// console.log(ext)
 		// console.log(data)
@@ -131,19 +134,19 @@ const eventHandler = async (e: MessageEvent) => {
 		// console.log(title);
 		title = title.split(SP).pop();
 
-		if (!content && win?.config.path) {
-			const header = {
-				pwd: ''
-			};
-      const filePwd = getSystemConfig().fileInputPwd
-      const pos = filePwd.findIndex((item: any) => item.path == win?.config.path)
-      //console.log('路径：', win?.config.path, pos, filePwd);
-      const userType = getSystemConfig().userType
-      if (pos !== -1) {
-        header.pwd = userType == 'person' ? md5(filePwd[pos].pwd) : filePwd[pos].pwd
-      }
-			content = await sys?.fs.readFile(win?.config.path, header);
-		}
+		// if (!content && win?.config.path) {
+		// 	const header = {
+		// 		pwd: ''
+		// 	};
+		// 	const filePwd = getSystemConfig().fileInputPwd
+		// 	const pos = filePwd.findIndex((item: any) => item.path == win?.config.path)
+		// 	//console.log('路径：', win?.config.path, pos, filePwd);
+		// 	const userType = getSystemConfig().userType
+		// 	if (pos !== -1) {
+		// 		header.pwd = userType == 'person' ? md5(filePwd[pos].pwd) : filePwd[pos].pwd
+		// 	}
+		// 	content = await sys?.fs.readFile(win?.config.path, header);
+		// }
 		content = toRaw(content);
 		if (content && content !== "") {
 			storeRef.value?.contentWindow?.postMessage(
@@ -173,59 +176,59 @@ const eventHandler = async (e: MessageEvent) => {
 		const path = win?.config?.path;
 		//console.log(path,data)
 		const winMind = new BrowserWindow({
-            title:data.title,
+			title: data.title,
 			url: "/mind/index.html",
 			frame: true,
-            config: {
-                ext: 'mind',
-                path: path,
+			config: {
+				ext: 'mind',
+				path: path,
 				content: data.content
-            },
-            icon: "gallery",
-            width: 700,
-            height: 500,
-            x: 100,
-            y: 100,
-            //center: true,
-            minimizable: false,
-            resizable: true,
-        });
-        winMind.show()
-		
+			},
+			icon: "gallery",
+			width: 700,
+			height: 500,
+			x: 100,
+			y: 100,
+			//center: true,
+			minimizable: false,
+			resizable: true,
+		});
+		winMind.show()
+
 	}
-  else if (eventData.type == 'aiCreater') {
-	console.log('传递内容： ',eventData)
-	let postData:any = {}
-	if(eventData.data){
-		postData.content = eventData.data
+	else if (eventData.type == 'aiCreater') {
+		console.log('传递内容： ', eventData)
+		let postData: any = {}
+		if (eventData.data) {
+			postData.content = eventData.data
+		}
+		if (eventData.title) {
+			postData.title = eventData.title
+		}
+		if (eventData.category) {
+			postData.category = eventData.category
+		}
+		//console.log(postData,eventData.action)
+		// 模拟AI返回数据
+		const res: any = await askAi(postData, eventData.action);
+		storeRef.value?.contentWindow?.postMessage(
+			{
+				type: 'aiReciver',
+				data: res,
+				action: eventData.action
+			},
+			"*"
+		);
 	}
-	if(eventData.title){
-		postData.title = eventData.title
-	}
-	if(eventData.category){
-		postData.category = eventData.category
-	}
-	//console.log(postData,eventData.action)
-    // 模拟AI返回数据
-	const res:any = await askAi(postData, eventData.action);
-    storeRef.value?.contentWindow?.postMessage(
-      {
-        type: 'aiReciver',
-        data: res,
-        action: eventData.action
-      },
-      "*"
-    );
-  }
-//   else if (eventData.type == 'aiReciver') {
-//     storeRef.value?.contentWindow?.postMessage(
-//       {
-//         type: eventData.type,
-//         data: '----经过AI处理后的数据-----',
-//       },
-//       "*"
-//     );
-//   }
+	//   else if (eventData.type == 'aiReciver') {
+	//     storeRef.value?.contentWindow?.postMessage(
+	//       {
+	//         type: eventData.type,
+	//         data: '----经过AI处理后的数据-----',
+	//       },
+	//       "*"
+	//     );
+	//   }
 };
 //删除本地暂存的文件密码
 const delFileInputPwd = async () => {

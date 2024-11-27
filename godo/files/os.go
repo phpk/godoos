@@ -25,6 +25,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -334,6 +335,14 @@ func IsPwdFile(fileData []byte) bool {
 	if len(fileData) < 34 {
 		return false
 	} else if fileData[0] != '@' || fileData[33] != '@' {
+		return false
+	}
+	// 提取中间的字符串
+	middleStr := string(fileData[1:33])
+
+	// 使用正则表达式验证中间的字符串是否为 MD5 加密的字符串
+	md5Regex := regexp.MustCompile(`^[a-fA-F0-9]{32}$`)
+	if !md5Regex.MatchString(middleStr) {
 		return false
 	}
 	return true

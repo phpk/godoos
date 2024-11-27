@@ -461,14 +461,14 @@ export class System {
           pwd: ''
         }
         //判断文件是否需要输入密码
-        // if (fileStat.isPwd && path.indexOf('.exe') === -1) {
-        //   const temp = await Dialog.showInputBox()
-        //   if (temp.response !== 1) {
-        //     return
-        //   }
-        //   // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
-        //   header.pwd = temp?.inputPwd || ''
-        // }
+        if (fileStat.isPwd && path.indexOf('.exe') === -1) {
+          const temp = await Dialog.showInputBox()
+          if (temp.response !== 1) {
+            return
+          }
+          // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
+          header.pwd = temp?.inputPwd || ''
+        }
         // 读取文件内容
         const fileContent = await this.fs.readFile(path, header);
         // if (fileContent === false && fileStat.isPwd) {
@@ -482,7 +482,7 @@ export class System {
           }
           // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
           header.pwd = temp?.inputPwd ? md5(temp?.inputPwd) : ''
-          const reOpen =  await this.fs.readFile(path, header);
+          //const reOpen =  await this.fs.readFile(path, header);
         }
         //用户文件加密密码存储
         if (fileStat.isPwd) {

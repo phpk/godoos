@@ -27,7 +27,7 @@ import { Signature } from './components/signature/Signature'
 import { debounce, nextTick, scrollIntoView } from './utils'
 import barcode1DPlugin from "./plugins/barcode1d"
 import barcode2dPlugin from "./plugins/barcode2d"
-import { floatingToolbarPlugin, changeAiTextarea} from "./plugins/floatingToolbar"
+import { floatingToolbarPlugin, changeAiTextarea } from "./plugins/floatingToolbar"
 import excelPlugin from "./plugins/excel"
 import docxPlugin from './plugins/docx'
 window.onload = function () {
@@ -58,7 +58,7 @@ window.onload = function () {
   instance.use(docxPlugin)
   const docxFileInput: any = document.querySelector("#file-docx");
   const excelFileInput: any = document.querySelector("#file-excel");
-  let wordTitle: any = ''
+  let godoWordTitle: any = ""
   // cypress使用
   Reflect.set(window, 'editor', instance)
 
@@ -1172,7 +1172,7 @@ window.onload = function () {
     function () {
       const title = articleTitle.value
       const category = articleType.value
-      
+
       if (title == '' || category == '') {
         // alert()
         // new Dialog({
@@ -1213,7 +1213,7 @@ window.onload = function () {
         // outlineLoader.classList.remove('hide')
         // articleLoader.classList.add('hide')
         break
-      case 'article': 
+      case 'article':
         watchArticle.classList.add('active-ai')
         watchOutline.classList.remove('active-ai')
         createArticleBtn?.classList.add('hide')
@@ -1230,7 +1230,7 @@ window.onload = function () {
   // 查看大纲
   watchOutline.onclick = () => switchView('outline')
   // 查看文章
-  watchArticle.onclick = () =>  switchView('article')
+  watchArticle.onclick = () => switchView('article')
   // 生成文章
   createArticleBtn.onclick = function () {
     switchView('article')
@@ -1248,7 +1248,7 @@ window.onload = function () {
     // articleTextarea.value = AiResult.aiArticle
   }
   // 替换textarea内容
-  function changeAiArticleTextarea (data: string , type: string) {
+  function changeAiArticleTextarea(data: string, type: string) {
     if (type == 'outline') {
       outlineTextarea.value = data
       outlineLoader.classList.add('hide')
@@ -1950,11 +1950,11 @@ window.onload = function () {
       name: "导出文档",
       when: () => true,
       callback: (command) => {
-        if (wordTitle == '') {
-          wordTitle = window.prompt("请输入文档标题");
+        if (godoWordTitle == '') {
+          godoWordTitle = window.prompt("请输入文档标题");
         }
         command.executeExportDocx({
-          fileName: wordTitle,
+          fileName: godoWordTitle,
           isFile: true
         });
       },
@@ -2077,16 +2077,17 @@ window.onload = function () {
     };
     reader.readAsArrayBuffer(file);
   };
-  
+
   const saveData = () => {
-    if (wordTitle == '') {
-      wordTitle = window.prompt("请输入文档标题");
+    if (godoWordTitle == '') {
+      godoWordTitle = window.prompt("请输入文档标题");
     }
+    console.log(godoWordTitle)
     instance.command.executeExportDocx({
-      fileName: wordTitle,
+      fileName: godoWordTitle,
       isFile: false
     })
-    
+
   };
   // 10. 快捷键注册
   instance.register.shortcutList([
@@ -2151,7 +2152,7 @@ window.onload = function () {
   saveDom.addEventListener('click', () => {
     saveData()
   })
-  const base64ToArrayBuffer = (base64:any) => {
+  const base64ToArrayBuffer = (base64: any) => {
     const binaryString = window.atob(base64);
     const len = binaryString.length;
     const bytes = new Uint8Array(len);
@@ -2160,24 +2161,48 @@ window.onload = function () {
     }
     return bytes.buffer;
   }
+  function isBase64(str: any) {
+    if (str === '' || str.trim() === '') {
+      return false;
+    }
+    try {
+      return btoa(atob(str)) == str;
+    } catch (err) {
+      return false;
+    }
+  }
   const eventHandler = (e: any) => {
     const eventData = e.data
     // console.log('');
-    
-    wordTitle = eventData.title ? eventData.title : '未命名文档'
+
+    //godoWordTitle = eventData.title ? eventData.title : '未命名文档'
+    if (eventData.type === 'start') {
+      godoWordTitle = eventData.title
+      return
+    }
     if (eventData.type === 'init') {
       const data = eventData.data
-      if (!data) {
+      if (!data || !data.title) {
         return;
       }
-      const buffer = base64ToArrayBuffer(data.content)
+      godoWordTitle = data.title
+      if (isBase64(data.content)) {
+        data.content = base64ToArrayBuffer(data.content)
+      }
+      //const buffer = base64ToArrayBuffer(data.content)
       //console.log(buffer)
-      instance.command.executeImportDocx({
-        arrayBuffer: buffer,
-      });
+      if (data.content instanceof ArrayBuffer) {
+        instance.command.executeImportDocx({
+          arrayBuffer: data.content,
+        });
+      } else {
+        alert('导入失败')
+      }
+      return
 
-    } else if (eventData.type == 'aiReciver') {
-      console.log('接收到来自伏组件数据：', eventData);
+    }
+    if (eventData.type == 'aiReciver') {
+      //console.log('接收到来自伏组件数据：', eventData);
       if (eventData.action == 'creation_leader') {
         changeAiArticleTextarea(eventData.data, 'outline')
       } else if (eventData.action == 'creation_builder') {
@@ -2188,10 +2213,10 @@ window.onload = function () {
     }
 
   }
-      
+
   //window.addEventListener('load', () => {
-    window.parent.postMessage({ type: 'initSuccess' }, '*')
-    window.addEventListener('message', eventHandler)
+  window.parent.postMessage({ type: 'initSuccess' }, '*')
+  window.addEventListener('message', eventHandler)
   //})
   window.addEventListener('unload', () => {
     window.removeEventListener('message', eventHandler)

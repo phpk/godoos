@@ -344,19 +344,55 @@ const debouncedHandleKeyDown = (event) => {
     saveData();
   }
 };
+function isBase64(str) {
+  if (str === '' || str.trim() === '') {
+    return false;
+  }
+  try {
+    return btoa(atob(str)) == str;
+  } catch (err) {
+    return false;
+  }
+}
+function decodeBase64(base64String) {
+  // 将Base64字符串分成每64个字符一组
+  const padding = (base64String.length % 4) === 0 ? 0 : 4 - (base64String.length % 4);
+  base64String += '='.repeat(padding);
+
+  // 使用atob()函数解码Base64字符串
+  const binaryString = atob(base64String);
+
+  // 将二进制字符串转换为TypedArray
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+  }
+
+  // 将TypedArray转换为字符串
+  return new TextDecoder('utf-8').decode(bytes);
+}
 const eventHandler = (e) => {
   const eventData = e.data
-  // if (eventData.type === 'start') {
-  //   markdownTitle = '未命名文稿'
-  // }
+  if (eventData.type === 'start') {
+    markdownTitle = eventData.title || '未命名文稿'
+    return
+  }
   // console.log(markdownTitle)
   if (eventData.type === 'init') {
-    markdownTitle = eventData.title ? eventData.title : '未命名文稿'
     const data = eventData.data
+    markdownTitle = data.title || '未命名文稿'
     if (!data) {
       return;
     }
-    cherry.setMarkdown(atob(data.content));
+    let content = data.content;
+    
+    if (isBase64(content)) {
+      content = decodeBase64(content);
+    } else if (content instanceof ArrayBuffer) {
+      content = new TextDecoder('utf-8').decode(content);
+    }
+    
+    cherry.setMarkdown(content);
   }
 }
 window.addEventListener('load', () => {
