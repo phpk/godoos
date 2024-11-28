@@ -5,6 +5,7 @@ export const useChooseStore = defineStore('chooseStore', () => {
     const win:any = ref()
     const path:any = ref([])
     const ifShow = ref(false)
+    //const savePath:any = ref('')
     const select = (title = '选择文件', fileExt:any) => {
       
        win.value = new BrowserWindow({
@@ -26,6 +27,28 @@ export const useChooseStore = defineStore('chooseStore', () => {
         win.value.show()
         ifShow.value = true
     }
+    const saveFile = (title: string, fileExt: any) => {
+      // console.log('保存文件');
+      win.value = new BrowserWindow({
+        title,
+        content: "Computer",
+        config: {
+          ext: fileExt,
+          path: '/'
+        },
+        icon: "gallery",
+        width: 700,
+        height: 500,
+        x: 100,
+        y: 100,
+        center: true,
+        minimizable: false,
+        resizable: true,
+        footer: true
+      });
+      win.value.show()
+      // ifShow.value = true
+    }
     const close = () => {
         ifShow.value = false
         win.value.close()
@@ -36,7 +59,8 @@ export const useChooseStore = defineStore('chooseStore', () => {
         path,
         ifShow,
         select,
-        close
+        close,
+        saveFile
     }
 
 })

@@ -51,11 +51,14 @@
 			@mousedown.stop.prevent="startScale($event, border.type)"
 			@touchstart.stop.passive="startScale($event, border.type)"
 		></div>
+    <div class="wintmp_footer" v-if="browserWindow.windowInfo.footer">
+      <MenuFooter :browser-window="browserWindow"></MenuFooter>
+    </div>
 	</div>
 </template>
 <script lang="ts" setup>
 	import { useSystem } from "@/system";
-	import { emitEvent } from "@/system/event";
+	import { emitEvent } from "@/system/event";""
 	import {
 		BrowserWindow,
 		WindowStateEnum,
@@ -76,11 +79,17 @@
 		browserWindow: UnwrapNestedRefs<BrowserWindow>;
 	}>();
 
+  
 	const browserWindow = props.browserWindow;
+  // console.log('窗口配置：', browserWindow);
 	const windowInfo = browserWindow.windowInfo;
 	provide("browserWindow", browserWindow);
 	provide("system", sys);
-
+  // let filePath = ref(inject('saveFilePath'))
+  // watch(filePath, (newVal) => {
+  //   console.log('改变路径：', newVal);
+    
+  // })
 	function predown() {
 		browserWindow.moveTop();
 		emitEvent("window.content.click", browserWindow);
@@ -211,6 +220,9 @@
 			overflow: hidden;
 			contain: content;
 		}
+    .wintmp_footer {
+      position: relative;
+    }
 	}
 
 	.topwin {
@@ -232,8 +244,8 @@
 		transition: left 0.1s ease-in-out, top 0.1s ease-in-out,
 			width 0.1s ease-in-out, height 0.1s ease-in-out;
 	}
-
 	.disable {
+    .wintmp_footer,
 		.wintmp_uper,
 		.wintmp_main {
 			pointer-events: none;

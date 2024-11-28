@@ -115,6 +115,7 @@ declare module 'vue' {
     LockDesktop: typeof import('./src/components/desktop/LockDesktop.vue')['default']
     Magnet: typeof import('./src/components/taskbar/Magnet.vue')['default']
     MenuBar: typeof import('./src/components/window/MenuBar.vue')['default']
+    MenuFooter: typeof import('./src/components/window/MenuFooter.vue')['default']
     MenuList: typeof import('./src/components/taskbar/MenuList.vue')['default']
     MessageCenterPop: typeof import('./src/components/taskbar/MessageCenterPop.vue')['default']
     MessageIcon: typeof import('./src/components/taskbar/MessageIcon.vue')['default']
