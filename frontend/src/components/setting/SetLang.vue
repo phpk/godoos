@@ -38,15 +38,16 @@
       </div>
     </div>
   </div>
+  
 </template>
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { Dialog } from "@/system";
+import { ElMessageBox } from 'element-plus'
 import { t, getLang, setLang } from "@/i18n";
 import { useI18n } from 'vue-i18n';
 const { locale } = useI18n()
-
+const showDialog = ref(false);
 const langList = [
   {
     label: "中文",
@@ -70,11 +71,16 @@ const selectItem = (index: number) => {
 async function submit() {
   setLang(modelvalue.value);
   locale.value = modelvalue.value;
-  Dialog.showMessageBox({
-    message: t("save.success"),
-    title: t("language"),
-    type: "info",
-  });
+  ElMessageBox.alert(t("save.success"), t("language"), {
+    confirmButtonText: 'OK',
+  })
+  //showDialog.value = false
+
+  // Dialog.showMessageBox({
+  //   message: t("save.success"),
+  //   title: t("language"),
+  //   type: "info",
+  // });
 }
 </script>
 <style scoped>

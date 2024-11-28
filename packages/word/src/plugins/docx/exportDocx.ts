@@ -224,7 +224,7 @@ export default function (command: Command) {
     })
     if(isFile){
       Packer.toBlob(doc).then(blob => {
-        saveAs(blob, `${fileName}.docx`)
+        saveAs(blob, `${fileName}`)
       })
     }else{
       Packer.toBase64String(doc).then((base64:any) => {

@@ -31,10 +31,10 @@
         </div>
       </div>
     </div>
-    <div class="date-bottom">
+    <!-- <div class="date-bottom">
       <div class="add-sch">
         <input type="text" placeholder="添加日程或提醒" v-model="alertText" /><br />
-        <!-- 时 -->
+       
         <input
           type="number"
           :max="24"
@@ -43,7 +43,6 @@
           @blur="checkAlert()"
         />
         时
-        <!-- 分 -->
         <input type="number" :max="60" :min="0" v-model="alertMin" @blur="checkAlert()" />
         分
         <WinButton @click="addAlert">确定</WinButton>
@@ -66,7 +65,7 @@
           <WinButton @click.stop="deleteAlert(index)">删除</WinButton>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 <script setup lang="ts">
@@ -292,7 +291,7 @@ function clickDetail(item: { text: string; time: number }) {
   bottom: 0;
   right: 0;
   width: 320px;
-  height: 600px;
+  height: 380px;
   background-color: #f5f5f5; /* 更接近Win10的背景颜色 */
   border: 1px solid #e5e5e5; /* 边框颜色调整 */
   user-select: none;

@@ -238,13 +238,17 @@ export class System {
     if (!system) return;
     const fileUrl = getFileUrl();
     if (!fileUrl) return;
-
-    fetchGet(`${fileUrl}/desktop`).then(res => res.json()).then(res => {
-      if (res && res.code == 0) {
-        system._rootState.apps.splice(0, system._rootState.apps.length, ...res.data.apps);
-        system._rootState.menulist.splice(0, system._rootState.menulist.length, ...res.data.menulist);
-      }
-    })
+    try {
+      fetchGet(`${fileUrl}/desktop`).then(res => res.json()).then(res => {
+        if (res && res.code == 0) {
+          system._rootState.apps.splice(0, system._rootState.apps.length, ...res.data.apps);
+          system._rootState.menulist.splice(0, system._rootState.menulist.length, ...res.data.menulist);
+        }
+      })
+    } catch (error) {
+      console.log(error)
+    }
+    
   }
 
 

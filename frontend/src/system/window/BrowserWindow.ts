@@ -16,10 +16,10 @@ export interface BrowserWindowConstructorOptions {
   content?: BrowserWindowContent;
   config?: any;
   icon: string;
-  path?:string;
-  url?:string;
-  ext?:Array<string> | undefined;
-  eventType?:string | undefined;
+  path?: string;
+  url?: string;
+  ext?: Array<string> | undefined;
+  eventType?: string | undefined;
   width: number;
   height: number;
   x: number;
@@ -75,10 +75,10 @@ class BrowserWindow {
   id: number;
   children: Array<BrowserWindow> = [];
   content?: ReturnType<typeof defineComponent> | string;
-  path:string|undefined;
-  url:string|undefined;
-  ext?:Array<string> | undefined;
-  eventType?:string | undefined;
+  path: string | undefined;
+  url: string | undefined;
+  ext?: Array<string> | undefined;
+  eventType?: string | undefined;
   config: any;
   eventer: Eventer = new Eventer();
   constructor(option?: BrowserWindowOption) {
@@ -89,14 +89,15 @@ class BrowserWindow {
     this.ext = this._option.ext;
     this.eventType = this._option.eventType;
     //console.log(this._option.content)
-    if (typeof this._option.content === 'string') {
-      //this.content = markRaw(this._option.content);
-      this.content = this._option.content;
-    } 
-    
-    else {
-      this.content = markRaw(this._option.content);
-      //this.content = this._option.content;
+    if (this._option.content) {
+      if (typeof this._option.content === 'string') {
+        //this.content = markRaw(this._option.content);
+        this.content = this._option.content;
+      }
+      else {
+        this.content = markRaw(this._option.content);
+        //this.content = this._option.content;
+      }
     }
 
     const rootState = useSystem()._rootState;
