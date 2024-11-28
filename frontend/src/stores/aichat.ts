@@ -1,21 +1,26 @@
 import { defineStore } from "pinia"
 import { db } from "./db.js"
 import { t } from "@/i18n/index.ts"
-import {useAssistantStore} from "./assistant.ts";
+import { useAssistantStore } from "./assistant.ts";
 import { useModelStore } from "@/stores/model";
 import { ref } from "vue";
 export const useAiChatStore = defineStore('aichat', () => {
   const modelStore = useModelStore()
   const promptStore = useAssistantStore()
   const activeId: any = ref(0)
-  const currentMessage:any = ref({})
+  const currentMessage: any = ref({})
   // 聊天列表
   const chatList: any = ref([])
-  const chatInfo:any = ref({})
-  const messageList : any = ref([])
-  const modelList = ref([])
-  const promptList:any = ref([])
-  const newChat = async() => {
+  const chatInfo: any = ref({})
+  const messageList: any = ref([])
+  const modelList:any = ref([])
+  const promptList: any = ref([])
+  const searchInput: any = ref('')
+  const showInfo = ref(false)
+  const editInfo: any = ref({}); //编辑聊天信息
+  const isEditor = ref(true);
+
+  const newChat = async () => {
     const currentModel = await modelStore.getModel('chat')
     if (!currentModel) {
       return false
@@ -28,7 +33,9 @@ export const useAiChatStore = defineStore('aichat', () => {
       return await newChat()
     }
     modelList.value = await modelStore.getModelAction('chat')
-    promptList.value = await promptStore.getPrompts('chat')
+    const promptRes = await promptStore.getPrompts('chat')
+    promptList.value = promptRes.list
+
   }
   const getActiveChat = async () => {
     chatInfo.value = await db.getOne('aichatlist', activeId.value)
@@ -41,7 +48,7 @@ export const useAiChatStore = defineStore('aichat', () => {
     return chatList
   }
   // 添加聊天
-  async function addChat(title: string, modelData: any, promptData: any, knowledgeId:string) {
+  async function addChat(title: string, modelData: any, promptData: any, knowledgeId: string) {
     const newChat = {
       title,
       prompt: promptData.prompt,
@@ -63,16 +70,16 @@ export const useAiChatStore = defineStore('aichat', () => {
   // 删除单个聊天
   async function deleteChat(chatId: number) {
     await db.delete('aichatlist', chatId)
-    await db.deleteByField('aichatmsg','chatId', chatId)
+    await db.deleteByField('aichatmsg', 'chatId', chatId)
     //如果删除的id是当前id
     let id;
     if (chatId == activeId.value) {
       //
       const list = await db.getAll('aichatlist')
-      if(list.length > 0) {
+      if (list.length > 0) {
         id = list[0]['id']
-        
-      }else{
+
+      } else {
         id = await newChat()
       }
       setActiveId(id)
@@ -82,7 +89,7 @@ export const useAiChatStore = defineStore('aichat', () => {
 
   // 更新聊天菜单标题
   async function updateTitle(chatId: number, title: string) {
-    await db.update('aichatlist', chatId, {title})
+    await db.update('aichatlist', chatId, { title })
   }
 
   // 清空所有Chat
@@ -122,7 +129,7 @@ export const useAiChatStore = defineStore('aichat', () => {
   // 更新聊天配置
   async function updateChat(config: any, chatId: number) {
     //console.log(config)
-    return await db.update('aichatlist',chatId, config)
+    return await db.update('aichatlist', chatId, config)
   }
   return {
     activeId,
@@ -130,6 +137,10 @@ export const useAiChatStore = defineStore('aichat', () => {
     messageList,
     chatInfo,
     currentMessage,
+    searchInput,
+    showInfo,
+    editInfo,
+    isEditor,
     initChat,
     setActiveId,
     getActiveChat,

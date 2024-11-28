@@ -9,6 +9,7 @@ import { Vue3Lottie } from "vue3-lottie";
 const chatStore = useAiChatStore();
 const modelStore = useModelStore();
 const isPadding = ref(false); //是否发送中
+
 const imageInput: any = ref(null);
 let imageData = ref("");
 const messageContainerRef = ref<InstanceType<typeof ElScrollbar>>();
@@ -77,7 +78,7 @@ const createCompletion = async () => {
       id: messageId,
       createdAt: messageId,
     };
- 
+
     const chatConfig = modelStore.chatConfig.chat;
     let postMsg: any = {
       messages: requestMessages.value,
@@ -106,7 +107,7 @@ const createCompletion = async () => {
       method: "POST",
       body: JSON.stringify(postMsg),
     };
-    
+
     const completion = await fetch(config.apiUrl + '/ai/chat', postData);
     //const completion:any = await modelStore.getModel(postData)
     imageData.value = "";
@@ -118,8 +119,8 @@ const createCompletion = async () => {
     }
     const res = await completion.json();
     //console.log(res)
-    if(res && res.choices && res.choices.length > 0){
-      if(res.choices[0].message.content){
+    if (res && res.choices && res.choices.length > 0) {
+      if (res.choices[0].message.content) {
         const msg = res.choices[0].message.content;
         saveMessage.content = msg;
         chatStore.messageList.push(saveMessage);
@@ -127,7 +128,7 @@ const createCompletion = async () => {
       }
     }
     isPadding.value = false;
-  } catch (error:any) {
+  } catch (error: any) {
     isPadding.value = false;
     notifyError(error.message);
   }
@@ -150,7 +151,7 @@ watch(
     deep: true,
   }
 );
-const handleKeydown = (e:any) => {
+const handleKeydown = (e: any) => {
   if (e.key === "Enter" && (e.altKey || e.shiftKey)) {
     // 当同时按下 alt或者shift 和 enter 时，插入一个换行符
     e.preventDefault();
@@ -182,43 +183,40 @@ const uploadImage = async (event: any) => {
 
   reader.readAsDataURL(file);
 };
+
 </script>
 <template>
-    <div class="chat-bot">
-        <div class="messsage-area">
-            <el-scrollbar v-if="chatStore.messageList.length > 0" class="message-container" ref="messageContainerRef">
-                <div ref="messageInnerRef">
-                    <ai-chat-message v-for="message in chatStore.messageList" :key="message.messageId"
-                        :content="message.content" :link="message.link" :role="message.role"
-                        :createdAt="message.createdAt" />
-                </div>
-            </el-scrollbar>
-            <div class="no-message-container" v-else>
-                <Vue3Lottie animationLink="/bot/chat.json" :height="420" :width="420" />
-            </div>
+  <div class="chat-bot">
+    <div class="messsage-area">
+      <el-scrollbar v-if="chatStore.messageList.length > 0" class="message-container" ref="messageContainerRef">
+        <div ref="messageInnerRef">
+          <ai-chat-message v-for="message in chatStore.messageList" :key="message.messageId" :content="message.content"
+            :link="message.link" :role="message.role" :createdAt="message.createdAt" />
         </div>
-        <div class="input-area">
-            <div class="input-panel d-flex align-end pa-1">
-                <el-row :gutter="24" style="border-bottom: none;">
-                    <el-col :span="2">
-                        <el-button @click="selectImage" size="large" icon="Paperclip" circle />
-                        <input type="file" ref="imageInput" accept="image/*" style="display: none"
-                            @change="uploadImage" />
-                    </el-col>
-                    <el-col :span="19">
-                        <el-input v-model="userMessage" :placeholder="t('chat.askme')" size="large" clearable
-                            @keydown="handleKeydown" autofocus />
-                    </el-col>
-                    <el-col :span="2">
-                        <el-button v-if="!isPadding" @click="sendMessage" icon="Promotion" type="info" size="large"
-                            circle />
-                        <el-button type="primary" size="large" v-else loading-icon="Eleme" icon="Loading" loading
-                            circle />
-                    </el-col>
-                </el-row>
-            </div>
-        </div>
+      </el-scrollbar>
+      <div class="no-message-container" v-else>
+        <Vue3Lottie animationLink="/bot/chat.json" :height="420" :width="420" />
+      </div>
     </div>
+    <div class="input-area">
+      <div class="input-panel d-flex align-end pa-1">
+        <el-row :gutter="24" style="border-bottom: none;">
+          <el-col :span="2">
+            <el-button @click="selectImage" size="large" icon="Paperclip" circle />
+            <input type="file" ref="imageInput" accept="image/*" style="display: none" @change="uploadImage" />
+          </el-col>
+          <el-col :span="19">
+            <el-input v-model="userMessage" :placeholder="t('aichat.askme')" size="large" clearable
+              @keydown="handleKeydown" autofocus />
+          </el-col>
+          <el-col :span="2">
+            <el-button v-if="!isPadding" @click="sendMessage" icon="Promotion" type="info" size="large" circle />
+            <el-button type="primary" size="large" v-else loading-icon="Eleme" icon="Loading" loading circle />
+          </el-col>
+        </el-row>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="scss">

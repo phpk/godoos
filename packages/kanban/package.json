@@ -30,7 +30,7 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "dev": "react-scripts start",
     "build": "react-scripts build && npm run cpfile",
     "cpfile": "shx cp -rf ./build/* ../../frontend/public/kanban",
     "test": "react-scripts test",
