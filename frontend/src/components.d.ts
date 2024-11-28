@@ -41,6 +41,7 @@ declare module 'vue' {
     LockDesktop: typeof import('./components/desktop/LockDesktop.vue')['default']
     Magnet: typeof import('./components/taskbar/startMenu/components/Magnet.vue')['default']
     MenuBar: typeof import('./components/window/components/MenuBar.vue')['default']
+    MenuFooter: typeof import('./components/window/components/MenuFooter.vue')['default']
     MenuList: typeof import('./components/taskbar/startMenu/components/MenuList.vue')['default']
     MessageCenterPop: typeof import('./components/taskbar/popover/MessageCenterPop.vue')['default']
     MessageIcon: typeof import('./components/taskbar/barUnit/MessageIcon.vue')['default']

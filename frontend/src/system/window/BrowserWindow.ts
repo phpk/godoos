@@ -32,6 +32,7 @@ export interface BrowserWindowConstructorOptions {
   alwaysOnTop: boolean;
   skipTaskbar: boolean;
   backgroundColor: string;
+  footer: boolean;
 }
 export interface WindowInfo extends BrowserWindowConstructorOptions {
   state: WindowStateEnum;
@@ -39,6 +40,7 @@ export interface WindowInfo extends BrowserWindowConstructorOptions {
   zindex: number;
   isCreated: boolean;
   disable: boolean;
+  footer: boolean;
 }
 export type BrowserWindowOption = Partial<Omit<BrowserWindowConstructorOptions, 'content'>> & {
   content?: BrowserWindowContent;
@@ -59,13 +61,14 @@ class BrowserWindow {
     alwaysOnTop: false,
     skipTaskbar: false,
     backgroundColor: '#fff',
+    footer: false
   };
   public static defaultInfo: Omit<WindowInfo, keyof BrowserWindowConstructorOptions> = {
     state: WindowStateEnum.normal,
     istop: false,
     zindex: 0,
     isCreated: false,
-    disable: false,
+    disable: false
   };
   readonly windowInfo: WindowInfo;
   private _option: BrowserWindowConstructorOptions;
@@ -111,6 +114,7 @@ class BrowserWindow {
     this._builtin = {
       previousState: this.windowInfo.state,
     };
+    this.windowInfo.footer = option?.footer || false
   }
 
   _setZindex() {

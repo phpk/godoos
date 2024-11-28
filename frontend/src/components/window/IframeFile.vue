@@ -9,6 +9,7 @@ import { base64ToBuffer, isBase64 } from "@/util/file";
 import { isShareFile } from "@/util/sharePath.ts";
 import { inject, onMounted, onUnmounted, ref, toRaw } from "vue";
 import { askAi } from "@/hook/useAi";
+import { useChooseStore } from "@/stores/choose";
 const SP = getSplit();
 
 const sys: any = inject<System>("system");
@@ -34,9 +35,10 @@ const props = defineProps({
 // let currentPath = ref('')
 const storeRef = ref<HTMLIFrameElement | null>(null);
 let hasInit = false;
+
+const choose = useChooseStore();
 const eventHandler = async (e: MessageEvent) => {
 	const eventData = e.data;
-
 	if (eventData.type == props.eventType) {
 		let data = JSON.parse(eventData.data);
 		let title = data.title;
@@ -51,10 +53,9 @@ const eventHandler = async (e: MessageEvent) => {
 		if (title.indexOf('.' + ext) > -1) {
 			title = title.replace('.' + ext, "");
 		}
-		// console.log(ext)
-		// console.log(data)
 		if (win.config && win.config.path) {
 			path = win.config.path;
+      
 			//去除重复文件名后的（1）
 			let fileTitleArr = path.split(SP).pop().split(".");
 			let oldExt = fileTitleArr.pop();
@@ -66,6 +67,7 @@ const eventHandler = async (e: MessageEvent) => {
 				path = path.replace("." + oldExt, "." + ext);
 			}
 		} else {
+      choose.saveFile('选择地址','*') 
 			path = `${SP}C${SP}Users${SP}Desktop${SP}${title}.${ext}`;
 		}
 		//判断是否共享文件，以及编辑权限
@@ -219,15 +221,6 @@ const eventHandler = async (e: MessageEvent) => {
 			"*"
 		);
 	}
-	//   else if (eventData.type == 'aiReciver') {
-	//     storeRef.value?.contentWindow?.postMessage(
-	//       {
-	//         type: eventData.type,
-	//         data: '----经过AI处理后的数据-----',
-	//       },
-	//       "*"
-	//     );
-	//   }
 };
 //删除本地暂存的文件密码
 const delFileInputPwd = async () => {
