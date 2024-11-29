@@ -90,7 +90,7 @@ const createCompletion = async () => {
       const img2txtModel = await modelStore.getModel("img2txt");
       const usermsg = chatStore.messageList[chatStore.messageList.length - 1];
       postMsg = {
-        model: img2txtModel,
+        model: img2txtModel.model,
         //"prompt":userMessage.value,
         stream: false,
         //options: chatConfig,
