@@ -14,9 +14,9 @@ import {
 } from './type/type';
 import { BrowserWindow, BrowserWindowOption } from './window/BrowserWindow';
 
-import { useUpgradeStore } from '@/stores/upgrade';
 import { useAssistantStore } from '@/stores/assistant';
 import { useModelStore } from "@/stores/model.ts";
+import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
 import { notifyError } from '@/util/msg';
 import { isShareFile } from '@/util/sharePath';
@@ -134,6 +134,7 @@ export class System {
    */
   private async isLogin() {
     const config = getSystemConfig();
+
     if (config.userType == 'person') {
       if (!this._options.login) {
         this._rootState.state = SystemStateEnum.open;
@@ -159,6 +160,7 @@ export class System {
         };
       }
     } else {
+      // 非个人用户
       const userInfo = config.userInfo;
       if (userInfo.url == '') {
         return true;
@@ -171,25 +173,35 @@ export class System {
       const data = await res.json();
       //console.log(data)
       if (data.success) {
+        // 登录成功
         this._rootState.state = SystemStateEnum.open;
         return true;
       } else {
+        // 登录失败
         //return true;
         this._rootState.state = SystemStateEnum.lock;
-
-        this._options.loginCallback = async (username: string, password: string) => {
+        // 登录回调
+        this._options.loginCallback = async (
+          username: string, password: string, loginCode?: {
+            github_code?: string,
+            gitee_code?: string
+          }
+        ) => {
           const serverUrl = config.userInfo.url + '/member/login'
           const res: any = await fetch(serverUrl, {
             method: "POST",
             body: JSON.stringify({
               username: username,
               password: password,
+              github_code: loginCode?.github_code,
+              gitee_code: loginCode?.gitee_code,
               clientId: getClientId(),
             }),
           });
           if (!res.ok) {
             return false
           }
+
           const jsondata = await res.json();
           if (jsondata.success) {
             jsondata.data.url = config.userInfo.url
@@ -198,12 +210,16 @@ export class System {
             setSystemConfig(config);
             this._rootState.state = SystemStateEnum.open;
             this.refershAppList()
+            window.location.href = "/";
             return true
           } else {
             notifyError(jsondata.message)
             return false
           }
         };
+
+
+
         // //const tmpCallBack = this._options.authCallback;
         // this._options.authCallback = async (username: string, password: string, captcha :string) => {
         //   //this._rootState.state = SystemStateEnum.open;
