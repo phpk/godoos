@@ -1,4 +1,5 @@
 var markdownTitle = ""
+let aiSelected = ""
 var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TYPE_LIST.PAR, {
   makeHtml(str) {
     console.warn('custom hook', 'hello');
@@ -78,7 +79,7 @@ var exportDataHook = Cherry.createMenuHook('导出', {
     //   noIcon: true,
     //   name: 'PPTX',
     //   onclick: () => {
-        
+
     //   }
     // },
     {
@@ -137,7 +138,7 @@ class AiDialogClass {
     creation_proofreading: {
       title: '纠错',
       btn: ['aiAdd', 'aiReplace', 'aiCancle']
-    }, 
+    },
     creation_summarize: {
       title: '总结',
       btn: ['aiAdd', 'aiReplace', 'aiCancle']
@@ -179,7 +180,7 @@ class AiDialogClass {
       method: this.cheakAiContent
     }
   ]
-  outline =  {
+  outline = {
     title: '',
     content: '',
     category: ''
@@ -229,7 +230,7 @@ class AiDialogClass {
         </div>
       </div>`
     this.container.appendChild(dialog)
-     // 绑定事件
+    // 绑定事件
     const aiOptions = Array.from(this.container.querySelectorAll('.ai-dialog-button'))
     aiOptions.forEach(item => {
       item.addEventListener('click', () => {
@@ -240,11 +241,11 @@ class AiDialogClass {
         }
       })
     })
-  }  
+  }
   // 打开弹窗 
   openDialog(action) {
     this.container.classList.remove('hide')
-    const title = 'AI - ' +  this.actionArr[action].title
+    const title = 'AI - ' + this.actionArr[action].title
     this.container.querySelector('.ai-dialog-title').innerText = title
     this.addButton(action)
   }
@@ -257,7 +258,7 @@ class AiDialogClass {
       this.container.querySelector('.ai-outline-choose').classList.add('hide')
       this.container.querySelector('.ai-content-box').classList.remove('hide')
       this.container.querySelector('.ai-mask').classList.remove('hide')
-    } 
+    }
     const buttonArr = Array.from(this.container.querySelectorAll('.ai-dialog-button'))
     buttonArr.forEach(item => {
       const actionType = item.getAttribute('data-type')
@@ -298,7 +299,7 @@ class AiDialogClass {
   // 追加
   addAiContent(dialog, that) {
     const content = dialog.querySelector('textarea').value
-    cherry.insert(content,false)
+    cherry.insert(content, false)
     that.closeDialog(dialog)
   }
   // 替换
@@ -316,13 +317,19 @@ class AiDialogClass {
     }
     that.outline.title = content.title
     that.outline.category = content.category
-    if (content.title !== '' ) {
+    if (content.title !== '') {
       window.parent.postMessage({
         type: 'aiCreater',
         data: content,
         action: 'creation_leader'
       }, '*')
       that.openDialog('creation_builder')
+    }else{
+      showModal({
+        titleText: '提示',
+        contentText: "请输入标题",
+        showOk: true
+      });
     }
   }
   // 生成文章
@@ -347,49 +354,60 @@ class AiDialogClass {
   }
 }
 const aiDialog = new AiDialogClass()
+const aiTips = (action) => {
+  if (aiSelected == "") {
+    showModal({
+      titleText: '提示',
+      contentText: "请选择内容",
+      showOk: true
+    });
+    return;
+  }
+  aiDialog.sendRequest(action, aiSelected)
+}
 var aiEditMenu = Cherry.createMenuHook('AI', {
   subMenuConfig: [
     {
       noIcon: true,
       name: '优化',
       onclick: () => {
-        aiDialog.sendRequest('creation_optimization', cherry.getMarkdown())
+        aiTips("creation_optimization")
       }
     },
     {
       noIcon: true,
       name: '纠错',
       onclick: () => {
-        aiDialog.sendRequest('creation_proofreading', cherry.getMarkdown())
+        aiTips("creation_proofreading")
       }
     },
     {
       noIcon: true,
       name: '续写',
       onclick: () => {
-        aiDialog.sendRequest('creation_continuation', cherry.getMarkdown())
+        aiTips("creation_continuation")
       }
     },
     {
       noIcon: true,
       name: '翻译',
       onclick: () => {
-        aiDialog.sendRequest('creation_translation', cherry.getMarkdown())
+        aiTips("creation_translation")
       }
     },
     {
       noIcon: true,
       name: '总结',
       onclick: () => {
-        aiDialog.sendRequest('creation_summarize', cherry.getMarkdown())
+        aiTips("creation_summarize")
       }
     },
     {
       noIcon: true,
       name: '大纲',
       onclick: () => {
-        // aiDialog.showDialog()
-        aiDialog.sendRequest('creation_leader', cherry.getMarkdown())
+        aiDialog.openDialog('creation_leader')
+        //aiDialog.sendRequest('creation_leader', cherry.getMarkdown())
       }
     }
   ]
@@ -594,6 +612,12 @@ var basicConfig = {
       console.log("onClickPreview", event);
     },
   },
+  event: {
+    selectionChange: ({ selections, lastSelections, info }) => {
+      aiSelected = lastSelections[0]
+      //console.log(aiSelected)
+    },
+  },
   editor: {
     id: 'cherry-text',
     name: 'cherry-text',
@@ -612,10 +636,7 @@ var basicConfig = {
 };
 var config = Object.assign({}, basicConfig, { value: "" });
 window.cherry = new Cherry(config);
-// fetch('./markdown/basic.md').then((response) => response.text()).then((value) => {
-//   var config = Object.assign({}, basicConfig, { value: value });
-//   window.cherry = new Cherry(config);
-// });
+
 
 const debouncedHandleKeyDown = (event) => {
   // 确保仅在我们的按钮获得焦点时处理快捷键
@@ -649,7 +670,7 @@ function decodeBase64(base64String) {
   // 将二进制字符串转换为TypedArray
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
+    bytes[i] = binaryString.charCodeAt(i);
   }
 
   // 将TypedArray转换为字符串
@@ -669,13 +690,13 @@ const eventHandler = (e) => {
       return;
     }
     let content = data.content;
-    
+
     if (isBase64(content)) {
       content = decodeBase64(content);
     } else if (content instanceof ArrayBuffer) {
       content = new TextDecoder('utf-8').decode(content);
     }
-    
+
     cherry.setMarkdown(content);
   }
   if (eventData.type == 'aiReciver') {
