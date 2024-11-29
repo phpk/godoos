@@ -105,6 +105,29 @@ var exportDataHook = Cherry.createMenuHook('导出', {
     },
     {
       noIcon: true,
+      name: 'word',
+      onclick: () => {
+        if (!markdownTitle || markdownTitle == "") {
+          markdownTitle = window.prompt("请输入文稿标题");
+        }
+        const content = cherry.getHtml()
+        const converted = htmlDocx.asBlob(content);
+        // 创建一个隐藏的 <a> 元素
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        // 设置 <a> 元素的 href 属性为 Blob URL
+        a.href = URL.createObjectURL(converted);
+        a.download = `${markdownTitle}.docx`;
+        // 触发点击事件
+        a.click();
+        // 清理
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+      }
+    },
+    {
+      noIcon: true,
       name: 'html',
       onclick: () => {
         cherry.export('html');
@@ -324,7 +347,7 @@ class AiDialogClass {
         action: 'creation_leader'
       }, '*')
       that.openDialog('creation_builder')
-    }else{
+    } else {
       showModal({
         titleText: '提示',
         contentText: "请输入标题",

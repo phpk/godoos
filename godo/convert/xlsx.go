@@ -29,27 +29,57 @@ import (
 	_ "github.com/pbnjay/grate/xlsx"
 )
 
+// 返回行索引 列索引
 func ConvertXlsx(r io.Reader) (string, error) {
 	absFileFrom, tmpfromfile, err := libs.GetTempFile(r, "prefix-xlsx-from")
 	if err != nil {
 		return "", err
 	}
-	text := ""
+	textByRow := ""
+	textByColumn := ""
+
 	wb, _ := grate.Open(absFileFrom) // open the file
 	sheets, _ := wb.List()           // list available sheets
-	for _, s := range sheets {       // enumerate each sheet name
+
+	// 用于存储每一列的内容
+	columns := make([][]string, 0)
+
+	for _, s := range sheets { // enumerate each sheet name
 		sheet, _ := wb.Get(s) // open the sheet
-		for sheet.Next() {    // enumerate each row of data
+		maxColumns := 0
+		for sheet.Next() { // enumerate each row of data
 			row := sheet.Strings() // get the row's content as []string
-			//fmt.Println(strings.Join(row, "\t"))
+
+			// 更新最大列数
+			if len(row) > maxColumns {
+				maxColumns = len(row)
+			}
+
 			// 跳过空记录
 			if len(row) == 0 {
 				continue
 			}
-			text += strings.Join(row, "\t") + "\n"
+
+			textByRow += strings.Join(row, "\t") + "\n"
+
+			// 初始化列切片
+			if len(columns) < maxColumns {
+				columns = make([][]string, maxColumns)
+			}
+
+			// 将每一列的内容添加到对应的列切片中
+			for i, cell := range row {
+				columns[i] = append(columns[i], cell)
+			}
 		}
 	}
+
+	// 拼接每一列的内容
+	for _, col := range columns {
+		textByColumn += strings.Join(col, "\n") + "\n"
+	}
+
 	wb.Close()
 	libs.CloseTempFile(tmpfromfile)
-	return text, nil
+	return textByRow + "\n\n" + textByColumn, nil
 }
