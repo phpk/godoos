@@ -93,7 +93,7 @@ const createCompletion = async () => {
         model: img2txtModel.model,
         //"prompt":userMessage.value,
         stream: false,
-        //options: chatConfig,
+        options: chatConfig,
         messages: [
           {
             role: "user",
@@ -210,7 +210,7 @@ const uploadImage = async (event: any) => {
       <div class="input-panel">
         <el-row :gutter="24" style="border-bottom: none;">
           <el-col :span="2">
-            <el-button @click="selectImage" size="large" icon="Paperclip" circle />
+            <el-button @click="selectImage" size="large" icon="Paperclip" circle :class="{ 'selected-image': imageData != '' }"/>
             <input type="file" ref="imageInput" accept="image/*" style="display: none" @change="uploadImage" />
           </el-col>
           <el-col :span="19">

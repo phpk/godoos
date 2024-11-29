@@ -92,3 +92,16 @@
     background-color: #f0f8ff; /* 悬停时的背景颜色 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 悬停时的阴影效果 */
   }
+  .selected-image {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+    }
+  }
