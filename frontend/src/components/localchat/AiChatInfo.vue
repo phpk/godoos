@@ -7,20 +7,20 @@ function changPrompt(id:number) {
   const promptData:any = chatStore.promptList.find((item:any) => {
     return item.id == id;
   });
-  console.log(promptData)
+  //console.log(promptData)
   if(promptData) {
     chatStore.editInfo.prompt = promptData.prompt;
   }
 }
 const changeInfo = async () => {
   const info = chatStore.editInfo;
-
+  console.log(info)
   if (!info.title) {
-    notifyInfo(t("chat.inputTitle"));
+    notifyInfo(t("aichat.inputTitle"));
     return;
   }
   if (!info.model) {
-    notifyInfo(t("chat.selectModel"));
+    notifyInfo(t("aichat.selectModel"));
     return;
   }
   if (!info.prompt) {
@@ -29,17 +29,15 @@ const changeInfo = async () => {
   delete info.id;
 
   if (chatStore.isEditor) {
-    //console.log(info);
     await chatStore.updateChat(info, chatStore.activeId);
-    chatStore.chatInfo = info;
-    notifySuccess(t("chat.editsuccess"));
+    notifySuccess(t("aichat.editsuccess"));
   } else {
     const promptData = {
       prompt: info.prompt,
-      promptName: info.promptName,
+      promptId: info.promptId,
     };
-    await chatStore.addChat(info.title, info.model, promptData, info.kid);
-    notifySuccess(t("chat.addsuccess"));
+    await chatStore.addChat(info.title, info.model, promptData, "");
+    notifySuccess(t("aichat.addsuccess"));
   }
   await chatStore.getActiveChat();
   chatStore.showInfo = false;

@@ -187,6 +187,14 @@ const uploadImage = async (event: any) => {
 </script>
 <template>
   <div class="chat-bot">
+    <div class="top-menu">
+      <el-icon size="15" @click.stop="chatStore.showBox(true)" class="top-menu-button">
+        <Tools />
+      </el-icon>
+      <el-icon size="15" @click.stop="chatStore.clearChatHistory" class="top-menu-button">
+        <DeleteFilled />
+      </el-icon>
+    </div>
     <div class="messsage-area">
       <el-scrollbar v-if="chatStore.messageList.length > 0" class="message-container" ref="messageContainerRef">
         <div ref="messageInnerRef">
@@ -199,7 +207,7 @@ const uploadImage = async (event: any) => {
       </div>
     </div>
     <div class="input-area">
-      <div class="input-panel d-flex align-end pa-1">
+      <div class="input-panel">
         <el-row :gutter="24" style="border-bottom: none;">
           <el-col :span="2">
             <el-button @click="selectImage" size="large" icon="Paperclip" circle />
@@ -207,7 +215,7 @@ const uploadImage = async (event: any) => {
           </el-col>
           <el-col :span="19">
             <el-input v-model="userMessage" :placeholder="t('aichat.askme')" size="large" clearable
-              @keydown="handleKeydown" autofocus />
+              @keydown="handleKeydown" autofocus class="ai-input-area"/>
           </el-col>
           <el-col :span="2">
             <el-button v-if="!isPadding" @click="sendMessage" icon="Promotion" type="info" size="large" circle />

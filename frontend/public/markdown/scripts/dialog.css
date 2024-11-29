@@ -102,20 +102,12 @@
   font-size: 14px; /* 调整字体大小 */
   color: #333333; /* 文字颜色调整为深色 */
   cursor: pointer;
-  transition: background 0.3s, box-shadow 0.2s, transform 0.2s; /* 平滑过渡效果 */
 }
 
 .ai-dialog-button:hover {
   background: linear-gradient(145deg, #f0f8ff, #e6f3ff); /* 悬停时的更亮渐变背景 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 略微加深阴影 */
-  transform: scale(1.02); /* 微微放大 */
 }
 
-.ai-dialog-button:active {
-  background: linear-gradient(145deg, #e6f3ff, #f0f8ff); /* 按下时的更亮渐变背景 */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 减轻阴影 */
-  transform: scale(0.98); /* 微微缩小 */
-}
 
 /* 模态对话框的基本样式 */
 .modal {
@@ -197,8 +189,6 @@
 
 .modal-button-ok:hover {
   background: linear-gradient(145deg, #f0f8ff, #e6f3ff); /* 悬停时的更亮渐变背景 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 略微加深阴影 */
-  transform: scale(1.02); /* 微微放大 */
 }
 
 /* 取消按钮 */

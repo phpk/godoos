@@ -4,20 +4,7 @@ import { Search } from "@element-plus/icons-vue";
 // import { t } from "@/i18n";
 // import { notifyInfo,notifySuccess } from "@/util/msg.ts";
 const chatStore = useAiChatStore();
-const showBox = (flag: any) => {
-  chatStore.isEditor = flag;
-  if (flag === true) {
-    chatStore.editInfo = toRaw(chatStore.chatInfo);
-  } else {
-    chatStore.editInfo = {
-      title: "",
-      model: "",
-      prompt: "",
-      promptName: "",
-    };
-  }
-  chatStore.showInfo = true;
-};
+
 
 </script>
 <template>
@@ -27,22 +14,22 @@ const showBox = (flag: any) => {
   <el-scrollbar>
     <el-header class="search">
       <el-input placeholder="搜索" :prefix-icon="Search" class="search-input" v-model="chatStore.searchInput" />
-      <button class="add-chat" @click="showBox(false)">
+      <button class="add-chat" @click="chatStore.showBox(false)">
         <el-icon>
           <Plus />
         </el-icon>
       </button>
     </el-header>
     <div v-for="(item, key) in chatStore.chatList" :key="key">
-      <div class="list-item">
+      <div :class="['list-item', { active: item.id === chatStore.activeId }]">
         <el-row justify="space-around">
-          <el-col :span="17" @click.stop="chatStore.setActiveId(item.id)" class="chat-title">
+          <el-col :span="20" @click.stop="chatStore.setActiveId(item.id)" class="chat-title">
             {{ item.title }}
           </el-col>
-          <el-col :span="7" class="iconlist">
-            <el-icon size="15">
+          <el-col :span="4" class="iconlist">
+            <!-- <el-icon size="15">
               <Edit />
-            </el-icon>
+            </el-icon> -->
             <el-icon size="15" @click.stop="chatStore.deleteChat(item.id)">
               <Delete />
             </el-icon>
@@ -97,7 +84,7 @@ const showBox = (flag: any) => {
   background-color: #fff;
 }
 
-.list-item:hover,.list-item .active {
+.list-item:hover,.list-item.active {
   background-color: #e8f3ff;
 }
 

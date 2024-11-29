@@ -11,7 +11,7 @@ dbInit.version(1).stores({
   // 模型列表
   modelslist: '++id,model,label,action,status,params,type,isdef,info,created_at',
   // ai对话列表
-  aichatlist: '++id,title,modelId,promptId,prompt,ext,knowledgeId,createdAt',
+  aichatlist: '++id,title,model,promptId,prompt,knowledgeId,createdAt',
   // ai对话消息
   aichatmsg: '++id,chatId,role,content,createdAt',
   // 用户列表

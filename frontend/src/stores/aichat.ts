@@ -26,7 +26,7 @@ export const useAiChatStore = defineStore('aichat', () => {
       return false
     }
     const promptData = await promptStore.getPrompt('chat')
-    return await addChat(t('chat.newchat'), currentModel, promptData, "")
+    return await addChat(t('aichat.newchat'), currentModel.model, promptData, "")
   }
   const initChat = async () => {
     if (activeId.value === 0) {
@@ -35,7 +35,11 @@ export const useAiChatStore = defineStore('aichat', () => {
     modelList.value = await modelStore.getModelAction('chat')
     const promptRes = await promptStore.getPrompts('chat')
     promptList.value = promptRes.list
-
+    chatList.value = await db.getAll('aichatlist')
+    if(activeId.value > 0){
+      messageList.value = await db.getByField('aichatmsg', 'chatId', activeId.value)
+      chatInfo.value = await db.getOne('aichatlist', activeId.value)
+    }
   }
   const getActiveChat = async () => {
     chatInfo.value = await db.getOne('aichatlist', activeId.value)
@@ -48,12 +52,12 @@ export const useAiChatStore = defineStore('aichat', () => {
     return chatList
   }
   // 添加聊天
-  async function addChat(title: string, modelData: any, promptData: any, knowledgeId: string) {
+  async function addChat(title: string, model: any, promptData: any, knowledgeId: string) {
     const newChat = {
       title,
       prompt: promptData.prompt,
       promptId: promptData.id,
-      modelId: modelData.id,
+      model,
       createdAt: Date.now(),
       knowledgeId
     }
@@ -122,8 +126,12 @@ export const useAiChatStore = defineStore('aichat', () => {
   }
 
   // 删除指定id的聊天的历史记录
-  async function clearChatHistory(chatId: number) {
-    await db.deleteByField('aichatmsg', 'chatId', chatId)
+  async function clearChatHistory() {
+    if(activeId.value > 0){
+      await db.deleteByField('aichatmsg', 'chatId', activeId.value)
+      messageList.value = []
+    }
+    
   }
 
   // 更新聊天配置
@@ -131,6 +139,20 @@ export const useAiChatStore = defineStore('aichat', () => {
     //console.log(config)
     return await db.update('aichatlist', chatId, config)
   }
+  const showBox = (flag: any) => {
+    isEditor.value = flag;
+    if (flag === true) {
+      editInfo.value = toRaw(chatInfo.value);
+    } else {
+      editInfo.value = {
+        title: "",
+        model: "",
+        prompt: "",
+        promptId: "",
+      };
+    }
+    showInfo.value = true;
+  };
   return {
     activeId,
     chatList,
@@ -141,6 +163,8 @@ export const useAiChatStore = defineStore('aichat', () => {
     showInfo,
     editInfo,
     isEditor,
+    modelList,
+    promptList,
     initChat,
     setActiveId,
     getActiveChat,
@@ -154,8 +178,7 @@ export const useAiChatStore = defineStore('aichat', () => {
     getChatHistory,
     clearChatHistory,
     updateChat,
-    modelList,
-    promptList
+    showBox
   }
 
 }, {
