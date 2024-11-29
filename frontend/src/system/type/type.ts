@@ -1,5 +1,5 @@
-import { BrowserWindowOption } from '../window/BrowserWindow';
 import { MenuItem, MenuItemConstructorOptions } from '../menu/MenuItem';
+import { BrowserWindowOption } from '../window/BrowserWindow';
 export type BuiltinFeature =
   | 'MyComputer'
   | 'AppStore'
@@ -56,7 +56,14 @@ export interface SystemOptionsCertainly {
   };
   contextMenus?: Array<MenuItemConstructorOptions | MenuItem>;
   noPassword?: boolean;
-  loginCallback?: (username: string, password: string) => Promise<boolean>;
+  loginCallback?: (
+    username: string,
+    password: string,
+    loginCode?: {
+      github_code?: string,
+      gitee_code?: string
+    }
+  ) => Promise<boolean>;
 }
 export type SystemOptions = SystemOptionsCertainly & {
   [key: string]: SafeAny;

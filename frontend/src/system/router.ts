@@ -1,4 +1,4 @@
-import { createWebHistory, createRouter } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
   // {
@@ -10,8 +10,13 @@ const routes = [
   //   name: "install",
   //   component: () => import('../views/install/install.vue')  // 关于我们组件
   // },
+  // {
+  //   path: "/login/github/next",
+  //   name: "login-github",
+  //   component: () => import("../components/desktop/GithubNext.vue"),
+  // },
   {
-    path: '/:pathMatch(.*)*',
+    path: "/:pathMatch(.*)*",
     name: "not-found",
     component: () => import('../components/window/NotFound.vue')
   }
