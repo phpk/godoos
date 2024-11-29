@@ -33,6 +33,7 @@ export interface BrowserWindowConstructorOptions {
   skipTaskbar: boolean;
   backgroundColor: string;
   footer: boolean;
+  componentID: string;
 }
 export interface WindowInfo extends BrowserWindowConstructorOptions {
   state: WindowStateEnum;
@@ -61,7 +62,8 @@ class BrowserWindow {
     alwaysOnTop: false,
     skipTaskbar: false,
     backgroundColor: '#fff',
-    footer: false
+    footer: false,
+    componentID: ''
   };
   public static defaultInfo: Omit<WindowInfo, keyof BrowserWindowConstructorOptions> = {
     state: WindowStateEnum.normal,
@@ -115,6 +117,7 @@ class BrowserWindow {
       previousState: this.windowInfo.state,
     };
     this.windowInfo.footer = option?.footer || false
+    this.windowInfo.componentID = option?.componentID || ''
   }
 
   _setZindex() {

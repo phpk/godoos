@@ -52,7 +52,7 @@
 			@touchstart.stop.passive="startScale($event, border.type)"
 		></div>
     <div class="wintmp_footer" v-if="browserWindow.windowInfo.footer">
-      <MenuFooter :browser-window="browserWindow"></MenuFooter>
+      <MenuFooter :browser-window="browserWindow" @translateSavePath="translateSavePath"></MenuFooter>
     </div>
 	</div>
 </template>
@@ -73,6 +73,8 @@
 		ref,
 		UnwrapNestedRefs,
 	} from "vue";
+  import { useChooseStore } from "@/stores/choose";
+  import eventBus from '@/util/eventBus'
 
 	const sys = useSystem();
 	const props = defineProps<{
@@ -81,15 +83,28 @@
 
   
 	const browserWindow = props.browserWindow;
-  // console.log('窗口配置：', browserWindow);
 	const windowInfo = browserWindow.windowInfo;
+  // const temp = reactive(browserWindow)
 	provide("browserWindow", browserWindow);
 	provide("system", sys);
-  // let filePath = ref(inject('saveFilePath'))
-  // watch(filePath, (newVal) => {
-  //   console.log('改变路径：', newVal);
-    
-  // })
+  const choose = useChooseStore()
+  
+  function translateSavePath (path: string, name?: string) {
+    if (browserWindow.windowInfo.footer) {
+      const pos = choose.saveFileContent.findIndex((item) => {
+        return item.componentID == browserWindow.windowInfo.componentID
+      })
+      if (pos == -1) return 
+      if (path && path !== '') {
+        choose.saveFileContent[pos].filePath = path
+      } else if (name && name !== '') {
+        choose.saveFileContent[pos].fileName = name
+        eventBus.emit('saveFile', choose.saveFileContent[pos] )
+      }
+    }
+  }
+  provide('translateSavePath', translateSavePath)
+  
 	function predown() {
 		browserWindow.moveTop();
 		emitEvent("window.content.click", browserWindow);

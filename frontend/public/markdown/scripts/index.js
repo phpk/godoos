@@ -1,5 +1,6 @@
 var markdownTitle = ""
 let aiSelected = ""
+let componentID = ""
 var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TYPE_LIST.PAR, {
   makeHtml(str) {
     console.warn('custom hook', 'hello');
@@ -441,7 +442,7 @@ const saveData = () => {
     markdownTitle = window.prompt("请输入文稿标题");
   }
   const postData = { title: markdownTitle, content: cherry.getMarkdown() }
-  window.parent.postMessage({ type: 'exportMd', data: JSON.stringify(postData) }, '*')
+  window.parent.postMessage({ type: 'exportMd', data: JSON.stringify(postData),componentID }, '*')
 }
 var saveMenu = Cherry.createMenuHook('保存', {
   onClick: function () {
@@ -701,6 +702,7 @@ function decodeBase64(base64String) {
 }
 const eventHandler = (e) => {
   const eventData = e.data
+  componentID = eventData.componentID ? eventData.componentID : ''
   if (eventData.type === 'start') {
     markdownTitle = eventData.title || '未命名文稿'
     return

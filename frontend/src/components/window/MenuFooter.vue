@@ -16,13 +16,15 @@ import { UnwrapNestedRefs, ref } from "vue";
 const props = defineProps<{
   browserWindow: UnwrapNestedRefs<BrowserWindow>;
 }>();
+const emit = defineEmits(['translateSavePath'])
 let fileName = ref('未命名文件')
-//console.log('传递消息：', props.browserWindow);
+
 function cancleSave() {
   props.browserWindow.close()
 }
 function saveFile() {
-
+  emit('translateSavePath','',fileName.value)
+  props.browserWindow.close()
 }
 </script>
 

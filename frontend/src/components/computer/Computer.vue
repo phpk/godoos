@@ -167,7 +167,16 @@
 	const system = useSystem();
 	const { dragFileToDrop } = useFileDrag(system);
 	const { createDesktopContextMenu } = useContextMenu();
+  // 选择保存文件路径时，传递选择路径
+  const props = defineProps({
+    translateSavePath: {
+      type: Function
+    }
+  })
 	const setRouter = function (path: string) {
+    if (props.translateSavePath) {
+      props.translateSavePath(path)
+    }
 		router_url.value = path;
 		if (
 			router_url_history_index.value <=
