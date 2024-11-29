@@ -74,7 +74,7 @@
 		UnwrapNestedRefs,
 	} from "vue";
   import { useChooseStore } from "@/stores/choose";
-  import eventBus from '@/util/eventBus'
+  import eventBus from '@/system/event/eventBus'
 
 	const sys = useSystem();
 	const props = defineProps<{

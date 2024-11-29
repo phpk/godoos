@@ -129,6 +129,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		if len(fileData)%8 == 0 {
 			fileData = append(fileData, ' ')
 		}
+		//log.Printf("fileData: %s", content)
 		libs.SuccessMsg(w, fileData, "文件读取成功")
 		return
 	}

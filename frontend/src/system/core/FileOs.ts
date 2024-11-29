@@ -218,6 +218,7 @@ export function getFormData(content: any) {
   return formData
 }
 export async function handleWriteFile(filePath: string, content: any, header?: { [key: string]: any }): Promise<any> {
+  //console.log(content)
   const formData = getFormData(content);
   const head = header ? { ...header } : {}
   const url = `${API_BASE_URL}/writefile?path=${encodeURIComponent(filePath)}`;

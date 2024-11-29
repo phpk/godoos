@@ -950,6 +950,7 @@ function saveData(extension) {
         title = Editor.query().getName("base"),
         //title = Editor.query().getName(),
         content = Editor.query().textarea.value;
+    //console.log(content)
     const save = {
         data: JSON.stringify({ content, title, ext }),
         type: 'exportText'

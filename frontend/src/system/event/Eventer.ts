@@ -1,12 +1,9 @@
 interface HandlerInfo {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   handler: Function;
   once?: boolean;
 }
-// https://cloud.tencent.com/developer/article/1700467
 class Eventer {
   private events: Map<string, HandlerInfo[]> = new Map();
-  // eslint-disable-next-line @typescript-eslint/ban-types
   on(type: string, handler: Function, once?: boolean) {
     if (!this.events.has(type)) {
       this.events.set(type, []);
@@ -36,7 +33,6 @@ class Eventer {
       handler(source, ...args); // 这里 this 就交给传入的 handler 来保证了
     }
   }
-  // eslint-disable-next-line @typescript-eslint/ban-types
   off(type?: string, handler?: Function): void {
     if (!type) return; // 最好不要默认全部清除，不安全
     if (!handler) {

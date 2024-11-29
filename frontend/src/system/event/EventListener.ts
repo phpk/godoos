@@ -1,12 +1,22 @@
-import { mountEvent, redirectEvent } from './EventHook';
-
+import { mountEvent, redirectEvent, emitEvent } from './EventHook';
+import { RootState } from '../root';
 import { useSystem } from '../index.ts';
-import { initBatteryEvent, initSizeEvent, initNetworkEvent, initAlertEvent } from './SystemEvent';
+
+function initSizeEvent() {
+  const rootState = useSystem()._rootState;
+  function refreshDesktopSize(rootState: RootState) {
+    rootState.info.screenWidth = window?.innerWidth || 0;
+    rootState.info.screenHeight = window?.innerHeight || 0;
+  }
+  mountEvent('system.initSize', () => {
+    refreshDesktopSize(rootState);
+  });
+  window?.addEventListener('resize', () => {
+    emitEvent('system.resize');
+  });
+}
 function initEventListener() {
-  initBatteryEvent();
   initSizeEvent();
-  initNetworkEvent();
-  initAlertEvent();
   mountEvent('system.shutdown', () => {
     useSystem()?.shutdown();
   });

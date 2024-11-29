@@ -11,7 +11,7 @@ import { inject, onMounted, onUnmounted, ref, toRaw } from "vue";
 import { askAi } from "@/hook/useAi";
 import { useChooseStore } from "@/stores/choose";
 import { nanoid } from "nanoid";
-import eventBus from "@/util/eventBus";
+import eventBus from "@/system/event/eventBus";
 const SP = getSplit();
 
 const sys: any = inject<System>("system");
