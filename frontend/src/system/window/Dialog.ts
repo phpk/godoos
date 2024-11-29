@@ -10,7 +10,7 @@ class Dialog {
     title?: string;
     buttons?: string[];
   }) {
-    console.log('弹窗',option)
+    //console.log('弹窗',option)
     const opt = Object.assign(
       {
         message: '',

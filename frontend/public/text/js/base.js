@@ -931,6 +931,7 @@ const eventHandler = (e) => {
         //console.log(data)
         if (data.content) {
             if(isBase64(data.content)){
+                //console.log(data.content)
                 data.content = decodeBase64(data.content);
             }
             Editor.query().textarea.value = data.content;

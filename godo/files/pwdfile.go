@@ -1,7 +1,6 @@
 package files
 
 import (
-	"encoding/json"
 	"fmt"
 	"godo/libs"
 	"io"
@@ -118,8 +117,7 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	strData := string(fileData)
 	//log.Printf("isPwd: %v", strData)
 	if strings.HasPrefix(strData, "link::") {
-		res := libs.APIResponse{Message: "文件读取成功", Data: strData}
-		json.NewEncoder(w).Encode(res)
+		libs.SuccessMsg(w, strData, "文件读取成功")
 		return
 	}
 	// 判断是否为加密文件
@@ -128,8 +126,10 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	if !isPwd {
 		// 未加密文件，直接返回
 		//content := base64.StdEncoding.EncodeToString(fileData)
-		res := libs.APIResponse{Message: "文件读取成功", Data: fileData}
-		json.NewEncoder(w).Encode(res)
+		if len(fileData)%8 == 0 {
+			fileData = append(fileData, ' ')
+		}
+		libs.SuccessMsg(w, fileData, "文件读取成功")
 		return
 	}
 	Pwd := r.Header.Get("Pwd")
@@ -149,36 +149,32 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		// 校验密码
 		if filePwd != configPwdStr {
 			libs.Error(w, "密码错误,请输入正确的密码", "needPwd")
-			// res := libs.APIResponse{Message: "密码错误,请输入正确的密码", Code: -1, Error: "needPwd"}
-			// json.NewEncoder(w).Encode(res)
 			return
 		}
-		decryptData, err := libs.DecryptData(fileData[34:], []byte(filePwd))
-		if err != nil {
-			libs.ErrorMsg(w, err.Error())
-			return
-		}
-
-		//content := base64.StdEncoding.EncodeToString(decryptData)
-		res := libs.APIResponse{Message: "加密文件读取成功", Data: decryptData}
-		json.NewEncoder(w).Encode(res)
-		return
+		resEncode(w, fileData, filePwd)
 	} else {
 		// Pwd不为空，Pwd与文件密码做比对
 		if Pwd != filePwd {
-			res := libs.APIResponse{Message: "密码错误,请输入正确的密码", Code: -1, Error: "needPwd"}
-			json.NewEncoder(w).Encode(res)
+			libs.Error(w, "密码错误,请输入正确的密码", "needPwd")
 			return
 		}
-		decryptData, err := libs.DecryptData(fileData[34:], []byte(filePwd))
-		if err != nil {
-			libs.ErrorMsg(w, err.Error())
-			return
-		}
-		//content := base64.StdEncoding.EncodeToString(decryptData)
-		res := libs.APIResponse{Message: "加密文件读取成功", Data: decryptData}
-		json.NewEncoder(w).Encode(res)
+		resEncode(w, fileData, filePwd)
 	}
+}
+func resEncode(w http.ResponseWriter, fileData []byte, filePwd string) {
+	decryptData, err := libs.DecryptData(fileData[34:], []byte(filePwd))
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+
+	//content := base64.StdEncoding.EncodeToString(decryptData)
+	if len(decryptData)%8 == 0 {
+		decryptData = append(decryptData, ' ')
+	}
+	// res := libs.APIResponse{Message: "加密文件读取成功", Data: decryptData}
+	// json.NewEncoder(w).Encode(res)
+	libs.SuccessMsg(w, decryptData, "加密文件读取成功")
 }
 
 func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {

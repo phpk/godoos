@@ -16,10 +16,10 @@ export interface BrowserWindowConstructorOptions {
   content?: BrowserWindowContent;
   config?: any;
   icon: string;
-  path?:string;
-  url?:string;
-  ext?:Array<string> | undefined;
-  eventType?:string | undefined;
+  path?: string;
+  url?: string;
+  ext?: Array<string> | undefined;
+  eventType?: string | undefined;
   width: number;
   height: number;
   x: number;
@@ -32,6 +32,8 @@ export interface BrowserWindowConstructorOptions {
   alwaysOnTop: boolean;
   skipTaskbar: boolean;
   backgroundColor: string;
+  footer: boolean;
+  componentID: string;
 }
 export interface WindowInfo extends BrowserWindowConstructorOptions {
   state: WindowStateEnum;
@@ -39,6 +41,7 @@ export interface WindowInfo extends BrowserWindowConstructorOptions {
   zindex: number;
   isCreated: boolean;
   disable: boolean;
+  footer: boolean;
 }
 export type BrowserWindowOption = Partial<Omit<BrowserWindowConstructorOptions, 'content'>> & {
   content?: BrowserWindowContent;
@@ -59,13 +62,15 @@ class BrowserWindow {
     alwaysOnTop: false,
     skipTaskbar: false,
     backgroundColor: '#fff',
+    footer: false,
+    componentID: ''
   };
   public static defaultInfo: Omit<WindowInfo, keyof BrowserWindowConstructorOptions> = {
     state: WindowStateEnum.normal,
     istop: false,
     zindex: 0,
     isCreated: false,
-    disable: false,
+    disable: false
   };
   readonly windowInfo: WindowInfo;
   private _option: BrowserWindowConstructorOptions;
@@ -75,10 +80,10 @@ class BrowserWindow {
   id: number;
   children: Array<BrowserWindow> = [];
   content?: ReturnType<typeof defineComponent> | string;
-  path:string|undefined;
-  url:string|undefined;
-  ext?:Array<string> | undefined;
-  eventType?:string | undefined;
+  path: string | undefined;
+  url: string | undefined;
+  ext?: Array<string> | undefined;
+  eventType?: string | undefined;
   config: any;
   eventer: Eventer = new Eventer();
   constructor(option?: BrowserWindowOption) {
@@ -89,14 +94,15 @@ class BrowserWindow {
     this.ext = this._option.ext;
     this.eventType = this._option.eventType;
     //console.log(this._option.content)
-    if (typeof this._option.content === 'string') {
-      //this.content = markRaw(this._option.content);
-      this.content = this._option.content;
-    } 
-    
-    else {
-      this.content = markRaw(this._option.content);
-      //this.content = this._option.content;
+    if (this._option.content) {
+      if (typeof this._option.content === 'string') {
+        //this.content = markRaw(this._option.content);
+        this.content = this._option.content;
+      }
+      else {
+        this.content = markRaw(this._option.content);
+        //this.content = this._option.content;
+      }
     }
 
     const rootState = useSystem()._rootState;
@@ -110,6 +116,8 @@ class BrowserWindow {
     this._builtin = {
       previousState: this.windowInfo.state,
     };
+    this.windowInfo.footer = option?.footer || false
+    this.windowInfo.componentID = option?.componentID || ''
   }
 
   _setZindex() {

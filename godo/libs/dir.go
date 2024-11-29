@@ -123,15 +123,39 @@ func GetDataDir() string {
 	return staticPath
 }
 func GetCacheDir() string {
-	homeDir, err := GetAppDir()
-	if err != nil {
-		return "cache"
-	}
+	homeDir := GetDataDir()
 	cachePath := filepath.Join(homeDir, "cache")
 	if !PathExists(cachePath) {
 		os.MkdirAll(cachePath, 0755)
 	}
 	return cachePath
+}
+func GetTrueCacheDir() (string, error) {
+	homeDir := GetDataDir()
+	cacheDir := filepath.Join(homeDir, "cache")
+	return cacheDir, nil
+}
+func GetAiExeDir() string {
+	// 获取当前用户主目录
+	homeDir, err := GetAppDir()
+	if err != nil {
+		return ".godoos"
+	}
+	return filepath.Join(homeDir, "ai")
+}
+func GetAiRunDir() (string, error) {
+	exeDir := GetAiExeDir()
+	var osType string
+	switch runtime.GOOS {
+	case "windows":
+		osType = "windows"
+	case "darwin": // macOS
+		osType = "darwin"
+	default: // 包含了Linux和其他未明确列出的系统
+		osType = "linux"
+	}
+	runDir := filepath.Join(exeDir, osType)
+	return runDir, nil
 }
 func PathExists(dir string) bool {
 	_, err := os.Stat(dir)

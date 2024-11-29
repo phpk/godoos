@@ -51,11 +51,14 @@
 			@mousedown.stop.prevent="startScale($event, border.type)"
 			@touchstart.stop.passive="startScale($event, border.type)"
 		></div>
+    <div class="wintmp_footer" v-if="browserWindow.windowInfo.footer">
+      <MenuFooter :browser-window="browserWindow" @translateSavePath="translateSavePath"></MenuFooter>
+    </div>
 	</div>
 </template>
 <script lang="ts" setup>
 	import { useSystem } from "@/system";
-	import { emitEvent } from "@/system/event";
+	import { emitEvent } from "@/system/event";""
 	import {
 		BrowserWindow,
 		WindowStateEnum,
@@ -70,17 +73,38 @@
 		ref,
 		UnwrapNestedRefs,
 	} from "vue";
+  import { useChooseStore } from "@/stores/choose";
+  import eventBus from '@/util/eventBus'
 
 	const sys = useSystem();
 	const props = defineProps<{
 		browserWindow: UnwrapNestedRefs<BrowserWindow>;
 	}>();
 
+  
 	const browserWindow = props.browserWindow;
 	const windowInfo = browserWindow.windowInfo;
+  // const temp = reactive(browserWindow)
 	provide("browserWindow", browserWindow);
 	provide("system", sys);
-
+  const choose = useChooseStore()
+  
+  function translateSavePath (path: string, name?: string) {
+    if (browserWindow.windowInfo.footer) {
+      const pos = choose.saveFileContent.findIndex((item) => {
+        return item.componentID == browserWindow.windowInfo.componentID
+      })
+      if (pos == -1) return 
+      if (path && path !== '') {
+        choose.saveFileContent[pos].filePath = path
+      } else if (name && name !== '') {
+        choose.saveFileContent[pos].fileName = name
+        eventBus.emit('saveFile', choose.saveFileContent[pos] )
+      }
+    }
+  }
+  provide('translateSavePath', translateSavePath)
+  
 	function predown() {
 		browserWindow.moveTop();
 		emitEvent("window.content.click", browserWindow);
@@ -211,6 +235,9 @@
 			overflow: hidden;
 			contain: content;
 		}
+    .wintmp_footer {
+      position: relative;
+    }
 	}
 
 	.topwin {
@@ -232,8 +259,8 @@
 		transition: left 0.1s ease-in-out, top 0.1s ease-in-out,
 			width 0.1s ease-in-out, height 0.1s ease-in-out;
 	}
-
 	.disable {
+    .wintmp_footer,
 		.wintmp_uper,
 		.wintmp_main {
 			pointer-events: none;

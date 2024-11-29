@@ -47,6 +47,11 @@ func OsStart() {
 		log.Fatalf("InitOsSystem error: %v", err)
 		return
 	}
+	err = deps.InitDir()
+	if err != nil {
+		log.Fatalf("Init Dir error: %v", err)
+		return
+	}
 	webdav.InitWebdav()
 	router := mux.NewRouter()
 	router.Use(corsMiddleware())

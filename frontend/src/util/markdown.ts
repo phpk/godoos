@@ -1,38 +1,12 @@
 import 'cherry-markdown/dist/cherry-markdown.css';
-import Cherry from 'cherry-markdown';
-const cherryConfig:any = {
-    editor: {
-        height: 'auto',
-        defaultModel: 'previewOnly',
-    },
-    engine: {
-        global: {
-            // 开启流式模式 （默认 true）
-            flowSessionContext: true,
-        },
-        syntax: {
-            codeBlock: {
-                selfClosing: false,
-            },
-            header: {
-                anchorStyle: 'none',
-            },
-            table: {
-                selfClosing: false,
-            },
-            fontEmphasis: {
-                selfClosing: false,
-            }
-        }
-    },
-    previewer: {
-        enablePreviewerBubble: false,
-    },
-    isPreviewOnly: true,
-};
+import CherryEngine from 'cherry-markdown/dist/cherry-markdown.engine.core';
 
 export function renderMarkdown(currentText: string) {
-    const currentCherry = new Cherry(cherryConfig);
-    currentCherry.setMarkdown(currentText);
-    return currentCherry.getHtml();
+    //console.log(currentText)
+    const cherryEngineInstance:any = new CherryEngine({});
+    return cherryEngineInstance.makeHtml(currentText);
+    // const currentCherry = new Cherry(cherryConfig);
+    // currentCherry.setMarkdown(currentText);
+    // console.log(currentCherry.getHtml())
+    // return currentCherry.getHtml();
 }

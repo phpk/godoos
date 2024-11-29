@@ -213,6 +213,6 @@ export function initBuiltinFileOpener(system: System) {
   const dateTimeT = new Tray({
     component: "DateTime",
   });
-  dateTimeT.setContextMenu("DateTimePop", 320, 700);
+  dateTimeT.setContextMenu("DateTimeShow", 450, 465);
 
 }
