@@ -74,7 +74,7 @@ const chatStore = useAiChatStore();
 
 .list-item {
   width: 95%;
-  height: 60px;
+  height: 65px;
   transition: all 0.5s;
   margin: 0 auto;
   border-radius: 4px;

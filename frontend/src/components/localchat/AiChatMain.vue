@@ -19,7 +19,7 @@ const userMessage = ref("");
 const promptMessage = computed(() => {
   return [
     {
-      content: chatStore.chatInfo.prompt,
+      content: chatStore.chatInfo.prompt || "",
       chatType: "chat",
       chatId: chatStore.activeId,
       role: "system",
