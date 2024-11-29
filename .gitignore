@@ -3,5 +3,4 @@ node_modules
 frontend/dist
 dist/*
 .VSCodeCounter
-godo/deps
 

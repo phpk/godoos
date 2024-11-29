@@ -1,2 +1,4 @@
 tmp
-
+deps/dist
+deps/*.zip
+godo
