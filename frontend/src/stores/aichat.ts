@@ -48,8 +48,9 @@ export const useAiChatStore = defineStore('aichat', () => {
     return { chatInfo, messageList, chatList }
   }
   const getChatList = async () => {
-    chatList.value = await db.getAll('aichatlist')
-    return chatList
+    const list = await db.getAll('aichatlist')
+    chatList.value = list
+    return list
   }
   // 添加聊天
   async function addChat(title: string, model: any, promptData: any, knowledgeId: string) {

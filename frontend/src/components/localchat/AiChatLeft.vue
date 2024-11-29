@@ -4,7 +4,21 @@ import { Search } from "@element-plus/icons-vue";
 // import { t } from "@/i18n";
 // import { notifyInfo,notifySuccess } from "@/util/msg.ts";
 const chatStore = useAiChatStore();
-
+const handleSearch = async () => {
+  if (chatStore.searchInput != "") {
+    const list = await chatStore.getChatList()
+    const res = list.filter((item: any) => {
+      if (item.title.includes(chatStore.searchInput)) {
+        return item;
+      }
+    })
+    if(res.length > 0){
+      chatStore.chatList = res
+    }
+  }else{
+    await chatStore.getChatList()
+  }
+};
 
 </script>
 <template>
@@ -13,7 +27,8 @@ const chatStore = useAiChatStore();
   </el-dialog>
   <el-scrollbar>
     <el-header class="search">
-      <el-input placeholder="搜索" :prefix-icon="Search" class="search-input" v-model="chatStore.searchInput" />
+      <el-input placeholder="搜索" @keyup.enter="handleSearch" :prefix-icon="Search" class="search-input"
+        v-model="chatStore.searchInput" />
       <button class="add-chat" @click="chatStore.showBox(false)">
         <el-icon>
           <Plus />
@@ -84,7 +99,8 @@ const chatStore = useAiChatStore();
   background-color: #fff;
 }
 
-.list-item:hover,.list-item.active {
+.list-item:hover,
+.list-item.active {
   background-color: #e8f3ff;
 }
 
@@ -102,7 +118,8 @@ const chatStore = useAiChatStore();
   align-items: center;
   padding-right: 10px;
 }
-.iconlist .el-icon{
+
+.iconlist .el-icon {
   cursor: pointer;
 }
 </style>
