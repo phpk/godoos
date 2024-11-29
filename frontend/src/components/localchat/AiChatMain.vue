@@ -165,7 +165,7 @@ const handleKeydown = (e: any) => {
 const selectImage = async () => {
   const img2txtModel = await modelStore.getModel("img2txt");
   if (!img2txtModel) {
-    notifyError(t("chat.notEyeModel"));
+    notifyError(t("aichat.notEyeModel"));
     return;
   }
 

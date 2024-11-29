@@ -38,6 +38,9 @@ async function downLabel(modelData: any, labelData: any) {
   labelData = toRaw(labelData);
   modelData = toRaw(modelData);
   //console.log(modelData, labelData)
+  if(modelData.model){
+    modelData.info.model = modelData.model
+  }
   const saveData = {
     model: modelData.info.model,
     label: labelData.name,
