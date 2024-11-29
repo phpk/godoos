@@ -256,7 +256,8 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 - 支持进程管理，可以查看进程列表，杀死进程
 
 ## 🏆 开发
-### 构建
+### 1.进入godo/deps/找到对应系统的文件夹，直接手工打zip压缩包
+### 2.构建
 - 前端构建（必须）
 ```bash
 cd frontend
