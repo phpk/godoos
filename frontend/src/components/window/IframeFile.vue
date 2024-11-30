@@ -46,15 +46,16 @@ const saveFile = async (e: any) => {
   if (data.ext) {
     ext = data.ext;
   }
+  const fileName = e.fileName == '' ? data.title : e.fileName
   let path:string
   e.filePath !== ""
-    ? (path = `${e.filePath}/${e.fileName}.${ext}`)
-    : (path = `${SP}C${SP}Users${SP}Desktop${SP}${e.fileName}.${ext}`);
+    ? (path = `${e.filePath}/${fileName}.${ext}`)
+    : (path = `${SP}C${SP}Users${SP}Desktop${SP}${fileName}.${ext}`);
     // console.log('路径：',path);
-  await writeFile(path, data, e.fileName);
+  await writeFile(path, data, e.fileName, true);
 };
 eventBus.on("saveFile", saveFile);
-const writeFile = async (path: string, data: any, title: string) => {
+const writeFile = async (path: string, data: any, title: string, isNewFile: boolean) => {
   const isShare = ref(false);
   const isWrite = ref(0);
   if (isShareFile(path)) {
@@ -74,12 +75,12 @@ const writeFile = async (path: string, data: any, title: string) => {
       });
       return;
     }
-  } else if (await sys?.fs.exists(path)) {
+  } else if (await sys?.fs.exists(path) && isNewFile) {
     let res = await Dialog.showMessageBox({
       type: "info",
       title: "提示",
       message: "存在相同的文件名-" + title,
-      buttons: ["覆盖文件?", "取消"],
+      buttons: ["覆盖文件", "取消"],
     });
     //console.log(res)
     if (res.response > 0) {
@@ -130,7 +131,6 @@ const eventHandler = async (e: MessageEvent) => {
     if (win.config && win.config.path) {
       path = win.config.path;
 
-      //去除重复文件名后的（1）
       let fileTitleArr = path.split(SP).pop().split(".");
       let oldExt = fileTitleArr.pop();
       let fileTitle = fileTitleArr.join(".");
@@ -141,11 +141,11 @@ const eventHandler = async (e: MessageEvent) => {
         path = path.replace("." + oldExt, "." + ext);
       }
     } else {
-      choose.saveFile("选择地址", "*", componentID, eventData);
+      choose.saveFile("选择地址", "*", componentID, eventData, ext);
       return;
       // path = `${SP}C${SP}Users${SP}Desktop${SP}${title}.${ext}`;
     }
-    writeFile(path, data, title);
+    writeFile(path, data, title, false);
   } else if (eventData.type == "initSuccess") {
     if (hasInit) {
       return;

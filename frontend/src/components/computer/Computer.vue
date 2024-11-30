@@ -154,6 +154,8 @@
 		turnLocalPath,
 	} from "@/util/sharePath.ts";
 
+  import { useChooseStore } from "@/stores/choose";
+
 	const { choseStart, chosing, choseEnd, getRect, Chosen } = useRectChosen();
 
 	const browserWindow: BrowserWindow | undefined = inject("browserWindow");
@@ -171,11 +173,15 @@
   const props = defineProps({
     translateSavePath: {
       type: Function
+    },
+    componentID:{
+
     }
   })
 	const setRouter = function (path: string) {
-    if (props.translateSavePath) {
+    if (props.translateSavePath && props.componentID) {
       props.translateSavePath(path)
+      // router_url_history.value.push(path);
     }
 		router_url.value = path;
 		if (
@@ -190,6 +196,8 @@
 		router_url_history_index.value = router_url_history.value.length;
 		router_url_history.value.push(path);
 	};
+  const choose = useChooseStore()
+ 
 	const { refersh, createFolder, backFolder, openFolder, onComputerMount } =
 		useComputer({
 			setRouter: setRouter,
@@ -355,6 +363,18 @@
 		shareShow.value =
 			system.getConfig("userType") === "member" ? true : false;
 		// console.log('配置信息：', system.getConfig('userInfo').id);
+    // 生成新文件时，设置默认路径
+    if (props.translateSavePath && choose.saveFileContent.length > 0) {
+      // setRouter(choose.saveFileContent.defaultPath)
+      let pos = -1
+      choose.saveFileContent.forEach((item, index) => {
+        if (item.componentID == props.componentID) {
+          pos = index
+        }
+      })
+      if (pos !== -1) onTreeOpen(choose.saveFileContent[pos].defaultPath)
+      // console.log('默认路径：',pos, choose.saveFileContent);
+    }
 	});
 
 	function handleOuterClick() {

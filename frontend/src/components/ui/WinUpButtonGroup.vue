@@ -40,10 +40,17 @@
 <script lang="ts" setup>
 import { BrowserWindow, WindowStateEnum } from '@/system/window/BrowserWindow';
 import { UnwrapNestedRefs } from 'vue';
-
+import { useChooseStore } from "@/stores/choose";
+const choose = useChooseStore()
 const props = defineProps<{
   browserWindow: UnwrapNestedRefs<BrowserWindow>;
 }>();
+const close = () => {
+  if(choose.isExist(props.browserWindow.windowInfo.componentID)) {
+    choose.closeSaveFile(props.browserWindow.windowInfo.componentID)
+  }
+  props.browserWindow.destroy();
+}
 function handleEvent(event: string) {
   switch (event) {
     case 'min':
@@ -59,7 +66,8 @@ function handleEvent(event: string) {
       }
       break;
     case 'close':
-      props.browserWindow.destroy();
+      close();
+      // props.browserWindow.destroy();
       break;
   }
 }

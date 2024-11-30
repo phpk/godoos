@@ -25,7 +25,7 @@
 
 		<div
 			class="wintmp_main"
-			:class="{ resizeing: resizemode != 'null' }"
+			:class="{ resizeing: resizemode != 'null', 'saveFileMain':browserWindow.windowInfo.footer}"
 			@mousedown.stop="predown"
 			@touchstart.stop.passive="predown"
 			@contextmenu.stop.prevent
@@ -91,7 +91,7 @@
   
   function translateSavePath (path: string, name?: string) {
     if (browserWindow.windowInfo.footer) {
-      const pos = choose.saveFileContent.findIndex((item) => {
+      const pos = choose.saveFileContent.findIndex((item: any) => {
         return item.componentID == browserWindow.windowInfo.componentID
       })
       if (pos == -1) return 
@@ -239,7 +239,11 @@
       position: relative;
     }
 	}
-
+  .saveFileMain {
+    :deep(.main) {
+      height: calc(100% - 60px);
+    }
+  }
 	.topwin {
 		// border: 1px solid #0078d7;
 		// box-shadow: var(--window-top-box-shadow);
