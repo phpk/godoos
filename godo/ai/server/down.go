@@ -223,7 +223,7 @@ func DeleteFileHandle(w http.ResponseWriter, r *http.Request) {
 		postQuery := map[string]interface{}{"name": reqBody.Model}
 		url := GetOllamaUrl() + "/api/delete"
 
-		ForwardHandler(w, r, postQuery, url, "DELETE")
+		ForwardHandler(w, r, postQuery, url, nil, "DELETE")
 		return
 	}
 	delUrls(reqBody.Info.URL)

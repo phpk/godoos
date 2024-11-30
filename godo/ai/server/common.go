@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func ForwardHandler(w http.ResponseWriter, r *http.Request, reqBody interface{}, url string, method string) {
+func ForwardHandler(w http.ResponseWriter, r *http.Request, reqBody interface{}, url string, headers map[string]string, method string) {
 	payloadBytes, err := json.Marshal(reqBody)
 	if err != nil {
 		libs.ErrorMsg(w, "Error marshaling payload")
@@ -21,7 +21,10 @@ func ForwardHandler(w http.ResponseWriter, r *http.Request, reqBody interface{},
 		libs.ErrorMsg(w, "Failed to create request")
 		return
 	}
-	req.Header.Set("Content-Type", "application/json")
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+	//req.Header.Set("Content-Type", "application/json")
 
 	// 发送请求
 	client := &http.Client{}

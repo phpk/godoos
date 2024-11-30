@@ -177,7 +177,7 @@ func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody types.ReqBody
 		"model": model,
 	}
 	url := GetOllamaUrl() + "/api/pull"
-	ForwardHandler(w, r, postQuery, url, "POST")
+	ForwardHandler(w, r, postQuery, url, nil, "POST")
 	details, err := getOllamaInfo(r, model)
 	//log.Printf("details is %v", details)
 	if err != nil {
@@ -366,7 +366,7 @@ func ConvertOllama(w http.ResponseWriter, r *http.Request, req types.ReqBody) {
 		"name":      req.Model,
 		"modelfile": modelFile,
 	}
-	ForwardHandler(w, r, postParams, url, "POST")
+	ForwardHandler(w, r, postParams, url, nil, "POST")
 	modelDir, err := config.GetModelDir(req.Model)
 	if err != nil {
 		libs.ErrorMsg(w, "GetModelDir")

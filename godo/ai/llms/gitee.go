@@ -1,4 +1,4 @@
-package api
+package llms
 
 import (
 	"fmt"

@@ -160,22 +160,11 @@ export const getSystemConfig = (ifset = false) => {
   if (!config.openaiUrl) {
     config.openaiUrl = 'https://api.openai.com/v1'
   }
-  if (!config.aiKey) {
-    config.aiKey = {
-      "openai": "",
-      "gitee": "",
-      // "google": "",
-      // "baidu": "",
-      // "ali": "",
-      // "tencent": "",
-      // "bigmodel": "",
-      // "xai": "",
-      // "azure": "",
-      // "stability": "",
-      // "claude": "",
-      // "groq": ""
-
-    }
+  if (!config.openaiSecret) {
+    config.openaiSecret = ""
+  }
+  if(!config.giteeSecret){
+    config.giteeSecret = ""
   }
   // 初始化桌面快捷方式列表，若本地存储中已存在则不进行覆盖
   if (!config.desktopList) {
