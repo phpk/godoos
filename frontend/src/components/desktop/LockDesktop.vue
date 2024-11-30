@@ -48,54 +48,17 @@
 				</div>
 				<div class="third-party-login">
 					<img
+						v-for="platform in thirdPartyPlatforms"
+						:key="platform.name"
+						:src="platform.icon"
+						:alt="platform.name"
 						style="
 							width: 25px;
 							height: 25px;
 							cursor: pointer;
 							color: #409eff;
 						"
-						src="../../../public/image/login/微信.png"
-						@click="onThirdPartyLogin('wechat')"
-					/>
-					<img
-						style="
-							width: 25px;
-							height: 25px;
-							cursor: pointer;
-							color: #409eff;
-						"
-						src="../../../public/image/login/QQ.png"
-						@click="onThirdPartyLogin('qq')"
-					/>
-					<img
-						style="
-							width: 25px;
-							height: 25px;
-							cursor: pointer;
-							color: #409eff;
-						"
-						src="../../../public/image/login/新浪微博.png"
-						@click="onThirdPartyLogin('sina')"
-					/>
-					<img
-						style="
-							width: 25px;
-							height: 25px;
-							cursor: pointer;
-							color: #409eff;
-						"
-						src="../../../public/image/login/GitHub.png"
-						@click="onThirdPartyLogin('github')"
-					/>
-					<img
-						style="
-							width: 25px;
-							height: 25px;
-							cursor: pointer;
-							color: #409eff;
-						"
-						src="../../../public/image/login/gitee.png"
-						@click="onThirdPartyLogin('gitee')"
+						@click="onThirdPartyLogin(platform.name)"
 					/>
 				</div>
 				<div
@@ -199,6 +162,30 @@
 	const config = getSystemConfig();
 	const lockClassName = ref("screen-show");
 	const isRegisterMode = ref(false);
+
+	const thirdPartyPlatforms = [
+		{
+			name: "wechat",
+			icon: new URL("@/assets/login/wechat.png", import.meta.url).href,
+		},
+		{
+			name: "qq",
+			icon: new URL("@/assets/login/qq.png", import.meta.url).href,
+		},
+		{
+			name: "sina",
+			icon: new URL("@/assets/login/sina.png", import.meta.url).href,
+		},
+		{
+			name: "github",
+			icon: new URL("@/assets/login/github.png", import.meta.url).href,
+		},
+		{
+			name: "gitee",
+			icon: new URL("@/assets/login/gitee.png", import.meta.url).href,
+		},
+	];
+
 	function loginSuccess() {
 		lockClassName.value = "screen-hidean";
 		setTimeout(() => {
@@ -219,6 +206,7 @@
 		}
 	});
 
+	// 监听code参数
 	watch(
 		() => router.currentRoute.value.query.code,
 		() => {
@@ -248,6 +236,8 @@
 				// 第三方登录统一调用
 				const returnedState = router.currentRoute.value.query
 					.state as string;
+
+				console.log(returnedState, "---", store.State);
 
 				if (returnedState !== store.State) {
 					notifyError("登录失败，请重试");
@@ -402,7 +392,7 @@
 				break;
 			case "gitee":
 				loginFunction = async function () {
-					return await authWithGithub();
+					return await authWithGitee();
 				};
 				break;
 			default:
@@ -423,7 +413,6 @@
 	const authWithGithub = async (): Promise<boolean> => {
 		// 传递state用于防止CSRF攻击,使用时间戳加随机字符串
 		const state = Date.now() + Math.random().toString(36).substring(2, 15);
-		// 存储到本地
 		store.State = state;
 		const url = config.userInfo.url + "/github/authorize?state=" + state;
 		const res: any = await fetch(url, {
@@ -451,6 +440,26 @@
 
 	const authWithSina = (): boolean | PromiseLike<boolean> => {
 		throw new Error("Function not implemented.");
+	};
+
+	const authWithGitee = async (): Promise<boolean> => {
+		// 传递state用于防止CSRF攻击,使用时间戳加随机字符串
+		const state = Date.now() + Math.random().toString(36).substring(2, 15);
+		store.State = state;
+		const url = config.userInfo.url + "/gitee/authorize?state=" + state;
+		const res: any = await fetch(url, {
+			method: "POST",
+			body: JSON.stringify({
+				state: state,
+			}),
+		});
+		if (!res.ok) {
+			return false;
+		}
+		const data = await res.json();
+		// 跳转到Gitee授权页面
+		window.location.href = data.data.url;
+		return true;
 	};
 </script>
 

@@ -79,12 +79,18 @@ class Dialog {
     }>((resolve) => {
       promres = resolve;
     });
+    let confirmText = 'OK'
+    let cancleText = 'Cancel'
+    if (option.buttons && option.buttons.length == 2) {
+      confirmText = option.buttons[0]
+      cancleText = option.buttons[1]
+    }
     ElMessageBox.confirm(
       opt.message,
       opt.title,
       {
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: confirmText,
+        cancelButtonText: cancleText,
         type: opt.type,
       }
     )

@@ -12,7 +12,10 @@
 <script lang="ts" setup>
 import { BrowserWindow } from "@/system/window/BrowserWindow";
 import { UnwrapNestedRefs, ref } from "vue";
+import { useChooseStore } from "@/stores/choose";
+import { notifyInfo } from "@/util/msg";
 // import { emitEvent } from "@/system/event";
+const choose = useChooseStore()
 const props = defineProps<{
   browserWindow: UnwrapNestedRefs<BrowserWindow>;
 }>();
@@ -21,10 +24,15 @@ let fileName = ref('未命名文件')
 
 function cancleSave() {
   props.browserWindow.close()
+  choose.closeSaveFile(props.browserWindow.windowInfo.componentID)
 }
 function saveFile() {
+  if (fileName.value == '') {
+    notifyInfo('请输入文件名称')
+    return
+  }
   emit('translateSavePath','',fileName.value)
-  props.browserWindow.close()
+  cancleSave()
 }
 </script>
 
