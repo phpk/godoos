@@ -21,7 +21,7 @@ import (
 	"io"
 	"strings"
 
-	"godo/convert/libs"
+	"godo/ai/convert/libs"
 
 	"github.com/pbnjay/grate"
 	_ "github.com/pbnjay/grate/simple" // tsv and csv support

@@ -1,15 +1,16 @@
-package model
+package config
 
 import (
 	"encoding/json"
 	"fmt"
+	"godo/ai/types"
 	"godo/libs"
 	"os"
 	"path/filepath"
 	"sync"
 )
 
-var reqBodyMap = sync.Map{}
+var ReqBodyMap = sync.Map{}
 
 func GetConfigFile() (string, error) {
 	modelDir, err := libs.GetAppDir()
@@ -36,7 +37,7 @@ func LoadConfig() error {
 	if err != nil {
 		return err
 	}
-	var reqBodies []ReqBody
+	var reqBodies []types.ReqBody
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return err
@@ -46,9 +47,9 @@ func LoadConfig() error {
 		return err
 	}
 	for _, reqBody := range reqBodies {
-		reqBodyMap.Store(reqBody.Model, reqBody)
+		ReqBodyMap.Store(reqBody.Model, reqBody)
 	}
-	//log.Printf("Load config file success %v", reqBodyMap)
+	//log.Printf("Load config file success %v", ReqBodyMap)
 	return nil
 }
 
@@ -58,9 +59,9 @@ func SaveConfig() error {
 	if err != nil {
 		return err
 	}
-	var reqBodies []ReqBody
-	reqBodyMap.Range(func(key, value interface{}) bool {
-		rb := value.(ReqBody)
+	var reqBodies []types.ReqBody
+	ReqBodyMap.Range(func(key, value interface{}) bool {
+		rb := value.(types.ReqBody)
 		reqBodies = append(reqBodies, rb)
 		return true
 	})
@@ -77,20 +78,20 @@ func SaveConfig() error {
 	}
 	return nil
 }
-func GetModel(Model string) (ReqBody, bool) {
-	value, ok := reqBodyMap.Load(Model)
+func GetModel(Model string) (types.ReqBody, bool) {
+	value, ok := ReqBodyMap.Load(Model)
 	if ok {
-		return value.(ReqBody), true
+		return value.(types.ReqBody), true
 	}
-	return ReqBody{}, false
+	return types.ReqBody{}, false
 }
 func ExistModel(Model string) bool {
-	_, exists := reqBodyMap.Load(Model)
+	_, exists := ReqBodyMap.Load(Model)
 	return exists
 }
-func SetModel(reqBody ReqBody) error {
+func SetModel(reqBody types.ReqBody) error {
 
-	reqBodyMap.Store(reqBody.Model, reqBody)
+	ReqBodyMap.Store(reqBody.Model, reqBody)
 
 	//log.Println("=====SetModel", reqBody.Model)
 	if err := SaveConfig(); err != nil {
@@ -100,13 +101,13 @@ func SetModel(reqBody ReqBody) error {
 	return nil
 }
 
-func UpdateModel(reqBody ReqBody) error {
-	_, loaded := reqBodyMap.Load(reqBody.Model)
+func UpdateModel(reqBody types.ReqBody) error {
+	_, loaded := ReqBodyMap.Load(reqBody.Model)
 	if !loaded {
 		return fmt.Errorf("model directory %s not found", reqBody.Model)
 	}
 
-	reqBodyMap.Store(reqBody.Model, reqBody)
+	ReqBodyMap.Store(reqBody.Model, reqBody)
 	if err := SaveConfig(); err != nil {
 		return fmt.Errorf("failed to save updated model configuration: %w", err)
 	}
@@ -114,13 +115,13 @@ func UpdateModel(reqBody ReqBody) error {
 	return nil
 }
 
-func AddModel(Model string, reqBody ReqBody) error {
-	_, loaded := reqBodyMap.Load(Model)
+func AddModel(Model string, reqBody types.ReqBody) error {
+	_, loaded := ReqBodyMap.Load(Model)
 	if loaded {
 		return fmt.Errorf("model directory %s already exists", Model)
 	}
 
-	reqBodyMap.Store(Model, reqBody)
+	ReqBodyMap.Store(Model, reqBody)
 	if err := SaveConfig(); err != nil {
 		return fmt.Errorf("failed to save new model configuration: %w", err)
 	}
@@ -129,9 +130,9 @@ func AddModel(Model string, reqBody ReqBody) error {
 }
 
 func DeleteModel(Model string) error {
-	_, loaded := reqBodyMap.Load(Model)
+	_, loaded := ReqBodyMap.Load(Model)
 	if loaded {
-		reqBodyMap.Delete(Model)
+		ReqBodyMap.Delete(Model)
 	}
 	if err := SaveConfig(); err != nil {
 		return fmt.Errorf("failed to delete model configuration: %w", err)

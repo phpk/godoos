@@ -1,9 +1,11 @@
-package model
+package server
 
 import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"godo/ai/config"
+	"godo/ai/types"
 	"godo/libs"
 	"io"
 	"log"
@@ -35,18 +37,18 @@ func noticeSuccess(w http.ResponseWriter) {
 }
 
 func Download(w http.ResponseWriter, r *http.Request) {
-	reqBody := ReqBody{}
+	reqBody := types.ReqBody{}
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		libs.ErrorMsg(w, "first Decode request body error:"+err.Error())
 		return
 	}
-	err = LoadConfig()
+	err = config.LoadConfig()
 	if err != nil {
 		libs.ErrorMsg(w, "Load config error")
 		return
 	}
-	_, exitsModel := GetModel(reqBody.Model)
+	_, exitsModel := config.GetModel(reqBody.Model)
 	if exitsModel {
 		noticeSuccess(w)
 		return
@@ -71,7 +73,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 			paths = append(paths, urls)
 			continue
 		}
-		filePath, err := GetModelPath(urls, reqBody.Model, reqBody.Type)
+		filePath, err := config.GetModelPath(urls, reqBody.Model, reqBody.Type)
 		//log.Printf("filePath is %s", filePath)
 		if err != nil {
 			libs.ErrorMsg(w, "Get model path error")
@@ -127,7 +129,7 @@ func Download(w http.ResponseWriter, r *http.Request) {
 		// reqBody.Paths = []string{}
 	}
 
-	if err := SetModel(reqBody); err != nil {
+	if err := config.SetModel(reqBody); err != nil {
 		libs.ErrorMsg(w, "Set model error")
 		return
 	}
@@ -154,7 +156,7 @@ func trackProgress(w http.ResponseWriter, resp *grab.Response, md5url string) {
 	for {
 		select {
 		case <-ticker.C:
-			fp := FileProgress{
+			fp := types.FileProgress{
 				Progress:   resp.Progress(),
 				IsFinished: resp.IsComplete(),
 				Total:      resp.Size(),
@@ -202,18 +204,18 @@ func delUrls(reqUrl []string) {
 	}
 }
 func DeleteFileHandle(w http.ResponseWriter, r *http.Request) {
-	var reqBody ReqBody
+	var reqBody types.ReqBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
 		libs.ErrorMsg(w, "Decode request body error: ")
 		return
 	}
-	err = LoadConfig()
+	err = config.LoadConfig()
 	if err != nil {
 		libs.ErrorMsg(w, "Load config error: ")
 		return
 	}
-	if err := DeleteModel(reqBody.Model); err != nil {
+	if err := config.DeleteModel(reqBody.Model); err != nil {
 		libs.ErrorMsg(w, "Error deleting model")
 		return
 	}
@@ -228,7 +230,7 @@ func DeleteFileHandle(w http.ResponseWriter, r *http.Request) {
 
 	// 尝试删除目录，注意这会递归删除目录下的所有内容
 	//dirPath := filepath.Dir(filePath)
-	dirPath, err := GetModelDir(reqBody.Model)
+	dirPath, err := config.GetModelDir(reqBody.Model)
 	if err != nil {
 		libs.ErrorMsg(w, "GetModelDir error")
 		return

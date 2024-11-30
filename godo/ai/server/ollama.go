@@ -1,10 +1,12 @@
-package model
+package server
 
 import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"godo/ai/config"
+	"godo/ai/types"
 	"godo/libs"
 	"io"
 	"log"
@@ -16,58 +18,6 @@ import (
 	"strings"
 	"time"
 )
-
-type OllamaModelsList struct {
-	Models []OllamaModelsInfo `json:"models"`
-}
-
-type OllamaDetails struct {
-	ParameterSize     string `json:"parameter_size"`
-	QuantizationLevel string `json:"quantization_level"`
-}
-type OllamaModelsInfo struct {
-	Model   string        `json:"model"`
-	Details OllamaDetails `json:"details"`
-	Size    int64         `json:"size"`
-}
-type OllamaModelDetail struct {
-	Parameters string                 `json:"parameters"`
-	Template   string                 `json:"template"`
-	Details    map[string]interface{} `json:"details"`
-	ModelInfo  map[string]interface{} `json:"model_info"`
-}
-
-// type ResModelInfo struct {
-// 	Parameters      string `json:"parameters"`
-// 	Template        string `json:"template"`
-// 	ContextLength   int64  `json:"context_length"`
-// 	EmbeddingLength int64  `json:"embedding_length"`
-// 	Size            string `json:"size"`
-// 	Quant           string `json:"quant"`
-// 	Desk            string `json:"desk"`
-// 	Cpu             string `json:"cpu"`
-// 	Gpu             string `json:"gpu"`
-// }
-
-type Layer struct {
-	MediaType string `json:"mediaType"`
-	Digest    string `json:"digest"`
-	Size      int64  `json:"size"`
-	From      string `json:"from,omitempty"`
-	status    string
-}
-type ManifestV2 struct {
-	SchemaVersion int      `json:"schemaVersion"`
-	MediaType     string   `json:"mediaType"`
-	Config        *Layer   `json:"config"`
-	Layers        []*Layer `json:"layers"`
-}
-type OmodelPath struct {
-	Space   string
-	LibPath string
-	Name    string
-	Tag     string
-}
 
 const (
 	KB = 1 << (10 * iota)
@@ -116,8 +66,8 @@ func extractParameterSize(sizeStr string, model string) (float64, bool) {
 	return 0, false
 }
 
-func parseOllamaInfo(info OllamaModelsInfo) ModelInfo {
-	res := ModelInfo{
+func parseOllamaInfo(info types.OllamaModelsInfo) types.ModelInfo {
+	res := types.ModelInfo{
 		Size:  humanReadableSize(info.Size),
 		Quant: info.Details.QuantizationLevel,
 	}
@@ -143,9 +93,9 @@ func parseOllamaInfo(info OllamaModelsInfo) ModelInfo {
 
 	return res
 }
-func getOllamaModels() ([]OllamaModelsInfo, error) {
+func getOllamaModels() ([]types.OllamaModelsInfo, error) {
 	req, err := http.Get(GetOllamaUrl() + "/api/tags")
-	res := []OllamaModelsInfo{}
+	res := []types.OllamaModelsInfo{}
 	if err != nil {
 		return res, fmt.Errorf("failed to create request")
 	}
@@ -155,7 +105,7 @@ func getOllamaModels() ([]OllamaModelsInfo, error) {
 	if err != nil {
 		return res, fmt.Errorf("failed to read response body")
 	}
-	rest := OllamaModelsList{}
+	rest := types.OllamaModelsList{}
 	if err := json.Unmarshal(body, &rest); err != nil {
 		return res, fmt.Errorf("failed to unmarshal response body")
 	}
@@ -176,10 +126,10 @@ func refreshOllamaModels(r *http.Request) error {
 	if err != nil {
 		return fmt.Errorf("load ollama error: %v", err)
 	}
-	// 将modelList中的数据写入reqBodyMap
+	// 将modelList中的数据写入ReqBodyMap
 	for _, modelInfo := range modelList {
 		model := modelInfo.Model
-		if _, exists := reqBodyMap.Load(model); !exists {
+		if _, exists := config.ReqBodyMap.Load(model); !exists {
 			// 创建一个新的ReqBody对象并填充相关信息
 			oinfo := parseOllamaInfo(modelInfo)
 			details, err := getOllamaInfo(r, model)
@@ -195,12 +145,12 @@ func refreshOllamaModels(r *http.Request) error {
 				log.Printf("Error parsing Manifests: %v", err)
 				continue
 			}
-			reqBody := ReqBody{
+			reqBody := types.ReqBody{
 				Model:     model,
 				Status:    "success",
 				CreatedAt: time.Now(),
 			}
-			reqBody.Info = ModelInfo{
+			reqBody.Info = types.ModelInfo{
 				Engine:          "ollama",
 				From:            "ollama",
 				Path:            paths,
@@ -215,13 +165,13 @@ func refreshOllamaModels(r *http.Request) error {
 				EmbeddingLength: embeddingLength,
 			}
 
-			// 将新的ReqBody对象写入reqBodyMap
-			reqBodyMap.Store(model, reqBody)
+			// 将新的ReqBody对象写入ReqBodyMap
+			config.ReqBodyMap.Store(model, reqBody)
 		}
 	}
 	return nil
 }
-func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody ReqBody) {
+func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody types.ReqBody) {
 	model := reqBody.Model
 	postQuery := map[string]interface{}{
 		"model": model,
@@ -256,7 +206,7 @@ func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody ReqBody) {
 				continue
 			}
 
-			reqBody.Info = ModelInfo{
+			reqBody.Info = types.ModelInfo{
 				Engine:          reqBody.Info.Engine,
 				From:            reqBody.Info.From,
 				Path:            paths,
@@ -273,7 +223,7 @@ func setOllamaInfo(w http.ResponseWriter, r *http.Request, reqBody ReqBody) {
 			//reqBody.Paths = paths
 			reqBody.Status = "success"
 			reqBody.CreatedAt = time.Now()
-			if err := SetModel(reqBody); err != nil {
+			if err := config.SetModel(reqBody); err != nil {
 				libs.ErrorMsg(w, "Set model error")
 				return
 			}
@@ -295,11 +245,11 @@ func convertInt(data map[string]interface{}, str string) int {
 	}
 	return res
 }
-func getOllamaInfo(r *http.Request, model string) (OllamaModelDetail, error) {
+func getOllamaInfo(r *http.Request, model string) (types.OllamaModelDetail, error) {
 	infoQuery := map[string]interface{}{
 		"name": model,
 	}
-	res := OllamaModelDetail{}
+	res := types.OllamaModelDetail{}
 	url := GetOllamaUrl() + "/api/show"
 	payloadBytes, err := json.Marshal(infoQuery)
 	if err != nil {
@@ -329,7 +279,7 @@ func getOllamaInfo(r *http.Request, model string) (OllamaModelDetail, error) {
 	}
 	return res, nil
 }
-func getOpName(model string) OmodelPath {
+func GetOpName(model string) types.OmodelPath {
 	libPath := "library"
 	modelName := model
 	modelTags := "latest"
@@ -344,7 +294,7 @@ func getOpName(model string) OmodelPath {
 		libPath = names[0]
 		modelName = names[1]
 	}
-	return OmodelPath{
+	return types.OmodelPath{
 		Space:   "registry.ollama.ai",
 		LibPath: libPath,
 		Name:    modelName,
@@ -353,14 +303,14 @@ func getOpName(model string) OmodelPath {
 }
 func getManifests(model string) ([]string, error) {
 	res := []string{}
-	opName := getOpName(model)
+	opName := GetOpName(model)
 	modelsDir := GetOllamaModelDir()
 	manifestsFile := filepath.Join(modelsDir, "manifests", opName.Space, opName.LibPath, opName.Name, opName.Tag)
 	if !libs.PathExists(manifestsFile) {
 		return res, fmt.Errorf("failed to get manifests file: %s", manifestsFile)
 	}
 	res = append(res, manifestsFile)
-	var manifest ManifestV2
+	var manifest types.ManifestV2
 	f, err := os.Open(manifestsFile)
 	if err != nil {
 		return res, err
@@ -401,7 +351,7 @@ func GetBlobsPath(digest string) (string, error) {
 	return path, nil
 }
 
-func ConvertOllama(w http.ResponseWriter, r *http.Request, req ReqBody) {
+func ConvertOllama(w http.ResponseWriter, r *http.Request, req types.ReqBody) {
 	modelFile := "FROM " + req.Info.Path[0] + "\n"
 	modelFile += `TEMPLATE """` + req.Info.Template + `"""`
 	if req.Info.Parameters != "" {
@@ -417,7 +367,7 @@ func ConvertOllama(w http.ResponseWriter, r *http.Request, req ReqBody) {
 		"modelfile": modelFile,
 	}
 	ForwardHandler(w, r, postParams, url, "POST")
-	modelDir, err := GetModelDir(req.Model)
+	modelDir, err := config.GetModelDir(req.Model)
 	if err != nil {
 		libs.ErrorMsg(w, "GetModelDir")
 		return
@@ -433,4 +383,39 @@ func ConvertOllama(w http.ResponseWriter, r *http.Request, req ReqBody) {
 		libs.ErrorMsg(w, "Error removing directory")
 		return
 	}
+}
+
+func Var(key string) string {
+	return strings.Trim(strings.TrimSpace(os.Getenv(key)), "\"'")
+}
+func GetOllamaModelDir() string {
+	if s := Var("OLLAMA_MODELS"); s != "" {
+		return s
+	}
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".ollama", "models")
+}
+func GetOllamaUrl() string {
+	if s := strings.TrimSpace(Var("OLLAMA_HOST")); s != "" {
+		return s
+	}
+	ollamaUrl, ok := libs.GetConfig("ollamaUrl")
+	if ok {
+		return ollamaUrl.(string)
+	} else {
+		return "http://localhost:11434"
+	}
+}
+func GetModelDir(fileName string, model string) string {
+	var filePath string
+	dir := GetOllamaModelDir()
+	if strings.Contains(fileName, "sha256-") && len(fileName) == 71 {
+		filePath = filepath.Join(dir, "blobs", fileName)
+		//log.Printf("====filePath1: %s", filePath)
+	} else {
+		opName := GetOpName(model)
+		filePath = filepath.Join(dir, "manifests", opName.Space, opName.LibPath, opName.Name, opName.Tag)
+		//log.Printf("====filePath2: %s", filePath)
+	}
+	return filePath
 }

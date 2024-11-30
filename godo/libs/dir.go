@@ -19,6 +19,8 @@
 package libs
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -121,6 +123,35 @@ func GetDataDir() string {
 		os.MkdirAll(staticPath, 0755)
 	}
 	return staticPath
+}
+func GetDbDir() string {
+	homeDir := GetDataDir()
+	dbPath := filepath.Join(homeDir, "db", "vector")
+	if !PathExists(dbPath) {
+		os.MkdirAll(dbPath, 0755)
+	}
+	return dbPath
+}
+func GetVectorDb() string {
+	homeDir := GetDataDir()
+	dbPath := filepath.Join(homeDir, "db")
+	if !PathExists(dbPath) {
+		os.MkdirAll(dbPath, 0755)
+	}
+	return filepath.Join(dbPath, "vector.db")
+}
+func GetVectorDbName(name string) string {
+	hasher := md5.New()
+	hasher.Write([]byte(name))
+	hashBytes := hasher.Sum(nil)
+
+	// 将哈希值转换为十六进制字符串
+	return hex.EncodeToString(hashBytes)
+}
+func GetVectorPath(name string) string {
+	hashHex := GetVectorDbName(name)
+	dbDir := GetDbDir()
+	return filepath.Join(dbDir, "vector", hashHex+".db")
 }
 func GetCacheDir() string {
 	homeDir := GetDataDir()

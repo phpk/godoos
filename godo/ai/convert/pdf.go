@@ -20,7 +20,7 @@ package convert
 import (
 	"io"
 
-	"godo/convert/libs"
+	"godo/ai/convert/libs"
 )
 
 func ConvertPDF(r io.Reader) (string, error) {

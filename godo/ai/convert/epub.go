@@ -27,7 +27,7 @@ import (
 	"os"
 	"path"
 
-	"godo/convert/libs"
+	"godo/ai/convert/libs"
 )
 
 const containerPath = "META-INF/container.xml"

@@ -20,7 +20,7 @@ package convert
 import (
 	"crypto/md5"
 	"fmt"
-	lib "godo/convert/libs"
+	lib "godo/ai/convert/libs"
 	"godo/libs"
 	"io"
 	"log"

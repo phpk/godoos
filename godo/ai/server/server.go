@@ -1,8 +1,10 @@
-package model
+package server
 
 import (
 	"encoding/json"
 	"fmt"
+	"godo/ai/config"
+	"godo/ai/types"
 	"godo/libs"
 	"io"
 	"log"
@@ -13,14 +15,14 @@ import (
 )
 
 func Tagshandler(w http.ResponseWriter, r *http.Request) {
-	err := LoadConfig()
+	err := config.LoadConfig()
 	if err != nil {
 		libs.ErrorMsg(w, "Load config error")
 		return
 	}
-	var reqBodies []ReqBody
-	reqBodyMap.Range(func(key, value interface{}) bool {
-		rb, ok := value.(ReqBody)
+	var reqBodies []types.ReqBody
+	config.ReqBodyMap.Range(func(key, value interface{}) bool {
+		rb, ok := value.(types.ReqBody)
 		if ok {
 			reqBodies = append(reqBodies, rb)
 		}
@@ -40,7 +42,7 @@ func Tagshandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func ShowHandler(w http.ResponseWriter, r *http.Request) {
-	err := LoadConfig()
+	err := config.LoadConfig()
 	if err != nil {
 		libs.ErrorMsg(w, "Load config error")
 		return
@@ -51,9 +53,9 @@ func ShowHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//log.Printf("ShowHandler: %s", model)
-	var reqBodies ReqBody
-	reqBodyMap.Range(func(key, value interface{}) bool {
-		rb, ok := value.(ReqBody)
+	var reqBodies types.ReqBody
+	config.ReqBodyMap.Range(func(key, value interface{}) bool {
+		rb, ok := value.(types.ReqBody)
 		if ok && rb.Model == model {
 			reqBodies = rb
 			return false

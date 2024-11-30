@@ -20,11 +20,11 @@ package cmd
 
 import (
 	"context"
+	model "godo/ai/server"
 	"godo/deps"
 	"godo/files"
 	"godo/libs"
 	"godo/localchat"
-	"godo/model"
 	"godo/store"
 	"godo/sys"
 	"godo/webdav"

@@ -18,20 +18,28 @@
 package convert
 
 import (
-	"bytes"
 	"io"
 
-	"godo/convert/doc"
+	"godo/ai/convert/libs"
 )
 
-// ConvertDoc converts an MS Word .doc to text.
-func ConvertDoc(r io.Reader) (string, error) {
-
-	buf, err := doc.ParseDoc(r)
-
+func ConvertImage(r io.Reader) (string, error) {
+	// 获取临时文件的绝对路径
+	absFilePath, tmpfile, err := libs.GetTempFile(r, "prefix-image")
 	if err != nil {
 		return "", err
 	}
-
-	return buf.(*bytes.Buffer).String(), nil
+	paths := []string{absFilePath}
+	// 识别文本
+	output, err := libs.RunRapid(paths)
+	if err != nil {
+		return "", err
+	}
+	libs.CloseTempFile(tmpfile)
+	// resultString, err := libs.ExtractText(output)
+	// if err != nil {
+	// 	return "", err
+	// }
+	// fmt.Println(resultString)
+	return output, nil
 }
