@@ -372,7 +372,6 @@ func ConvertOllama(w http.ResponseWriter, r *http.Request, req types.ReqBody) {
 		libs.ErrorMsg(w, "GetModelDir")
 		return
 	}
-
 	// modelFilePath := filepath.Join(modelDir, "Modelfile")
 	// if err := os.WriteFile(modelFilePath, []byte(modelFile), 0644); err != nil {
 	// 	ErrMsg("WriteFile", err, w)

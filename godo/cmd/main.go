@@ -54,6 +54,7 @@ func OsStart() {
 	}
 	webdav.InitWebdav()
 	router := mux.NewRouter()
+	router.Use(recoverMiddleware)
 	router.Use(corsMiddleware())
 	// 使用带有日志装饰的处理器注册路由
 	router.Use(loggingMiddleware{}.Middleware)

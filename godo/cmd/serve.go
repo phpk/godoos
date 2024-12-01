@@ -20,6 +20,8 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+	"godo/libs"
 	"log"
 	"net/http"
 	"os"
@@ -74,6 +76,18 @@ func (l loggingMiddleware) Middleware(next http.Handler) http.Handler {
 				r.Proto,
 				time.Since(startTime),
 			)
+		}()
+		next.ServeHTTP(w, r)
+	})
+}
+func recoverMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				// log.Printf("Recovered from panic: %v", err)
+				// http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				libs.ErrorMsg(w, "Internal Server Error:"+fmt.Sprintf("%v", err))
+			}
 		}()
 		next.ServeHTTP(w, r)
 	})

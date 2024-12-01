@@ -35,51 +35,56 @@ export const netEngines = [
 
   {
     name: "OpenAI",
-    cpp: "ChatGPT"
+    cpp: "openai",
+    needID: false,
   },
-  {
-    name: "Google",
-    cpp: "gemini"
-  },
+  // {
+  //   name: "Google",
+  //   cpp: "gemini"
+  // },
   {
     name: "GiteeAI",
     cpp: "giteeAI",
+    needID: false,
   },
-  {
-    name: "Baidu",
-    cpp: "baidu"
-  },
+  // {
+  //   name: "Baidu",
+  //   cpp: "baidu"
+  // },
   {
     name: "Alibaba",
-    cpp: "ali"
+    cpp: "alibaba",
+    needID: false,
   },
-  {
-    name: "Tencent",
-    cpp: "tencent"
-  },
-  {
-    name: "Kimi",
-    cpp: "Moonshot"
-  },
+  // {
+  //   name: "Tencent",
+  //   cpp: "tencent"
+  // },
+  // {
+  //   name: "Kimi",
+  //   cpp: "Moonshot"
+  // },
   {
     name: "BigModel",
-    cpp: "BigModel"
+    cpp: "BigModel",
+    needID: false,
   },
-  {
-    name: "xAI",
-    cpp: "xAI"
-  },
-  {
-    name: "Stability",
-    cpp: "stability"
-  },
-  {
-    name: "Anthropic",
-    cpp: "claude"
-  },
+  // {
+  //   name: "xAI",
+  //   cpp: "xAI"
+  // },
+  // {
+  //   name: "Stability",
+  //   cpp: "stability"
+  // },
+  // {
+  //   name: "Anthropic",
+  //   cpp: "claude"
+  // },
   {
     name: "Groq",
-    cpp: "groqcloud"
+    cpp: "groqcloud",
+    needID: false,
   },
 ]
 export const llamaQuant = [

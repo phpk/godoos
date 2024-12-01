@@ -8,6 +8,7 @@ require (
 	github.com/EndFirstCorp/peekingReader v0.0.0-20171012052444-257fb6f1a1a6
 	github.com/beevik/etree v1.4.1
 	github.com/cavaliergopher/grab/v3 v3.0.1
+	github.com/ebitengine/purego v0.8.1
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gorilla/mux v1.8.1
 	github.com/mattetti/filebuffer v1.0.1
@@ -18,6 +19,7 @@ require (
 	github.com/richardlehane/mscfb v1.0.4
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	golang.org/x/net v0.21.0
+	golang.org/x/sys v0.27.0
 	gorm.io/gorm v1.25.12
 	jaytaylor.com/html2text v0.0.0-20230321000545-74c2419ad056
 )
@@ -38,6 +40,5 @@ require (
 	github.com/tklauser/numcpus v0.8.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/crypto v0.29.0 // indirect
-	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
 )

@@ -76,7 +76,17 @@ func GetOsDir() (string, error) {
 	}
 	return osDir.(string), nil
 }
-
+func GetUserDir() (string, error) {
+	osDir, err := GetOsDir()
+	if err != nil {
+		baseDir, err := GetAppDir()
+		if err != nil {
+			return "", err
+		}
+		return filepath.Join(baseDir, "os", "C", "Users"), nil
+	}
+	return filepath.Join(osDir, "C", "Users"), nil
+}
 func GetAppDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
