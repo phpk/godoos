@@ -83,6 +83,7 @@ const createCompletion = async () => {
     let postMsg: any = {
       messages: requestMessages.value,
       model: chatStore.chatInfo.model,
+      engine: chatStore.chatInfo.engine,
       stream: false,
       options: chatConfig,
     };
@@ -92,6 +93,7 @@ const createCompletion = async () => {
       postMsg = {
         model: img2txtModel.model,
         //"prompt":userMessage.value,
+        engine: img2txtModel.info.engine,
         stream: false,
         options: chatConfig,
         messages: [

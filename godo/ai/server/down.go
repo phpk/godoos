@@ -54,6 +54,14 @@ func Download(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
+	if reqBody.Type == "net" {
+		if err := config.SetModel(reqBody); err != nil {
+			libs.ErrorMsg(w, "Set model error")
+			return
+		}
+		noticeSuccess(w)
+		return
+	}
 	if reqBody.Info.From == "ollama" && reqBody.Info.Engine == "ollama" {
 		setOllamaInfo(w, r, reqBody)
 		return

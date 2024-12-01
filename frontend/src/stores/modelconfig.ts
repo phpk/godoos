@@ -38,52 +38,59 @@ export const netEngines = [
     cpp: "openai",
     needID: false,
   },
-  // {
-  //   name: "Google",
-  //   cpp: "gemini"
-  // },
   {
     name: "GiteeAI",
-    cpp: "giteeAI",
+    cpp: "gitee",
     needID: false,
   },
-  // {
-  //   name: "Baidu",
-  //   cpp: "baidu"
-  // },
   {
-    name: "Alibaba",
+    name: "CloudflareWorkersAI",
+    cpp: "cloudflare",
+    needID: true,
+  },
+  {
+    name: "DeepSeek",
+    cpp: "deepseek",
+    needID: false,
+  },
+  {
+    name: "智谱清言语BigModel",
+    cpp: "bigmodel",
+    needID: false,
+  },
+  {
+    name: "火山方舟",
+    cpp: "volces",
+    needID: false,
+  },
+  {
+    name: "阿里通义",
     cpp: "alibaba",
     needID: false,
   },
-  // {
-  //   name: "Tencent",
-  //   cpp: "tencent"
-  // },
-  // {
-  //   name: "Kimi",
-  //   cpp: "Moonshot"
-  // },
-  {
-    name: "BigModel",
-    cpp: "BigModel",
-    needID: false,
-  },
-  // {
-  //   name: "xAI",
-  //   cpp: "xAI"
-  // },
-  // {
-  //   name: "Stability",
-  //   cpp: "stability"
-  // },
-  // {
-  //   name: "Anthropic",
-  //   cpp: "claude"
-  // },
   {
     name: "Groq",
-    cpp: "groqcloud",
+    cpp: "groq",
+    needID: false,
+  },
+  {
+    name: "Mistral",
+    cpp: "mistral",
+    needID: false,
+  },
+  {
+    name: "Anthropic",
+    cpp: "anthropic",
+    needID: false,
+  },
+  {
+    name: "llama.family",
+    cpp: "llamafamily",
+    needID: false,
+  },
+  {
+    name: "硅基流动",
+    cpp: "siliconflow",
     needID: false,
   },
 ]

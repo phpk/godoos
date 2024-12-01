@@ -12,6 +12,7 @@ var OpenAIApiMaps = map[string]string{
 	"gitee":       "",
 	"cloudflare":  "",
 	"deepseek":    "https://api.deepseek.com/v1",
+	"volces":      "https://ark.cn-beijing.volces.com/api/v3",
 	"bigmodel":    "https://open.bigmodel.cn/api/paas/v4",
 	"alibaba":     "https://dashscope.aliyuncs.com/compatible-mode/v1",
 	"01ai":        "https://api.lingyiwanwu.com/v1",
@@ -19,6 +20,7 @@ var OpenAIApiMaps = map[string]string{
 	"mistral":     "https://api.mistral.ai/v1",
 	"anthropic":   "https://api.anthropic.com/v1",
 	"llamafamily": "https://api.atomecho.cn/v1",
+	"siliconflow": "https://api.siliconflow.cn/v1",
 }
 
 func GetHeadersAndUrl(req map[string]interface{}, chattype string) (map[string]string, string, error) {
@@ -59,14 +61,31 @@ func GetHeadersAndUrl(req map[string]interface{}, chattype string) (map[string]s
 	if chattype == "embeddings" {
 		typeUrl = "/embeddings"
 	} else if chattype == "text2img" {
-		typeUrl = "/images/generations"
+		if engine == "gitee" {
+			typeUrl = "/text-to-image"
+		} else {
+			typeUrl = "/images/generations"
+		}
+
 	}
 	return headers, url + typeUrl, nil
 
 }
 
 func GetOpenAIHeaders(types string) (map[string]string, error) {
+	if types == "ollama" {
+		return map[string]string{
+			"Content-Type": "application/json",
+		}, nil
+	}
 	secret, err := GetOpenAISecret(types)
+	if types == "gitee" {
+		return map[string]string{
+			"Content-Type":  "application/json",
+			"Authorization": "Bearer " + secret,
+			"X-Package":     "1910",
+		}, nil
+	}
 	if err != nil {
 		return map[string]string{
 			"Content-Type": "application/json",
@@ -109,13 +128,5 @@ func GetCloudflareUrl() (string, error) {
 	return "https://api.cloudflare.com/client/v4/accounts/" + userId + "/ai/v1", nil
 }
 func GetGiteeUrl(model string, chatType string) string {
-	if chatType == "chat" {
-		return "https://ai.gitee.com/api/serverless/" + model + "/chat/completions"
-	} else if chatType == "embeddings" {
-		return "https://ai.gitee.com/api/serverless/" + model + "/embeddings"
-	} else if chatType == "text2img" {
-		return "https://ai.gitee.com/api/serverless/" + model + "/text-to-image"
-	} else {
-		return "https://ai.gitee.com/api/serverless/" + model + "/chat/completions"
-	}
+	return "https://ai.gitee.com/api/serverless/" + model
 }

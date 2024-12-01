@@ -36,7 +36,10 @@ const changeInfo = async () => {
       prompt: info.prompt,
       promptId: info.promptId,
     };
-    await chatStore.addChat(info.title, info.model, promptData, "");
+    const modelData = chatStore.modelList.find((item:any) => {
+      return item.model == info.model;
+    });
+    await chatStore.addChat(info.title, modelData, promptData, "");
     notifySuccess(t("aichat.addsuccess"));
   }
   await chatStore.getActiveChat();

@@ -76,7 +76,7 @@ export const useModelStore = defineStore('modelStore', () => {
         if (existingModels.includes(d.model)) {
           d.isdef = 1
         }
-        if(d.action == ""){
+        if (d.action == "") {
           d.action = "chat"
         }
       });
@@ -104,7 +104,7 @@ export const useModelStore = defineStore('modelStore', () => {
       return model
     }
   }
-  async function getModelAction(action:string) {
+  async function getModelAction(action: string) {
     return await db.rows("modelslist", { action })
   }
   async function getList() {
@@ -203,11 +203,14 @@ export const useModelStore = defineStore('modelStore', () => {
         modelData.isLoading = 0;
         modelData.progress = 0;
         deleteDownload(modelData.model);
-        await getModelList();
-        await checkLabelData(modelData);
-        await setCurrentModel(modelData.action, modelData.model);
+        await checkModelList(modelData);
       }
     }
+  }
+  async function checkModelList(modelData: any) {
+    await getModelList();
+    await checkLabelData(modelData);
+    await setCurrentModel(modelData.action, modelData.model);
   }
   function parseJson(str: string): any {
     try {
@@ -274,6 +277,7 @@ export const useModelStore = defineStore('modelStore', () => {
     deleteDownload,
     updateDownload,
     checkLabelData,
+    checkModelList,
     getLabelCate,
     getLabelSearch,
     getLabelList,

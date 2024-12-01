@@ -27,7 +27,7 @@ const activeName = ref("system");
 }
 
 .scrollbarSettingHeight {
-  height: 85vh;
+  height: 75vh;
   padding-bottom: 30px;
 }
 

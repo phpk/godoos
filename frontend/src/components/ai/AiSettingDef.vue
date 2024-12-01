@@ -6,7 +6,6 @@ const currentsModel: any = ref({});
 onMounted(async () => {
   await modelStore.getModelList();
   updateCurrentsModel();
-
 });
 function updateCurrentsModel() {
   modelStore.cateList.forEach((item:any) => {

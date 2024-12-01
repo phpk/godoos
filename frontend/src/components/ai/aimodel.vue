@@ -38,7 +38,7 @@ async function downLabel(modelData: any, labelData: any) {
   labelData = toRaw(labelData);
   modelData = toRaw(modelData);
   //console.log(modelData, labelData)
-  if(modelData.model){
+  if (modelData.model) {
     modelData.info.model = modelData.model
   }
   const saveData = {
@@ -62,6 +62,13 @@ async function saveBox(modelData: any) {
     notifyError(t('model.chooseLabel'));
     return;
   }
+  if (modelData.type == "net") {
+    const engine = modelData.info.engine;
+    if (config[engine + "Secret"] == "") {
+      notifyError(engine + " secret is empty");
+      return;
+    }
+  }
   //console.log(modelData)
   downLabel(modelData, labelData);
 }
@@ -77,7 +84,8 @@ async function download(saveData: any) {
     notifyError(t('model.labelDown'));
     return;
   }
-  //console.log(saveData);
+
+
   const downUrl = config.aiUrl + "/ai/download";
 
   try {
@@ -91,11 +99,22 @@ async function download(saveData: any) {
       notifyError(errorData.message);
       return;
     }
+    if (saveData.type == "net") {
+      //console.log(saveData)
+      const res = await completion.json();
+      if(res.code == -1){
+        notifyError(res.message);
+        return
+      }
+      await modelStore.checkModelList(saveData)
+      notifySuccess(t('model.labelDown'));
+    } else {
+      saveData.status = "loading";
+      saveData.progress = 0;
+      modelStore.addDownload(saveData);
+      await handleDown(saveData, completion);
+    }
 
-    saveData.status = "loading";
-    saveData.progress = 0;
-    modelStore.addDownload(saveData);
-    await handleDown(saveData, completion);
   } catch (error: any) {
     notifyError(error.message);
   }

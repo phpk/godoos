@@ -26,7 +26,7 @@ export const useAiChatStore = defineStore('aichat', () => {
       return false
     }
     const promptData = await promptStore.getPrompt('chat')
-    return await addChat(t('aichat.newchat'), currentModel.model, promptData, "")
+    return await addChat(t('aichat.newchat'), currentModel, promptData, "")
   }
   const initChat = async () => {
     if (activeId.value === 0) {
@@ -53,12 +53,13 @@ export const useAiChatStore = defineStore('aichat', () => {
     return list
   }
   // 添加聊天
-  async function addChat(title: string, model: any, promptData: any, knowledgeId: string) {
+  async function addChat(title: string, modelData: any, promptData: any, knowledgeId: string) {
     const newChat = {
       title,
       prompt: promptData.prompt,
       promptId: promptData.id,
-      model,
+      model: modelData.model,
+      engine: modelData.info.engine,
       createdAt: Date.now(),
       knowledgeId
     }

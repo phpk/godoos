@@ -20,8 +20,18 @@ const formInit = {
     quant: "q4_K_M",
     pb: "",
   },
-  type: "",
+  type: "local",
 };
+const engineType = [
+  {
+    name: "local",
+    label: "本地引擎",
+  },
+  {
+    name: "net",
+    label: "网络引擎",
+  },
+]
 const formData = ref(formInit);
 const fromSource = computed(() => {
   if (formData.value.info.engine == "ollama") {
@@ -57,6 +67,15 @@ function setFrom(val: string) {
     formData.value.info.from = "ollama"
   } else {
     formData.value.info.from = "network"
+  }
+}
+function setType(val: string) {
+  if (val == "local") {
+    formData.value.info.from = "ollama"
+    formData.value.info.engine = "ollama"
+  } else {
+    formData.value.info.from = "network"
+    formData.value.info.engine = "openai"
   }
 }
 const emit = defineEmits(["closeFn", "saveFn"]);
@@ -99,13 +118,11 @@ function setLocalInfo() {
     urls.push(url + item);
   });
   //formData.value.info.url = urls;
-  modelData.info.url = urls;
+  modelData.info.url = urls.join("\n");
+  modelData.info.engine = "ollama";
+  modelData.info.from = "local";
+  modelData.info.model = formData.value.info.model;
   formData.value.info = modelData.info;
-  //formData.value.file_name = modelData.file_name;
-  //formData.value.engine = modelData.engine;
-  // if (modelData.engine == "ollama") {
-  //   formData.value.type = "local";
-  // }
 }
 async function download() {
   const saveData: any = toRaw(formData.value);
@@ -115,12 +132,17 @@ async function download() {
     notifyError(t('model.selectLabel'));
     return;
   }
-
+  if(saveData.info.model == ""){
+    notifyError(t('model.labelNameEmpty'));
+    return;
+  }
+  if(saveData.type == "net"){
+    saveData.info.url = [];
+    saveData.info.context_length = 1024;
+    emit("saveFn", saveData);
+    return;
+  }
   if (saveData.info.from == "ollama") {
-    if (saveData.info.model == "") {
-      notifyError(t('model.labelNameEmpty'));
-      return;
-    }
     if (saveData.info.model.indexOf(":") === -1) {
       saveData.info.model = saveData.info.model + ":latest";
     }
@@ -204,12 +226,20 @@ async function download() {
         <el-option v-for="(item, key) in modelStore.labelList" :key="key" :label="item.name" :value="item.id" />
       </el-select>
     </el-form-item>
-    <el-form-item :label="t('model.selectEngine')">
-      <el-select v-model="formData.info.engine" :placeholder="t('model.selectEngine')" @change="setFrom">
-        <el-option v-for="item, key in modelStore.modelEngines" :key="key" :label="item.name" :value="item.name" />
+    <el-form-item label="引擎类型">
+      <el-select v-model="formData.type" placeholder="选择引擎类型" @change="setType">
+        <el-option v-for="item, key in engineType" :key="key" :label="item.label" :value="item.name" />
       </el-select>
     </el-form-item>
-    <el-form-item :label="t('model.selectSource')">
+    <el-form-item :label="t('model.selectEngine')">
+      <el-select v-model="formData.info.engine" v-if="formData.type == 'local'" :placeholder="t('model.selectEngine')" @change="setFrom">
+        <el-option v-for="item, key in modelStore.modelEngines" :key="key" :label="item.name" :value="item.name" />
+      </el-select>
+      <el-select v-model="formData.info.engine" v-else :placeholder="t('model.selectEngine')" @change="setFrom">
+        <el-option v-for="item, key in modelStore.netEngines" :key="key" :label="item.name" :value="item.cpp" />
+      </el-select>
+    </el-form-item>
+    <el-form-item :label="t('model.selectSource')"  v-if="formData.type == 'local'">
       <el-select v-model="formData.info.from">
         <el-option v-for="(item, key) in fromSource" :key="key" :label="item.label" :value="item.value" />
       </el-select>
@@ -219,7 +249,7 @@ async function download() {
         :placeholder="t('model.enterModelName')"></el-input>
     </el-form-item>
 
-    <template v-if="formData.info.from === 'local'">
+    <template v-if="formData.info.from === 'local' && formData.type == 'local'">
       <el-form-item :label="t('model.oppositeIpAddress')">
         <el-input v-model="formData.ip" prefix-icon="Key" clearable placeholder="192.168.1.66"
           @blur="getLocalModel"></el-input>
@@ -230,7 +260,7 @@ async function download() {
         </el-select>
       </el-form-item>
     </template>
-    <template v-if="formData.info.from === 'network'">
+    <template v-if="formData.info.from === 'network' && formData.type == 'local'">
       <el-form-item :label="t('model.modelUrl')">
         <el-input type="textarea" :row="3" v-model="formData.info.url"
           :placeholder="t('model.enterModelUrl')"></el-input>

@@ -269,7 +269,7 @@
     "noDown": "Incomplete",
     "downloading": "Downloading",
     "modelLabel": "ModelLabel",
-    "modelDown": "Download",
+    "modelDown": "Add Model",
     "help_label": "Choose category",
     "help_labelDesc": "Select the model category you want to download",
     "help_showdown": "View Download",

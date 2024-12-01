@@ -1,5 +1,6 @@
 import { generateRandomString } from "../util/common.ts";
 export const configStoreType = localStorage.getItem('GodoOS-storeType') || 'local';
+import { parseAiConfig } from "./aiconfig.ts";
 /**
  * 获取系统配置信息。
  * 从本地存储中获取或初始化系统配置对象，并根据条件决定是否更新本地存储中的配置。
@@ -10,7 +11,7 @@ export const getSystemConfig = (ifset = false) => {
   // 从本地存储中尝试获取配置信息，若不存在则使用默认空对象
   const configSetting = localStorage.getItem('GodoOS-config') || '{}';
   // 解析配置信息为JSON对象
-  const config = JSON.parse(configSetting);
+  let config:any = JSON.parse(configSetting);
 
   // 初始化配置对象的各项属性，若本地存储中已存在则不进行覆盖
   if (!config.version) {
@@ -148,24 +149,7 @@ export const getSystemConfig = (ifset = false) => {
       'fourthEnd': '254'
     }
   }
-  if (!config.ollamaUrl) {
-    config.ollamaUrl = `${window.location.protocol}//${window.location.hostname}:11434`
-  }
-  if (!config.dataDir) {
-    config.dataDir = ''
-  }
-  if (!config.aiUrl) {
-    config.aiUrl = config.apiUrl
-  }
-  if (!config.openaiUrl) {
-    config.openaiUrl = 'https://api.openai.com/v1'
-  }
-  if (!config.openaiSecret) {
-    config.openaiSecret = ""
-  }
-  if(!config.giteeSecret){
-    config.giteeSecret = ""
-  }
+  
   // 初始化桌面快捷方式列表，若本地存储中已存在则不进行覆盖
   if (!config.desktopList) {
     config.desktopList = [];
@@ -178,6 +162,7 @@ export const getSystemConfig = (ifset = false) => {
   if (!config.token) {
     config.token = generateRandomString(16);
   }
+  config = parseAiConfig(config);
   // 根据参数决定是否更新本地存储中的配置信息
   if (ifset) {
     setSystemConfig(config)
