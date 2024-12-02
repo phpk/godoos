@@ -82,6 +82,12 @@ export const getSystemConfig = (ifset = false) => {
   if (!config.storePath) {
     config.storePath = "";
   }
+  if(!config.netPath) {
+    config.netPath = "";
+  }
+  if(!config.netPort) {
+    config.netPort = "56780";
+  }
   if (!config.userType) {
     config.userType = 'person';
   }

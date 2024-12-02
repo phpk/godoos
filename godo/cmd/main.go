@@ -36,7 +36,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const serverAddress = ":56780"
+//const serverAddress = ":56780"
 
 var srv *http.Server
 
@@ -83,6 +83,11 @@ func OsStart() {
 	router.HandleFunc("/system/message", sys.HandleSystemEvents).Methods(http.MethodGet)
 	router.HandleFunc("/system/update", sys.UpdateAppHandler).Methods(http.MethodGet)
 	router.HandleFunc("/system/setting", sys.ConfigHandler).Methods(http.MethodPost)
+	router.HandleFunc("/system/restart", func(w http.ResponseWriter, r *http.Request) {
+		go OsRestart() // 使用 goroutine 来避免阻塞当前请求
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Restart initiated"))
+	}).Methods(http.MethodGet)
 
 	fileRouter := router.PathPrefix("/file").Subrouter()
 	fileRouter.HandleFunc("/desktop", files.HandleDesktop).Methods(http.MethodGet)
@@ -156,9 +161,12 @@ func OsStart() {
 
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")
 	fileServer := http.FileServer(http.FS(distFS))
+	//netPath := libs.GetNetPath()
 	router.PathPrefix("/").Handler(fileServer)
 
 	go store.CheckActive(context.Background())
+
+	serverAddress := libs.GetSytemPort()
 	log.Printf("Listening on port: %v", serverAddress)
 	srv = &http.Server{Addr: serverAddress, Handler: router}
 	Serve(srv)
@@ -174,4 +182,10 @@ func OsStop() {
 		log.Fatalf("Server forced to shutdown: %v", err)
 	}
 	log.Println("Server stopped.")
+}
+func OsRestart() {
+	// 停止当前服务
+	OsStop()
+	// 重新启动服务
+	OsStart()
 }

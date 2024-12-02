@@ -173,6 +173,28 @@ func GetVectorPath(name string) string {
 	dbDir := GetDbDir()
 	return filepath.Join(dbDir, "vector", hashHex+".db")
 }
+func GetSytemPort() string {
+	netPort, ok := GetConfig("netPort")
+	if !ok {
+		return ":56780"
+	}
+	portStr, ok := netPort.(string)
+	if !ok || portStr == "" {
+		return ":56780"
+	}
+	return ":" + portStr
+}
+func GetNetPath() string {
+	netPath, ok := GetConfig("netPath")
+	if !ok {
+		return "/"
+	}
+	pathStr, ok := netPath.(string)
+	if !ok || pathStr == "" {
+		return "/"
+	}
+	return "/" + pathStr
+}
 func GetCacheDir() string {
 	homeDir := GetDataDir()
 	cachePath := filepath.Join(homeDir, "cache")

@@ -6,11 +6,11 @@
 import { BrowserWindow, Dialog, Notify, System } from "@/system";
 import { getSplit, getSystemConfig, setSystemKey } from "@/system/config";
 import { base64ToBuffer, isBase64 } from "@/util/file";
+import { generateRandomString } from "@/util/common";
 import { isShareFile } from "@/util/sharePath.ts";
 import { inject, onMounted, onUnmounted, ref, toRaw } from "vue";
 import { askAi } from "@/hook/useAi";
 import { useChooseStore } from "@/stores/choose";
-import { nanoid } from "nanoid";
 import eventBus from "@/system/event/eventBus";
 const SP = getSplit();
 
@@ -34,7 +34,7 @@ const storeRef = ref<HTMLIFrameElement | null>(null);
 let hasInit = false;
 
 const choose = useChooseStore();
-const componentID = nanoid();
+const componentID = generateRandomString(16);
 // console.log("唯一ID：", componentID);
 const saveFile = async (e: any) => {
   if (e.componentID !== componentID) return;
