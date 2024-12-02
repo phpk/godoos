@@ -2306,7 +2306,7 @@ window.onload = function () {
       if (isBase64(data.content)) {
         const cachename = 'godoos_word_' + md5(data.content)
         const cahceVal:any = localStorage.getItem(cachename)
-        console.log(cahceVal)
+        //console.log(cahceVal)
         if(cahceVal) {
           try {
             const cacheData = JSON.parse(cahceVal)
