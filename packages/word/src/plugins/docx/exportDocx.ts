@@ -25,7 +25,7 @@ import {
   MathRun
 } from 'docx'
 import { saveAs } from './utils'
-
+import { md5 } from 'js-md5';
 // 标题映射
 const titleLevelToHeadingLevel = {
   [TitleLevel.FIRST]: HeadingLevel.HEADING_1,
@@ -228,6 +228,8 @@ export default function (command: Command) {
       })
     }else{
       Packer.toBase64String(doc).then((base64:any) => {
+        const cachename = 'godoos_word_' + md5(base64) 
+        localStorage.setItem(cachename, JSON.stringify(command.getValue()))
         const save = {
           data: JSON.stringify({ content: base64, title: fileName }),
           type: 'exportDocx'

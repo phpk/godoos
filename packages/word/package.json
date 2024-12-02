@@ -45,7 +45,6 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "postinstall": "simple-git-hooks",
     "release": "node scripts/release.js"
   },
   "devDependencies": {
@@ -74,6 +73,7 @@
     "color": "^4.2.3",
     "docx": "^9.0.3",
     "exceljs": "^4.4.0",
+    "js-md5": "^0.8.3",
     "jsbarcode": "^3.11.6",
     "lodash": "^4.17.21",
     "mammoth": "^1.8.0",

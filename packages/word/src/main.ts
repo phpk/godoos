@@ -30,6 +30,7 @@ import barcode2dPlugin from "./plugins/barcode2d"
 import { floatingToolbarPlugin, changeAiTextarea } from "./plugins/floatingToolbar"
 import excelPlugin from "./plugins/excel"
 import docxPlugin from './plugins/docx'
+import { md5 } from 'js-md5'
 window.onload = function () {
   const isApple =
     typeof navigator !== 'undefined' && /Mac OS X/.test(navigator.userAgent)
@@ -1041,9 +1042,108 @@ window.onload = function () {
     ])
   }
 
+  document.querySelector<HTMLDivElement>('.menu-item__barcode')!.onclick = () => {
+    try {
+      new Dialog({
+        title: '内容',
+        data: [
+
+          {
+            type: 'textarea',
+            label: '条形码内容',
+            height: 100,
+            name: 'barcodeStr',
+            required: false,
+            placeholder: '请输入条形码内容（仅英文和数字有效）'
+          }
+        ],
+        onConfirm: payload => {
+          if (!payload[0] || !payload[0].value) {
+            alert("条形码内容不能为空")
+            return;
+          }
+          instance.command.executeInsertBarcode1D(payload[0].value, 200, 100);
+        }
+      })
+    } catch (error: any) {
+      console.error(error)
+      //alert(error.message)
+    }
+  }
+
+  document.querySelector<HTMLDivElement>('.menu-item__qrcode')!.onclick = () => {
+    try {
+      new Dialog({
+        title: '内容',
+        data: [
+
+          {
+            type: 'textarea',
+            label: '二维码内容',
+            height: 100,
+            name: 'barcodeStr',
+            required: false,
+            placeholder: '请输入二维码内容'
+          }
+        ],
+        onConfirm: payload => {
+          if (!payload[0] || !payload[0].value) {
+            alert("二维码内容不能为空")
+            return;
+          }
+          instance.command.executeInsertBarcode2D(payload[0].value, 200, 200);
+        }
+      })
+    } catch (error: any) {
+      console.error(error)
+      //alert(error.message)
+    }
+  }
+
+  document.querySelector<HTMLDivElement>('.menu-item__importword')!.onclick = () => {
+    docxFileInput.click();
+  }
+
+  document.querySelector<HTMLDivElement>('.menu-item__importexcel')!.onclick = () => {
+    excelFileInput.click();
+  }
+
+  document.querySelector<HTMLDivElement>('.menu-item__exportword')!.onclick = () => {
+    try {
+      new Dialog({
+        title: '文档标题',
+        data: [
+
+          {
+            type: 'input',
+            label: '文档标题',
+            height: 30,
+            name: 'barcodeStr',
+            value: godoWordTitle,
+            required: true,
+            placeholder: '请输入文档标题'
+          }
+        ],
+        onConfirm: payload => {
+          if (!payload[0] || !payload[0].value) {
+            alert("请输入文档标题")
+            return;
+          }
+          instance.command.executeExportDocx({
+            fileName: godoWordTitle,
+            isFile: true
+          })
+        }
+      })
+    } catch (error: any) {
+      console.error(error)
+      //alert(error.message)
+    }
+  }
+
   const blockDom = document.querySelector<HTMLDivElement>('.menu-item__block')!
   blockDom.onclick = function () {
-    console.log('block')
+    //console.log('block')
     new Dialog({
       title: '内容块',
       data: [
@@ -1407,7 +1507,7 @@ window.onload = function () {
       appendCatalog(catalogMainDom, catalog)
     }
   }
-  let isCatalogShow = true
+  let isCatalogShow = false
   const catalogDom = document.querySelector<HTMLElement>('.catalog')!
   const catalogModeDom =
     document.querySelector<HTMLDivElement>('.catalog-mode')!
@@ -1923,56 +2023,56 @@ window.onload = function () {
   instance.listener.saved = function (payload) {
     console.log('elementList: ', payload)
   }
-
+  let usernameEditor = 'godoos'
   // 9. 右键菜单注册
   instance.register.contextMenuList([
-    {
-      name: "插入条形码",
-      when: (payload) => {
-        return !payload.isReadonly && payload.editorTextFocus;
-      },
-      callback: (command) => {
-        const content: any = window.prompt("请输入内容");
-        command.executeInsertBarcode1D(content, 200, 100);
-      },
-    },
-    {
-      name: "插入二维码",
-      when: (payload) => {
-        return !payload.isReadonly && payload.editorTextFocus;
-      },
-      callback: (command) => {
-        const content: any = window.prompt("请输入内容");
-        command.executeInsertBarcode2D(content, 200, 200);
-      },
-    },
-    {
-      name: "导出文档",
-      when: () => true,
-      callback: (command) => {
-        if (godoWordTitle == '') {
-          godoWordTitle = window.prompt("请输入文档标题");
-        }
-        command.executeExportDocx({
-          fileName: godoWordTitle,
-          isFile: true
-        });
-      },
-    },
-    {
-      name: "导入文档",
-      when: () => true,
-      callback: () => {
-        docxFileInput.click();
-      },
-    },
-    {
-      name: "导入excel",
-      when: () => true,
-      callback: () => {
-        excelFileInput.click();
-      },
-    },
+    // {
+    //   name: "插入条形码",
+    //   when: (payload) => {
+    //     return !payload.isReadonly && payload.editorTextFocus;
+    //   },
+    //   callback: (command) => {
+    //     const content: any = window.prompt("请输入内容");
+    //     command.executeInsertBarcode1D(content, 200, 100);
+    //   },
+    // },
+    // {
+    //   name: "插入二维码",
+    //   when: (payload) => {
+    //     return !payload.isReadonly && payload.editorTextFocus;
+    //   },
+    //   callback: (command) => {
+    //     const content: any = window.prompt("请输入内容");
+    //     command.executeInsertBarcode2D(content, 200, 200);
+    //   },
+    // },
+    // {
+    //   name: "导出文档",
+    //   when: () => true,
+    //   callback: (command) => {
+    //     if (godoWordTitle == '') {
+    //       godoWordTitle = window.prompt("请输入文档标题");
+    //     }
+    //     command.executeExportDocx({
+    //       fileName: godoWordTitle,
+    //       isFile: true
+    //     });
+    //   },
+    // },
+    // {
+    //   name: "导入文档",
+    //   when: () => true,
+    //   callback: () => {
+    //     docxFileInput.click();
+    //   },
+    // },
+    // {
+    //   name: "导入excel",
+    //   when: () => true,
+    //   callback: () => {
+    //     excelFileInput.click();
+    //   },
+    // },
     {
       name: '批注',
       when: payload => {
@@ -1987,6 +2087,14 @@ window.onload = function () {
           title: '批注',
           data: [
             {
+              type: 'input',
+              label: '批注人',
+              required: true,
+              name: 'username',
+              placeholder: '请输入批注人',
+              value: usernameEditor
+            },
+            {
               type: 'textarea',
               label: '批注',
               height: 100,
@@ -1997,13 +2105,22 @@ window.onload = function () {
           ],
           onConfirm: payload => {
             const value = payload.find(p => p.name === 'value')?.value
-            if (!value) return
+            const username = payload.find(p => p.name === 'username')?.value
+            if(!username){
+              alert("请输入批注人")
+              return;
+            }
+            usernameEditor = username;
+            if (!value) {
+              alert('请输入批注内容')
+              return
+            }
             const groupId = command.executeSetGroup()
             if (!groupId) return
             commentList.push({
               id: groupId,
               content: value,
-              userName: 'godoos',
+              userName: username || 'godoos',
               rangeText: command.getRangeText(),
               createdDate: new Date().toLocaleString()
             })
@@ -2082,7 +2199,7 @@ window.onload = function () {
     if (godoWordTitle == '') {
       godoWordTitle = window.prompt("请输入文档标题");
     }
-    console.log(godoWordTitle)
+    //console.log(godoWordTitle)
     instance.command.executeExportDocx({
       fileName: godoWordTitle,
       isFile: false
@@ -2187,7 +2304,21 @@ window.onload = function () {
       }
       godoWordTitle = data.title
       if (isBase64(data.content)) {
-        data.content = base64ToArrayBuffer(data.content)
+        const cachename = 'godoos_word_' + md5(data.content)
+        const cahceVal:any = localStorage.getItem(cachename)
+        console.log(cahceVal)
+        if(cahceVal) {
+          try {
+            const cacheData = JSON.parse(cahceVal)
+            instance.command.executeSetValue(cacheData.data)
+          } catch (error) {
+            console.error(error)
+          }
+          return;
+        }else{
+          data.content = base64ToArrayBuffer(data.content)
+        }
+        
       }
       //const buffer = base64ToArrayBuffer(data.content)
       //console.log(buffer)
@@ -2223,3 +2354,24 @@ window.onload = function () {
   })
 
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  const tabs = document.querySelectorAll('.tab');
+  const contentSections = document.querySelectorAll('.menu-section');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // 移除所有选项卡的 active 类
+      tabs.forEach(t => t.classList.remove('active'));
+      // 添加当前选项卡的 active 类
+      tab.classList.add('active');
+
+      // 获取当前选项卡对应的内容ID
+      const targetId: any = tab.getAttribute('data-tab');
+      // 移除所有内容区域的 active 类
+      contentSections.forEach(section => section.classList.remove('active'));
+      // 添加目标内容区域的 active 类
+      document.getElementById(targetId)?.classList.add('active');
+    });
+  });
+});

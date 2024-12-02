@@ -42,12 +42,90 @@ body {
 ul {
   list-style: none;
 }
+/* 选项卡样式 */
+.tabs {
+  width: 100%;
+  height: 48px; /* 调整高度以匹配Office风格 */
+  top: 0;
+  z-index: 9;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: #ffffff;
+  padding: 0 16px;
+  overflow: hidden;
+  border-bottom: 1px solid #eaeaea; /* 添加底部边框 */
+}
 
+.tab {
+  height: 46px; /* 调整高度以匹配选项卡容器 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  cursor: pointer;
+  border-radius: 4px 4px 0 0; /* 圆润的上边角 */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: 14px; /* 字体大小 */
+  font-weight: 500; /* 字体粗细 */
+  color: #333333; /* 文字颜色 */
+}
+
+.tab:hover {
+  background-color: #f3f3f3; /* 悬停背景色 */
+  color: #0078d4; /* 悬停文字颜色 */
+}
+
+.tab.active {
+  background-color: #ffffff; /* 选中背景色 */
+  color: #0078d4; /* 选中文字颜色 */
+  border-bottom: 2px solid #0078d4; /* 选中底部边框 */
+  z-index: 1; /* 确保选中的选项卡在最上层 */
+}
+
+/* 内容区域样式 */
 .menu {
+  top: 48px; /* 避免被固定在顶部的选项卡遮挡 */
+  padding: 8px 20px;
+  width: calc(100% - 40px);
+  position: fixed;
+  z-index: 9;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: left;
+  background: #ffffff;
+  border: 1px solid #eaeaea; /* 边框 */
+  border-top: none; /* 去掉顶部边框 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+}
+
+.menu-section {
+  display: none;
+}
+
+.menu-section.active {
+  display: flex;
+}
+.menu-item {
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+.menu-item:not(:last-child)::after {
+  content: '';
+  width: 1px;
+  height: 16px;
+  margin:0 8px;
+  display: inline-block;
+  background-color: #cfd2d8;
+}
+/* .menu {
   width: 98%;
   left:1%;
   height: 60px;
-  top: 0;
+  top: 24px;
   z-index: 9;
   position: fixed;
   display: flex;
@@ -55,28 +133,21 @@ ul {
   align-items: center;
   justify-content: left;
   background: #fff;
-  /* box-shadow: 0 2px 4px 0 transparent; */
   box-shadow: 0 0 10px rgba(128,145,165,.2);
-}
+} */
 
 .menu-divider {
   width: 1px;
   height: 16px;
   margin: 0 8px;
-  display: inline-block;
+  display: flex;
   background-color: #cfd2d8;
 }
 
-.menu-item {
-  height: 24px;
-  display: flex;
-  align-items: center;
-  position: relative;
-}
 
 .menu-item>div {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -93,15 +164,15 @@ ul {
 }
 
 .menu-item i {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   display: inline-block;
   background-repeat: no-repeat;
   background-size: 100% 100%;
 }
 
 .menu-item>div>span {
-  width: 16px;
+  width: 20px;
   height: 3px;
   display: inline-block;
   border: 1px solid #e2e6ed;
@@ -109,8 +180,8 @@ ul {
 
 .menu-item .select {
   border: none;
-  font-size: 12px;
-  line-height: 24px;
+  font-size: 0.9rem;
+  line-height: 28px;
   user-select: none;
 }
 
@@ -715,6 +786,7 @@ ul {
   left: 0;
   bottom: 0;
   top: 100px;
+  display: none;
   padding: 0 20px 40px 20px;
 }
 
@@ -783,7 +855,7 @@ ul {
 }
 
 .editor>div {
-  margin: 80px auto;
+  margin: 90px auto 80px;
 }
 
 .ce-page-container canvas {
@@ -1068,6 +1140,46 @@ ul {
 
 .menu-item__save i {
   background-image: url('./assets/images/save.svg');
+}
+
+.menu-item__qrcode {
+  position: relative;
+}
+
+.menu-item__qrcode i {
+  background-image: url('./assets/images/qrcode.svg');
+}
+
+.menu-item__barcode {
+  position: relative;
+}
+
+.menu-item__barcode i {
+  background-image: url('./assets/images/barcode.svg');
+}
+
+.menu-item__importword {
+  position: relative;
+}
+
+.menu-item__importword i {
+  background-image: url('./assets/images/import-word.svg');
+}
+
+.menu-item__exportword {
+  position: relative;
+}
+
+.menu-item__exportword i {
+  background-image: url('./assets/images/export-word.svg');
+}
+
+.menu-item__importexcel {
+  position: relative;
+}
+
+.menu-item__importexcel i {
+  background-image: url('./assets/images/import-excel.svg');
 }
 
 .menu-item__ai-edit i{

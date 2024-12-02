@@ -6,344 +6,389 @@
   <link rel="icon" type="image/png" href="./assets/favicon.fbfa22e6.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>word</title>
-  <script type="module" crossorigin src="./assets/index.3842052e.js"></script>
-  <link rel="modulepreload" href="./assets/vendor.d13e5cc9.js">
-  <link rel="stylesheet" href="./assets/index.eff96d1a.css">
+  <script type="module" crossorigin src="./assets/index.de73f97d.js"></script>
+  <link rel="modulepreload" href="./assets/vendor.68ee6001.js">
+  <link rel="stylesheet" href="./assets/index.03fab396.css">
 </head>
 
 <body>
   <div id="app">
+    <div class="tabs">
+      <div class="tab active" data-tab="start-menu">开始</div>
+      <div class="tab" data-tab="characters-menu">字体</div>
+      <div class="tab" data-tab="insert-menu">插入</div>
+      <div class="tab" data-tab="page-menu">页面</div>
+    </div>
+
     <div class="menu" editor-component="menu">
-      <div class="menu-item">
-        <div class="menu-item__undo">
-          <i></i>
-        </div>
-        <div class="menu-item__redo">
-          <i></i>
-        </div>
-        <div class="menu-item__painter" title="格式刷(双击可连续使用)">
-          <i></i>
-        </div>
-        <div class="menu-item__format" title="清除格式">
-          <i></i>
-        </div>
-      </div>
-      <div class="menu-divider"></div>
-      <div class="menu-item">
-        <div class="menu-item__font">
-          <span class="select" title="字体">微软雅黑</span>
-          <div class="options">
-            <ul>
-              <li data-family="Microsoft YaHei" style="font-family:'Microsoft YaHei';">微软雅黑</li>
-              <li data-family="华文宋体" style="font-family:'华文宋体';">华文宋体</li>
-              <li data-family="华文黑体" style="font-family:'华文黑体';">华文黑体</li>
-              <li data-family="华文仿宋" style="font-family:'华文仿宋';">华文仿宋</li>
-              <li data-family="华文楷体" style="font-family:'华文楷体';">华文楷体</li>
-              <li data-family="华文琥珀" style="font-family:'华文琥珀';">华文琥珀</li>
-              <li data-family="华文楷体" style="font-family:'华文楷体';">华文楷体</li>
-              <li data-family="华文隶书" style="font-family:'华文隶书';">华文隶书</li>
-              <li data-family="华文新魏" style="font-family:'华文新魏';">华文新魏</li>
-              <li data-family="华文行楷" style="font-family:'华文行楷';">华文行楷</li>
-              <li data-family="华文中宋" style="font-family:'华文中宋';">华文中宋</li>
-              <li data-family="华文彩云" style="font-family:'华文彩云';">华文彩云</li>
-              <li data-family="Arial" style="font-family:'Arial';">Arial</li>
-              <li data-family="Segoe UI" style="font-family:'Segoe UI';">Segoe UI</li>
-              <li data-family="Ink Free" style="font-family:'Ink Free';">Ink Free</li>
-              <li data-family="Fantasy" style="font-family:'Fantasy';">Fantasy</li>
-            </ul>
+      <div class="menu-section active" id="start-menu">
+        <!-- 开始内容 -->
+        <div class="menu-item">
+
+          <div class="menu-item__save" data-menu="save">
+            <i></i>
           </div>
-        </div>
-        <div class="menu-item__size">
-          <span class="select" title="字体">小四</span>
-          <div class="options">
-            <ul>
-              <li data-size="56">初号</li>
-              <li data-size="48">小初</li>
-              <li data-size="34">一号</li>
-              <li data-size="32">小一</li>
-              <li data-size="29">二号</li>
-              <li data-size="24">小二</li>
-              <li data-size="21">三号</li>
-              <li data-size="20">小三</li>
-              <li data-size="18">四号</li>
-              <li data-size="16">小四</li>
-              <li data-size="14">五号</li>
-              <li data-size="12">小五</li>
-              <li data-size="10">六号</li>
-              <li data-size="8">小六</li>
-              <li data-size="7">七号</li>
-              <li data-size="6">八号</li>
-            </ul>
+          <div class="menu-item__ai-edit" data-menu="ai">
+            <i></i>
           </div>
-        </div>
-        <div class="menu-item__size-add">
-          <i></i>
-        </div>
-        <div class="menu-item__size-minus">
-          <i></i>
-        </div>
-        <div class="menu-item__bold">
-          <i></i>
-        </div>
-        <div class="menu-item__italic">
-          <i></i>
-        </div>
-        <div class="menu-item__underline">
-          <i></i>
-          <span class="select"></span>
-          <div class="options">
-            <ul>
-              <li data-decoration-style='solid'>
-                <i></i>
-              </li>
-              <li data-decoration-style='double'>
-                <i></i>
-              </li>
-              <li data-decoration-style='dashed'>
-                <i></i>
-              </li>
-              <li data-decoration-style='dotted'>
-                <i></i>
-              </li>
-              <li data-decoration-style='wavy'>
-                <i></i>
-              </li>
-            </ul>
+          <div class="menu-item__undo">
+            <i></i>
           </div>
-        </div>
-        <div class="menu-item__strikeout" title="删除线(Ctrl+Shift+X)">
-          <i></i>
-        </div>
-        <div class="menu-item__superscript">
-          <i></i>
-        </div>
-        <div class="menu-item__subscript">
-          <i></i>
-        </div>
-        <div class="menu-item__color" title="字体颜色">
-          <i></i>
-          <span></span>
-          <input type="color" id="color" />
-        </div>
-        <div class="menu-item__highlight" title="高亮">
-          <i></i>
-          <span></span>
-          <input type="color" id="highlight">
-        </div>
-      </div>
-      <div class="menu-divider"></div>
-      <div class="menu-item">
-        <div class="menu-item__title">
-          <i></i>
-          <span class="select" title="切换标题">正文</span>
-          <div class="options">
-            <ul>
-              <li style="font-size:16px;">正文</li>
-              <li data-level="first" style="font-size:26px;">标题1</li>
-              <li data-level="second" style="font-size:24px;">标题2</li>
-              <li data-level="third" style="font-size:22px;">标题3</li>
-              <li data-level="fourth" style="font-size:20px;">标题4</li>
-              <li data-level="fifth" style="font-size:18px;">标题5</li>
-              <li data-level="sixth" style="font-size:16px;">标题6</li>
-            </ul>
+          <div class="menu-item__redo">
+            <i></i>
           </div>
+
         </div>
-        <div class="menu-item__left">
-          <i></i>
-        </div>
-        <div class="menu-item__center">
-          <i></i>
-        </div>
-        <div class="menu-item__right">
-          <i></i>
-        </div>
-        <div class="menu-item__alignment">
-          <i></i>
-        </div>
-        <div class="menu-item__justify">
-          <i></i>
-        </div>
-        <div class="menu-item__row-margin">
-          <i title="行间距"></i>
-          <div class="options">
-            <ul>
-              <li data-rowmargin='1'>1</li>
-              <li data-rowmargin="1.25">1.25</li>
-              <li data-rowmargin="1.5">1.5</li>
-              <li data-rowmargin="1.75">1.75</li>
-              <li data-rowmargin="2">2</li>
-              <li data-rowmargin="2.5">2.5</li>
-              <li data-rowmargin="3">3</li>
-            </ul>
+        <div class="menu-item">
+
+          <div class="menu-item__bold">
+            <i></i>
           </div>
-        </div>
-        <div class="menu-item__list">
-          <i></i>
-          <div class="options">
-            <ul>
-              <li>
-                <label>取消列表</label>
-              </li>
-              <li data-list-type="ol" data-list-style='decimal'>
-                <label>有序列表：</label>
-                <ol>
-                  <li>________</li>
-                </ol>
-              </li>
-              <li data-list-type="ul" data-list-style='checkbox'>
-                <label>复选框列表：</label>
-                <ul style="list-style-type: '☑️ ';">
-                  <li>________</li>
-                </ul>
-              </li>
-              <li data-list-type="ul" data-list-style='disc'>
-                <label>实心圆点列表：</label>
-                <ul style="list-style-type: disc;">
-                  <li>________</li>
-                </ul>
-              </li>
-              <li data-list-type="ul" data-list-style='circle'>
-                <label>空心圆点列表：</label>
-                <ul style="list-style-type: circle;">
-                  <li>________</li>
-                </ul>
-              </li>
-              <li data-list-type="ul" data-list-style='square'>
-                <label>空心方块列表：</label>
-                <ul style="list-style-type: '☐ ';">
-                  <li>________</li>
-                </ul>
-              </li>
-            </ul>
+          <div class="menu-item__italic">
+            <i></i>
           </div>
-        </div>
-      </div>
-      <div class="menu-divider"></div>
-      <div class="menu-item">
-        <div class="menu-item__table">
-          <i title="表格"></i>
-        </div>
-        <div class="menu-item__table__collapse">
-          <div class="table-close">×</div>
-          <div class="table-title">
-            <span class="table-select">插入</span>
-            <span>表格</span>
-          </div>
-          <div class="table-panel"></div>
-        </div>
-        <div class="menu-item__image">
-          <i title="图片"></i>
-          <input type="file" id="image" accept=".png, .jpg, .jpeg, .svg, .gif">
-        </div>
-        <div class="menu-item__hyperlink">
-          <i title="超链接"></i>
-        </div>
-        <div class="menu-item__separator">
-          <i title="分割线"></i>
-          <div class="options">
-            <ul>
-              <li data-separator='0,0'>
-                <i></i>
-              </li>
-              <li data-separator="1,1">
-                <i></i>
-              </li>
-              <li data-separator="3,1">
-                <i></i>
-              </li>
-              <li data-separator="4,4">
-                <i></i>
-              </li>
-              <li data-separator="7,3,3,3">
-                <i></i>
-              </li>
-              <li data-separator="6,2,2,2,2,2">
-                <i></i>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="menu-item__watermark">
-          <i title="水印(添加、删除)"></i>
-          <div class="options">
-            <ul>
-              <li data-menu="add">添加水印</li>
-              <li data-menu="delete">删除水印</li>
-            </ul>
-          </div>
-        </div>
-        <div class="menu-item__codeblock" title="代码块">
-          <i></i>
-        </div>
-        <div class="menu-item__page-break" title="分页符">
-          <i></i>
-        </div>
-        <div class="menu-item__control">
-          <i title="控件"></i>
-          <div class="options">
-            <ul>
-              <li data-control='text'>文本</li>
-              <li data-control="select">列举</li>
-              <li data-control="date">日期</li>
-              <li data-control="checkbox">复选框</li>
-              <li data-control="radio">单选框</li>
-            </ul>
-          </div>
-        </div>
-        <div class="menu-item__checkbox" title="复选框">
-          <i></i>
-        </div>
-        <div class="menu-item__radio" title="单选框">
-          <i></i>
-        </div>
-        <div class="menu-item__latex" title="LateX">
-          <i></i>
-        </div>
-        <div class="menu-item__date">
-          <i title="日期"></i>
-          <div class="options">
-            <ul>
-              <li data-format="yyyy-MM-dd"></li>
-              <li data-format="yyyy-MM-dd hh:mm:ss"></li>
-            </ul>
-          </div>
-        </div>
-        <div class="menu-item__block" title="内容块">
-          <i></i>
-        </div>
-      </div>
-      <div class="menu-divider"></div>
-      <div class="menu-item">
-        <div class="menu-item__search" data-menu="search">
-          <i></i>
-        </div>
-        <div class="menu-item__search__collapse" data-menu="search">
-          <div class="menu-item__search__collapse__search">
-            <input type="text" />
-            <label class="search-result"></label>
-            <div class="arrow-left">
-              <i></i>
+          <div class="menu-item__underline">
+            <i></i>
+            <span class="select"></span>
+            <div class="options">
+              <ul>
+                <li data-decoration-style='solid'>
+                  <i></i>
+                </li>
+                <li data-decoration-style='double'>
+                  <i></i>
+                </li>
+                <li data-decoration-style='dashed'>
+                  <i></i>
+                </li>
+                <li data-decoration-style='dotted'>
+                  <i></i>
+                </li>
+                <li data-decoration-style='wavy'>
+                  <i></i>
+                </li>
+              </ul>
             </div>
-            <div class="arrow-right">
-              <i></i>
-            </div>
-            <span>×</span>
           </div>
-          <div class="menu-item__search__collapse__replace">
-            <input type="text">
-            <button>替换</button>
+          <div class="menu-item__strikeout" title="删除线(Ctrl+Shift+X)">
+            <i></i>
           </div>
-        </div>
-        <div class="menu-item__print" data-menu="print">
-          <i></i>
-        </div>
-        <div class="menu-item__ai-edit" data-menu="save">
-          <i></i>
-        </div>
-        <div class="menu-item__save" data-menu="save">
-          <i></i>
+          <div class="menu-item__superscript">
+            <i></i>
+          </div>
+          <div class="menu-item__subscript">
+            <i></i>
+          </div>
+          <div class="menu-item__exportword" title="导出word">
+            <i></i>
+          </div>
+
+
         </div>
       </div>
+      <div class="menu-section" id="characters-menu">
+        <div class="menu-item">
+          <div class="menu-item__font">
+            <span class="select" title="字体">微软雅黑</span>
+            <div class="options">
+              <ul>
+                <li data-family="Microsoft YaHei" style="font-family:'Microsoft YaHei';">微软雅黑</li>
+                <li data-family="华文宋体" style="font-family:'华文宋体';">华文宋体</li>
+                <li data-family="华文黑体" style="font-family:'华文黑体';">华文黑体</li>
+                <li data-family="华文仿宋" style="font-family:'华文仿宋';">华文仿宋</li>
+                <li data-family="华文楷体" style="font-family:'华文楷体';">华文楷体</li>
+                <li data-family="华文琥珀" style="font-family:'华文琥珀';">华文琥珀</li>
+                <li data-family="华文楷体" style="font-family:'华文楷体';">华文楷体</li>
+                <li data-family="华文隶书" style="font-family:'华文隶书';">华文隶书</li>
+                <li data-family="华文新魏" style="font-family:'华文新魏';">华文新魏</li>
+                <li data-family="华文行楷" style="font-family:'华文行楷';">华文行楷</li>
+                <li data-family="华文中宋" style="font-family:'华文中宋';">华文中宋</li>
+                <li data-family="华文彩云" style="font-family:'华文彩云';">华文彩云</li>
+                <li data-family="Arial" style="font-family:'Arial';">Arial</li>
+                <li data-family="Segoe UI" style="font-family:'Segoe UI';">Segoe UI</li>
+                <li data-family="Ink Free" style="font-family:'Ink Free';">Ink Free</li>
+                <li data-family="Fantasy" style="font-family:'Fantasy';">Fantasy</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__color" title="字体颜色">
+            <i></i>
+            <span></span>
+            <input type="color" id="color" />
+          </div>
+          <div class="menu-item__highlight" title="高亮">
+            <i></i>
+            <span></span>
+            <input type="color" id="highlight">
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="menu-item__title">
+            <i></i>
+            <span class="select" title="切换标题">正文</span>
+            <div class="options">
+              <ul>
+                <li style="font-size:16px;">正文</li>
+                <li data-level="first" style="font-size:26px;">标题1</li>
+                <li data-level="second" style="font-size:24px;">标题2</li>
+                <li data-level="third" style="font-size:22px;">标题3</li>
+                <li data-level="fourth" style="font-size:20px;">标题4</li>
+                <li data-level="fifth" style="font-size:18px;">标题5</li>
+                <li data-level="sixth" style="font-size:16px;">标题6</li>
+              </ul>
+            </div>
+          </div>
+          <div class="menu-item__size">
+            <span class="select" title="字体">小四</span>
+            <div class="options">
+              <ul>
+                <li data-size="56">初号</li>
+                <li data-size="48">小初</li>
+                <li data-size="34">一号</li>
+                <li data-size="32">小一</li>
+                <li data-size="29">二号</li>
+                <li data-size="24">小二</li>
+                <li data-size="21">三号</li>
+                <li data-size="20">小三</li>
+                <li data-size="18">四号</li>
+                <li data-size="16">小四</li>
+                <li data-size="14">五号</li>
+                <li data-size="12">小五</li>
+                <li data-size="10">六号</li>
+                <li data-size="8">小六</li>
+                <li data-size="7">七号</li>
+                <li data-size="6">八号</li>
+              </ul>
+            </div>
+          </div>
+          <div class="menu-item__size-add">
+            <i></i>
+          </div>
+          <div class="menu-item__size-minus">
+            <i></i>
+          </div>
+
+        </div>
+      </div>
+      <div class="menu-section" id="insert-menu">
+        <!-- 插入内容 -->
+        <div class="menu-item">
+          <div class="menu-item__table">
+            <i title="表格"></i>
+          </div>
+          <div class="menu-item__table__collapse">
+            <div class="table-close">×</div>
+            <div class="table-title">
+              <span class="table-select">插入</span>
+              <span>表格</span>
+            </div>
+            <div class="table-panel"></div>
+          </div>
+          <div class="menu-item__image">
+            <i title="图片"></i>
+            <input type="file" id="image" accept=".png, .jpg, .jpeg, .svg, .gif">
+          </div>
+          <div class="menu-item__hyperlink">
+            <i title="超链接"></i>
+          </div>
+          <div class="menu-item__separator">
+            <i title="分割线"></i>
+            <div class="options">
+              <ul>
+                <li data-separator='0,0'>
+                  <i></i>
+                </li>
+                <li data-separator="1,1">
+                  <i></i>
+                </li>
+                <li data-separator="3,1">
+                  <i></i>
+                </li>
+                <li data-separator="4,4">
+                  <i></i>
+                </li>
+                <li data-separator="7,3,3,3">
+                  <i></i>
+                </li>
+                <li data-separator="6,2,2,2,2,2">
+                  <i></i>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="menu-item__watermark">
+            <i title="水印(添加、删除)"></i>
+            <div class="options">
+              <ul>
+                <li data-menu="add">添加水印</li>
+                <li data-menu="delete">删除水印</li>
+              </ul>
+            </div>
+          </div>
+          <div class="menu-item__codeblock" title="代码块">
+            <i></i>
+          </div>
+          <div class="menu-item__page-break" title="分页符">
+            <i></i>
+          </div>
+          <div class="menu-item__control">
+            <i title="控件"></i>
+            <div class="options">
+              <ul>
+                <li data-control='text'>文本</li>
+                <li data-control="select">列举</li>
+                <li data-control="date">日期</li>
+                <li data-control="checkbox">复选框</li>
+                <li data-control="radio">单选框</li>
+              </ul>
+            </div>
+          </div>
+          <div class="menu-item__checkbox" title="复选框">
+            <i></i>
+          </div>
+          <div class="menu-item__radio" title="单选框">
+            <i></i>
+          </div>
+          <div class="menu-item__latex" title="LateX">
+            <i></i>
+          </div>
+          <div class="menu-item__date">
+            <i title="日期"></i>
+            <div class="options">
+              <ul>
+                <li data-format="yyyy-MM-dd"></li>
+                <li data-format="yyyy-MM-dd hh:mm:ss"></li>
+              </ul>
+            </div>
+          </div>
+          <div class="menu-item__block" title="内容块">
+            <i></i>
+          </div>
+
+          <div class="menu-item__barcode" title="条形码">
+            <i></i>
+          </div>
+          <div class="menu-item__qrcode" title="二维码">
+            <i></i>
+          </div>
+          <div class="menu-item__importword" title="导入word">
+            <i></i>
+          </div>
+          <div class="menu-item__importexcel" title="插入excel">
+            <i></i>
+          </div>
+
+        </div>
+      </div>
+      <div class="menu-section" id="page-menu">
+        <div class="menu-item">
+          <div class="menu-item__left">
+            <i></i>
+          </div>
+          <div class="menu-item__center">
+            <i></i>
+          </div>
+          <div class="menu-item__right">
+            <i></i>
+          </div>
+          <div class="menu-item__alignment">
+            <i></i>
+          </div>
+          <div class="menu-item__justify">
+            <i></i>
+          </div>
+          <div class="menu-item__row-margin">
+            <i title="行间距"></i>
+            <div class="options">
+              <ul>
+                <li data-rowmargin='1'>1</li>
+                <li data-rowmargin="1.25">1.25</li>
+                <li data-rowmargin="1.5">1.5</li>
+                <li data-rowmargin="1.75">1.75</li>
+                <li data-rowmargin="2">2</li>
+                <li data-rowmargin="2.5">2.5</li>
+                <li data-rowmargin="3">3</li>
+              </ul>
+            </div>
+          </div>
+          <div class="menu-item__painter" title="格式刷(双击可连续使用)">
+            <i></i>
+          </div>
+          <div class="menu-item__format" title="清除格式">
+            <i></i>
+          </div>
+          <div class="menu-item__list">
+            <i></i>
+            <div class="options">
+              <ul>
+                <li>
+                  <label>取消列表</label>
+                </li>
+                <li data-list-type="ol" data-list-style='decimal'>
+                  <label>有序列表：</label>
+                  <ol>
+                    <li>________</li>
+                  </ol>
+                </li>
+                <li data-list-type="ul" data-list-style='checkbox'>
+                  <label>复选框列表：</label>
+                  <ul style="list-style-type: '☑️ ';">
+                    <li>________</li>
+                  </ul>
+                </li>
+                <li data-list-type="ul" data-list-style='disc'>
+                  <label>实心圆点列表：</label>
+                  <ul style="list-style-type: disc;">
+                    <li>________</li>
+                  </ul>
+                </li>
+                <li data-list-type="ul" data-list-style='circle'>
+                  <label>空心圆点列表：</label>
+                  <ul style="list-style-type: circle;">
+                    <li>________</li>
+                  </ul>
+                </li>
+                <li data-list-type="ul" data-list-style='square'>
+                  <label>空心方块列表：</label>
+                  <ul style="list-style-type: '☐ ';">
+                    <li>________</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+
+          <div class="menu-item__search" data-menu="search">
+            <i></i>
+          </div>
+          <div class="menu-item__search__collapse" data-menu="search">
+            <div class="menu-item__search__collapse__search">
+              <input type="text" />
+              <label class="search-result"></label>
+              <div class="arrow-left">
+                <i></i>
+              </div>
+              <div class="arrow-right">
+                <i></i>
+              </div>
+              <span>×</span>
+            </div>
+            <div class="menu-item__search__collapse__replace">
+              <input type="text">
+              <button>替换</button>
+            </div>
+          </div>
+          <div class="menu-item__print" data-menu="print">
+            <i></i>
+          </div>
+
+
+        </div>
+      </div>
+
       <div class="menu-item__ai-edit-box hide">
         <span>×</span>
         <div class="ai-edit-outline-box">
@@ -390,7 +435,9 @@
           </div>
         </div>
       </div>
+
     </div>
+
     <div class="catalog" editor-component="catalog">
       <div class="catalog__header">
         <span>目录</span>

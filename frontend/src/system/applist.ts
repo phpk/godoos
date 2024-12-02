@@ -80,9 +80,9 @@ export const appList = [
     {
         name: "document",
         appIcon: "word",
-        url: "/docx/index.html",
-        //url:"http://localhost:9000/",
-        width: 1000,
+        //url: "/docx/index.html",
+        url:"http://localhost:3000/",
+        width: 800,
         frame: true,
         height: 600,
         center: true,
