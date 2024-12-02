@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"godo/libs"
+	"log"
 )
 
 // ollama openai deepseek bigmodel alibaba 01ai cloudflare groq mistral anthropic llamafamily
@@ -49,7 +50,8 @@ func GetHeadersAndUrl(req map[string]interface{}, chattype string) (map[string]s
 		} else if engine == "gitee" {
 			url = GetGiteeUrl(model, chattype)
 		} else if engine == "ollama" {
-			url = GetOllamaUrl()
+			url = GetOllamaUrl() + "/v1"
+			log.Printf("get ollama url is %v", url)
 		}
 	}
 

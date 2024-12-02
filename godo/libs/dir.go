@@ -25,6 +25,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
 
 func InitServer() error {
@@ -71,13 +72,21 @@ func InitOsDir() (string, error) {
 }
 func InitOllamaModelPath() {
 	ollamaDir, ok := GetConfig("ollamaDir")
-	if ok && ollamaDir.(string) != "" {
-		os.Setenv("OLLAMA_MODELS", ollamaDir.(string))
+	if ok {
+		dirStr, ok := ollamaDir.(string)
+		if ok && dirStr != "" {
+			os.Setenv("OLLAMA_MODELS", ollamaDir.(string))
+		}
 	}
 	ollamaUrl, ok := GetConfig("ollamaUrl")
-	if ok && ollamaUrl.(string) != "" {
-		os.Setenv("OLLAMA_HOST", ollamaUrl.(string))
+	if ok {
+		urlStr, ok := ollamaUrl.(string)
+		if ok && urlStr != "" {
+			urlStr = strings.TrimPrefix(strings.TrimPrefix(urlStr, "http://"), "https://")
+			os.Setenv("OLLAMA_HOST", urlStr)
+		}
 	}
+
 }
 func GetOsDir() (string, error) {
 	osDir, ok := GetConfig("osPath")

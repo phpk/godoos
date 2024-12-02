@@ -396,11 +396,11 @@ func GetOllamaModelDir() string {
 }
 func GetOllamaUrl() string {
 	if s := strings.TrimSpace(Var("OLLAMA_HOST")); s != "" {
-		return s
+		return "http://" + s
 	}
 	ollamaUrl, ok := libs.GetConfig("ollamaUrl")
 	if ok {
-		return ollamaUrl.(string)
+		return "http://" + ollamaUrl.(string)
 	} else {
 		return "http://localhost:11434"
 	}
