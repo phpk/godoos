@@ -146,22 +146,25 @@ func OsStart() {
 	aiRouter.HandleFunc("/refreshOllama", model.RefreshOllamaHandler).Methods(http.MethodGet)
 	aiRouter.HandleFunc("/chat", model.ChatHandler).Methods(http.MethodPost)
 	aiRouter.HandleFunc("/embeddings", model.EmbeddingHandler).Methods(http.MethodPost)
-	// router.Handle("/model/uploadimage", http.MethodPost, sd.UploadHandler)
-	// router.Handle("/model/image", http.MethodPost, sd.CreateImage)
-	// router.Handle("/model/deleteimage", http.MethodPost, sd.DeleteImageHandler)
-	// router.Handle("/model/viewimage", http.MethodGet, sd.ServeImage)
-	// router.Handle("/model/voice", http.MethodPost, voice.UploadHandler)
-	// router.Handle("/model/tts", http.MethodPost, voice.TtsHandler)
-	// router.Handle("/model/audio", http.MethodGet, voice.ServeAudio)
+	//注册浏览器路由
 	ieRouter := router.PathPrefix("/ie").Subrouter()
 	ieRouter.HandleFunc("/navigate", store.HandleNavigate).Methods(http.MethodGet)
 	ieRouter.HandleFunc("/back", store.HandleBack).Methods(http.MethodGet)
 	ieRouter.HandleFunc("/forward", store.HandleForward).Methods(http.MethodGet)
 	ieRouter.HandleFunc("/refresh", store.HandleRefresh).Methods(http.MethodGet)
 
+	// 注册根路径的处理函数
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")
 	fileServer := http.FileServer(http.FS(distFS))
-	//netPath := libs.GetNetPath()
+	netPath := libs.GetNetPath()
+	log.Printf("netPath: %s", netPath)
+
+	if netPath != "/" {
+		// 注册 netPath 的处理函数
+		router.PathPrefix(netPath).Handler(http.StripPrefix(netPath, fileServer))
+	}
+
+	// 注册根路径的处理函数
 	router.PathPrefix("/").Handler(fileServer)
 
 	go store.CheckActive(context.Background())
