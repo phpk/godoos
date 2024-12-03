@@ -72,6 +72,7 @@
 					>
 					<a
 						href="#"
+						v-if="config.userType !== 'member'"
 						@click.prevent="toggleUserSwitch"
 						>切换角色</a
 					>
@@ -164,18 +165,18 @@
 	const isRegisterMode = ref(false);
 
 	const thirdPartyPlatforms = [
-		{
-			name: "wechat",
-			icon: new URL("@/assets/login/wechat.png", import.meta.url).href,
-		},
-		{
-			name: "qq",
-			icon: new URL("@/assets/login/qq.png", import.meta.url).href,
-		},
-		{
-			name: "sina",
-			icon: new URL("@/assets/login/sina.png", import.meta.url).href,
-		},
+		// {
+		// 	name: "wechat",
+		// 	icon: new URL("@/assets/login/wechat.png", import.meta.url).href,
+		// },
+		// {
+		// 	name: "qq",
+		// 	icon: new URL("@/assets/login/qq.png", import.meta.url).href,
+		// },
+		// {
+		// 	name: "sina",
+		// 	icon: new URL("@/assets/login/sina.png", import.meta.url).href,
+		// },
 		{
 			name: "github",
 			icon: new URL("@/assets/login/github.png", import.meta.url).href,
