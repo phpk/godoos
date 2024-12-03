@@ -28,7 +28,7 @@ export const getSystemConfig = (ifset = false) => {
     config.apiUrl = `${window.location.protocol}//${window.location.hostname}:56780`;
   }
   if (!config.userType) {
-    config.userType = 'person'
+    config.userType = 'person'//如果是企业版请改为member
   }
   if (!config.file) {
     config.file = {
@@ -43,7 +43,7 @@ export const getSystemConfig = (ifset = false) => {
   // 初始化用户信息，若本地存储中已存在则不进行覆盖
   if (!config.userInfo) {
     config.userInfo = {
-      url: '',
+      url: '',//如果是企业版请改为服务器地址，不要加斜线
       username: '',
       password: '',
       id: 0,
@@ -87,9 +87,6 @@ export const getSystemConfig = (ifset = false) => {
   }
   if(!config.netPort) {
     config.netPort = "56780";
-  }
-  if (!config.userType) {
-    config.userType = 'person';
   }
   // 初始化背景设置，若本地存储中已存在则不进行覆盖
   if (!config.background) {
