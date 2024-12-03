@@ -1,4 +1,4 @@
-## 安装帮助
+## godocloud客户端安装帮助
 
 ### 第一步：安装nodejs
 
@@ -26,4 +26,19 @@ sudo chmod +x build.sh
 ```
 
 - 打包成功后每个系统的版本在dist目录下
+
+### 第三步：部署
+
+- 启动文件
+```
+sudo chmod +x ./godocloud_linux_amd64
+./godocloud_linux_amd64
+```
+- 访问地址：http://localhost:56781
+
+- 备注：如需更改端口地址，修改cloud/cmd/main.go中
+
+```
+const serverAddress = ":56781"
+```
 
