@@ -188,3 +188,15 @@ wails build
 - [vditor](https://github.com/Vanessa219/vditor)
 - [mind-map](https://github.com/wanglin2/mind-map)
 - [canvas-editor](https://github.com/Hufe921/canvas-editor)
+
+### Contributing
+
+See [Contributing guide](CONTRIBUTING.md)
+
+### Contributors
+
+<a href="https://github.com/phpk/godoos/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=phpk/godoos" />
+</a>
+
+Made with [contributors-img](https://contributors-img.web.app).
