@@ -1,6 +1,7 @@
 {
   "hello": "你好",
   "startMenu.power": "电源",
+  "startMenu.logout": "退出",
   "startMenu.shutdown": "关机",
   "startMenu.recover": "恢复",
   "windows.setting": "系统设置",
