@@ -123,10 +123,12 @@ export class System {
         upgradeStore.onlineMessage();
         // upgradeStore.userChatMessage();
       }, 3000);
+    }else{
+      setTimeout(() => {
+        upgradeStore.systemMessage()
+      }, 6000);
     }
-    setTimeout(() => {
-      upgradeStore.systemMessage()
-    }, 6000);
+    
 
   }
   /**

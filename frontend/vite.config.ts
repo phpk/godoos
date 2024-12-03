@@ -43,5 +43,6 @@ export default defineConfig(async () => ({
       }
     },
     outDir: '../godo/deps/dist',
-  }
+  },
+  base: './',
 }));

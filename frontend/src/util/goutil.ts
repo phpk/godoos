@@ -1,4 +1,4 @@
-import { getSystemKey } from "@/system/config";
+import { getSystemConfig } from "@/system/config";
 export async function OpenDirDialog() {
     if ((window as any).go) {
         return (window as any)['go']['app']['App']['OpenDirDialog']();
@@ -19,12 +19,17 @@ export async function checkUrl(url: string) {
 }
 export function RestartApp() {
     if (!(window as any).go) {
-        const apiUrl = getSystemKey("apiUrl");
-        fetch(apiUrl + "/system/restart").then(() => {
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        })
+        const config = getSystemConfig();
+        if (config.userType == 'person') {
+            fetch(config.apiUrl + "/system/restart").then(() => {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            })
+        } else {
+            window.location.reload();
+        }
+
         //window.location.reload();
     } else {
         return (window as any)['go']['app']['App']['RestartApp']();

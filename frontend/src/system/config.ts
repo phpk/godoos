@@ -11,7 +11,7 @@ export const getSystemConfig = (ifset = false) => {
   // 从本地存储中尝试获取配置信息，若不存在则使用默认空对象
   const configSetting = localStorage.getItem('GodoOS-config') || '{}';
   // 解析配置信息为JSON对象
-  let config:any = JSON.parse(configSetting);
+  let config: any = JSON.parse(configSetting);
 
   // 初始化配置对象的各项属性，若本地存储中已存在则不进行覆盖
   if (!config.version) {
@@ -82,10 +82,10 @@ export const getSystemConfig = (ifset = false) => {
   if (!config.storePath) {
     config.storePath = "";
   }
-  if(!config.netPath) {
+  if (!config.netPath) {
     config.netPath = "";
   }
-  if(!config.netPort) {
+  if (!config.netPort) {
     config.netPort = "56780";
   }
   // 初始化背景设置，若本地存储中已存在则不进行覆盖
@@ -152,7 +152,7 @@ export const getSystemConfig = (ifset = false) => {
       'fourthEnd': '254'
     }
   }
-  
+
   // 初始化桌面快捷方式列表，若本地存储中已存在则不进行覆盖
   if (!config.desktopList) {
     config.desktopList = [];
@@ -309,9 +309,13 @@ export const setSystemConfig = (config: any) => {
 };
 
 export const clearSystemConfig = () => {
-  const storetype = localStorage.getItem('GodoOS-storeType') || 'local';
-  localStorage.clear()
-  localStorage.setItem('GodoOS-storeType', storetype)
+  const config = getSystemConfig();
+
+  if (config.userType === 'person') {
+    const storetype = localStorage.getItem('GodoOS-storeType') || 'local';
+    localStorage.clear()
+    localStorage.setItem('GodoOS-storeType', storetype)
+  }
   //localStorage.removeItem('GodoOS-config');
 };
 // function bin2hex(s: string) {
