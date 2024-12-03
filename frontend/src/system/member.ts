@@ -5,7 +5,7 @@ export const memberList = [
         content:"Chat",
         frame: true,
         width: 800,
-        height: 650,
+        height: 600,
         center: true,
         resizable: true,
         isDeskTop: true,
