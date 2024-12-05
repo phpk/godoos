@@ -1,5 +1,6 @@
 import { qwenLabels } from './qwen.ts'
 import { gemmaLabels } from './gemma.ts'
+import { chatglmLabels } from './chatglm.ts'
 import { llamaLabels } from './llama.ts'
 import { internlmLabels } from './internlm.ts'
 import { mingyiLabels } from './mingyi.ts'
@@ -8,6 +9,8 @@ import { llavaLabels } from './llava.ts'
 import { bakllavaLabels } from './bakllava.ts'
 import { minicpmLabels } from './minicpm.ts'
 import { moondreamLabels } from './moondream.ts'
+import { starlinglmLabels } from './starlinglm.ts'
+import { neuralchatLabels } from './neuralchat.ts'
 import { phiLabels } from './phi.ts'
 import { openchatLabels } from './openchat.ts'
 import { ayaLabels } from './aya.ts'
@@ -41,6 +44,7 @@ import { vitsLabel } from './vits.ts'
 export const aiLabels = [
     qwenLabels,
     gemmaLabels,
+    chatglmLabels,
     llamaLabels,
     internlmLabels,
     mingyiLabels,
@@ -49,6 +53,8 @@ export const aiLabels = [
     bakllavaLabels,
     minicpmLabels,
     moondreamLabels,
+    starlinglmLabels,
+    neuralchatLabels,
     phiLabels,
     openchatLabels,
     ayaLabels,
