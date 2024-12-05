@@ -156,7 +156,9 @@
 	import router from "@/system/router";
 	import { RestartApp } from "@/util/goutil";
 	import { notifyError } from "@/util/msg";
-	import { onMounted, ref } from "vue";
+	import { onMounted, ref, watchEffect } from "vue";
+	import { useRoute } from "vue-router";
+	const route = useRoute();
 	const store = useLoginStore();
 	const sys = useSystem();
 	const loginCallback = sys._options.loginCallback;
@@ -207,13 +209,14 @@
 		}
 	});
 
-	// 监听code参数
-	watch(
-		() => router.currentRoute.value.query.code,
-		() => {
+	// 使用 watchEffect 监听 code 参数
+	watchEffect(() => {
+		const code = route.query.code;
+		if (code) {
+			console.log(code, "---");
 			onLogin();
 		}
-	);
+	});
 
 	const onLogin = async () => {
 		localStorage.removeItem("godoosClientId");
@@ -237,8 +240,6 @@
 				// 第三方登录统一调用
 				const returnedState = router.currentRoute.value.query
 					.state as string;
-
-				console.log(returnedState, "---", store.State);
 
 				if (returnedState !== store.State) {
 					notifyError("登录失败，请重试");
@@ -405,8 +406,6 @@
 			const success = await loginFunction();
 			if (success) {
 				loginSuccess();
-			} else {
-				notifyError("登录失败");
 			}
 		}
 	};
@@ -415,20 +414,35 @@
 		// 传递state用于防止CSRF攻击,使用时间戳加随机字符串
 		const state = Date.now() + Math.random().toString(36).substring(2, 15);
 		store.State = state;
+		// 获取当前页面url当做回调参数
+		const currentUrl = window.location.href;
 		const url = config.userInfo.url + "/github/authorize?state=" + state;
 		const res: any = await fetch(url, {
 			method: "POST",
 			body: JSON.stringify({
 				state: state,
+				redirect_url: currentUrl,
 			}),
 		});
 		if (!res.ok) {
 			return false;
 		}
 		const data = await res.json();
-		console.log(data.data.url);
-		window.location.href = data.data.url;
-		return true;
+		if (data && data.data && data.data.url) {
+			console.log(data.data.url, "---");
+			// 使用正则表达式检查URL格式
+			const urlPattern = /client_id=[^&]+/;
+			if (urlPattern.test(data.data.url)) {
+				window.location.href = data.data.url;
+				return true;
+			} else {
+				notifyError("请先在系统配置中设置github登陆配置");
+				return false;
+			}
+		} else {
+			notifyError("获取授权URL失败");
+			return false;
+		}
 	};
 
 	const authWithWechat = (): boolean | PromiseLike<boolean> => {
@@ -447,20 +461,34 @@
 		// 传递state用于防止CSRF攻击,使用时间戳加随机字符串
 		const state = Date.now() + Math.random().toString(36).substring(2, 15);
 		store.State = state;
+		// 获取当前页面url当做回调参数
+		const currentUrl = window.location.href;
 		const url = config.userInfo.url + "/gitee/authorize?state=" + state;
 		const res: any = await fetch(url, {
 			method: "POST",
 			body: JSON.stringify({
 				state: state,
+				redirect_url: currentUrl,
 			}),
 		});
 		if (!res.ok) {
 			return false;
 		}
 		const data = await res.json();
-		// 跳转到Gitee授权页面
-		window.location.href = data.data.url;
-		return true;
+		if (data && data.data && data.data.url) {
+			// 使用正则表达式检查URL格式
+			const urlPattern = /client_id=[^&]+/;
+			if (urlPattern.test(data.data.url)) {
+				window.location.href = data.data.url;
+				return true;
+			} else {
+				notifyError("请先在系统配置中设置gitee登陆配置");
+				return false;
+			}
+		} else {
+			notifyError("获取授权URL失败");
+			return false;
+		}
 	};
 </script>
 
