@@ -1,13 +1,13 @@
 <template>
-	<iframe class="setiframe" allow="fullscreen" ref="storeRef" :src="src"></iframe>
+  <iframe class="setiframe" allow="fullscreen" ref="storeRef" :src="src"></iframe>
 </template>
 <script lang="ts" setup name="IframeFile">
 //@ts-ignore
 import { BrowserWindow, Dialog, Notify, System } from "@/system";
-import { getSplit, getSystemConfig, setSystemKey } from "@/system/config";
+import { notifyError } from "@/util/msg";
+import { getSplit } from "@/system/config";
 import { base64ToBuffer, isBase64 } from "@/util/file";
 import { generateRandomString } from "@/util/common";
-import { isShareFile } from "@/util/sharePath.ts";
 import { inject, onMounted, onUnmounted, ref, toRaw } from "vue";
 import { askAi } from "@/hook/useAi";
 import { useChooseStore } from "@/stores/choose";
@@ -47,11 +47,11 @@ const saveFile = async (e: any) => {
     ext = data.ext;
   }
   const fileName = e.fileName == '' ? data.title : e.fileName
-  let path:string
+  let path: string
   e.filePath !== ""
     ? (path = `${e.filePath}/${fileName}.${ext}`)
     : (path = `${SP}C${SP}Users${SP}Desktop${SP}${fileName}.${ext}`);
-    // console.log('路径：',path);
+  // console.log('路径：',path);
   await writeFile(path, data, e.fileName, true);
 };
 eventBus.on("saveFile", saveFile);
@@ -78,7 +78,20 @@ const writeFile = async (path: string, data: any, title: string, isNewFile: bool
       //console.log(data.content)
     }
   }
-  const res = await sys?.fs.writeFile(path, data.content);
+  let res = await sys?.fs.writeFile(path, data.content);
+  if (res.code === -1 && res.error == "needPwd") {
+    const temp = await Dialog.showInputBox()
+    if (temp.response !== 1) {
+      return
+    }
+    const header:any = {}
+    header.pwd = temp?.inputPwd ? temp?.inputPwd : ''
+    res = await sys?.fs.writeFile(path, data.content, header);
+    if (res.code === -1) {
+      notifyError(res.message)
+      return
+    }
+  }
   // console.log("编写文件：", res, isShare);
   new Notify({
     title: "提示",
@@ -131,24 +144,11 @@ const eventHandler = async (e: MessageEvent) => {
     hasInit = true;
     let content = win?.config?.content;
     let title = win.getTitle();
-    // console.log("win.config;", win?.config);
+    //console.log("win.config;", win?.config);
     // console.log(title);
     title = title.split(SP).pop();
-
-    // if (!content && win?.config.path) {
-    // 	const header = {
-    // 		pwd: ''
-    // 	};
-    // 	const filePwd = getSystemConfig().fileInputPwd
-    // 	const pos = filePwd.findIndex((item: any) => item.path == win?.config.path)
-    // 	//console.log('路径：', win?.config.path, pos, filePwd);
-    // 	const userType = getSystemConfig().userType
-    // 	if (pos !== -1) {
-    // 		header.pwd = userType == 'person' ? md5(filePwd[pos].pwd) : filePwd[pos].pwd
-    // 	}
-    // 	content = await sys?.fs.readFile(win?.config.path, header);
-    // }
     content = toRaw(content);
+
     if (content && content !== "") {
       storeRef.value?.contentWindow?.postMessage(
         {
@@ -220,21 +220,11 @@ const eventHandler = async (e: MessageEvent) => {
     );
   }
 };
-//删除本地暂存的文件密码
-const delFileInputPwd = async () => {
-  let fileInputPwd = getSystemConfig().fileInputPwd;
-  const currentPath = win.config.path;
-  const temp = fileInputPwd.filter(
-    (item: any) => item.path !== currentPath
-  );
-  setSystemKey("fileInputPwd", temp);
-};
+
 onMounted(() => {
   window.addEventListener("message", eventHandler);
 });
-
-onUnmounted(async () => {
-  await delFileInputPwd();
+onUnmounted(() => {
   window.removeEventListener("message", eventHandler);
 });
 </script>

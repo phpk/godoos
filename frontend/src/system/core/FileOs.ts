@@ -13,16 +13,6 @@ export async function handleReadDir(path: any): Promise<any> {
   }
   return await res.json();
 }
-// 查看分享文件
-export async function handleReadShareDir(path: string): Promise<any> {
-  // const url = path.indexOf('/F/myshare') !== -1 ? 'sharemylist' : 'sharelist'
-  const url = 'sharelist'
-  const res = await fetchGet(`${API_BASE_URL}/${url}`);
-  if (!res.ok) {
-    return false;
-  }
-  return await res.json();
-}
 export async function handleStat(path: string): Promise<any> {
   const res = await fetchGet(`${API_BASE_URL}/stat?path=${encodeURIComponent(path)}`);
   if (!res.ok) {
@@ -74,7 +64,7 @@ export async function handleReadFile(path: string, header?: any): Promise<any> {
       pwd: header.pwd !== '' ? md5(header.pwd) : ''
     }
   }
-  
+
   const res = await fetchGet(`${API_BASE_URL}/readfile?path=${encodeURIComponent(path)}`, head);
   if (!res.ok) {
     return false;
@@ -99,17 +89,8 @@ export async function handleClear(): Promise<any> {
 }
 
 export async function handleRename(oldPath: string, newPath: string): Promise<any> {
-  const url = isShareFile(oldPath) ? 'sharerename' : 'rename'
-  let params = ''
-  if (isShareFile(oldPath)) {
-    const optionID = oldPath.indexOf('/F/myshare') === 0 ? 0 : 1
-    oldPath = turnServePath(oldPath)
-    newPath = turnServePath(newPath)
-    params = `oldpath=${encodeURIComponent(oldPath)}&newpath=${encodeURIComponent(newPath)}&userID=${getSystemConfig()?.userInfo.id}&optionID=${optionID}`
-  } else {
-    params = `oldPath=${encodeURIComponent(oldPath)}&newPath=${encodeURIComponent(newPath)}`
-  }
-  const res = await fetchGet(`${API_BASE_URL}/${url}?${params}`);
+  let params = `oldPath=${encodeURIComponent(oldPath)}&newPath=${encodeURIComponent(newPath)}`
+  const res = await fetchGet(`${API_BASE_URL}/rename?${params}`);
   if (!res.ok) {
     return false;
   }
@@ -170,8 +151,8 @@ export function getFormData(content: any) {
 export async function handleWriteFile(filePath: string, content: any, header?: { [key: string]: any }): Promise<any> {
   //console.log(content)
   const formData = getFormData(content);
-  const head:any = header ? { ...header } : {}
-  if(head.pwd && head.pwd !== ''){
+  const head: any = header ? { ...header } : {}
+  if (head.pwd && head.pwd !== '') {
     head.pwd = md5(head.pwd)
   }
   const url = `${API_BASE_URL}/writefile?path=${encodeURIComponent(filePath)}`;
@@ -228,22 +209,6 @@ export async function handleUnZip(path: string): Promise<any> {
 }
 export const useOsFile = () => {
   return {
-    // 分享
-    async sharedir(path: string) {
-      // const fun = isRootShare(path) ? handleReadShareDir : handleShareDir
-      const response = await handleReadShareDir(path);
-      if (response && response.data) {
-        const result = response.data.map((item: { [key: string]: OsFile }) => {
-          item.fi.isShare = true
-          item.fi.parentPath = turnLocalPath(item.fi.parentPath, path)
-          item.fi.path = turnLocalPath(item.fi.path, path)
-          //item.fi.titleName = turnLocalPath(item.fi.titleName, path)
-          return item.fi
-        })
-        return result
-      }
-      return [];
-    },
 
     async readdir(path: string) {
       const response = await handleReadDir(path);
@@ -253,8 +218,6 @@ export const useOsFile = () => {
       return [];
     },
     async stat(path: string) {
-      path.indexOf('/F/myshare') == 0 ? (path = turnServePath(path)) : ''
-
       const response = await handleStat(path);
       if (response && response.data) {
         return response.data;
@@ -281,8 +244,8 @@ export const useOsFile = () => {
       const response = await handleReadFile(path, header);
       if (response && response.code === 0) {
         return response.data;
-      } 
-      if (response && response.code == -1 && response.message == '加密文件，需要密码') {
+      }
+      if (response && response.code == -1) {
         return response
       }
       return false;
@@ -325,22 +288,11 @@ export const useOsFile = () => {
       return false;
     },
     async writeFile(path: string, content: string | Blob, header?: { [key: string]: any }) {
-      let head = {}
-      
-      if (header) {
-        head = { ...header }
-      } else {
-        const filePwd = getSystemConfig().fileInputPwd
-        const pos = filePwd.findIndex((item: any) => item.path == path)
-        //console.log('路径：', path, pos, filePwd);
-        const userType = getSystemConfig().userType
-        if (pos !== -1) {
-          head = {
-            pwd: userType == 'person' ? md5(filePwd[pos].pwd) : filePwd[pos].pwd
-          }
-        }
-      }
-      const response = await handleWriteFile(path, content, head);
+      // const head: any = header ? { ...header } : {}
+      // if (head.pwd && head.pwd !== '') {
+      //   head.pwd = md5(head.pwd)
+      // }
+      const response = await handleWriteFile(path, content, header);
       if (response) {
         return response;
       }

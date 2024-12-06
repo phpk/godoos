@@ -454,6 +454,7 @@ export class System {
   /**打开os 文件系统的文件 */
   async openFile(path: string) {
       const fileStat = await this.fs.stat(path)
+      //console.log(fileStat)
       if (!fileStat) {
         throw new Error('文件不存在');
       }
@@ -469,36 +470,24 @@ export class System {
         // 读取文件内容
         let fileContent = await this.fs.readFile(path, header);
         // 改文件需要输入密码
-        if (fileContent && fileContent.code == -1 && fileContent.message == '加密文件，需要密码') {
+        if (fileContent && fileContent.code == -1 && fileContent.error == 'needPwd') {
           const temp = await Dialog.showInputBox()
           if (temp.response !== 1) {
             return
           }
-          // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
           header.pwd = temp?.inputPwd ? temp?.inputPwd : ''
           const reOpen = await this.fs.readFile(path, header);
-          if (reOpen == false) {
+          //console.log(reOpen)
+          if (reOpen === false || reOpen.code === -1) {
             notifyError("文件密码错误")
             return
           }
           fileContent = reOpen
         }
-        //用户文件加密密码存储
-        if (fileStat.isPwd) {
-          let fileInputPwd = getSystemConfig().fileInputPwd
-          const pos = fileInputPwd.findIndex((item: any) => item.path == path)
-          if (pos !== -1) {
-            fileInputPwd[pos].pwd = header.pwd
-          } else {
-            fileInputPwd.push({
-              path: path,
-              pwd: header.pwd
-            })
-          }
-          setSystemKey('fileInputPwd', fileInputPwd)
-        }
+        //console.log(fileStat)
         // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
         const fileName = extname(fileStat?.name || '') || 'link'
+        //console.log(fileName,fileContent)
         this._flieOpenerMap
           .get(fileName)
           ?.func.call(this, path, fileContent || '');
