@@ -77,9 +77,9 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// if len(decodeFile)%8 == 0 {
-	// 	decodeFile = decodeFile + " "
-	// }
+	if len(decodeFile)%8 == 0 {
+		decodeFile = decodeFile + " "
+	}
 	libs.SuccessMsg(w, decodeFile, "加密文件读取成功")
 }
 func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
