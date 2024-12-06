@@ -208,75 +208,8 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	}
 	CheckAddDesktop(path)
 	libs.SuccessMsg(w, "", "文件写入成功")
-	/*
-		//log.Printf("fileData: %s", string(fileData))
-		configPwd, ishas := libs.GetConfig("filePwd")
-		// 如果不是加密文件或者exe文件
-		if !ishas || strings.HasPrefix(string(fileData), "link::") {
-			// 没开启加密，直接明文写入
-			_, err := newFile.Write(fileData)
-			if err != nil {
-				libs.HTTPError(w, http.StatusInternalServerError, "数据写入失败")
-				return
-			}
-			err = CheckAddDesktop(path)
-			if err != nil {
-				log.Printf("Error adding file to desktop: %s", err.Error())
-			}
-			libs.SuccessMsg(w, "", "文件写入成功")
-			return
-		} else {
-			// 开启加密后，写入加密数据
-			configPwdStr, ok := configPwd.(string)
-			if !ok {
-				libs.HTTPError(w, http.StatusInternalServerError, "配置文件密码格式错误")
-				return
-			}
-			// 拼接密码和加密后的数据
-			passwordPrefix := fmt.Sprintf("@%s@", configPwdStr)
-			// _, err = newFile.WriteString(fmt.Sprintf("@%s@", configPwdStr))
-			// if err != nil {
-			// 	libs.HTTPError(w, http.StatusInternalServerError, "密码写入失败")
-			// 	return
-			// }
-			entryData, err := libs.EncryptData(fileData, []byte(configPwdStr))
-			if err != nil {
-				libs.HTTPError(w, http.StatusInternalServerError, "文件加密失败")
-				return
-			}
-			// 将密码前缀和加密数据拼接成一个完整的字节切片
-			completeData := []byte(passwordPrefix + string(entryData))
-			// 一次性写入文件
-			_, err = newFile.Write(completeData)
-			if err != nil {
-				libs.HTTPError(w, http.StatusInternalServerError, "文件写入失败")
-				return
-			}
-			err = CheckAddDesktop(path)
-			if err != nil {
-				log.Printf("Error adding file to desktop: %s", err.Error())
-			}
-			libs.SuccessMsg(w, "", "文件写入成功")
-		}*/
 }
 
-/*
-	func resEncode(w http.ResponseWriter, fileData []byte, filePwd string) {
-		decryptData, err := libs.DecryptData(fileData[34:], []byte(filePwd))
-		if err != nil {
-			libs.ErrorMsg(w, err.Error())
-			return
-		}
-
-		//content := base64.StdEncoding.EncodeToString(decryptData)
-		if len(decryptData)%8 == 0 {
-			decryptData = append(decryptData, ' ')
-		}
-		// res := libs.APIResponse{Message: "加密文件读取成功", Data: decryptData}
-		// json.NewEncoder(w).Encode(res)
-		libs.SuccessMsg(w, decryptData, "加密文件读取成功")
-	}
-*/
 func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
 	Pwd := r.Header.Get("Pwd")
 	if Pwd == "" {
