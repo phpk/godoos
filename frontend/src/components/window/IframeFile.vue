@@ -56,26 +56,7 @@ const saveFile = async (e: any) => {
 };
 eventBus.on("saveFile", saveFile);
 const writeFile = async (path: string, data: any, title: string, isNewFile: boolean) => {
-  const isShare = ref(false);
-  const isWrite = ref(0);
-  if (isShareFile(path)) {
-    const file = await sys?.fs.getShareInfo(path);
-    isShare.value = true;
-    isWrite.value =
-      file.fs.sender === getSystemConfig().userInfo.id
-        ? 1
-        : file.fs.is_write;
-    if (
-      !isWrite.value &&
-      file.fs.sender !== getSystemConfig().userInfo.id
-    ) {
-      new Notify({
-        title: "提示",
-        content: "该文件没有编辑权限",
-      });
-      return;
-    }
-  } else if (await sys?.fs.exists(path) && isNewFile) {
+  if (await sys?.fs.exists(path) && isNewFile) {
     let res = await Dialog.showMessageBox({
       type: "info",
       title: "提示",
@@ -97,10 +78,7 @@ const writeFile = async (path: string, data: any, title: string, isNewFile: bool
       //console.log(data.content)
     }
   }
-
-  const res = isShare.value
-    ? await sys?.fs.writeShareFile(path, data.content, isWrite.value)
-    : await sys?.fs.writeFile(path, data.content);
+  const res = await sys?.fs.writeFile(path, data.content);
   // console.log("编写文件：", res, isShare);
   new Notify({
     title: "提示",

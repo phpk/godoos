@@ -440,11 +440,6 @@
 				});
 			}
 			const userType = sys.getConfig("userType");
-      interface UserInfo {
-        isPwd?: boolean
-      }
-			const userInfo = sys.getConfig("userInfo") as UserInfo
-			const isPwd = userInfo?.isPwd || false;
 			if (userType == "member" && !item.isShare && !item.isDirectory) {
 				menuArr.push({
 					label: "分享给...",
@@ -462,24 +457,22 @@
 						win.show();
 					},
 				});
-				if (isPwd) {
-					menuArr.push({
-						label: "文件加密",
-						click: () => {
-							const win = new BrowserWindow({
-								title: "文件加密",
-								content: "FilePwd",
-								config: {
-									path: item.path,
-								},
-								width: 400,
-								height: 200,
-								center: true,
-							});
-							win.show();
-						},
-					});
-				}
+        menuArr.push({
+          label: "文件加密",
+          click: () => {
+            const win = new BrowserWindow({
+              title: "文件加密",
+              content: "FilePwd",
+              config: {
+                path: item.path,
+              },
+              width: 400,
+              height: 200,
+              center: true,
+            });
+            win.show();
+          },
+        });
 				// menuArr.push({
 				// 	label: "评论",
 				// 	click: () => {

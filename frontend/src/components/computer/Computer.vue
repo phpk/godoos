@@ -320,24 +320,7 @@
 			rdev: 0,
 			atime: "",
 			birthtime: "",
-		},
-		{
-			ext: "",
-			isDirectory: true,
-			isFile: false,
-			isSymlink: false,
-			mode: 2147484141,
-			name: "othershare",
-			oldPath: "/F/othershare",
-			parentPath: "/F",
-			path: "/F/othershare",
-			title: "othershare",
-			size: 64,
-			mtime: "",
-			rdev: 0,
-			atime: "",
-			birthtime: "",
-		},
+		}
 	]);
 	const random = ref(0);
 	const shareShow = ref(false);
@@ -403,17 +386,10 @@
 	async function onTreeOpen(path: string) {
 		chosenTreePath.value = path;
 		let file: any;
-		// const file = await system.fs.stat(path);
-		if (isRootShare(path)) {
-			file =
-				path === "/F/myshare"
-					? shareFileList.value[0]
-					: shareFileList.value[1];
-		} else if (isShareFile(path)) {
-			file = await system.fs.getShareInfo(path);
-			file = file.fi;
-			file.path = turnLocalPath(file.path, path, 1);
-		} else {
+    if (path.indexOf('/F') === 0) {
+      file = shareFileList.value[0]
+    }
+    else {
 			file = await system.fs.stat(path);
 		}
 		if (file) {

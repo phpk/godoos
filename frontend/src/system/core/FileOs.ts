@@ -1,5 +1,5 @@
 import { getSystemConfig } from "@/system/config";
-import { isRootShare, isShareFile, turnLocalPath, turnServePath } from "@/util/sharePath.ts";
+import { isShareFile, turnLocalPath, turnServePath } from "@/util/sharePath.ts";
 import { md5 } from "js-md5";
 import { fetchGet, fetchPost, getFileUrl } from "../config.ts";
 import { OsFileMode } from '../core/FileMode';
@@ -15,56 +15,9 @@ export async function handleReadDir(path: any): Promise<any> {
 }
 // 查看分享文件
 export async function handleReadShareDir(path: string): Promise<any> {
-  const url = path.indexOf('/F/myshare') !== -1 ? 'sharemylist' : 'sharelist'
+  // const url = path.indexOf('/F/myshare') !== -1 ? 'sharemylist' : 'sharelist'
+  const url = 'sharelist'
   const res = await fetchGet(`${API_BASE_URL}/${url}`);
-  if (!res.ok) {
-    return false;
-  }
-  return await res.json();
-}
-// 查看分享文件夹
-export async function handleShareDir(path: string): Promise<any> {
-  path = turnServePath(path)
-  const res = await fetchGet(`${API_BASE_URL}/sharedir?dirPath=${path}`);
-  if (!res.ok) {
-    return false;
-  }
-  return await res.json();
-}
-// 读文件
-export async function handleReadShareFile(path: string): Promise<any> {
-  path = turnServePath(path)
-  const res = await fetchGet(`${API_BASE_URL}/shareread?path=${path}`);
-  if (!res.ok) {
-    return false;
-  }
-  return await res.json();
-}
-// 删除分享文件
-export async function handleShareUnlink(path: string): Promise<any> {
-  const file = await handleShareDetail(path)
-  path = turnServePath(path)
-  const res = await fetchGet(`${API_BASE_URL}/sharedelete?senderid=${file.data.fs.sender}&path=${path}&receverid=${file.data.fs.recever}`);
-  if (!res.ok) {
-    return false;
-  }
-  return await res.json();
-}
-// 查看文件信息
-export async function handleShareDetail(path: string): Promise<any> {
-  const sig = path.indexOf('/F/myshare') === 0 ? 0 : 1
-  path = turnServePath(path)
-
-  const res = await fetchGet(`${API_BASE_URL}/shareinfo?path=${path}&sig=${sig}`);
-  if (!res.ok) {
-    return false;
-  }
-  return await res.json();
-}
-// 编写共享文件
-export async function handleWriteShareFile(path: string, content: any, isWrite: number): Promise<any> {
-  const formData = getFormData(content);
-  const res = await fetchPost(`${API_BASE_URL}/writewithchmod?path=${path}&iswrite=${isWrite}`, formData);
   if (!res.ok) {
     return false;
   }
@@ -116,9 +69,12 @@ export async function handleExists(path: string): Promise<any> {
 export async function handleReadFile(path: string, header?: any): Promise<any> {
   //const userType = getSystemConfig().userType
   let head = {}
-  head = {
-    pwd: header.pwd !== '' ? md5(header.pwd) : ''
+  if (header) {
+    head = {
+      pwd: header.pwd !== '' ? md5(header.pwd) : ''
+    }
   }
+  
   const res = await fetchGet(`${API_BASE_URL}/readfile?path=${encodeURIComponent(path)}`, head);
   if (!res.ok) {
     return false;
@@ -274,8 +230,8 @@ export const useOsFile = () => {
   return {
     // 分享
     async sharedir(path: string) {
-      const fun = isRootShare(path) ? handleReadShareDir : handleShareDir
-      const response = await fun(path);
+      // const fun = isRootShare(path) ? handleReadShareDir : handleShareDir
+      const response = await handleReadShareDir(path);
       if (response && response.data) {
         const result = response.data.map((item: { [key: string]: OsFile }) => {
           item.fi.isShare = true
@@ -288,39 +244,7 @@ export const useOsFile = () => {
       }
       return [];
     },
-    async readShareFile(path: string) {
-      const response = await handleReadShareFile(path);
-      if (response && response.data) {
-        return response.data;
-      }
-      return [];
-    },
-    //分享文件夹取消
-    async readShareFileDir(path: string) {
-      const response = await handleShareDir(path)
-      if (response && response.data) {
-        return response.data
-      }
-      return []
-    },
-    async getShareInfo(path: string) {
-      const response = await handleShareDetail(path);
-      if (response && response.data) {
-        response.data.fi.isShare = true
-        response.data.fi.path = turnLocalPath(response.data.fi.path, path, 1)
-        return response.data;
-      }
-      return [];
-    },
-    //编写共享文件
-    async writeShareFile(path: string, content: any, isWrite: number) {
-      path = turnServePath(path)
-      const response = await handleWriteShareFile(path, content, isWrite);
-      if (response) {
-        return response;
-      }
-      return false;
-    },
+
     async readdir(path: string) {
       const response = await handleReadDir(path);
       if (response && response.data) {
@@ -329,6 +253,8 @@ export const useOsFile = () => {
       return [];
     },
     async stat(path: string) {
+      path.indexOf('/F/myshare') == 0 ? (path = turnServePath(path)) : ''
+
       const response = await handleStat(path);
       if (response && response.data) {
         return response.data;
@@ -356,14 +282,14 @@ export const useOsFile = () => {
       if (response && response.code === 0) {
         return response.data;
       } 
-      if (response && response.error == 'needPwd') {
+      if (response && response.code == -1 && response.message == '加密文件，需要密码') {
         return response
       }
       return false;
     },
     async unlink(path: string) {
-      const fun = path.indexOf('/F') === 0 ? handleShareUnlink : handleUnlink
-      const response = await fun(path);
+      // const fun = path.indexOf('/F') === 0 ? handleShareUnlink : handleUnlink
+      const response = await handleUnlink(path);
       if (response) {
         return response;
       }
@@ -377,8 +303,8 @@ export const useOsFile = () => {
       return false;
     },
     async rmdir(path: string) {
-      const fun = path.indexOf('/F') === 0 ? handleShareUnlink : handleRmdir
-      const response = await fun(path);
+      // const fun = path.indexOf('/F') === 0 ? handleShareUnlink : handleRmdir
+      const response = await handleRmdir(path);
       if (response) {
         return response;
       }

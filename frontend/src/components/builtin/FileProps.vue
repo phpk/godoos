@@ -77,12 +77,7 @@ import { isShareFile } from "@/util/sharePath";
 const window: BrowserWindow | undefined = inject("browserWindow");
 const file = ref<OsFileWithoutContent | null>();
 const path = window?.config.content
-if(path.indexOf('/F') === 0) {
-  file.value = (await useSystem()?.fs.getShareInfo(path)).fi
-  // file.value.path = file.value.titleName || file.value.path
-} else {
   file.value = await useSystem()?.fs.stat(path);
-}
 // file.value = await useSystem()?.fs.stat(window?.config.content);
 function localName<T>(currentPath:T){
   if(isShareFile(path) && file.value && file.value.path) {
@@ -109,17 +104,7 @@ function editFileName() {
     resizable: false,
   });
   win.on("file.props.edit", async (_: string, data: string) => {
-    //console.log('文件信息：', file.value, data);
-    if(data.indexOf('data/userData') === 0) {
-      const newPathArr = data.split('/')
-      const pathArr = file.value?.path.split('/') || []
-      pathArr.pop()
-      pathArr.push(newPathArr.pop() || '')
-      const shareInfo = await useSystem()?.fs.getShareInfo(pathArr.join('/'))
-      file.value = shareInfo?.fi
-    } else {
-      file.value = await useSystem()?.fs.stat(data);
-    }
+    file.value = await useSystem()?.fs.stat(data);
   });
 
   win.show();

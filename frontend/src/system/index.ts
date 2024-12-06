@@ -453,18 +453,6 @@ export class System {
   }
   /**打开os 文件系统的文件 */
   async openFile(path: string) {
-    //判断是否是共享文件
-    if (isShareFile(path)) {
-      const arr = path.split('/')
-      const fileContent = await this.fs.readShareFile(path)
-      if (fileContent !== false) {
-        const fileName = extname(arr[arr.length - 1] || '') || 'link'
-        this._flieOpenerMap
-          .get(fileName)
-          ?.func.call(this, path, fileContent || '');
-      }
-    } else {
-      //console.log(path)
       const fileStat = await this.fs.stat(path)
       if (!fileStat) {
         throw new Error('文件不存在');
@@ -480,9 +468,8 @@ export class System {
         }
         // 读取文件内容
         let fileContent = await this.fs.readFile(path, header);
-        console.log(fileContent)
         // 改文件需要输入密码
-        if (fileContent && fileContent.error == 'needPwd') {
+        if (fileContent && fileContent.code == -1 && fileContent.message == '加密文件，需要密码') {
           const temp = await Dialog.showInputBox()
           if (temp.response !== 1) {
             return
@@ -490,8 +477,8 @@ export class System {
           // header.salt = filePwd.file.salt || 'vIf_wIUedciAd0nTm6qjJA=='
           header.pwd = temp?.inputPwd ? temp?.inputPwd : ''
           const reOpen = await this.fs.readFile(path, header);
-          if (reOpen && reOpen.error == 'needPwd') {
-            notifyError(reOpen.message)
+          if (reOpen == false) {
+            notifyError("文件密码错误")
             return
           }
           fileContent = reOpen
@@ -515,7 +502,6 @@ export class System {
         this._flieOpenerMap
           .get(fileName)
           ?.func.call(this, path, fileContent || '');
-      }
     }
   }
   // 插件系统
