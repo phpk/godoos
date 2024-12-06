@@ -113,6 +113,33 @@ func GetConfig(Name string) (any, bool) {
 	}
 	return "", false
 }
+func GetString(name any) string {
+	val, ok := name.(string)
+	if ok {
+		return val
+	}
+	return ""
+}
+func GetConfigString(name string) string {
+	value, ok := reqBodyMap.Load(name)
+	if !ok {
+		return ""
+	}
+
+	reqBody, ok := value.(ReqBody)
+	if !ok {
+		// 处理类型断言失败的情况
+		return ""
+	}
+
+	stringValue, ok := reqBody.Value.(string)
+	if !ok {
+		// 处理类型断言失败的情况
+		return ""
+	}
+
+	return stringValue
+}
 func ExistConfig(Name string) bool {
 	_, exists := reqBodyMap.Load(Name)
 	return exists

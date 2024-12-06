@@ -38,9 +38,9 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, req := range reqs {
 		if req.Name == "osPath" {
-			reqPath := req.Value.(string)
-			osPath, ok := libs.GetConfig("osPath")
-			if !ok || osPath != reqPath {
+			reqPath := libs.GetString(req.Value)
+			osPath := libs.GetConfigString("osPath")
+			if reqPath != "" && osPath != reqPath {
 				if !libs.PathExists(reqPath) {
 					libs.ErrorMsg(w, "The Path is not exists!")
 					return
@@ -59,14 +59,29 @@ func ConfigHandler(w http.ResponseWriter, r *http.Request) {
 
 			}
 		} else if req.Name == "aiDir" {
-			aiPath := req.Value.(string)
-			aiDir, ok := libs.GetConfig("aiDir")
-			if !ok || aiDir != aiPath {
+			aiPath := libs.GetString(req.Value)
+			aiDir := libs.GetConfigString("aiDir")
+			if aiPath != "" || aiDir != aiPath {
 				if !libs.PathExists(aiPath) {
 					libs.ErrorMsg(w, "The Path is not exists!")
 					return
 				}
 				err = os.Chmod(aiPath, 0755)
+				if err != nil {
+					libs.ErrorMsg(w, "The Path chmod is error!")
+					return
+				}
+				libs.SetConfig(req)
+			}
+		} else if req.Name == "ollamaDir" {
+			ollamaPath := req.Value.(string)
+			ollamaDir, ok := libs.GetConfig("ollamaDir")
+			if !ok || ollamaDir != ollamaPath {
+				if !libs.PathExists(ollamaPath) {
+					libs.ErrorMsg(w, "The Path is not exists!")
+					return
+				}
+				err = os.Chmod(ollamaPath, 0755)
 				if err != nil {
 					libs.ErrorMsg(w, "The Path chmod is error!")
 					return

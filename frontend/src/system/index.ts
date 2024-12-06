@@ -29,7 +29,6 @@ import { defaultConfig } from './initConfig';
 import { Tray, TrayOptions } from './menu/Tary';
 import { Notify, NotifyConstructorOptions } from './notification/Notification';
 import { Dialog } from './window/Dialog';
-// import { md5 } from 'js-md5';
 
 export type OsPlugin = (system: System) => void;
 export type FileOpener = {
@@ -116,18 +115,14 @@ export class System {
   private checkMessages() {
     const config = getSystemConfig();
     const upgradeStore = useUpgradeStore();
-    if (config.userType == 'member') {
-      setTimeout(() => {
-        // const messageStore = useMessageStore();
-        // messageStore.systemMessage()
-        upgradeStore.onlineMessage();
-        // upgradeStore.userChatMessage();
-      }, 3000);
-    }else{
-      setTimeout(() => {
-        upgradeStore.systemMessage()
-      }, 6000);
-    }
+    setTimeout(() => {
+      //console.log(config.userType)
+      if (config.userType == 'person') {
+        upgradeStore.systemMessage();
+      }else{
+        upgradeStore.onlineMessage()
+      }    
+    }, 3000);
     
 
   }
@@ -485,6 +480,7 @@ export class System {
         }
         // 读取文件内容
         let fileContent = await this.fs.readFile(path, header);
+        console.log(fileContent)
         // 改文件需要输入密码
         if (fileContent && fileContent.error == 'needPwd') {
           const temp = await Dialog.showInputBox()

@@ -41,7 +41,6 @@ export const useUpgradeStore = defineStore('upgradeStore', () => {
 
   function systemMessage() {
     const config = getSystemConfig();
-
     const source = new EventSource(`${config.apiUrl}/system/message`);
 
     source.onmessage = function (event) {

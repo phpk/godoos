@@ -12,7 +12,7 @@ const hoverTxt = {
   apiUrl: t('aisetting.tips_apiUrl'),
 };
 const formData: any = ref({
-  dataDir: "",
+  aiDir: "",
   aiUrl: "",
   ollamaUrl: "",
   ollamaDir: "",
@@ -66,7 +66,7 @@ const saveConfig = async () => {
   }
   if (saveData.ollamaUrl != "") {
     if (!await checkUrl(saveData.ollamaUrl)) {
-      notifyError("ai服务端地址有误");
+      notifyError("ollama服务端地址有误");
       return;
     }
   }
@@ -100,8 +100,8 @@ const saveConfig = async () => {
         <el-collapse-item title="系统配置" name="system">
           <el-form-item :label="t('aisetting.dataDir')">
             <div class="slider-container">
-              <el-input v-model="formData.dataDir" placeholder="系统模型下载本地地址" prefix-icon="Menu"
-                @click="changeDir('dataDir')" clearable></el-input>
+              <el-input v-model="formData.aiDir" placeholder="系统模型下载本地地址" prefix-icon="Menu"
+                @click="changeDir('aiDir')" clearable></el-input>
               <el-popover placement="left" :width="400" trigger="click">
                 <template #reference>
                   <el-icon :size="22">
@@ -134,16 +134,16 @@ const saveConfig = async () => {
         <el-collapse-item title="Ollama配置" name="ollama">
           <el-form-item :label="t('aisetting.ollamaUrl')">
             <div class="slider-container">
-              <el-input v-model="formData.ollamaUrl" placeholder="ollama模型访问地址，设置后ollama需重启，为空则使用http://localhost:11434"
+              <el-input v-model="formData.ollamaUrl" placeholder="ollama模型访问地址，为空则使用http://localhost:11434"
                 prefix-icon="Notification" clearable></el-input>
             </div>
           </el-form-item>
-          <el-form-item label="模型存储地址">
+          <!-- <el-form-item label="模型存储地址">
             <div class="slider-container">
               <el-input v-model="formData.ollamaDir" placeholder="ollama模型存储地址，设置后ollama需重启，为空则使用默认地址"
                 prefix-icon="Menu" @click="changeDir('ollamaDir')" clearable></el-input>
             </div>
-          </el-form-item>
+          </el-form-item> -->
         </el-collapse-item>
 
         <el-collapse-item title="OpenAI配置" name="openai">

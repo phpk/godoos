@@ -56,7 +56,7 @@ func InitServer() error {
 		}
 		SetConfig(ipSetting)
 	}
-	InitOllamaModelPath()
+	//InitOllamaModelPath()
 	return nil
 }
 func InitOsDir() (string, error) {
@@ -71,20 +71,14 @@ func InitOsDir() (string, error) {
 	return osDir, nil
 }
 func InitOllamaModelPath() {
-	ollamaDir, ok := GetConfig("ollamaDir")
-	if ok {
-		dirStr, ok := ollamaDir.(string)
-		if ok && dirStr != "" {
-			os.Setenv("OLLAMA_MODELS", ollamaDir.(string))
-		}
+	ollamaDir := GetConfigString("ollamaDir")
+	if ollamaDir != "" {
+		os.Setenv("OLLAMA_MODELS", ollamaDir)
 	}
-	ollamaUrl, ok := GetConfig("ollamaUrl")
-	if ok {
-		urlStr, ok := ollamaUrl.(string)
-		if ok && urlStr != "" {
-			urlStr = strings.TrimPrefix(strings.TrimPrefix(urlStr, "http://"), "https://")
-			os.Setenv("OLLAMA_HOST", urlStr)
-		}
+	ollamaUrl := GetConfigString("ollamaUrl")
+	if ollamaUrl != "" {
+		ollamaUrl = strings.TrimPrefix(strings.TrimPrefix(ollamaUrl, "http://"), "https://")
+		os.Setenv("OLLAMA_HOST", ollamaUrl)
 	}
 
 }

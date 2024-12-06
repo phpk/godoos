@@ -113,17 +113,11 @@ export async function handleExists(path: string): Promise<any> {
   return await res.json();
 }
 
-export async function handleReadFile(path: string, header?: { [key: string]: string }): Promise<any> {
-  const userType = getSystemConfig().userType
+export async function handleReadFile(path: string, header?: any): Promise<any> {
+  //const userType = getSystemConfig().userType
   let head = {}
-  if (userType == 'member') {
-    head = {
-      pwd: header?.pwd || ''
-    }
-  } else if (header) {
-    head = {
-      pwd: header?.pwd !== '' ? md5(header?.pwd) : ''
-    }
+  head = {
+    pwd: header.pwd !== '' ? md5(header.pwd) : ''
   }
   const res = await fetchGet(`${API_BASE_URL}/readfile?path=${encodeURIComponent(path)}`, head);
   if (!res.ok) {
@@ -220,7 +214,10 @@ export function getFormData(content: any) {
 export async function handleWriteFile(filePath: string, content: any, header?: { [key: string]: any }): Promise<any> {
   //console.log(content)
   const formData = getFormData(content);
-  const head = header ? { ...header } : {}
+  const head:any = header ? { ...header } : {}
+  if(head.pwd && head.pwd !== ''){
+    head.pwd = md5(head.pwd)
+  }
   const url = `${API_BASE_URL}/writefile?path=${encodeURIComponent(filePath)}`;
   // const url = `${API_BASE_URL}/writefile?filePath=${encodeURIComponent(filePath)}`;
   const res = await fetchPost(url, formData, head);

@@ -5,8 +5,8 @@ export const parseAiConfig = (config: any) => {
     if(!config.ollamaDir) {
         config.ollamaDir = ''
     }
-    if (!config.dataDir) {
-        config.dataDir = ''
+    if (!config.aiDir) {
+        config.aiDir = ''
     }
     if (!config.aiUrl) {
         config.aiUrl = config.apiUrl
