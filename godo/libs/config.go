@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 )
 
@@ -138,7 +139,7 @@ func GetConfigString(name string) string {
 		return ""
 	}
 
-	return stringValue
+	return strings.Trim(stringValue, " ")
 }
 func ExistConfig(Name string) bool {
 	_, exists := reqBodyMap.Load(Name)
