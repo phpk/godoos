@@ -99,7 +99,7 @@ func EncodeFile(password string, longText string) (string, error) {
 	}
 
 	// 使用二级密码加密数据
-	encryptedText, err := EncryptDataWithCBC(longText, secondaryPassword)
+	encryptedText, err := EncryptDataWithGCM(longText, secondaryPassword)
 	if err != nil {
 		return "", fmt.Errorf("加密数据失败:%v", err)
 	}
@@ -155,7 +155,7 @@ func DecodeFile(password string, encryptedData string) (string, error) {
 	}
 
 	// 使用二级密码解密数据
-	decryptedText, err := DecryptDataWithCBC(encryptedText, secondaryPassword)
+	decryptedText, err := DecryptDataWithGCM(encryptedText, secondaryPassword)
 	if err != nil {
 		return "", fmt.Errorf("解密文本失败:%v", err)
 	}
@@ -327,7 +327,7 @@ func DecodeFileWithSecondaryPassword(password string, encryptedData string) (str
 	}
 
 	// 使用二级密码解密文本
-	decryptedText, err := DecryptDataWithCBC(encryptedText, secondaryPassword)
+	decryptedText, err := DecryptDataWithGCM(encryptedText, secondaryPassword)
 	if err != nil {
 		return "", fmt.Errorf("解密文本失败:%v", err)
 	}
@@ -355,8 +355,8 @@ func EncryptSecondaryPassword(secondaryPassword string, publicKey *rsa.PublicKey
 	return base64.URLEncoding.EncodeToString(ciphertext), nil
 }
 
-// EncryptDataWithCBC 使用二级密码和CBC模式加密数据
-func EncryptDataWithCBC(data, secondaryPassword string) (string, error) {
+// EncryptDataWithGCM 使用二级密码和GCM模式加密数据
+func EncryptDataWithGCM(data, secondaryPassword string) (string, error) {
 	// 确保 secondaryPassword 长度为 32 字节
 	if len(secondaryPassword) < 32 {
 		return "", fmt.Errorf("secondary password too short")
@@ -382,8 +382,8 @@ func EncryptDataWithCBC(data, secondaryPassword string) (string, error) {
 	return base64.URLEncoding.EncodeToString(ciphertext), nil
 }
 
-// DecryptDataWithCBC 使用二级密码和CBC模式解密数据
-func DecryptDataWithCBC(encryptedData, secondaryPassword string) (string, error) {
+// DecryptDataWithGCM 使用二级密码和GCM模式解密数据
+func DecryptDataWithGCM(encryptedData, secondaryPassword string) (string, error) {
 	// 确保 secondaryPassword 长度为 32 字节
 	if len(secondaryPassword) < 32 {
 		return "", fmt.Errorf("secondary password too short")

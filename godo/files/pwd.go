@@ -45,10 +45,13 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 	if !isPwd {
 		// 未加密文件，直接返回
-		text = base64.StdEncoding.EncodeToString(fileData)
-		if len(text)%8 == 0 {
-			text += " "
+		if len(fileData) > 0 {
+			text = base64.StdEncoding.EncodeToString(fileData)
 		}
+
+		// if len(text) > 7 && len(text)%8 == 0 {
+		// 	text += " "
+		// }
 		//log.Printf("fileData: %s", content)
 		libs.SuccessMsg(w, text, "文件读取成功")
 		return
@@ -77,9 +80,16 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if len(decodeFile)%8 == 0 {
-		decodeFile = decodeFile + " "
+	// if len(decodeFile)%8 == 0 {
+	// 	decodeFile = decodeFile + " "
+	// }
+	if len(decodeFile) > 0 {
+		decodeFile = base64.StdEncoding.EncodeToString([]byte(decodeFile))
 	}
+
+	// if len(decodeFile) > 7 && len(decodeFile)%8 == 0 {
+	// 	decodeFile += " "
+	// }
 	libs.SuccessMsg(w, decodeFile, "加密文件读取成功")
 }
 func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
@@ -145,7 +155,7 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 		// 直接写入新内容
 		file.Truncate(0)
 		file.Seek(0, 0)
-		log.Printf("write file content%v", content)
+		//log.Printf("write file content%v", content)
 		_, err = file.Write(content)
 		if err != nil {
 			libs.ErrorMsg(w, "Failed to write file content.")
