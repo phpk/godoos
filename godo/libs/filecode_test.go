@@ -28,7 +28,7 @@ func TestEncodeFile(t *testing.T) {
 }
 
 func TestDecodeFile(t *testing.T) {
-	password := "96e79218965eb72c92a549dd5a330112"
+	password := "testpassword"
 	longText := "This is a test message."
 
 	encryptedData, err := EncodeFile(password, longText)
@@ -42,13 +42,13 @@ func TestDecodeFile(t *testing.T) {
 	}
 
 	if decryptedText != longText {
-		t.Errorf("Decrypted text does not match original: expected '%s', got '%s'", longText, decryptedText)
+		t.Errorf("Decrypted text does not match original text. Expected: %v, Got: %v", longText, decryptedText)
 	}
 }
 
 func TestIsEncryptedFile(t *testing.T) {
-	password := "testpassword"
-	longText := "This is a test message."
+	password := "password"
+	longText := "分地方大幅度"
 
 	encryptedData, err := EncodeFile(password, longText)
 	if err != nil {

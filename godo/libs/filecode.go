@@ -1,7 +1,6 @@
 package libs
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
@@ -13,24 +12,9 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"log"
 	"strings"
 )
 
-func GetEncryptedCode(data string) (string, error) {
-	// 检查是否以 @ 开头
-	if !strings.HasPrefix(data, "@") {
-		return "", fmt.Errorf("invalid input format")
-	}
-	// 去掉开头的 @
-	data = data[1:]
-	// 分割加密的私钥和加密的文本
-	parts := strings.SplitN(data, "@", 2)
-	if len(parts) != 2 {
-		return "", fmt.Errorf("invalid input format")
-	}
-	return parts[0], nil
-}
 func IsEncryptedFile(data string) bool {
 	if len(data) < 2 {
 		return false
@@ -41,13 +25,21 @@ func IsEncryptedFile(data string) bool {
 	}
 	// 去掉开头的 @
 	data = data[1:]
-	// 分割加密的私钥和加密的文本
-	parts := strings.SplitN(data, "@", 2)
-	if len(parts) != 2 {
+	// 分割加密的私钥、二级密码和加密的文本
+	parts := strings.SplitN(data, "@", 3)
+	if len(parts) != 3 {
 		return false
 	}
-	// 检查加密私钥和加密文本是否都不为空
+
 	hexEncodedPrivateKey := parts[0]
+	encryptedSecondaryPassword := parts[1]
+	encryptedText := parts[2]
+
+	// 检查各个部分是否都不为空
+	if hexEncodedPrivateKey == "" || encryptedSecondaryPassword == "" || encryptedText == "" {
+		return false
+	}
+
 	// 检查十六进制字符串是否有效
 	base64Str, err := hex.DecodeString(hexEncodedPrivateKey)
 	if err != nil {
@@ -55,25 +47,29 @@ func IsEncryptedFile(data string) bool {
 	}
 	// 尝试将 Base64 字符串解码为字节切片
 	_, err = base64.URLEncoding.DecodeString(string(base64Str))
+	if err != nil {
+		return false
+	}
+
+	// 检查二级密码和加密文本是否能被正确解码
+	_, err = base64.URLEncoding.DecodeString(encryptedSecondaryPassword)
+	if err != nil {
+		return false
+	}
+
+	_, err = base64.URLEncoding.DecodeString(encryptedText)
 	return err == nil
 }
 
 // EncodeFile 加密文件
 func EncodeFile(password string, longText string) (string, error) {
-	privateKey, publicKey, err := GenerateRSAKeyPair(1024)
+	privateKey, publicKey, err := GenerateRSAKeyPair(2048) // 使用2048位密钥更安全
 	if err != nil {
 		fmt.Println("生成RSA密钥对失败:", err)
 		return "", err
 	}
-	// 使用公钥加密
-	encryptedText := ""
-	if len(longText) > 0 {
-		encryptedText, err = EncryptLongText(longText, publicKey)
-		if err != nil {
-			return "", fmt.Errorf("加密失败:%v", err)
-		}
-	}
 
+	// 使用密码加密私钥
 	pwd, err := hashAndMD5(password)
 	if err != nil {
 		return "", fmt.Errorf("加密密码失败:%v", err)
@@ -90,33 +86,44 @@ func EncodeFile(password string, longText string) (string, error) {
 	// 将 Base64 编码后的字符串转换为十六进制字符串
 	hexEncodedPrivateKey := hex.EncodeToString([]byte(base64EncryptedPrivateKey))
 
-	return "@" + hexEncodedPrivateKey + "@" + encryptedText, nil
+	// 生成二级密码
+	secondaryPassword, err := GenerateSecondaryPassword(32) // 32字节的二级密码
+	if err != nil {
+		return "", err
+	}
+
+	// 使用公钥加密二级密码
+	encryptedSecondaryPassword, err := EncryptSecondaryPassword(secondaryPassword, publicKey)
+	if err != nil {
+		return "", fmt.Errorf("加密二级密码失败:%v", err)
+	}
+
+	// 使用二级密码加密数据
+	encryptedText, err := EncryptDataWithCBC(longText, secondaryPassword)
+	if err != nil {
+		return "", fmt.Errorf("加密数据失败:%v", err)
+	}
+
+	return "@" + hexEncodedPrivateKey + "@" + encryptedSecondaryPassword + "@" + encryptedText, nil
 }
 
 // DecodeFile 解密文件
 func DecodeFile(password string, encryptedData string) (string, error) {
 	// 去掉开头的@
-	// log.Printf("encryptedData: %s", encryptedData)
 	if !strings.HasPrefix(encryptedData, "@") {
 		return "", fmt.Errorf("无效的加密数据格式")
 	}
 	encryptedData = encryptedData[1:]
 
-	// 分割加密的私钥和加密的文本
-	parts := strings.SplitN(encryptedData, "@", 2)
-	log.Printf("parts:%v", parts)
-	if len(parts) == 1 {
-		return "", nil
-	}
-	if len(parts) != 2 {
+	// 分割加密的私钥、加密的二级密码和加密的文本
+	parts := strings.SplitN(encryptedData, "@", 3)
+	if len(parts) != 3 {
 		return "", fmt.Errorf("无效的加密数据格式")
 	}
 
 	hexEncodedPrivateKey := parts[0]
-	encryptedText := parts[1]
-	if len(encryptedText) == 0 {
-		return "", nil
-	}
+	encryptedSecondaryPassword := parts[1]
+	encryptedText := parts[2]
 
 	// 将十六进制字符串转换回 Base64 编码字符串
 	base64DecodedPrivateKey, err := hex.DecodeString(hexEncodedPrivateKey)
@@ -141,8 +148,14 @@ func DecodeFile(password string, encryptedData string) (string, error) {
 		return "", fmt.Errorf("解密私钥失败:%v", err)
 	}
 
-	// 解密文本
-	decryptedText, err := DecryptLongText(encryptedText, privateKey)
+	// 解密二级密码
+	secondaryPassword, err := DecryptSecondaryPassword(encryptedSecondaryPassword, privateKey)
+	if err != nil {
+		return "", fmt.Errorf("解密二级密码失败:%v", err)
+	}
+
+	// 使用二级密码解密数据
+	decryptedText, err := DecryptDataWithCBC(encryptedText, secondaryPassword)
 	if err != nil {
 		return "", fmt.Errorf("解密文本失败:%v", err)
 	}
@@ -208,54 +221,6 @@ func hashAndMD5(password string) (string, error) {
 	return hex.EncodeToString(hasher.Sum(nil)), nil
 }
 
-// EncryptLongText 使用公钥加密长文本
-func EncryptLongText(longText string, publicKey *rsa.PublicKey) (string, error) {
-	// 分块加密
-	blockSize := publicKey.N.BitLen()/8 - 2*sha256.Size - 2
-	chunks := splitIntoChunks([]byte(longText), blockSize)
-
-	var encryptedChunks []string
-	for _, chunk := range chunks {
-		encryptedChunk, err := EncryptWithPublicKey(chunk, publicKey)
-		if err != nil {
-			return "", err
-		}
-		encryptedChunks = append(encryptedChunks, encryptedChunk)
-	}
-
-	return strings.Join(encryptedChunks, ":"), nil
-}
-
-// DecryptLongText 使用私钥解密长文本
-func DecryptLongText(encryptedLongText string, privateKey *rsa.PrivateKey) (string, error) {
-	// 分块解密
-	encryptedChunks := strings.Split(encryptedLongText, ":")
-
-	var decryptedChunks [][]byte
-	for _, encryptedChunk := range encryptedChunks {
-		decryptedChunk, err := DecryptWithPrivateKey(encryptedChunk, privateKey)
-		if err != nil {
-			return "", err
-		}
-		decryptedChunks = append(decryptedChunks, decryptedChunk)
-	}
-
-	return string(bytes.Join(decryptedChunks, nil)), nil
-}
-
-// splitIntoChunks 将数据分割成指定大小的块
-func splitIntoChunks(data []byte, chunkSize int) [][]byte {
-	var chunks [][]byte
-	for i := 0; i < len(data); i += chunkSize {
-		end := i + chunkSize
-		if end > len(data) {
-			end = len(data)
-		}
-		chunks = append(chunks, data[i:end])
-	}
-	return chunks
-}
-
 // EncryptPrivateKey 使用AES加密RSA私钥
 func EncryptPrivateKey(privateKey *rsa.PrivateKey, password string) (string, error) {
 	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
@@ -316,4 +281,140 @@ func DecryptPrivateKey(encryptedPrivateKey string, password string) (*rsa.Privat
 	}
 
 	return privateKey, nil
+}
+
+// DecryptSecondaryPassword 使用私钥解密二级密码
+func DecryptSecondaryPassword(encryptedSecondaryPassword string, privateKey *rsa.PrivateKey) (string, error) {
+	ciphertext, err := base64.URLEncoding.DecodeString(encryptedSecondaryPassword)
+	if err != nil {
+		return "", err
+	}
+
+	plaintext, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, privateKey, ciphertext, nil)
+	if err != nil {
+		return "", err
+	}
+	return string(plaintext), nil
+}
+
+// DecodeFileWithSecondaryPassword 解密文件
+func DecodeFileWithSecondaryPassword(password string, encryptedData string) (string, error) {
+	// 去掉开头的@
+	if !strings.HasPrefix(encryptedData, "@") {
+		return "", fmt.Errorf("无效的加密数据格式")
+	}
+	encryptedData = encryptedData[1:]
+
+	// 分割加密的二级密码和加密的文本
+	parts := strings.SplitN(encryptedData, "@", 2)
+	if len(parts) != 2 {
+		return "", fmt.Errorf("无效的加密数据格式")
+	}
+
+	encryptedSecondaryPassword := parts[0]
+	encryptedText := parts[1]
+
+	// 使用私钥解密二级密码
+	privateKey, err := DecryptPrivateKey(password, password)
+	if err != nil {
+		return "", fmt.Errorf("解密私钥失败:%v", err)
+	}
+
+	// 使用私钥解密二级密码
+	secondaryPassword, err := DecryptSecondaryPassword(encryptedSecondaryPassword, privateKey)
+	if err != nil {
+		return "", fmt.Errorf("解密二级密码失败:%v", err)
+	}
+
+	// 使用二级密码解密文本
+	decryptedText, err := DecryptDataWithCBC(encryptedText, secondaryPassword)
+	if err != nil {
+		return "", fmt.Errorf("解密文本失败:%v", err)
+	}
+
+	return decryptedText, nil
+}
+
+// GenerateSecondaryPassword 生成一个随机的二级密码
+func GenerateSecondaryPassword(length int) (string, error) {
+	b := make([]byte, length)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
+}
+
+// EncryptWithPublicKey 使用公钥加密二级密码
+func EncryptSecondaryPassword(secondaryPassword string, publicKey *rsa.PublicKey) (string, error) {
+	data := []byte(secondaryPassword)
+	ciphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, publicKey, data, nil)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(ciphertext), nil
+}
+
+// EncryptDataWithCBC 使用二级密码和CBC模式加密数据
+func EncryptDataWithCBC(data, secondaryPassword string) (string, error) {
+	// 确保 secondaryPassword 长度为 32 字节
+	if len(secondaryPassword) < 32 {
+		return "", fmt.Errorf("secondary password too short")
+	}
+	key := []byte(secondaryPassword[:32])
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", err
+	}
+
+	ciphertext := gcm.Seal(nonce, nonce, []byte(data), nil)
+	return base64.URLEncoding.EncodeToString(ciphertext), nil
+}
+
+// DecryptDataWithCBC 使用二级密码和CBC模式解密数据
+func DecryptDataWithCBC(encryptedData, secondaryPassword string) (string, error) {
+	// 确保 secondaryPassword 长度为 32 字节
+	if len(secondaryPassword) < 32 {
+		return "", fmt.Errorf("secondary password too short")
+	}
+	key := []byte(secondaryPassword[:32])
+
+	ciphertext, err := base64.URLEncoding.DecodeString(encryptedData)
+	if err != nil {
+		return "", err
+	}
+
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return "", err
+	}
+
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", err
+	}
+
+	nonceSize := gcm.NonceSize()
+	if len(ciphertext) < nonceSize {
+		return "", fmt.Errorf("ciphertext too short")
+	}
+
+	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plaintext), nil
 }

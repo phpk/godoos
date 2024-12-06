@@ -148,6 +148,9 @@ const eventHandler = async (e: MessageEvent) => {
     // console.log(title);
     title = title.split(SP).pop();
     content = toRaw(content);
+    if(typeof content == "string"){
+      content = content.trim()
+    }
 
     if (content && content !== "") {
       storeRef.value?.contentWindow?.postMessage(

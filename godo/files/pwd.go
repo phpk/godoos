@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"godo/libs"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -45,9 +46,9 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	if !isPwd {
 		// 未加密文件，直接返回
 		text = base64.StdEncoding.EncodeToString(fileData)
-		// if len(text)%8 == 0 {
-		// 	text += " "
-		// }
+		if len(text)%8 == 0 {
+			text += " "
+		}
 		//log.Printf("fileData: %s", content)
 		libs.SuccessMsg(w, text, "文件读取成功")
 		return
@@ -128,21 +129,23 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	haslink := strings.HasPrefix(string(content), "link::")
 	//log.Printf("haslink:%v,fileSecret: %s,isPwdFile:%v,filePwd:%s", haslink, fileSecret, isPwdFile, filePwd)
 	needPwd := false
-	if !haslink {
-		needPwd = true
-	}
+
 	if fileSecret != "" || filePwd != "" {
 		needPwd = true
 	}
 	if isPwdFile {
 		needPwd = true
 	}
-
+	if haslink {
+		needPwd = false
+	}
+	log.Printf("needPwd:%v", needPwd)
 	// 即不是加密用户又不是加密文件
 	if !needPwd {
 		// 直接写入新内容
 		file.Truncate(0)
 		file.Seek(0, 0)
+		log.Printf("write file content%v", content)
 		_, err = file.Write(content)
 		if err != nil {
 			libs.ErrorMsg(w, "Failed to write file content.")

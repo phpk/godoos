@@ -21,12 +21,12 @@
 </template>
 
 <script lang="ts" setup>
-import { BrowserWindow, useSystem } from "@/system";
+import { useSystem } from "@/system";
 import { notifyError, notifySuccess } from "@/util/msg";
 // import { md5 } from "js-md5";
 import { ref } from "vue";
-import { getSystemConfig, setSystemKey } from "@/system/config";
-const window: BrowserWindow | undefined = inject("browserWindow");
+//import { getSystemConfig, setSystemKey } from "@/system/config";
+const window: any = inject("browserWindow");
 const filePwd = ref("");
 const sys = useSystem();
 async function setFilePwd() {
@@ -47,29 +47,32 @@ async function setFilePwd() {
     
     if (res && res.code == 0) {
       notifySuccess("文件密码设置成功");
-      localStorageFilePwd(path, filePwd.value)
+      window.close();
+      // localStorageFilePwd(path, filePwd.value)
     } else {
       notifyError("文件密码设置失败");
     }
     //console.log("路径：", res, path);
+  }else{
+    notifyError("请输入正确的密码6-10位");
   }
 }
 // 开源版存储文件密码
-function localStorageFilePwd (path:string, pwd: string) {
-  if (getSystemConfig().file.isPwd && getSystemConfig().userType == 'person') {
-    let fileInputPwd = getSystemConfig().fileInputPwd
-    const pos = fileInputPwd.findIndex((item: any) => item.path == path)
-    if (pos !== -1) {
-      fileInputPwd[pos].pwd = pwd
-    } else {
-      fileInputPwd.push({
-        path: path,
-        pwd: pwd
-      })
-    }
-    setSystemKey('fileInputPwd', fileInputPwd)
-  }
-}
+// function localStorageFilePwd (path:string, pwd: string) {
+//   if (getSystemConfig().file.isPwd && getSystemConfig().userType == 'person') {
+//     let fileInputPwd = getSystemConfig().fileInputPwd
+//     const pos = fileInputPwd.findIndex((item: any) => item.path == path)
+//     if (pos !== -1) {
+//       fileInputPwd[pos].pwd = pwd
+//     } else {
+//       fileInputPwd.push({
+//         path: path,
+//         pwd: pwd
+//       })
+//     }
+//     setSystemKey('fileInputPwd', fileInputPwd)
+//   }
+// }
 </script>
 <style scoped>
 	.btn-group {
