@@ -50,18 +50,18 @@
 5. **文字转声音功能**：
 	- 新增文字朗读服务，支持多种语音风格与语速调节，无论是阅读文档、学习资料还是辅助视力障碍者，都能享受前所未有的便捷与舒适。
 
-### 📥 下载安装(v1.0.2)
+### 📥 下载安装(v1.0.3)
 
 1. 💻 **Windows 用户**:
    
-- Windows (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_windows_amd64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.2/desktop/godoos-amd64-installer.exe)
-- Windows (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_windows_arm64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.2/desktop/godoos-arm64-installer.exe)
+- Windows (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_windows_amd64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.3/desktop/godoos-amd64-installer.exe)
+- Windows (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_windows_arm64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.3/desktop/godoos-arm64-installer.exe)
 
 
 2. 💼 **MacOS 用户**:
 
-- MacOS (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_darwin_amd64)
-- MacOS (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_darwin_arm64)
+- MacOS (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_darwin_amd64)
+- MacOS (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_darwin_arm64)
 
 提示：下载后以godoos_web_darwin_amd64为例，命令行：
 ```
@@ -71,8 +71,8 @@ sudo ./godoos_web_darwin_amd64
 
 3. 💽 **Linux 用户**:
 
-- Linux (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_linux_amd64)
-- Linux (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.2/web/godoos_web_linux_arm64)
+- Linux (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_linux_amd64)
+- Linux (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_linux_arm64)
 提示：下载后以godoos_web_darwin_amd64为例，root账号登录，命令行：
 ```
 chmod +x godoos_web_darwin_amd64
