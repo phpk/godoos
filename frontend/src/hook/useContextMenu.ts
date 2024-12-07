@@ -119,24 +119,24 @@ function useContextMenu() {
         },
       },
     ];
-    const userInfo: any = system.getConfig('userInfo');
-    if (userInfo.user_auths && userInfo.user_auths.length > 0 && userInfo.user_auths != "") {
-      menuArr.push(
-        {
-          label: '安排任务',
-          click: () => {
-            const win = new BrowserWindow({
-              title: '安排任务',
-              content: "PlanTasks",
-              width: 600,
-              height: 600,
-              center: true,
-            });
-            win.show();
-          }
-        }
-      )
-    }
+    // const userInfo: any = system.getConfig('userInfo');
+    // if (userInfo.user_auths && userInfo.user_auths.length > 0 && userInfo.user_auths != "") {
+    //   menuArr.push(
+    //     {
+    //       label: '安排任务',
+    //       click: () => {
+    //         const win = new BrowserWindow({
+    //           title: '安排任务',
+    //           content: "PlanTasks",
+    //           width: 600,
+    //           height: 600,
+    //           center: true,
+    //         });
+    //         win.show();
+    //       }
+    //     }
+    //   )
+    // }
     menuArr = [...menuArr, ...(system._rootState.options.contextMenus || [])]
     const menu = Menu.buildFromTemplate(
       uniqBy(
@@ -249,7 +249,7 @@ function useContextMenu() {
     if (filePath === "/") return;
 
     if (file.isDirectory) {
-      if (["/", "/B", "/C", "/D", "/E"].includes(file.path)) return;
+      if (["/", "/B", "/C", "/D", "/E", "/F"].includes(file.path)) return;
     }
     //console.log(file)
     const vol = filePath.charAt(1);

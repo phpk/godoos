@@ -136,7 +136,7 @@
 	import { useContextMenu } from "@/hook/useContextMenu";
 	import { useFileDrag } from "@/hook/useFileDrag";
 	import { Rect, useRectChosen } from "@/hook/useRectChosen";
-	import { getSystemConfig } from "@/system/config";
+	// import { getSystemConfig } from "@/system/config";
 	import { emitEvent, mountEvent } from "@/system/event";
 	import {
 		BrowserWindow,

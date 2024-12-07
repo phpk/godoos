@@ -37,7 +37,6 @@ const window: BrowserWindow | undefined = inject("browserWindow");
 const userList: any = ref([]);
 const checkAll = ref(false);
 const form: any = ref({
-	senderid: "",
 	receiverId: [],
 	path: "",
 	iswrite: "0",
@@ -73,7 +72,7 @@ const handleCheckAll = (val: any) => {
 	if (val) {
 		form.value.receiverId = userList.value.map((d: any) => d.value);
 	} else {
-		form.value.receiverId.value = [];
+		form.value.receiverId = [];
 	}
 };
 const checkUsers = (val: any) => {
@@ -87,10 +86,19 @@ const checkUsers = (val: any) => {
 };
 const onSubmit = async () => {
 	const apiUrl = config.value.userInfo.url + "/files/share";
-	form.value.path = window?.config.path || "";
-	const temp = { ...form.value };
-	temp.receiverId = temp.receiverId.map((item: any) => item.toString());
-	const res = await fetchPost(apiUrl, new URLSearchParams(temp));
+	const path = window?.config.path || "";
+	const receiverIds = form.value.receiverId.map((item: any) => item*1);
+	if(receiverIds.length < 1){
+		notifyError("请选择分享对象")
+		return;
+	}
+	const postData = {
+		path: path,
+		receiverId: receiverIds,
+		isWrite : form.value.iswrite * 1
+	}
+	//console.log(postData)
+	const res = await fetchPost(apiUrl, JSON.stringify(postData));
 	const result = await res.json();
 	if (res.ok && result.success) {
 		notifySuccess(result.message || "分享文件成功");
