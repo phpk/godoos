@@ -291,7 +291,7 @@ function handleRightClick(
 		//   },
 		// },
 	];
-	if (item.isDirectory && !item.isShare) {
+	if (item.isDirectory) {
 		if (getSystemKey("storeType") == "local") {
 			menuArr.push({
 				label: t("zip"),
@@ -383,7 +383,7 @@ function handleRightClick(
 				},
 			},
 		];
-		if (!item.isShare || item.path.indexOf("/F/othershare") !== 0) {
+		if (item.path.indexOf("/F") < 0) {
 			fileMenus.push({
 				label: t("delete"),
 				click: async () => {
@@ -399,8 +399,6 @@ function handleRightClick(
 					}
 				},
 			});
-		}
-		if (!item.isShare) {
 			fileMenus.push({
 				label: t("create.shortcut"),
 				click: () => {
@@ -412,7 +410,7 @@ function handleRightClick(
 			});
 		}
 		const userType = sys.getConfig("userType");
-		if (userType == "member" && !item.isShare && !item.isDirectory) {
+		if (userType == "member") {
 			menuArr.push({
 				label: "分享给...",
 				click: () => {
@@ -429,40 +427,26 @@ function handleRightClick(
 					win.show();
 				},
 			});
-
-			// menuArr.push({
-			// 	label: "评论",
-			// 	click: () => {
-			// 		const win = new BrowserWindow({
-			// 			title: "评论",
-			// 			content: "CommentsFiles",
-			// 			config: {
-			// 				path: item.path,
-			// 			},
-			// 			width: 350,
-			// 			height: 400,
-			// 			center: true,
-			// 		});
-			// 		win.show();
-			// 	},
-			// });
 		}
-		menuArr.push({
-			label: "文件加密",
-			click: () => {
-				const win = new BrowserWindow({
-					title: "文件加密",
-					content: "FilePwd",
-					config: {
-						path: item.path,
-					},
-					width: 400,
-					height: 200,
-					center: true,
-				});
-				win.show();
-			},
-		});
+		if (!item.isDirectory) {
+			menuArr.push({
+				label: "文件加密",
+				click: () => {
+					const win = new BrowserWindow({
+						title: "文件加密",
+						content: "FilePwd",
+						config: {
+							path: item.path,
+						},
+						width: 400,
+						height: 200,
+						center: true,
+					});
+					win.show();
+				},
+			});
+		}
+
 		menuArr.push.apply(menuArr, fileMenus);
 	}
 	const sysEndMenu = [

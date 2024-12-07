@@ -132,8 +132,6 @@
 </template>
 <script lang="ts" setup>
 	import { inject, onMounted, ref } from "vue";
-	//import foldericon from '@/assets/folder.png';
-
 	import { useComputer } from "@/hook/useComputer";
 	import { useContextMenu } from "@/hook/useContextMenu";
 	import { useFileDrag } from "@/hook/useFileDrag";
@@ -148,11 +146,6 @@
 		t,
 		useSystem,
 	} from "@/system/index.ts";
-	import {
-		isRootShare,
-		isShareFile,
-		turnLocalPath,
-	} from "@/util/sharePath.ts";
 
   import { useChooseStore } from "@/stores/choose";
 
@@ -244,22 +237,7 @@
 			isDirectory(file) {
 				return file.isDirectory;
 			},
-			// 读取分享文件夹
-			async readShareDir(path) {
-				// let file: OsFileWithoutContent
-				// if (type === 'path') {
-				//   file = await system.fs.getShareInfo(params)
-				//   file = file.fi
-				//   file.path = turnLocalPath(file.path, currentPath, 1)
-				// } else {
-				//   file = params
-				// }
-				// return system.fs.readShareFileDir(getSystemConfig().userInfo.id, file)
-				return system.fs.readShareFileDir(
-					getSystemConfig().userInfo.id,
-					path
-				);
-			},
+		
 			notify(title, content) {
 				new Notify({
 					title,
@@ -311,9 +289,9 @@
 			isSymlink: false,
 			mode: 2147484141,
 			name: "myshare",
-			oldPath: "/F/myshare",
+			oldPath: "/F",
 			parentPath: "/F",
-			path: "/F/myshare",
+			path: "/F",
 			title: "myshare",
 			size: 64,
 			mtime: "",

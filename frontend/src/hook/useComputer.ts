@@ -15,7 +15,7 @@ export const useComputer = (adpater: {
   isDirectory: (file: OsFileWithoutContent) => boolean;
   notify: (title: string, content: string) => void;
   search: (keyword: string) => Promise<OsFileWithoutContent[]>;
-  readShareDir: (path: RouterPath) => Promise<OsFileWithoutContent[]>;
+  //readShareDir: (path: RouterPath) => Promise<OsFileWithoutContent[]>;
 }) => {
   const isVia = async (path: RouterPath) => {
     if (path === '') path = '/';
@@ -43,12 +43,7 @@ export const useComputer = (adpater: {
       return;
     }
     if (!(await isVia(currentPath))) return;
-    let result
-    if (currentPath === '/F/myshare' || currentPath === '/F/othershare') {
-      result = await adpater.sharedir(currentPath)
-    } else {
-      result = await adpater.readdir(currentPath);
-    }
+    const result = await adpater.readdir(currentPath);
     // else if (currentPath.indexOf('/F') === 0) {
     //   //判断是否是回退
     //   // console.log('currentPath:', currentPath);

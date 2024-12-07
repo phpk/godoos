@@ -19,7 +19,7 @@ import { useModelStore } from "@/stores/model.ts";
 import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
 import { notifyError } from '@/util/msg';
-import { isShareFile } from '@/util/sharePath';
+//import { isShareFile } from '@/util/sharePath';
 import { pick } from '../util/modash';
 import { clearSystemConfig, fetchGet, getClientId, getFileUrl, getSystemConfig, getSystemKey, setSystemConfig, setSystemKey } from './config';
 import { OsFileInterface } from './core/FIleInterface';

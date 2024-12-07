@@ -1,9 +1,6 @@
-import { getSystemConfig } from "@/system/config";
-import { isShareFile, turnLocalPath, turnServePath } from "@/util/sharePath.ts";
 import { md5 } from "js-md5";
 import { fetchGet, fetchPost, getFileUrl } from "../config.ts";
 import { OsFileMode } from '../core/FileMode';
-import { OsFile } from "./FileSystem.ts";
 const API_BASE_URL = getFileUrl()
 // import { notifyError } from "@/util/msg";
 export async function handleReadDir(path: any): Promise<any> {
@@ -288,10 +285,6 @@ export const useOsFile = () => {
       return false;
     },
     async writeFile(path: string, content: string | Blob, header?: { [key: string]: any }) {
-      // const head: any = header ? { ...header } : {}
-      // if (head.pwd && head.pwd !== '') {
-      //   head.pwd = md5(head.pwd)
-      // }
       const response = await handleWriteFile(path, content, header);
       if (response) {
         return response;
