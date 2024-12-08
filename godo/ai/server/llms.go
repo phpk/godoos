@@ -69,6 +69,10 @@ func GetHeadersAndUrl(req map[string]interface{}, chattype string) (map[string]s
 			typeUrl = "/images/generations"
 		}
 
+	} else if chattype == "text2voice" {
+
+	} else if chattype == "voice2text" {
+
 	}
 	return headers, url + typeUrl, nil
 
