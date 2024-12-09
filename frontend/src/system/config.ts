@@ -15,7 +15,7 @@ export const getSystemConfig = (ifset = false) => {
 
   // 初始化配置对象的各项属性，若本地存储中已存在则不进行覆盖
   if (!config.version) {
-    config.version = '1.0.3';
+    config.version = '1.0.4';
   }
   if (!config.isFirstRun) {
     config.isFirstRun = false;
@@ -29,6 +29,16 @@ export const getSystemConfig = (ifset = false) => {
   }
   if (!config.userType) {
     config.userType = 'person'//如果是企业版请改为member
+  }
+
+  if(!config.editorType){
+    config.editorType = 'local'
+  }
+  if(!config.onlyoffice){
+    config.onlyoffice = {
+      url: '',
+      sceret: '',
+    }
   }
   if (!config.file) {
     config.file = {

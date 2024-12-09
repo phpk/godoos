@@ -72,7 +72,6 @@
 					>
 					<a
 						href="#"
-						v-if="config.userType !== 'member'"
 						@click.prevent="toggleUserSwitch"
 						>切换角色</a
 					>

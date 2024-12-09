@@ -25,6 +25,7 @@ type Document struct {
 	Revision       string    `json:"revision"`
 	Category       string    `json:"category"`
 	Content        string    `json:"content"`
+	Split          []string  `json:"split"`
 	Modifytime     time.Time `json:"modified"`
 	Createtime     time.Time `json:"created"`
 	Accesstime     time.Time `json:"accessed"`

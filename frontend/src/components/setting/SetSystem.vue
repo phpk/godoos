@@ -63,6 +63,31 @@
 			</div>
 
 			<div v-if="2 === activeIndex">
+				<div class="setting-item" style="margin-top: 60px">
+					<label>编辑器类型</label>
+					<el-select v-model="config.editorType">
+						<el-option v-for="(item, key) in editorType" :key="key" :label="item.title"
+							:value="item.value" />
+					</el-select>
+				</div>
+				<template v-if="config.editorType === 'onlyoffice'">
+					<div class="setting-item">
+						<label>地址</label>
+						<el-input v-model="config.onlyoffice.url" placeholder="https://godoos.com/onlyoffice 不要加斜杠" />
+					</div>
+					<div class="setting-item">
+						<label>私钥</label>
+						<el-input v-model="config.onlyoffice.sceret" />
+					</div>
+				</template>
+				<div class="setting-item">
+					<label></label>
+					<el-button @click="submitEditInfo" type="primary">
+						{{ t("confirm") }}
+					</el-button>
+				</div>
+			</div>
+			<div v-if="3 === activeIndex">
 				<div class="setting-item">
 					<h1 class="setting-title">备份</h1>
 				</div>
@@ -112,7 +137,7 @@
 					</el-button>
 				</div>
 			</div>
-			<div v-if="3 === activeIndex" class="setting-area">
+			<div v-if="4 === activeIndex" class="setting-area">
 				<SetFilePwd v-if="config.userType === 'person'"></SetFilePwd>
 			</div>
 		</div>
@@ -155,7 +180,17 @@ const storeList = [
 	},
 ];
 
-const items = ["用户角色", "存储配置", "备份还原", "文件密码箱"];
+const items = ["用户角色", "存储配置", "编辑器类型", "备份还原", "文件密码箱"];
+const editorType = [
+	{
+		title: "系统默认",
+		value: "local",
+	},
+	{
+		title: "OnlyOffice",
+		value: "onlyoffice",
+	},
+];
 const urlRegex = /^(https?:\/\/)/;
 const userTypes = [
 	{
@@ -181,7 +216,7 @@ function selectFile() {
 function submitOsInfo() {
 	const saveData = toRaw(config.value);
 	if (saveData.storeType === "local") {
-		const postData =  parseData(saveData);
+		const postData = parseData(saveData);
 		const postUrl = config.value.apiUrl + "/system/setting";
 		fetch(postUrl, {
 			method: "POST",
@@ -260,13 +295,21 @@ function submitOsInfo() {
 			});
 	}
 }
-
+function submitEditInfo() {
+	const saveData = toRaw(config.value);
+	setSystemConfig(saveData);
+	Dialog.showMessageBox({
+		message: "保存成功",
+		type: "success",
+	});
+	return;
+}
 function parseData(saveData: any) {
 	let postData = []
 	if (saveData.storePath !== "") {
-			postData.push({ name: "osPath", value: saveData.storePath })
-		}
-	if (saveData.netPort != "" && saveData.netPort != "56780" && !isNaN(saveData.netPort) && saveData.netPort*1 > 0 && saveData.netPort*1 < 65535) {
+		postData.push({ name: "osPath", value: saveData.storePath })
+	}
+	if (saveData.netPort != "" && saveData.netPort != "56780" && !isNaN(saveData.netPort) && saveData.netPort * 1 > 0 && saveData.netPort * 1 < 65535) {
 		postData.push({
 			name: "netPort",
 			value: saveData.netPort,

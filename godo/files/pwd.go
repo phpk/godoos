@@ -18,6 +18,12 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "文件路径不能为空")
 		return
 	}
+	stream := r.URL.Query().Get("stream")
+	isStream := false
+	if stream != "" {
+		isStream = true
+	}
+
 	basePath, err := libs.GetOsDir()
 	if err != nil {
 		libs.ErrorMsg(w, err.Error())
@@ -45,15 +51,22 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 
 	if !isPwd {
 		// 未加密文件，直接返回
-		if len(fileData) > 0 {
-			text = base64.StdEncoding.EncodeToString(fileData)
+
+		if isStream {
+			w.Header().Set("Content-Type", "application/octet-stream")
+			_, err := w.Write(fileData)
+			if err != nil {
+				libs.ErrorMsg(w, err.Error())
+				return
+			}
+		} else {
+			if len(fileData) > 0 {
+				text = base64.StdEncoding.EncodeToString(fileData)
+			}
+			//text = base64.StdEncoding.EncodeToString(fileData)
+			libs.SuccessMsg(w, text, "文件读取成功")
 		}
 
-		// if len(text) > 7 && len(text)%8 == 0 {
-		// 	text += " "
-		// }
-		//log.Printf("fileData: %s", content)
-		libs.SuccessMsg(w, text, "文件读取成功")
 		return
 	}
 	filePwd := r.Header.Get("pwd")
@@ -80,17 +93,20 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// if len(decodeFile)%8 == 0 {
-	// 	decodeFile = decodeFile + " "
-	// }
-	if len(decodeFile) > 0 {
-		decodeFile = base64.StdEncoding.EncodeToString([]byte(decodeFile))
+	if isStream {
+		w.Header().Set("Content-Type", "application/octet-stream")
+		_, err := w.Write([]byte(decodeFile))
+		if err != nil {
+			libs.ErrorMsg(w, err.Error())
+			return
+		}
+	} else {
+		if len(decodeFile) > 0 {
+			decodeFile = base64.StdEncoding.EncodeToString([]byte(decodeFile))
+		}
+		libs.SuccessMsg(w, decodeFile, "加密文件读取成功")
 	}
 
-	// if len(decodeFile) > 7 && len(decodeFile)%8 == 0 {
-	// 	decodeFile += " "
-	// }
-	libs.SuccessMsg(w, decodeFile, "加密文件读取成功")
 }
 func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")

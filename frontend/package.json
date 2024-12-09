@@ -11,6 +11,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "@liripeng/vue-audio-player": "^1.6.2",
+    "@onlyoffice/document-editor-vue": "^1.4.0",
     "cherry-markdown": "^0.8.52",
     "dexie": "^4.0.8",
     "element-plus": "^2.7.7",
