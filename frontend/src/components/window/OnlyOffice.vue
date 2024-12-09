@@ -1,5 +1,5 @@
 <template>
-    <DocumentEditor id="docEditor" documentServerUrl="http://127.0.0.1:8000/" :config="editorConfig"
+    <DocumentEditor id="docEditor" :documentServerUrl="config.onlyoffice.url" :config="editorConfig"
         :events_onDocumentReady="onDocumentReady" :onLoadComponentError="onLoadComponentError" />
 </template>
 
