@@ -221,6 +221,27 @@ const eventHandler = async (e: MessageEvent) => {
       },
       "*"
     );
+  }else if (eventData.type == "savePPT") {
+    // console.log("传递内容： ", eventData)
+    const data = eventData.data
+    const path = win?.config?.path
+    const winPPT = new BrowserWindow({
+      title: data.title,
+      url: "/ppt/index.html",
+      frame: true,
+      config: {
+        ext: "ppt",
+        path: path,
+        content: data.content,
+      },
+      icon: "ppt",
+      width: 700,
+      height: 500,
+      center: true,
+    //   x: 100,
+    //  y: 100,
+    })
+    winPPT.show()
   }
 };
 
