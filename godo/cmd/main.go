@@ -50,7 +50,7 @@ func OsStart() {
 	router := mux.NewRouter()
 	router.Use(recoverMiddleware)
 	if libs.GetIsCors() {
-		router.Use(corsMiddleware())
+		//router.Use(corsMiddleware())
 	}
 	router.Use(loggingMiddleware{}.Middleware)
 	staticDir := libs.GetStaticDir()
@@ -104,6 +104,7 @@ func OsStart() {
 	fileRouter.HandleFunc("/unzip", files.HandleUnZip).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/watch", files.WatchHandler).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/setfilepwd", files.HandleSetFilePwd).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/onlyoffice", files.OnlyOfficeCallbackHandler).Methods(http.MethodPost)
 
 	localchatRouter := router.PathPrefix("/localchat").Subrouter()
 	localchatRouter.HandleFunc("/message", localchat.HandleMessage).Methods(http.MethodPost)
