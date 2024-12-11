@@ -76,7 +76,6 @@ Bios.onOpen((system: System) => {
 .desktop {
     position: relative;
     background-color: #3A98CE;
-    background: url('@/pubic/image/bg/bg6.jpg');
     height: 100vh;
     overflow: hidden;
     .userarea-upper {
