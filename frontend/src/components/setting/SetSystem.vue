@@ -38,6 +38,12 @@
 						<label>服务器地址</label>
 						<el-input v-model="config.storenet.url" placeholder="可访问的地址，例如http://192.168.1.6:56780 不要加斜杠" />
 					</div>
+					<div class="setting-item">
+						<label>允许跨域</label>
+						<el-switch v-model="config.storenet.isCors" active-text="允许" inactive-text="不允许"
+							style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949" active-value="1"
+							inactive-value="" />
+					</div>
 				</template>
 				<template v-if="config.storeType === 'webdav'">
 					<div class="setting-item">
@@ -251,8 +257,32 @@ function submitOsInfo() {
 			});
 			return;
 		}
-		setSystemConfig(saveData);
-		RestartApp();
+		if (saveData.storenet.isCors === "") {
+			setSystemConfig(saveData);
+			RestartApp();
+		} else {
+			const postUrl = config.value.apiUrl + "/system/setting";
+			fetch(postUrl, {
+				method: "POST",
+				body: JSON.stringify([{
+					name: "isCors",
+					value: saveData.storenet.isCors,
+				}]),
+			})
+				.then((res) => res.json())
+				.then((res) => {
+					if (res.code === 0) {
+						setSystemConfig(saveData);
+						RestartApp();
+					} else {
+						Dialog.showMessageBox({
+							message: res.message,
+							type: "error",
+						});
+					}
+				});
+		}
+
 	}
 	if (saveData.storeType === "webdav") {
 		const urlRegex = /^(https?:\/\/)/;

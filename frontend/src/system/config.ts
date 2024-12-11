@@ -134,6 +134,7 @@ export const getSystemConfig = (ifset = false) => {
       url: '',
       username: '',
       password: '',
+      isCors: ''
     };
   }
   if (!config.webdavClient) {

@@ -49,7 +49,9 @@ func OsStart() {
 	webdav.InitWebdav()
 	router := mux.NewRouter()
 	router.Use(recoverMiddleware)
-	router.Use(corsMiddleware())
+	if libs.GetIsCors() {
+		router.Use(corsMiddleware())
+	}
 	router.Use(loggingMiddleware{}.Middleware)
 	staticDir := libs.GetStaticDir()
 	router.PathPrefix("/static").Handler(http.StripPrefix("/static", http.FileServer(http.Dir(staticDir))))

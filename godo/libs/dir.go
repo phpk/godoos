@@ -198,6 +198,15 @@ func GetNetPath() string {
 	}
 	return "/" + pathStr
 }
+func GetIsCors() bool {
+	isCors := GetString("isCors")
+	if isCors == "" {
+		return false
+	} else {
+		return true
+	}
+
+}
 func GetCacheDir() string {
 	homeDir := GetDataDir()
 	cachePath := filepath.Join(homeDir, "cache")
