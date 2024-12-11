@@ -21,7 +21,13 @@ export default defineConfig(async () => ({
       resolvers: [ElementPlusResolver()],
     }),
   ],
-
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "./src/components/desktop/mobile/util.scss";`
+      }
+    }
+  },
   clearScreen: false,
   server: {
     host: '0.0.0.0',
