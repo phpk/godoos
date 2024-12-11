@@ -31,7 +31,6 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -51,7 +50,6 @@ func OsStart() {
 	router := mux.NewRouter()
 	router.Use(recoverMiddleware)
 	router.Use(corsMiddleware())
-	// 使用带有日志装饰的处理器注册路由
 	router.Use(loggingMiddleware{}.Middleware)
 	staticDir := libs.GetStaticDir()
 	router.PathPrefix("/static").Handler(http.StripPrefix("/static", http.FileServer(http.Dir(staticDir))))
@@ -152,7 +150,7 @@ func OsStart() {
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")
 	fileServer := http.FileServer(http.FS(distFS))
 	netPath := libs.GetNetPath()
-	log.Printf("netPath: %s", netPath)
+	//log.Printf("netPath: %s", netPath)
 
 	if netPath != "/" {
 		// 注册 netPath 的处理函数
@@ -168,22 +166,4 @@ func OsStart() {
 	log.Printf("Listening on port: %v", serverAddress)
 	srv = &http.Server{Addr: serverAddress, Handler: router}
 	Serve(srv)
-}
-func OsStop() {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
-	err := store.StopAllHandler()
-	if err != nil {
-		log.Fatalf("Servers forced to shutdown error: %v", err)
-	}
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
-	}
-	log.Println("Server stopped.")
-}
-func OsRestart() {
-	// 停止当前服务
-	OsStop()
-	// 重新启动服务
-	OsStart()
 }

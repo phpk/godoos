@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"godo/libs"
+	"godo/store"
 	"log"
 	"net/http"
 	"os"
@@ -32,6 +33,25 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+func OsStop() {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	err := store.StopAllHandler()
+	if err != nil {
+		log.Fatalf("Servers forced to shutdown error: %v", err)
+	}
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+	log.Println("Server stopped.")
+}
+func OsRestart() {
+	// 停止当前服务
+	OsStop()
+	// 重新启动服务
+	OsStart()
+}
 
 func Serve(srv *http.Server) {
 	var wg sync.WaitGroup
@@ -95,7 +115,7 @@ func recoverMiddleware(next http.Handler) http.Handler {
 
 // CORS 中间件
 func corsMiddleware() mux.MiddlewareFunc {
-	allowHeaders := "Content-Type, Accept, Authorization, Origin,Pwd"
+	allowHeaders := "Content-Type, Accept, Authorization, Origin, Pwd"
 	allowMethods := "GET, POST, PUT, DELETE, OPTIONS"
 
 	return func(next http.Handler) http.Handler {
