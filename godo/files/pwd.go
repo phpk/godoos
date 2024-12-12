@@ -2,7 +2,6 @@ package files
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"godo/libs"
 	"io"
@@ -11,10 +10,16 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
+
+// 全局变量来存储 key 和 path 的映射关系
+var OnlyOfficekeyPathMap = make(map[string]string)
+var mapOnlyOfficeMutex sync.Mutex
 
 func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Query().Get("path")
+	//log.Printf("read file: %s", path)
 	if path == "" {
 		libs.ErrorMsg(w, "文件路径不能为空")
 		return
@@ -23,6 +28,9 @@ func HandleReadFile(w http.ResponseWriter, r *http.Request) {
 	isStream := false
 	if stream != "" {
 		isStream = true
+		mapOnlyOfficeMutex.Lock()
+		OnlyOfficekeyPathMap[stream] = path
+		mapOnlyOfficeMutex.Unlock()
 	}
 
 	basePath, err := libs.GetOsDir()
@@ -258,56 +266,4 @@ func HandleSetFilePwd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	libs.SuccessMsg(w, nil, "设置密码成功")
-}
-
-// 定义结构体来匹配 JSON 数据结构
-type CallbackData struct {
-	Key     string   `json:"key"`
-	Status  int      `json:"status"`
-	Users   []string `json:"users"`
-	Actions []struct {
-		Type   int    `json:"type"`
-		UserID string `json:"userid"`
-	} `json:"actions"`
-}
-
-// 定义 OnlyOffice 预期的响应结构
-type OnlyOfficeResponse struct {
-	Error int `json:"error"`
-}
-
-func OnlyOfficeCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	// 读取请求体
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-
-	// 打印原始请求体
-	fmt.Printf("Received raw data: %s\n", body)
-
-	// 解析 JSON 数据
-	// var callbackData CallbackData
-	// err = json.Unmarshal(body, &callbackData)
-	// if err != nil {
-	// 	http.Error(w, "Failed to decode request body", http.StatusBadRequest)
-	// 	return
-	// }
-
-	// // 打印解析后的回调数据
-	// fmt.Printf("Received callback: %+v\n", callbackData)
-
-	// 构造响应
-	response := OnlyOfficeResponse{
-		Error: 0,
-	}
-
-	// 设置响应头为 JSON 格式
-	w.Header().Set("Content-Type", "application/json")
-
-	// 返回 JSON 响应
-	json.NewEncoder(w).Encode(response)
-
 }

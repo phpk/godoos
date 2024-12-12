@@ -2,7 +2,7 @@
   <template v-if="win.url">
     <IframeFile v-if="config.editorType == 'local'" :src="win.url" :ext="win.ext" :eventType="win.eventType" />
     <template v-if="officeFile">
-      <OnlyOffice v-if="config.editorType == 'onlyoffice'" :src="win.url" :eventType="win.eventType" :ext="ext" />
+      <OnlyOffice v-if="config.editorType == 'onlyoffice'" :onlyType="onlyType" :eventType="win.eventType" :ext="ext" />
     </template>
     <IframeFile v-else :src="win.url" :ext="win.ext" :eventType="win.eventType" />
   </template>
@@ -25,7 +25,9 @@ const props = defineProps<{
 }>();
 
 let ext = "txt"
+let onlyType = ref("word")
 const win = ref(props.win)
+//console.log(win)
 const officeFile = ref(false)
 if (win.value.config.path) {
   ext = win.value.config.path.split('.').pop()
@@ -39,9 +41,19 @@ function isOffice(ext: string) {
   const word = ['doc', 'docm', 'docx', 'docxf', 'dot', 'dotm', 'dotx', 'epub', 'fodt', 'fb2', 'mht', 'odt', 'oform', 'ott', 'oxps', 'pdf', 'rtf', 'txt', 'djvu', 'xml', 'xps'];
   const cell = ['csv', 'fods', 'ods', 'ots', 'xls', 'xlsb', 'xlsm', 'xlsx', 'xlt', 'xltm', 'xltx'];
   const slide = ['fodp', 'odp', 'otp', 'pot', 'potm', 'potx', 'pps', 'ppsm', 'ppsx', 'ppt', 'pptm', 'pptx']
-  if (word.includes(ext) || cell.includes(ext) || slide.includes(ext)) {
+  if (word.includes(ext)) {
+    onlyType.value = 'word'
     return true
-  } else {
+  } 
+  else if(cell.includes(ext)){
+    onlyType.value = 'cell'
+    return true
+  }
+  else if(slide.includes(ext)){
+    onlyType.value = 'slide'
+    return true
+  }
+  else {
     return false
   }
 }
