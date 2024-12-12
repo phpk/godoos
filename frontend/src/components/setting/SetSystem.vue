@@ -81,10 +81,10 @@
 						<label>地址</label>
 						<el-input v-model="config.onlyoffice.url" placeholder="https://godoos.com/onlyoffice 不要加斜杠" />
 					</div>
-					<div class="setting-item">
+					<!-- <div class="setting-item">
 						<label>私钥</label>
 						<el-input v-model="config.onlyoffice.sceret" />
-					</div>
+					</div> -->
 				</template>
 				<div class="setting-item">
 					<label></label>

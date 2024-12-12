@@ -17,6 +17,7 @@
 
 - 新增远程状态下是否支持跨域
 - 修复系统重启错误
+- 支持配置onlyOffice地址，onlyOffice编辑word/ppt/excel文件
 
 ## 🏭 第三阶段目标（十二月底发布）
 1. **文档处理与Markdown智能升级**：（已完成）
