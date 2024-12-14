@@ -29,6 +29,10 @@ const changeInfo = async () => {
   delete info.id;
 
   if (chatStore.isEditor) {
+    const modelData = chatStore.modelList.find((item:any) => {
+      return item.model == info.model;
+    });
+    info.engine = modelData.info.engine;
     await chatStore.updateChat(info, chatStore.activeId);
     notifySuccess(t("aichat.editsuccess"));
   } else {

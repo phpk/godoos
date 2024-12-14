@@ -9,11 +9,11 @@
 
 [English](README.en.md) | 简体中文
 
-[使用文档](https://docs.godoos.com/zh/godoos.html) | [FAQ](./docs/Faq.md) | [应用开发](./docs/Store.md)
+[使用文档](https://docs.godoos.com/zh/godoos.html) | [AI](./docs/ai.md) | [FAQ](./docs/Faq.md) | [应用开发](./docs/Store.md)
 
 </div>
 
-## 🎉 V1.0.4更新日志（未发布）
+## 🎉 V1.0.4更新日志
 
 - 新增配置远程存储状态下是否支持跨域
 - 修复系统重启错误
@@ -22,6 +22,7 @@
 - 修复默认不打开广告
 - 修复设置ollama地址无效的问题
 - 修复内网聊天初始化问题
+- 修复本地ai聊天编辑未更改引擎的错误
 
 ## 🏭 第三阶段目标（十二月底发布）
 1. **文档处理与Markdown智能升级**：（已完成）
@@ -43,18 +44,18 @@
 5. **文字转声音功能**：
 	- 新增文字朗读服务，支持多种语音风格与语速调节，无论是阅读文档、学习资料还是辅助视力障碍者，都能享受前所未有的便捷与舒适。
 
-### 📥 下载安装(v1.0.3)
+### 📥 下载安装(v1.0.4)
 
 1. 💻 **Windows 用户**:
    
-- Windows (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_windows_amd64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.3/desktop/godoos-amd64-installer.exe)
-- Windows (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_windows_arm64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.3/desktop/godoos-arm64-installer.exe)
+- Windows (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_windows_amd64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.4/desktop/godoos-amd64-installer.exe)
+- Windows (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_windows_arm64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.4/desktop/godoos-arm64-installer.exe)
 
 
 2. 💼 **MacOS 用户**:
 
-- MacOS (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_darwin_amd64)
-- MacOS (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_darwin_arm64)
+- MacOS (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_darwin_amd64)
+- MacOS (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_darwin_arm64)
 
 提示：下载后以godoos_web_darwin_amd64为例，命令行：
 ```
@@ -64,8 +65,8 @@ sudo ./godoos_web_darwin_amd64
 
 3. 💽 **Linux 用户**:
 
-- Linux (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_linux_amd64)
-- Linux (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.3/web/godoos_web_linux_arm64)
+- Linux (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_linux_amd64)
+- Linux (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_linux_arm64)
 提示：下载后以godoos_web_darwin_amd64为例，root账号登录，命令行：
 ```
 chmod +x godoos_web_darwin_amd64
