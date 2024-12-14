@@ -398,9 +398,9 @@ func GetOllamaUrl() string {
 	if s := strings.TrimSpace(Var("OLLAMA_HOST")); s != "" {
 		return "http://" + s
 	}
-	ollamaUrl, ok := libs.GetConfig("ollamaUrl")
-	if ok {
-		return "http://" + ollamaUrl.(string)
+	ollamaUrl := libs.GetConfigString("ollamaUrl")
+	if ollamaUrl != "" {
+		return ollamaUrl
 	} else {
 		return "http://localhost:11434"
 	}

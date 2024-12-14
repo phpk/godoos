@@ -121,7 +121,7 @@ export const getSystemConfig = (ifset = false) => {
   // 初始化账户信息，若本地存储中已存在则不进行覆盖
   if (!config.account) {
     config.account = {
-      ad: true,
+      ad: false,
       username: '',
       password: '',
     };

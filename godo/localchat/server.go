@@ -114,14 +114,6 @@ func UdpServer() {
 			continue
 		}
 
-		// if udpMsg.Type == "file" {
-		// 	ReceiveFile(udpMsg)
-		// 	continue
-		// }
-		// if udpMsg.Type == "fileAccessed" {
-		// 	HandlerSendFile(udpMsg)
-		// 	continue
-		// }
 		if udpMsg.Type == "image" {
 			filePath, err := ReceiveImg(udpMsg)
 			if err != nil {

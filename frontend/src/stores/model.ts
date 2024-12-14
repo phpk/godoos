@@ -91,6 +91,11 @@ export const useModelStore = defineStore('modelStore', () => {
     //console.log(res)
     if (res.ok) {
       resetData(res)
+      const modelData = await getModel("chat")
+      if(modelData){
+        await setCurrentModel("chat", modelData?.model)
+      }
+      
     }
   }
   function getModelInfo(model: string) {

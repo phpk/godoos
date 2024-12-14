@@ -19,7 +19,7 @@ export class Tray {
       this.image = options.image;
     } else {
       //this.image = markRaw(options.image);
-      console.log('tary.ts:', options.image)
+      //console.log('tary.ts:', options.image)
     }
     if (typeof options.component === 'string') {
       this.component = options.component;

@@ -14,7 +14,7 @@ function changPrompt(id:number) {
 }
 const changeInfo = async () => {
   const info = chatStore.editInfo;
-  console.log(info)
+  //console.log(info)
   if (!info.title) {
     notifyInfo(t("aichat.inputTitle"));
     return;

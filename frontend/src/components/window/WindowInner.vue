@@ -4,7 +4,7 @@
     <template v-if="officeFile">
       <OnlyOffice v-if="config.editorType == 'onlyoffice'" :onlyType="onlyType" :eventType="win.eventType" :ext="ext" />
     </template>
-    <IframeFile v-else :src="win.url" :ext="win.ext" :eventType="win.eventType" />
+    
   </template>
 
   <Suspense v-else>

@@ -63,7 +63,6 @@
 				</div>
 				<div
 					class="actions"
-					v-if="config.userType === 'member'"
 				>
 					<a
 						href="#"

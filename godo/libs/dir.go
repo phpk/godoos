@@ -201,9 +201,9 @@ func GetNetPath() string {
 func GetIsCors() bool {
 	isCors := GetString("isCors")
 	if isCors == "" {
-		return false
-	} else {
 		return true
+	} else {
+		return false
 	}
 
 }

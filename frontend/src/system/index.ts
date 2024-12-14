@@ -333,10 +333,10 @@ export class System {
       );
     }
     //if(!options.window.content)return
-    if (typeof options.window.content !== 'string') {
-      console.log('index.ts:', options.window.content)
+    //if (typeof options.window.content !== 'string') {
+      //console.log('index.ts:', options.window.content)
       //options.window.content = markRaw(options.window.content);
-    }
+    //}
     // console.log(options.window)
     // console.log(options.name)
     this._rootState.windowMap[loc].set(options.name, options);

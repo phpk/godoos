@@ -30,7 +30,7 @@ export const useAiChatStore = defineStore('aichat', () => {
   }
   const initChat = async () => {
     if (activeId.value === 0) {
-      return await newChat()
+      await newChat()
     }
     modelList.value = await modelStore.getModelAction('chat')
     const promptRes = await promptStore.getPrompts('chat')

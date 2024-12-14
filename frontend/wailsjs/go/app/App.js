@@ -9,3 +9,7 @@ export function OpenDirDialog() {
 export function RestartApp() {
   return window['go']['app']['App']['RestartApp']();
 }
+
+export function Shutdown(arg1) {
+  return window['go']['app']['App']['Shutdown'](arg1);
+}

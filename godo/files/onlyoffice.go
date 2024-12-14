@@ -54,7 +54,7 @@ func OnlyOfficeCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// 打印原始请求体
-	fmt.Printf("Received raw data: %s\n", body)
+	//fmt.Printf("Received raw data: %s\n", body)
 
 	// 解析 JSON 数据
 	var callbackData CallbackData
@@ -65,7 +65,7 @@ func OnlyOfficeCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 打印解析后的回调数据
-	fmt.Printf("Received callback: %+v\n", callbackData)
+	//fmt.Printf("Received callback: %+v\n", callbackData)
 
 	// 使用 key 查找对应的 path
 	mapOnlyOfficeMutex.Lock()

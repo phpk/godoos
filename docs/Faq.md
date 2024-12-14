@@ -74,3 +74,14 @@ systemctl stop godoos
 
 左下角，系统设置，选远程存储，添加docker的ip或虚拟机的ip地址（例子：http://192.168.1.16:56780）
 
+### 如何配置onlyoffice
+
+```
+docker pull onlyoffice/documentserver
+
+docker run -i -t -d -p 8000:80 -e JWT_ENABLED=false --restart=always --name=onlyoffice --privileged=true -v /data/onlyoffice/logs:/var/log/onlyoffice  -v /data/onlyoffice/data:/var/www/onlyoffice/Data  -v /data/onlyoffice/lib:/var/lib/onlyoffice -v /data/onlyoffice/db:/var/lib/postgresql  onlyoffice/documentserver
+```
+
+- 系统设置，编辑器配置填写onlyoffice的网址，如：http://127.0.0.1:8000
+- 局域网内只配置一台机器即可，其他机器访问的时候，需要配置onlyoffice的公网ip，如：http://192.168.1.1:8000
+

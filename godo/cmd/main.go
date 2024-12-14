@@ -50,8 +50,9 @@ func OsStart() {
 	router := mux.NewRouter()
 	router.Use(recoverMiddleware)
 	if libs.GetIsCors() {
-		//router.Use(corsMiddleware())
+		router.Use(corsMiddleware())
 	}
+	router.Use(corsMiddleware())
 	router.Use(loggingMiddleware{}.Middleware)
 	staticDir := libs.GetStaticDir()
 	router.PathPrefix("/static").Handler(http.StripPrefix("/static", http.FileServer(http.Dir(staticDir))))

@@ -6,7 +6,7 @@ import { isMobileDevice } from "@/util/device";
 onMounted(() => {
   new System();
   isMobile.value = isMobileDevice();
-  console.log(isMobile.value);
+  //console.log(isMobile.value);
 });
 const isMobile = ref<boolean>(false);
 

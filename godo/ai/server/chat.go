@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"godo/libs"
+	"log"
 	"net/http"
 )
 
@@ -12,14 +13,14 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 	var req map[string]interface{}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		libs.ErrorMsg(w, err.Error())
+		libs.ErrorMsg(w, "the chat request error:"+err.Error())
 		return
 	}
 	headers, url, err := GetHeadersAndUrl(req, "chat")
-	// log.Printf("url: %s", url)
-	// log.Printf("headers: %v", headers)
+	log.Printf("url: %s", url)
+	log.Printf("headers: %v", headers)
 	if err != nil {
-		libs.ErrorMsg(w, err.Error())
+		libs.ErrorMsg(w, "the chat request header or url errors:"+err.Error())
 		return
 	}
 	ForwardHandler(w, r, req, url, headers, "POST")

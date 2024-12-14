@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"godo/libs"
+	"godo/store"
 )
 
 // 发送 UDP 包并忽略响应
@@ -158,7 +159,7 @@ func getArpCacheIPs() ([]string, error) {
 	default:
 		return nil, fmt.Errorf("unsupported operating system: %v", runtime.GOOS)
 	}
-
+	cmd = store.SetHideConsoleCursor(cmd)
 	out, err = cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("error executing arp command: %v", err)
