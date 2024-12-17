@@ -16,7 +16,7 @@ require (
 	github.com/ncruces/go-sqlite3/gormlite v0.21.0
 	github.com/richardlehane/mscfb v1.0.4
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	golang.org/x/net v0.21.0
+	golang.org/x/net v0.32.0
 	golang.org/x/sys v0.28.0
 	golang.org/x/text v0.21.0
 	gorm.io/gorm v1.25.12
@@ -24,15 +24,15 @@ require (
 
 require (
 	aead.dev/minisign v0.2.0 // indirect
-	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/richardlehane/msoleps v1.0.1 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
+	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/tetratelabs/wazero v1.8.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
-	github.com/tklauser/numcpus v0.8.0 // indirect
+	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
 )

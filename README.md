@@ -75,20 +75,14 @@ chmod +x godoos_web_darwin_amd64
 
 - 备注：web版下载后启动服务端。访问地址为：http://localhost:56780/。
 
-### 🚢 **Docker安装**
+### 🚢 **Docker安装1.0.4**
 
-#### 构建并启动服务
+#### 下载docker包
 
 ```
-cd frontend
-pnpm i
-pnpm build
-cd ..
-docker-compose up --build
-```
-
-或者直接拉取(v1.0.1)
-```
+wget https://godoos.com/upload/godoos/1.0.4/docker/godoos_latest.tar.gz
+gzip -d godoos_latest.tar.gz
+docker load -i godoos_latest.tar
 docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 ```
 
