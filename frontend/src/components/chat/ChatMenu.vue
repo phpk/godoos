@@ -43,7 +43,7 @@ const store = useChatStore();
 			</el-icon>
 		</div>
 	</el-row>
-	<!-- <el-row @click="store.setCurrentNavId(2)">
+	<el-row @click="store.setCurrentNavId(2)">
 		<div class="menu-icon-box">
 			<el-icon
 				v-if="store.currentNavId === 2"
@@ -58,7 +58,7 @@ const store = useChatStore();
 				<Monitor />
 			</el-icon>
 		</div>
-	</el-row> -->
+	</el-row>
 
 	<!-- 设置按钮固定在底部 -->
 	<el-row class="settings-icon-row" @click="store.setCurrentNavId(5)">
