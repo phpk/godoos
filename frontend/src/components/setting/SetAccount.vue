@@ -11,6 +11,35 @@
     <div class="setting">
       <div v-if="0 === activeIndex">
         <div class="setting-item">
+          <h1 class="setting-title">{{ t("background") }}</h1>
+        </div>
+        <div class="setting-item">
+          <el-select v-model="config.background.type">
+            <el-option v-for="(item, key) in desktopOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+        <template v-if="config.background.type === 'color'">
+          <div class="setting-item">
+            <label> </label>
+            <ColorPicker v-model:modelValue="config.background.color" @update:modelValue="onColorChange"></ColorPicker>
+          </div>
+        </template>
+        <template v-if="config.background.type === 'image'">
+          <div class="setting-item">
+            <ul class="image-gallery">
+              <li v-for="(item, index) in config.background.imageList" :key="index"
+                :class="config.background.url === item ? 'selected' : ''" @click="setBg(item)">
+                <img :src="item" />
+              </li>
+            </ul>
+          </div>
+          <div class="setting-item">
+            <label> </label>
+          </div>
+        </template>
+      </div>
+      <div v-if="1 === activeIndex">
+        <div class="setting-item">
           <h1 class="setting-title">锁屏</h1>
         </div>
         <div class="setting-item">
@@ -29,19 +58,14 @@
           </el-button>
         </div>
       </div>
-      <div v-if="1 === activeIndex">
+      <div v-if="2 === activeIndex">
         <div class="setting-item">
           <h1 class="setting-title">广告与更新提示</h1>
 
         </div>
         <div class="setting-item">
           <label></label>
-          <el-switch 
-          v-model="ad" 
-          active-text="开启" 
-          inactive-text="关闭" 
-          size="large"
-            :before-change="setAd"></el-switch>
+          <el-switch v-model="ad" active-text="开启" inactive-text="关闭" size="large" :before-change="setAd"></el-switch>
         </div>
       </div>
     </div>
@@ -51,18 +75,28 @@
 <script lang="ts" setup>
 
 import { ref } from 'vue';
-import { Dialog, t } from '@/system/index.ts';
-import { getSystemKey, setSystemKey } from '@/system/config'
+import { Dialog, t, useSystem } from '@/system/index.ts';
+import { getSystemKey, setSystemKey, getSystemConfig, setSystemConfig } from '@/system/config'
 import { ElMessageBox } from 'element-plus'
-const items = ['锁屏设置', '广告设置'];
+const sys = useSystem();
+const items = [t("background"), '锁屏设置', '广告设置'];
 const activeIndex = ref(0);
 const account = ref(getSystemKey('account'));
 const ad = ref(account.value.ad)
-
+const config: any = ref(getSystemConfig());
 const selectItem = (index: number) => {
   activeIndex.value = index;
 };
-
+const desktopOptions = [
+  {
+    label: t("image"),
+    value: "image",
+  },
+  {
+    label: t("color"),
+    value: "color",
+  },
+];
 async function submit() {
   setSystemKey('account', account.value);
   Dialog.showMessageBox({
@@ -98,14 +132,29 @@ function setAd() {
 
       }, 1000)
     })
-  }else{
+  } else {
     data.ad = true
     setSystemKey('account', data);
     return Promise.resolve(true)
   }
 
 }
+function setBg(item: any) {
+  config.value.background.url = item
+  config.value.background.type = "image";
+  setSystemConfig(config.value);
+  sys.initBackground();
+
+}
+function onColorChange(color: string) {
+  config.value.background.color = color;
+  config.value.background.type = "color";
+  setSystemConfig(config.value);
+  sys.initBackground();
+}
+
 </script>
 <style scoped>
-@import './setStyle.css';
+@import "./setStyle.css";
+@import "@/assets/imglist.scss";
 </style>

@@ -1,5 +1,7 @@
 <template>
-  <el-button type="primary" :icon="Plus" circle  @click="closeDialog(true)"/>
+  <el-row justify="end">
+    <el-button type="primary" :icon="Plus" circle  @click="closeDialog(true)"/>
+  </el-row>
   <div class="file-pwd-list-box">
     <div class="file-pwd-list">
       <div class="pwd-box" v-for="item in filePwdStore.pwdList">
@@ -13,6 +15,7 @@
       layout="prev, pager, next" 
       v-model:current-page="filePwdStore.page.current"
       v-model:page-size="filePwdStore.page.size"
+      v-if="filePwdStore.page.total > 6"
       :total="filePwdStore.page.total"
       @current-change="handleCurrentChange"
     />
@@ -151,7 +154,6 @@ onMounted(async() => {
     height: 90%;
     padding: 10px;
     box-sizing: border-box;
-    background-color: rgb(248, 247, 247);
     overflow-y: scroll;
     margin: 10px auto;
 

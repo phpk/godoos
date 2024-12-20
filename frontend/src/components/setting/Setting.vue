@@ -92,8 +92,8 @@ const setList = ref([
 
   {
     key: "custom",
-    title: t("personalization"),
-    desc: '壁纸',
+    title: "代理",
+    desc: '代理/远程桌面',
     icon: "personal",
     content: "SetCustom",
   },
@@ -109,7 +109,7 @@ const setList = ref([
   {
     key: "account",
     title: "屏幕",
-    desc: '锁屏/广告',
+    desc: '壁纸/锁屏/广告',
     icon: "account",
     content: "SetAccount",
   },
