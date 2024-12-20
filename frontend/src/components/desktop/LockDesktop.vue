@@ -217,7 +217,7 @@
 	});
 
 	const onLogin = async () => {
-		localStorage.removeItem("godoosClientId");
+		//localStorage.removeItem("godoosClientId");
 		if (loginCallback) {
 			const platform = store.ThirdPartyPlatform;
 			const code = router.currentRoute.value.query.code as string;
