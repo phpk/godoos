@@ -7,8 +7,10 @@ interface ProxyItem {
     id: number;
     port: string;
     domain: string;
-    type:string;
-    name:string;
+    type: string;
+    name: string;
+    serverAddr: string;
+    serverPort: string;
 }
 const localKey = "godoos_net_proxy"
 const getProxies = (): ProxyItem[] => {
@@ -23,10 +25,12 @@ const saveProxies = (proxies: ProxyItem[]) => {
 const proxies = ref<ProxyItem[]>(getProxies());
 const proxyData = ref<ProxyItem>({
     id: Date.now(),
-    type:"http",
-    name:"",
+    type: "http",
+    name: "",
     port: "",
     domain: "",
+    serverAddr: "",
+    serverPort: "",
 });
 const proxyDialogShow = ref(false);
 const isEditing = ref(false);
@@ -46,7 +50,7 @@ const addProxy = () => {
         proxies.value.push({ ...proxyData.value });
         saveProxies(proxies.value);
         proxyDialogShow.value = false;
-        proxyData.value = { id: Date.now(), port: "", domain: "",type:"http",name:"" };
+        proxyData.value = { id: Date.now(), port: "", domain: "", type: "http", name: "", serverAddr: "", serverPort: "" };
     }
 };
 
@@ -68,7 +72,7 @@ const updateProxy = () => {
             proxies.value[index] = { ...proxyData.value };
             saveProxies(proxies.value);
             proxyDialogShow.value = false;
-            proxyData.value = { id: Date.now(), port: "", domain: "",type:"http",name:"" };
+            proxyData.value = { id: Date.now(), port: "", domain: "", type: "http", name: "", serverAddr: "", serverPort: "" };
             isEditing.value = false;
         }
     }
@@ -106,6 +110,14 @@ const proxyRules = {
     domain: [
         { required: true, message: '代理域名不能为空', trigger: 'blur' },
         { pattern: /^(https?:\/\/)?(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d{1,5})?(\/[^\s]*)?$/, message: '请输入有效的域名格式', trigger: 'blur' }
+    ],
+    serverAddr: [
+        { required: true, message: '服务器地址不能为空', trigger: 'blur' },
+        { pattern: /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/, message: '请输入有效的IP地址格式', trigger: 'blur' }
+    ],
+    serverPort: [
+        { required: true, message: '服务器端口不能为空', trigger: 'blur' },
+        { pattern: /^(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{1,3}|[0-9])$/, message: '请输入有效的服务器端口号（1-65535）', trigger: 'blur' }
     ]
 };
 
@@ -156,18 +168,25 @@ const prevPage = () => {
                 <el-form :model="proxyData" :rules="proxyRules" ref="pwdRef">
                     <el-form-item label="代理类型" prop="type">
                         <el-select v-model="proxyData.type" placeholder="代理类型">
-                            <el-option v-for="type in types" :key="type.value" :label="type.label" :value="type.value" />
+                            <el-option v-for="type in types" :key="type.value" :label="type.label"
+                                :value="type.value" />
                         </el-select>
                     </el-form-item>
                     <el-form-item label="代理名称" prop="name">
                         <el-input v-model="proxyData.name" />
                     </el-form-item>
-                    
+
                     <el-form-item label="本地端口" prop="port">
                         <el-input v-model="proxyData.port" />
                     </el-form-item>
                     <el-form-item label="代理域名" prop="domain">
                         <el-input v-model="proxyData.domain" />
+                    </el-form-item>
+                    <el-form-item label="服务器地址" prop="serverAddr">
+                        <el-input v-model="proxyData.serverAddr" />
+                    </el-form-item>
+                    <el-form-item label="服务器端口" prop="serverPort">
+                        <el-input v-model="proxyData.serverPort" />
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="saveProxy" style="margin: 0 auto;">
