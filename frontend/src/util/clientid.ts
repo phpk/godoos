@@ -85,7 +85,7 @@ function getOSInfo() {
     }
     return hash.toString(36); // Convert to base 36 for shorter string
   }
-  export const getClientId = () => {
+  export function GetClientId(){
     let uuid = localStorage.getItem("ClientID");
     if (!uuid) {
       const fingerprint = getBrowserFingerprint();

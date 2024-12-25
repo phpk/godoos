@@ -21,7 +21,8 @@ import { RestartApp } from '@/util/goutil';
 import { notifyError } from '@/util/msg';
 //import { isShareFile } from '@/util/sharePath';
 import { pick } from '../util/modash';
-import { clearSystemConfig, fetchGet, getClientId, getFileUrl, getSystemConfig, getSystemKey, setSystemConfig, setSystemKey } from './config';
+import { GetClientId } from "../util/clientid.ts";
+import { clearSystemConfig, fetchGet, getFileUrl, getSystemConfig, getSystemKey, setSystemConfig, setSystemKey } from './config';
 import { OsFileInterface } from './core/FIleInterface';
 import { extname } from './core/Path';
 import { initBuiltinApp, initBuiltinFileOpener } from './initBuiltin';
@@ -119,11 +120,11 @@ export class System {
       //console.log(config.userType)
       if (config.userType == 'person') {
         upgradeStore.systemMessage();
-      }else{
+      } else {
         upgradeStore.onlineMessage()
-      }    
+      }
     }, 3000);
-    
+
 
   }
   /**
@@ -192,7 +193,7 @@ export class System {
               password: password,
               github_code: loginCode?.github_code,
               gitee_code: loginCode?.gitee_code,
-              clientId: getClientId(),
+              clientId: GetClientId(),
             }),
           });
           if (!res.ok) {
@@ -261,7 +262,7 @@ export class System {
     } catch (error) {
       console.log(error)
     }
-    
+
   }
 
 
@@ -334,8 +335,8 @@ export class System {
     }
     //if(!options.window.content)return
     //if (typeof options.window.content !== 'string') {
-      //console.log('index.ts:', options.window.content)
-      //options.window.content = markRaw(options.window.content);
+    //console.log('index.ts:', options.window.content)
+    //options.window.content = markRaw(options.window.content);
     //}
     // console.log(options.window)
     // console.log(options.name)
@@ -453,44 +454,44 @@ export class System {
   }
   /**打开os 文件系统的文件 */
   async openFile(path: string) {
-      const fileStat = await this.fs.stat(path)
-      //console.log(fileStat)
-      if (!fileStat) {
-        throw new Error('文件不存在');
+    const fileStat = await this.fs.stat(path)
+    //console.log(fileStat)
+    if (!fileStat) {
+      throw new Error('文件不存在');
+    }
+    // 如果fileStat为目录
+    if (fileStat?.isDirectory) {
+      // 从_fileOpenerMap中获取'link'对应的函数并调用
+      this._flieOpenerMap.get('dir')?.func.call(this, path, '');
+      return;
+    } else {
+      const header = {
+        pwd: ''
       }
-      // 如果fileStat为目录
-      if (fileStat?.isDirectory) {
-        // 从_fileOpenerMap中获取'link'对应的函数并调用
-        this._flieOpenerMap.get('dir')?.func.call(this, path, '');
-        return;
-      } else {
-        const header = {
-          pwd: ''
+      // 读取文件内容
+      let fileContent = await this.fs.readFile(path, header);
+      // 改文件需要输入密码
+      if (fileContent && fileContent.code == -1 && fileContent.error == 'needPwd') {
+        const temp = await Dialog.showInputBox()
+        if (temp.response !== 1) {
+          return
         }
-        // 读取文件内容
-        let fileContent = await this.fs.readFile(path, header);
-        // 改文件需要输入密码
-        if (fileContent && fileContent.code == -1 && fileContent.error == 'needPwd') {
-          const temp = await Dialog.showInputBox()
-          if (temp.response !== 1) {
-            return
-          }
-          header.pwd = temp?.inputPwd ? temp?.inputPwd : ''
-          const reOpen = await this.fs.readFile(path, header);
-          //console.log(reOpen)
-          if (reOpen === false || reOpen.code === -1) {
-            notifyError("文件密码错误")
-            return
-          }
-          fileContent = reOpen
+        header.pwd = temp?.inputPwd ? temp?.inputPwd : ''
+        const reOpen = await this.fs.readFile(path, header);
+        //console.log(reOpen)
+        if (reOpen === false || reOpen.code === -1) {
+          notifyError("文件密码错误")
+          return
         }
-        //console.log(fileStat)
-        // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
-        const fileName = extname(fileStat?.name || '') || 'link'
-        //console.log(fileName,fileContent)
-        this._flieOpenerMap
-          .get(fileName)
-          ?.func.call(this, path, fileContent || '');
+        fileContent = reOpen
+      }
+      //console.log(fileStat)
+      // 从_fileOpenerMap中获取文件扩展名对应的函数并调用
+      const fileName = extname(fileStat?.name || '') || 'link'
+      //console.log(fileName,fileContent)
+      this._flieOpenerMap
+        .get(fileName)
+        ?.func.call(this, path, fileContent || '');
     }
   }
   // 插件系统
