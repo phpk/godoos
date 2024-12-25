@@ -1,6 +1,7 @@
 import { generateRandomString } from "../util/common.ts";
 export const configStoreType = localStorage.getItem('GodoOS-storeType') || 'local';
 import { parseAiConfig } from "./aiconfig.ts";
+import { getClientId } from "../util/clientid.ts";
 /**
  * 获取系统配置信息。
  * 从本地存储中获取或初始化系统配置对象，并根据条件决定是否更新本地存储中的配置。
@@ -329,36 +330,36 @@ export const clearSystemConfig = () => {
   }
   //localStorage.removeItem('GodoOS-config');
 };
-function bin2hex(s: string) {
-    s = encodeURI(s);//只会有0-127的ascii不转化
-    let m: any = s.match(/%[\dA-F]{2}/g), a: any = s.split(/%[\dA-F]{2}/), i, j, n, t;
-    m.push("")
-    for (i in a) {
-        if (a[i] === "") { a[i] = m[i]; continue }
-        n = ""
-        for (j in a[i]) {
-            t = a[i][j].charCodeAt().toString(16).toUpperCase()
-            if (t.length === 1) t = "0" + t
-            n += "%" + t
-        }
-        a[i] = n + m[i]
-    }
-    return a.join("").split("%").join("")
-}
-export const getClientId = () => {
-    let uuid: any = localStorage.getItem("ClientID");
-    if (!uuid) {
-        let canvas = document.createElement('canvas');
-        let ctx: any = canvas.getContext('2d');
-        ctx.fillStyle = '#FF0000';
-        ctx.fillRect(0, 0, 8, 10);
-        let b64 = canvas.toDataURL().replace("data:image/png;base64,", "");
-        let bin = window.atob(b64);
-        uuid = bin2hex(bin.slice(-16, -12));
-        localStorage.setItem("ClientID", uuid);
-    }
-    return uuid;
-}
+// function bin2hex(s: string) {
+//     s = encodeURI(s);//只会有0-127的ascii不转化
+//     let m: any = s.match(/%[\dA-F]{2}/g), a: any = s.split(/%[\dA-F]{2}/), i, j, n, t;
+//     m.push("")
+//     for (i in a) {
+//         if (a[i] === "") { a[i] = m[i]; continue }
+//         n = ""
+//         for (j in a[i]) {
+//             t = a[i][j].charCodeAt().toString(16).toUpperCase()
+//             if (t.length === 1) t = "0" + t
+//             n += "%" + t
+//         }
+//         a[i] = n + m[i]
+//     }
+//     return a.join("").split("%").join("")
+// }
+// export const getClientId = () => {
+//     let uuid: any = localStorage.getItem("ClientID");
+//     if (!uuid) {
+//         let canvas = document.createElement('canvas');
+//         let ctx: any = canvas.getContext('2d');
+//         ctx.fillStyle = '#FF0000';
+//         ctx.fillRect(0, 0, 8, 10);
+//         let b64 = canvas.toDataURL().replace("data:image/png;base64,", "");
+//         let bin = window.atob(b64);
+//         uuid = bin2hex(bin.slice(-16, -12));
+//         localStorage.setItem("ClientID", uuid);
+//     }
+//     return uuid;
+// }
 // export const getClientId = () => {
 //   let uuid: any = localStorage.getItem("godoosClientId");
 //   if (!uuid) {

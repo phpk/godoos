@@ -19,7 +19,7 @@ export const useNotifyStore = defineStore('notifyStore', () => {
     if (config.userType == 'person') {
       return
     }
-    const complition = await fetchGet(config.userInfo.url + '/news/list?page=' + page.value.current + '&limit=' + page.value.size)
+    const complition = await fetchGet(config.userInfo.url + '/user/news/list?page=' + page.value.current + '&limit=' + page.value.size)
     if (!complition.ok) {
       return;
     }
