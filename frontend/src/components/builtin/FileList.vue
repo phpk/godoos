@@ -32,7 +32,7 @@
 		@touchstart.passive="doubleTouch($event, item)"
 		@contextmenu.stop.prevent="handleRightClick($event, item, index)" @drop="hadnleDrop($event, item.path)"
 		@dragenter.prevent="handleDragEnter(index)" @dragover.prevent @dragleave="handleDragLeave()"
-		@dragstart.stop="startDragApp($event, item)" @click="handleClick(index)" @mousedown.stop :ref="(ref: any) => {
+		@dragstart.stop="startDragApp($event, item)" @click="handleClick(index, item)" @mousedown.stop :ref="(ref: any) => {
 			if (ref) {
 				appPositions[index] = markRaw(ref as Element);
 			}
@@ -130,6 +130,7 @@ function getName(item: any) {
 		return name;
 	}
 }
+
 function handleOnOpen(item: OsFileWithoutContent) {
 	// props.onOpen(item);
 	// emitEvent('desktop.app.open');
@@ -199,10 +200,16 @@ const hoverIndex = ref<number>(-1);
 const appPositions = ref<Array<Element>>([]);
 
 const chosenIndexs = ref<Array<number>>([]);
-function handleClick(index: number) {
+import { isMobileDevice } from "@/util/device";
+const isMobile = ref<boolean>(false);
+function handleClick(index: number, item: OsFileWithoutContent) {
 	chosenIndexs.value = [index];
+	if (isMobile.value) {
+		handleOnOpen(item)
+	}
 }
 onMounted(() => {
+	isMobile.value = isMobileDevice();
 	chosenIndexs.value = [];
 	props.onChosen(
 		throttle((rect: Rect) => {
@@ -650,5 +657,36 @@ function handleDragLeave() {
 .file-bar:hover {
 	background-color: unset;
 	user-select: none;
+}
+
+@media screen and (max-width: 768px) {
+	.file-item {
+		height: vh(70);
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		overflow: hidden;
+
+		&:hover {
+			background-color: transparent;
+		}
+
+		.icon {
+			width: vw(40);
+			height: vh(40);
+		}
+
+		.title {
+			font-size: vw(12);
+			text-align: center;
+		}
+	}
+
+	.chosen {
+		background-color: transparent;
+		border: 1px solid transparent;
+	}
+
 }
 </style>

@@ -1,13 +1,8 @@
 <template>
-  <div
-    class="desktop"
-    @dragenter.prevent
-    @dragover.prevent
-    @drop="dragFileToDrop($event, `${system._options.userLocation}Desktop`)"
-    :style="{
+  <div class="desktop" @dragenter.prevent @dragover.prevent
+    @drop="dragFileToDrop($event, `${system._options.userLocation}Desktop`)" :style="{
       filter: `brightness(${system._rootState.info.brightness * 2}%)`,
-    }"
-  >
+    }">
     <div class="userarea" @contextmenu.stop="handleRightClick" @mousedown="userareaDown">
       <div @mousedown="backgroundDown">
         <DeskItem class="userarea-upper zhighher" :on-chosen="onChosen"></DeskItem>
@@ -117,6 +112,12 @@ onErrorCaptured((err) => {
       top: 0;
       left: 0;
     }
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .bottom {
+    display: none;
   }
 }
 </style>
