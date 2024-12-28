@@ -68,6 +68,24 @@
           <el-switch v-model="ad" active-text="开启" inactive-text="关闭" size="large" :before-change="setAd"></el-switch>
         </div>
       </div>
+      <div v-if="3 === activeIndex">
+        <div class="setting-item">
+          <h1 class="setting-title">{{ t("language") }}</h1>
+        </div>
+        <div class="setting-item">
+          <label></label>
+          <el-select v-model="modelvalue">
+            <el-option v-for="(item, key) in langList" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+
+        <div class="setting-item">
+          <label></label>
+          <el-button @click="submitLang" type="primary">
+            {{ t("confirm") }}
+          </el-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -75,15 +93,30 @@
 <script lang="ts" setup>
 
 import { ref } from 'vue';
-import { Dialog, t, useSystem } from '@/system/index.ts';
+import { Dialog, useSystem } from '@/system/index.ts';
 import { getSystemKey, setSystemKey, getSystemConfig, setSystemConfig } from '@/system/config'
 import { ElMessageBox } from 'element-plus'
+import { getLang, setLang, t } from "@/i18n";
+import { useI18n } from "vue-i18n";
+const { locale } = useI18n();
 const sys = useSystem();
-const items = [t("background"), '锁屏设置', '广告设置'];
+const items = [t("background"), '锁屏设置', '广告设置', '语言'];
 const activeIndex = ref(0);
 const account = ref(getSystemKey('account'));
 const ad = ref(account.value.ad)
 const config: any = ref(getSystemConfig());
+const langList = [
+  {
+    label: "中文",
+    value: "zh-cn",
+  },
+  {
+    label: "English",
+    value: "en",
+  },
+];
+const currentLang = getLang();
+const modelvalue = ref(currentLang);
 const selectItem = (index: number) => {
   activeIndex.value = index;
 };
@@ -152,7 +185,13 @@ function onColorChange(color: string) {
   setSystemConfig(config.value);
   sys.initBackground();
 }
-
+async function submitLang() {
+		setLang(modelvalue.value);
+		locale.value = modelvalue.value;
+		ElMessageBox.alert(t("save.success"), t("language"), {
+			confirmButtonText: "OK",
+		});
+	}
 </script>
 <style scoped>
 @import "./setStyle.css";

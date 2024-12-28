@@ -93,23 +93,29 @@ const setList = ref([
   {
     key: "custom",
     title: "代理",
-    desc: '代理/远程桌面',
+    desc: '本地代理、远程代理',
     icon: "personal",
     content: "SetCustom",
   },
-
   {
-    key: "language",
-    title: '语言',
-    desc: t("language"),
-    icon: "language",
-    content: "SetLang",
+    key: "nas",
+    title: "NAS服务",
+    desc: 'NAS/webdav服务',
+    icon: "disk",
+    content: "SetNas",
   },
+  // {
+  //   key: "language",
+  //   title: '语言',
+  //   desc: t("language"),
+  //   icon: "language",
+  //   content: "SetLang",
+  // },
 
   {
     key: "account",
     title: "屏幕",
-    desc: '壁纸/锁屏/广告',
+    desc: '壁纸/语言/锁屏/广告',
     icon: "account",
     content: "SetAccount",
   },

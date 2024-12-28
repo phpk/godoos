@@ -21,8 +21,7 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import LocalProxy from "./LocalProxy.vue";
-const items = ["本地代理", "远程访问"];
+const items = ["本地代理", "远程代理"];
 const activeIndex = ref(0);
 </script>
 

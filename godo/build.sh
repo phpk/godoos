@@ -28,6 +28,8 @@ for PLATFORM in "${PLATFORMS[@]}"; do
     export GOOS=$OS
     export GOARCH=$ARCH
     export GODOTOPTYPE="web"
+     # 设置CGO_ENABLED=0以进行静态链接
+    export CGO_ENABLED=0
 
     # 执行编译命令，并处理可能的错误
     go build  -ldflags="-s -w" -o "$OUTPUT_FILE" ./main.go || { echo "编译 $OS/$ARCH 失败，请检查错误并尝试解决。"; continue; }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"godo/libs"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -175,7 +174,7 @@ func HandleWriteFile(w http.ResponseWriter, r *http.Request) {
 	if haslink {
 		needPwd = false
 	}
-	log.Printf("needPwd:%v", needPwd)
+	//log.Printf("needPwd:%v", needPwd)
 	// 即不是加密用户又不是加密文件
 	if !needPwd {
 		// 直接写入新内容

@@ -37,7 +37,11 @@ const isEditing = ref(false);
 const pwdRef = ref<any>(null);
 const types = ref([
     { label: 'HTTP', value: 'http' },
+    { label: '静态文件访问', value: 'file' },
+    { label: '点对点穿透', value: 'p2p' },
+    { label: 'SSH', value: 'ssh' },
     { label: 'SOCKS5', value: 'socks5' },
+    
 ])
 
 const addProxy = () => {

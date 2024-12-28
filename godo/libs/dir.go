@@ -163,6 +163,14 @@ func GetVectorDb() string {
 	}
 	return filepath.Join(dbPath, "vector.db")
 }
+func GetSystemDb() string {
+	homeDir := GetDataDir()
+	dbPath := filepath.Join(homeDir, "db")
+	if !PathExists(dbPath) {
+		os.MkdirAll(dbPath, 0755)
+	}
+	return filepath.Join(dbPath, "system.db")
+}
 func GetVectorDbName(name string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(name))

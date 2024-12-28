@@ -152,8 +152,8 @@
 
 <script lang="ts" setup>
 import { Dialog, join, System, t } from "@/system";
+import { GetClientId } from "@/util/clientid.ts";
 import {
-	getClientId,
 	getSystemConfig,
 	setSystemConfig,
 } from "@/system/config";
@@ -180,10 +180,10 @@ const storeList = [
 		title: "远程存储",
 		value: "net",
 	},
-	{
-		title: "webdav",
-		value: "webdav",
-	},
+	// {
+	// 	title: "webdav",
+	// 	value: "webdav",
+	// },
 ];
 
 const items = ["用户角色", "存储配置", "编辑器类型", "备份还原", "文件密码箱"];
@@ -284,46 +284,46 @@ function submitOsInfo() {
 		}
 
 	}
-	if (saveData.storeType === "webdav") {
-		const urlRegex = /^(https?:\/\/)/;
-		if (!urlRegex.test(saveData.webdavClient.url.trim())) {
-			Dialog.showMessageBox({
-				message: "服务器地址格式错误",
-				type: "error",
-			});
-			return;
-		}
-		if (
-			saveData.webdavClient.username === "" ||
-			saveData.webdavClient.password === ""
-		) {
-			Dialog.showMessageBox({
-				message: "用户名或密码不能为空",
-				type: "error",
-			});
-			return;
-		}
-		const postUrl = config.value.apiUrl + "/system/setting";
-		fetch(postUrl, {
-			method: "POST",
-			body: JSON.stringify([{
-				name: "webdavClient",
-				value: saveData.webdavClient,
-			}]),
-		})
-			.then((res) => res.json())
-			.then((res) => {
-				if (res.code === 0) {
-					setSystemConfig(saveData);
-					RestartApp();
-				} else {
-					Dialog.showMessageBox({
-						message: res.message,
-						type: "error",
-					});
-				}
-			});
-	}
+	// if (saveData.storeType === "webdav") {
+	// 	const urlRegex = /^(https?:\/\/)/;
+	// 	if (!urlRegex.test(saveData.webdavClient.url.trim())) {
+	// 		Dialog.showMessageBox({
+	// 			message: "服务器地址格式错误",
+	// 			type: "error",
+	// 		});
+	// 		return;
+	// 	}
+	// 	if (
+	// 		saveData.webdavClient.username === "" ||
+	// 		saveData.webdavClient.password === ""
+	// 	) {
+	// 		Dialog.showMessageBox({
+	// 			message: "用户名或密码不能为空",
+	// 			type: "error",
+	// 		});
+	// 		return;
+	// 	}
+	// 	const postUrl = config.value.apiUrl + "/system/setting";
+	// 	fetch(postUrl, {
+	// 		method: "POST",
+	// 		body: JSON.stringify([{
+	// 			name: "webdavClient",
+	// 			value: saveData.webdavClient,
+	// 		}]),
+	// 	})
+	// 		.then((res) => res.json())
+	// 		.then((res) => {
+	// 			if (res.code === 0) {
+	// 				setSystemConfig(saveData);
+	// 				RestartApp();
+	// 			} else {
+	// 				Dialog.showMessageBox({
+	// 					message: res.message,
+	// 					type: "error",
+	// 				});
+	// 			}
+	// 		});
+	// }
 }
 function submitEditInfo() {
 	const saveData = toRaw(config.value);
@@ -385,7 +385,7 @@ async function saveUserInfo() {
 		body: JSON.stringify({
 			username: saveData.userInfo.username,
 			password: password,
-			clientId: getClientId(),
+			clientId: GetClientId(),
 		}),
 	});
 	if (res.status === 200) {
