@@ -1,10 +1,7 @@
 <template>
-  <div
-    class="window-outer"
-    :class="{
-      focus: focusState && currentRouter !== 'main',
-    }"
-  >
+  <div class="window-outer" :class="{
+    focus: focusState && currentRouter !== 'main',
+  }">
     <div class="upbar" v-dragable>
       <div class="upbar-left">
         <div class="back-arr" v-if="currentRouter !== 'main'" @click="back">←</div>
@@ -12,7 +9,7 @@
           {{ t("setting") }}
         </div>
       </div>
-      <div class="upbar-right">
+      <div class="upbar-right" v-if="!isMobileDevice()">
         <WinUpButtonGroup :browser-window="browserWindow"></WinUpButtonGroup>
       </div>
     </div>
@@ -28,16 +25,10 @@
         </div>
         <div class="outer_main">
           <div class="main_uper">
-            <div
-              class="set_item"
-              v-for="item in setList"
-              :key="item.title"
-              @click="openSet(item.key)"
-              v-glowing="{
-                color: '#3c3c3ce4',
-                scale: 0.6,
-              }"
-            >
+            <div class="set_item" v-for="item in setList" :key="item.title" @click="openSet(item.key)" v-glowing="{
+              color: '#3c3c3ce4',
+              scale: 0.6,
+            }">
               <div class="set_item-img">
                 <!-- <img class="set_item-img-img" :src="item.icon" /> -->
                 <svg class="icon" aria-hidden="true" style="font-size: 2em">
@@ -64,6 +55,7 @@ import { useSystem } from "@/system";
 import { vDragable } from "@/system/window/MakeDragable";
 import { vGlowing } from "@/util/glowingBorder";
 import { stepComponent } from "@/util/stepComponent";
+import { isMobileDevice } from "@/util/device";
 const browserWindow = inject<BrowserWindow>("browserWindow")!;
 const sys = useSystem();
 const currentRouter = ref(browserWindow.config?.router || "main");
@@ -126,6 +118,7 @@ const setList = ref([
 
 <style lang="scss" scoped>
 @import "@/assets/main.scss";
+
 .window-outer {
   background-color: white;
   width: 100%;
@@ -141,6 +134,7 @@ const setList = ref([
   background-color: rgba(255, 255, 255, 0.704);
   backdrop-filter: blur(10px);
 }
+
 .upbar {
   height: 40px;
   width: 100%;
@@ -148,11 +142,13 @@ const setList = ref([
   justify-content: space-between;
   align-items: center;
   user-select: none;
+
   .upbar-left {
     display: flex;
     align-items: center;
     font-size: 12px;
     height: 100%;
+
     .back-arr {
       padding: 0 6px;
       margin-right: 3px;
@@ -163,15 +159,18 @@ const setList = ref([
       justify-content: center;
       align-items: center;
     }
+
     .back-arr:hover {
       color: var(--color-ui-gray);
       background-color: var(--color-dark);
     }
+
     .upbar-text {
       font-size: 14px;
       margin-left: 10px;
     }
   }
+
   .upbar-right {
     width: calc(100% - 200px);
     display: flex;
@@ -225,10 +224,12 @@ const setList = ref([
     width: 30px;
     margin: 10px 16px;
     flex-shrink: 0;
+
     img {
       width: 100%;
     }
   }
+
   .set_item-right {
     flex: 1;
   }
@@ -242,10 +243,12 @@ const setList = ref([
     color: #999999;
   }
 }
+
 .set_item:hover {
   border: 1px solid #99999954;
   box-shadow: 0 0 0 1px #999999 inset;
 }
+
 .uper_tab {
   /* width: 90%; */
   margin: 10px 10px -1px 10px;
@@ -318,8 +321,21 @@ const setList = ref([
 .fade-leave-from {
   opacity: 1;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .window-outer {
+    width: 100%;
+    height: 100%;
+    border: none;
+    box-sizing: border-box;
+    // box-shadow: inset -599px 0px 0px 0px #ffffff;
+    transition: background-color 0.1s;
+    overflow: hidden;
+  }
 }
 </style>

@@ -30,7 +30,7 @@
   background-color: var(--color-dark-light);
 }
 .nav li.active::after {
-  content: '';
+  content: "";
   display: block;
   width: 4px;
   height: 60%;
@@ -72,4 +72,16 @@
   width: 100px;
   flex-shrink: 0;
   text-align: right;
+}
+@media screen and (max-width: 768px) {
+  .nav {
+    width: 25%;
+  }
+  .setting-item:first-child {
+    margin-top: 0px !important;
+  }
+  .setting-item label {
+    width: 80px;
+    text-align: left;
+  }
 }
