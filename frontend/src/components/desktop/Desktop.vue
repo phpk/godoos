@@ -19,6 +19,15 @@
     <div class="bottom">
       <Taskbar></Taskbar>
     </div>
+    <div class="bottom-bar" v-if="isMobileDevice()">
+      <div @click.stop="handle(item)" class="magnet-item" :style="{
+        animationDelay: `${Math.floor(index / 4) * 0.02}s`,
+        animationDuration: `${Math.floor(index / 4) * 0.04 + 0.1}s`,
+      }" v-for="(item, index) in bottomApp" v-glowing :key="basename(item.path)">
+        <FileIcon class="magnet-item_img" :file="item" />
+        <span class="magnet-item_title">{{ getName(item) }}</span>
+      </div>
+    </div>
     <ContextMenu></ContextMenu>
   </div>
 </template>
@@ -27,10 +36,113 @@ import { emitEvent } from "@/system/event";
 import { useContextMenu } from "@/hook/useContextMenu";
 import { useFileDrag } from "@/hook/useFileDrag";
 import { Rect, useRectChosen } from "@/hook/useRectChosen";
-import { useSystem } from "@/system";
+import { useSystem, BrowserWindow } from "@/system";
 import { onErrorCaptured } from "vue";
 import { useUpgradeStore } from '@/stores/upgrade';
+import { isMobileDevice } from "@/util/device";
+import { basename } from "@/system/core/Path";
+import { t } from "@/i18n";
+import { useAppOpen } from "@/hook/useAppOpen";
 
+const { openapp } = useAppOpen("menulist");
+function handle(item: any) {
+  if (item.name.includes('localchat')) {
+    openapp(item);
+    emitEvent("desktop.app.open");
+  } else {
+    emitEvent("magnet.item.click", item);
+  }
+
+  const sys = useSystem();
+  const winopt = sys._rootState.windowMap["Menulist"].get(item.title);
+  if (winopt) {
+    if (winopt._hasShow) {
+      return;
+    } else {
+      winopt._hasShow = true;
+      winopt.window.fullscreen = true
+      const win = new BrowserWindow(winopt.window);
+      win.show();
+      win.on("close", () => {
+        winopt._hasShow = false;
+      });
+    }
+  }
+}
+function getName(item: any) {
+  const name = basename(item.path);
+  if (name.endsWith(".exe")) {
+    return t(name.replace(".exe", ""));
+  } else {
+    return name;
+  }
+}
+
+const bottomApp = [
+  {
+    "isFile": true,
+    "isDirectory": false,
+    "isSymlink": false,
+    "size": 32,
+    "modTime": "2024-12-16T09:17:18.7214789+08:00",
+    "atime": "2024-12-16T09:17:18.7214789+08:00",
+    "birthtime": "2024-12-16T09:17:18.7214789+08:00",
+    "mtime": "2024-12-16T09:17:18.7214789+08:00",
+    "rdev": 0,
+    "mode": 511,
+    "name": "computer.exe",
+    "path": "/C/Users/Menulist/computer.exe",
+    "oldPath": "/C/Users/Menulist/computer.exe",
+    "parentPath": "/C/Users/Menulist",
+    "content": "link::Desktop::computer::diannao",
+    "ext": "exe",
+    "title": "computer",
+    "id": 1,
+    "isPwd": false
+  },
+  {
+    "isFile": true,
+    "isDirectory": false,
+    "isSymlink": false,
+    "size": 31,
+    "modTime": "2024-12-16T09:17:18.7214789+08:00",
+    "atime": "2024-12-16T09:17:18.7214789+08:00",
+    "birthtime": "2024-12-16T09:17:18.7214789+08:00",
+    "mtime": "2024-12-16T09:17:18.7214789+08:00",
+    "rdev": 0,
+    "mode": 511,
+    "name": "setting.exe",
+    "path": "/C/Users/Menulist/setting.exe",
+    "oldPath": "/C/Users/Menulist/setting.exe",
+    "parentPath": "/C/Users/Menulist",
+    "content": "link::Desktop::setting::setting",
+    "ext": "exe",
+    "title": "setting",
+    "id": 15,
+    "isPwd": false
+  },
+  {
+    "isFile": true,
+    "isDirectory": false,
+    "isSymlink": false,
+    "size": 30,
+    "modTime": "2024-12-16T09:17:18.7214789+08:00",
+    "atime": "2024-12-16T09:17:18.7214789+08:00",
+    "birthtime": "2024-12-16T09:17:18.7214789+08:00",
+    "mtime": "2024-12-16T09:17:18.7214789+08:00",
+    "rdev": 0,
+    "mode": 511,
+    "name": "localchat.exe",
+    "path": "/C/Users/Desktop/localchat.exe",
+    "oldPath": "/C/Users/Desktop/localchat.exe",
+    "parentPath": "/C/Users/Desktop",
+    "content": "link::Desktop::localchat::chat",
+    "ext": "exe",
+    "title": "localchat",
+    "id": 3,
+    "isPwd": false
+  }
+];
 const { createDesktopContextMenu } = useContextMenu();
 const { choseStart, chosing, choseEnd, getRect, Chosen } = useRectChosen();
 const system = useSystem();
@@ -118,6 +230,33 @@ onErrorCaptured((err) => {
 @media screen and (max-width: 768px) {
   .bottom {
     display: none;
+  }
+
+  .bottom-bar {
+    display: flex;
+    justify-content: space-evenly;
+    position: absolute;
+    width: vw(340);
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: vh(15);
+    height: vh(80);
+    border-radius: vw(50);
+    color: #e5e3e3d5;
+    background-color: rgba(255, 255, 255, .2);
+    backdrop-filter: blur(15px);
+
+    .magnet-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      .magnet-item_img {
+        width: vw(40);
+        height: vh(40);
+      }
+    }
   }
 }
 </style>

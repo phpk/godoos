@@ -1,13 +1,11 @@
 <template>
   <Transition name="windowanimate" appear>
-    <WindowTemplate v-if="window.windowInfo.isCreated && !isMobileDevice()" :browser-window="window"></WindowTemplate>
-    <MobileTemplate v-else></MobileTemplate>
+    <WindowTemplate v-if="window.windowInfo.isCreated" :browser-window="window"></WindowTemplate>
   </Transition>
   <WindowNode v-for="node in window.children" :key="node.id" :window="node" />
 </template>
 <script lang="ts" setup>
 import { BrowserWindow } from "@/system/window/BrowserWindow";
-import { isMobileDevice } from "@/util/device";
 import { UnwrapNestedRefs } from "vue";
 defineProps<{
   window: UnwrapNestedRefs<BrowserWindow>;
