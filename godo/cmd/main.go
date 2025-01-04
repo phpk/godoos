@@ -25,6 +25,8 @@ import (
 	"godo/files"
 	"godo/libs"
 	"godo/localchat"
+	db "godo/model"
+	"godo/proxy"
 	"godo/store"
 	"godo/sys"
 	"godo/webdav"
@@ -46,6 +48,8 @@ func OsStart() {
 		log.Fatalf("InitOsSystem error: %v", err)
 		return
 	}
+	db.InitDB()
+	proxy.InitProxyHandlers()
 	webdav.InitWebdav()
 	router := mux.NewRouter()
 	router.Use(recoverMiddleware)
@@ -149,6 +153,13 @@ func OsStart() {
 	ieRouter.HandleFunc("/back", store.HandleBack).Methods(http.MethodGet)
 	ieRouter.HandleFunc("/forward", store.HandleForward).Methods(http.MethodGet)
 	ieRouter.HandleFunc("/refresh", store.HandleRefresh).Methods(http.MethodGet)
+	//注册代理路由
+	proxyRouter := router.PathPrefix("/proxy").Subrouter()
+	proxyRouter.HandleFunc("/local/create", proxy.CreateLocalProxyHandler).Methods(http.MethodPost)
+	proxyRouter.HandleFunc("/local/delete", proxy.DeleteLocalProxyHandler).Methods(http.MethodGet)
+	proxyRouter.HandleFunc("/local/get", proxy.GetLocalProxyHandler).Methods(http.MethodGet)
+	proxyRouter.HandleFunc("/local/list", proxy.GetLocalProxiesHandler).Methods(http.MethodGet)
+	proxyRouter.HandleFunc("/local/update", proxy.UpdateLocalProxyHandler).Methods(http.MethodPost)
 
 	// 注册根路径的处理函数
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")

@@ -2,29 +2,63 @@
 import { Plus } from '@element-plus/icons-vue'
 import { ref, computed } from "vue";
 import { OpenDirDialog } from "@/util/goutil";
+import { getSystemConfig } from '@/system/config';
+import { notifySuccess,notifyError } from '@/util/msg';
 interface ProxyItem {
     id: number;
     port: string;
     proxyType: string;
     domain: string;
 }
-const localKey = "godoos_local_proxy"
-const getProxies = (): ProxyItem[] => {
-    const proxies = localStorage.getItem(localKey);
-    return proxies ? JSON.parse(proxies) : [];
+const config = getSystemConfig();
+const proxies = ref<ProxyItem[]>([]);
+const total = ref(0)
+
+const fetchProxies = async () => {
+    try {
+        const response = await fetch(config.apiUrl + "/api/v1/proxy/list");
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.proxies && Array.isArray(data.proxies)) {
+            proxies.value = data.proxies;
+            total.value = data.total;
+        } else {
+            console.error('Invalid data format:', data);
+        }
+    } catch (error) {
+        console.error('Failed to fetch proxies:', error);
+    }
+};
+onMounted(async () => {
+    await fetchProxies();
+});
+const saveProxies = (data: ProxyItem) => {
+    //localStorage.setItem(localKey, JSON.stringify(proxies));
+    fetch(config.apiUrl + '/api/proxy/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }).then(res => {
+        if (!res.ok) {
+            notifyError('保存代理失败');
+        }else{
+            notifySuccess('保存代理成功');
+        }
+    });
 };
 
-const saveProxies = (proxies: ProxyItem[]) => {
-    localStorage.setItem(localKey, JSON.stringify(proxies));
-};
-
-const proxies = ref<ProxyItem[]>(getProxies());
-const proxyData = ref<ProxyItem>({
+// const proxies = ref<ProxyItem[]>(getProxies());
+const proxyInit = {
     id: Date.now(),
     port: "",
     proxyType: "http",
     domain: "",
-});
+}
+const proxyData = ref<ProxyItem>(proxyInit);
 const types = ref([
     { label: 'HTTP', value: 'http' },
     { label: 'Udp', value: 'udp' },
@@ -37,9 +71,9 @@ const pwdRef = ref<any>(null);
 const addProxy = () => {
     if (pwdRef.value.validate()) {
         proxies.value.push({ ...proxyData.value });
-        saveProxies(proxies.value);
+        saveProxies(proxyData.value);
         proxyDialogShow.value = false;
-        proxyData.value = { id: Date.now(), port: "", domain: "", proxyType: "http" };
+        proxyData.value = proxyInit;
     }
 };
 
@@ -56,7 +90,7 @@ const updateProxy = () => {
             proxies.value[index] = { ...proxyData.value };
             saveProxies(proxies.value);
             proxyDialogShow.value = false;
-            proxyData.value = { id: Date.now(), port: "", domain: "", proxyType: "http" };
+            proxyData.value = proxyInit;
             isEditing.value = false;
         }
     }

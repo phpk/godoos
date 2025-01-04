@@ -21,6 +21,7 @@ func InitDB() {
 	db.AutoMigrate(&SysDisk{})
 	// 初始化 SysDisk 记录
 	initSysDisk(db)
+	db.AutoMigrate(&LocalProxy{})
 	db.AutoMigrate(&SysUser{})
 	db.AutoMigrate(&ClientUser{})
 	db.AutoMigrate(&ServerUser{})

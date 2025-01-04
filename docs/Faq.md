@@ -30,6 +30,8 @@ daemon.json文件配置:
 }
 
 ```
+systemctl daemon-reload
+systemctl restart docker
 
 ### linux版本如何做守护进程
 - 下载web版
