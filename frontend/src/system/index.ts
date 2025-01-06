@@ -20,8 +20,9 @@ import { useUpgradeStore } from '@/stores/upgrade';
 import { RestartApp } from '@/util/goutil';
 import { notifyError } from '@/util/msg';
 //import { isShareFile } from '@/util/sharePath';
-import { pick } from '../util/modash';
+import { useLoginStore } from '@/stores/login';
 import { GetClientId } from "../util/clientid.ts";
+import { pick } from '../util/modash';
 import { clearSystemConfig, fetchGet, getFileUrl, getSystemConfig, getSystemKey, setSystemConfig, setSystemKey } from './config';
 import { OsFileInterface } from './core/FIleInterface';
 import { extname } from './core/Path';
@@ -148,13 +149,34 @@ export class System {
         if (!tempCallBack) {
           throw new Error('没有设置登录回调函数');
         }
-        this._options.loginCallback = async (username: string, password: string) => {
-          const res = await tempCallBack(username, password);
-          if (res) {
-            this._rootState.state = SystemStateEnum.open;
-            return true;
+        this._options.loginCallback = async (login_type: string, param: {}) => {
+          const serverUrl = config.userInfo.url + '/user/login';
+          const res: any = await fetch(serverUrl, {
+            method: "POST",
+            body: JSON.stringify({
+              client_id: GetClientId(),
+              login_type: login_type,
+              param: param,
+            }),
+          });
+
+          if (!res.ok) {
+            return false;
           }
-          return false;
+
+          const jsondata = await res.json();
+          if (jsondata.success) {
+            jsondata.data.url = config.userInfo.url;
+            config.userInfo = jsondata.data;
+            setSystemConfig(config);
+            this._rootState.state = SystemStateEnum.open;
+            this.refershAppList();
+            window.location.href = "/";
+            return true;
+          } else {
+            notifyError(jsondata.message);
+            return false;
+          }
         };
       }
     } else {
@@ -163,7 +185,7 @@ export class System {
       if (userInfo.url == '') {
         return true;
       }
-      const res = await fetchGet(`${userInfo.url}/member/islogin`);
+      const res = await fetchGet(`${userInfo.url}/user/islogin`);
       if (!res.ok) {
         notifyError('登录失败，请检查网络连接或重新登录');
         return true;
@@ -179,40 +201,42 @@ export class System {
         //return true;
         this._rootState.state = SystemStateEnum.lock;
         // 登录回调
-        this._options.loginCallback = async (
-          username: string, password: string, loginCode?: {
-            github_code?: string,
-            gitee_code?: string
-          }
-        ) => {
-          const serverUrl = config.userInfo.url + '/member/login'
+        this._options.loginCallback = async (login_type: string, param: {}) => {
+          const serverUrl = config.userInfo.url + '/user/login';
           const res: any = await fetch(serverUrl, {
             method: "POST",
             body: JSON.stringify({
-              username: username,
-              password: password,
-              github_code: loginCode?.github_code,
-              gitee_code: loginCode?.gitee_code,
-              clientId: GetClientId(),
+              client_id: GetClientId(),
+              login_type: login_type,
+              param: param,
             }),
           });
+
           if (!res.ok) {
-            return false
+            return false;
           }
 
           const jsondata = await res.json();
           if (jsondata.success) {
-            jsondata.data.url = config.userInfo.url
-            jsondata.data.password = password
-            config.userInfo = jsondata.data
+            jsondata.data.url = config.userInfo.url;
+            config.userInfo = jsondata.data;
             setSystemConfig(config);
+
+            if (jsondata.code == 10000) {
+              const loginStore = useLoginStore();
+              loginStore.tempToken = jsondata.data.token;
+              loginStore.tempClientId = jsondata.data.client_id;
+              loginStore.page = "setphone";
+              return true;
+            }
+
             this._rootState.state = SystemStateEnum.open;
-            this.refershAppList()
+            this.refershAppList();
             window.location.href = "/";
-            return true
+            return true;
           } else {
-            notifyError(jsondata.message)
-            return false
+            notifyError(jsondata.message);
+            return false;
           }
         };
 

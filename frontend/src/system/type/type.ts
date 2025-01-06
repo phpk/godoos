@@ -57,12 +57,14 @@ export interface SystemOptionsCertainly {
   contextMenus?: Array<MenuItemConstructorOptions | MenuItem>;
   noPassword?: boolean;
   loginCallback?: (
-    username: string,
-    password: string,
-    loginCode?: {
-      github_code?: string,
-      gitee_code?: string
-    }
+    login_type: string,
+    param: {},
+    // username: string,
+    // password: string,
+    // loginCode?: {
+    //   github_code?: string,
+    //   gitee_code?: string
+    // }
   ) => Promise<boolean>;
 }
 export type SystemOptions = SystemOptionsCertainly & {

@@ -8,7 +8,7 @@ const store = useChatStore();
 <template>
 	<!-- 头像 -->
 	<el-row>
-		<el-avatar shape="square" :size="40" class="userAvatar" :src="store.userInfo.avatar" />
+		<el-avatar shape="square" :size="30" class="userAvatar" :src="store.userInfo.avatar" />
 	</el-row>
 
 	<!-- 菜单按钮 -->
