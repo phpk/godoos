@@ -69,4 +69,32 @@ $shadow-color: rgba(0, 0, 0, 0.1); // 阴影颜色
 .desc {
     font-size: 16px; // 增大字体大小
 }
-
+@media screen and (max-width: 768px) {
+    .mx-5 {
+      margin: 0;
+    }
+    :deep(.el-page-header){
+        height: 5vh;
+        .el-page-header__left{
+           margin-right: 0;
+           .el-page-header__back{
+            width: 0;
+           }
+           .el-divider--vertical{
+            margin: 0 5px;
+           }
+           .el-page-header__content{
+            display: flex;
+           }
+        }
+    }
+    .scrollbarHeightList{
+        height: 80vh;
+    }
+    :deep(.el-dialog){
+        width: 100vw!important;
+        label{
+            width: 20vw!important;
+        }
+    }
+}

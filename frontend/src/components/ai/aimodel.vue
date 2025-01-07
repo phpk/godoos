@@ -8,6 +8,7 @@ import { Search } from "@element-plus/icons-vue";
 import {
   getSystemConfig
 } from "@/system/config";
+import { isMobileDevice } from "@/util/device";
 const currentLang = getLang()
 const modelStore = useModelStore();
 const config = getSystemConfig();
@@ -102,7 +103,7 @@ async function download(saveData: any) {
     if (saveData.type == "net") {
       //console.log(saveData)
       const res = await completion.json();
-      if(res.code == -1){
+      if (res.code == -1) {
         notifyError(res.message);
         return
       }
@@ -267,10 +268,12 @@ async function refreshOllama() {
         </div>
       </div>
     </el-drawer>
-    <el-dialog v-model="labelEditor" width="600" :title="t('model.modelLabel')">
+    <el-dialog v-model="labelEditor" width="600" :title="t('model.modelLabel')"
+      :fullscreen="isMobileDevice() ? true : false">
       <down-labeleditor @closeFn="closeLabel" @refreshFn="refreshList" :labelId="labelId" />
     </el-dialog>
-    <el-dialog v-model="downAdd" width="600" :title="t('model.modelDown')">
+    <el-dialog v-model="downAdd" width="600" :title="t('model.modelDown')"
+      :fullscreen="isMobileDevice() ? true : false">
       <down-addbox @closeFn="downAddUpdate" @saveFn="saveBox" />
     </el-dialog>
     <el-page-header icon="null">
