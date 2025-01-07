@@ -9,7 +9,7 @@ import "./assets/windows10.scss"
 import { i18n } from "./i18n/index.ts"
 import pinia from "./stores/index.ts"
 import router from "./system/router"
-import { NavBar } from "vant"
+import Vant from "vant"
 import "vant/lib/index.css"
 const app = createApp(App)
 
@@ -17,7 +17,7 @@ app.use(router)
 app.use(ElementPlus)
 app.use(pinia)
 app.use(i18n)
-app.use(NavBar)
+app.use(Vant)
 app.use(screenShort, { enableWebRtc: true })
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
