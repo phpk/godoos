@@ -63,4 +63,27 @@ onMounted(async () => {
   max-height: max-content;
   background-color: #F5F5F5;
 }
+
+@media screen and (max-width: 768px) {
+  .container {
+    height: calc(100vh - vh(90));
+  }
+
+  .menu {
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    display: flex;
+    justify-content: space-evenly;
+  }
+
+  .side {
+    height: 100%;
+    background-color: #fff;
+  }
+
+  .chat-box {
+    height: 100%;
+  }
+}
 </style>

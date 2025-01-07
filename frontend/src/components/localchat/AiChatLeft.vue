@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAiChatStore } from "@/stores/aichat";
 import { Search } from "@element-plus/icons-vue";
+import { isMobileDevice } from "@/util/device";
 // import { t } from "@/i18n";
 // import { notifyInfo,notifySuccess } from "@/util/msg.ts";
 const chatStore = useAiChatStore();
@@ -12,17 +13,17 @@ const handleSearch = async () => {
         return item;
       }
     })
-    if(res.length > 0){
+    if (res.length > 0) {
       chatStore.chatList = res
     }
-  }else{
+  } else {
     await chatStore.getChatList()
   }
 };
 
 </script>
 <template>
-  <el-dialog v-model="chatStore.showInfo" width="600" append-to-body>
+  <el-dialog v-model="chatStore.showInfo" width="600" append-to-body :fullscreen="isMobileDevice() ? true : false">
     <ai-chat-info />
   </el-dialog>
   <el-scrollbar>

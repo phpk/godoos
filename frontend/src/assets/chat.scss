@@ -74,7 +74,7 @@
     gap: 10px; /* 按钮之间的间距 */
     padding: 10px; /* 内边距，可以根据需要调整 */
   }
-  
+
   .top-menu-button {
     display: flex;
     align-items: center;
@@ -87,7 +87,7 @@
     cursor: pointer;
     transition: background-color 0.3s, box-shadow 0.2s; /* 平滑过渡效果 */
   }
-  
+
   .top-menu-button:hover {
     background-color: #f0f8ff; /* 悬停时的背景颜色 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 悬停时的阴影效果 */
@@ -103,5 +103,18 @@
       height: 10px;
       background-color: red;
       border-radius: 50%;
+    }
+  }
+  @media screen and (max-width: 768px) {
+    .chat-bot{
+        .input-area{
+            width: 90%;
+            .file-btn{
+                margin-left: vw(-20);
+            }
+            .websearch-btn{
+                margin-left: vw(-5);
+            }
+        }
     }
   }

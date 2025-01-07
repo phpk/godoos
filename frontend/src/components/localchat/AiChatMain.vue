@@ -230,14 +230,14 @@ const uploadImage = async (event: any) => {
       <div class="input-panel">
         <el-row :gutter="24" style="border-bottom: none;">
           <el-col :span="2">
-            <el-button @click="selectImage" size="large" icon="Paperclip" circle
-              :class="{ 'selected-image': imageData != ''|| fileContent != '' }" />
+            <el-button class="file-btn" @click="selectImage" size="large" icon="Paperclip" circle
+              :class="{ 'selected-image': imageData != '' || fileContent != '' }" />
             <input type="file" ref="imageInput"
               accept="image/*,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf"
               style="display: none" @change="uploadImage" />
           </el-col>
           <el-col :span="2">
-            <el-button @click="webSearch = !webSearch" size="large" icon="ChromeFilled" circle
+            <el-button class="websearch-btn" @click="webSearch = !webSearch" size="large" icon="ChromeFilled" circle
               :type="webSearch ? 'primary' : 'default'" />
           </el-col>
           <el-col :span="17">
