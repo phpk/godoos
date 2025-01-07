@@ -24,38 +24,38 @@ var OpenAIApiMaps = map[string]string{
 	"siliconflow": "https://api.siliconflow.cn/v1",
 }
 
-func GetHeadersAndUrl(req map[string]interface{}, chattype string) (map[string]string, string, error) {
-	engine, ok := req["engine"].(string)
-	if !ok {
-		return nil, "", fmt.Errorf("invalid engine field in request")
-	}
-	model, ok := req["model"].(string)
-	if !ok {
-		return nil, "", fmt.Errorf("invalid model field in request")
-	}
+func GetHeadersAndUrl(req ChatRequest, chattype string) (map[string]string, string, error) {
+	// engine, ok := req["engine"].(string)
+	// if !ok {
+	// 	return nil, "", fmt.Errorf("invalid engine field in request")
+	// }
+	// model, ok := req["model"].(string)
+	// if !ok {
+	// 	return nil, "", fmt.Errorf("invalid model field in request")
+	// }
 	// 获取url
-	url, has := OpenAIApiMaps[engine]
+	url, has := OpenAIApiMaps[req.Engine]
 	if !has {
 		return nil, "", fmt.Errorf("invalid engine map in request")
 	}
 	var err error
 	if url == "" {
-		if engine == "openai" {
+		if req.Engine == "openai" {
 			url = GetOpenAIUrl()
-		} else if engine == "cloudflare" {
+		} else if req.Engine == "cloudflare" {
 			url, err = GetCloudflareUrl()
 			if err != nil {
 				return nil, "", err
 			}
-		} else if engine == "gitee" {
-			url = GetGiteeUrl(model, chattype)
-		} else if engine == "ollama" {
+		} else if req.Engine == "gitee" {
+			url = GetGiteeUrl(req.Model, chattype)
+		} else if req.Engine == "ollama" {
 			url = GetOllamaUrl() + "/v1"
 			log.Printf("get ollama url is %v", url)
 		}
 	}
 
-	headers, err := GetOpenAIHeaders(engine)
+	headers, err := GetOpenAIHeaders(req.Engine)
 	if err != nil {
 		return nil, "", err
 	}
@@ -63,7 +63,7 @@ func GetHeadersAndUrl(req map[string]interface{}, chattype string) (map[string]s
 	if chattype == "embeddings" {
 		typeUrl = "/embeddings"
 	} else if chattype == "text2img" {
-		if engine == "gitee" {
+		if req.Engine == "gitee" {
 			typeUrl = "/text-to-image"
 		} else {
 			typeUrl = "/images/generations"

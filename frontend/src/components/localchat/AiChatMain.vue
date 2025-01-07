@@ -9,7 +9,7 @@ import { Vue3Lottie } from "vue3-lottie";
 const chatStore = useAiChatStore();
 const modelStore = useModelStore();
 const isPadding = ref(false); //是否发送中
-
+const webSearch = ref(false);
 const imageInput: any = ref(null);
 let imageData = ref("");
 const messageContainerRef = ref<InstanceType<typeof ElScrollbar>>();
@@ -85,6 +85,7 @@ const createCompletion = async () => {
       model: chatStore.chatInfo.model,
       engine: chatStore.chatInfo.engine,
       stream: false,
+      webSearch: webSearch.value,
       options: chatConfig,
     };
     if (imageData.value != "") {
@@ -95,6 +96,7 @@ const createCompletion = async () => {
         //"prompt":userMessage.value,
         engine: img2txtModel.info.engine,
         stream: false,
+        webSearch: false,
         options: chatConfig,
         messages: [
           {
@@ -215,7 +217,10 @@ const uploadImage = async (event: any) => {
             <el-button @click="selectImage" size="large" icon="Paperclip" circle :class="{ 'selected-image': imageData != '' }"/>
             <input type="file" ref="imageInput" accept="image/*" style="display: none" @change="uploadImage" />
           </el-col>
-          <el-col :span="19">
+          <el-col :span="2">
+            <el-button @click="webSearch = !webSearch" size="large" icon="ChromeFilled" circle :type="webSearch ? 'primary' : 'default'"/>
+          </el-col>
+          <el-col :span="17">
             <el-input v-model="userMessage" :placeholder="t('aichat.askme')" size="large" clearable
               @keydown="handleKeydown" autofocus class="ai-input-area"/>
           </el-col>

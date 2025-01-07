@@ -140,6 +140,7 @@ declare module 'vue' {
     MessageIcon: typeof import('./src/components/taskbar/MessageIcon.vue')['default']
     Mobile: typeof import('./src/components/desktop/mobile/Mobile.vue')['default']
     MobileApp: typeof import('./src/components/desktop/mobile/MobileApp.vue')['default']
+    MobileTemplate: typeof import('./src/components/window/MobileTemplate.vue')['default']
     MusicStore: typeof import('./src/components/builtin/MusicStore.vue')['default']
     MusicViewer: typeof import('./src/components/builtin/MusicViewer.vue')['default']
     NasClient: typeof import('./src/components/setting/NasClient.vue')['default']

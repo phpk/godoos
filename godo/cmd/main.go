@@ -20,6 +20,7 @@ package cmd
 
 import (
 	"context"
+	"godo/ai/search"
 	model "godo/ai/server"
 	"godo/deps"
 	"godo/files"
@@ -147,6 +148,7 @@ func OsStart() {
 	aiRouter.HandleFunc("/refreshOllama", model.RefreshOllamaHandler).Methods(http.MethodGet)
 	aiRouter.HandleFunc("/chat", model.ChatHandler).Methods(http.MethodPost)
 	aiRouter.HandleFunc("/embeddings", model.EmbeddingHandler).Methods(http.MethodPost)
+	aiRouter.HandleFunc("/searchweb", search.SearchWebhandler).Methods(http.MethodGet)
 	//注册浏览器路由
 	ieRouter := router.PathPrefix("/ie").Subrouter()
 	ieRouter.HandleFunc("/navigate", store.HandleNavigate).Methods(http.MethodGet)
