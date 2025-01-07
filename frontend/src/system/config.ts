@@ -1,7 +1,7 @@
-import { generateRandomString } from "../util/common.ts";
-export const configStoreType = localStorage.getItem('GodoOS-storeType') || 'local';
-import { parseAiConfig } from "./aiconfig.ts";
 import { GetClientId } from "../util/clientid.ts";
+import { generateRandomString } from "../util/common.ts";
+import { parseAiConfig } from "./aiconfig.ts";
+export const configStoreType = localStorage.getItem('GodoOS-storeType') || 'local';
 /**
  * 获取系统配置信息。
  * 从本地存储中获取或初始化系统配置对象，并根据条件决定是否更新本地存储中的配置。
@@ -32,10 +32,10 @@ export const getSystemConfig = (ifset = false) => {
     config.userType = 'person'//如果是企业版请改为member
   }
 
-  if(!config.editorType){
+  if (!config.editorType) {
     config.editorType = 'local'
   }
-  if(!config.onlyoffice){
+  if (!config.onlyoffice) {
     config.onlyoffice = {
       url: '',
       sceret: '',
@@ -234,6 +234,7 @@ export function getUrl(url: string, islast = true) {
 export function getWorkflowUrl() {
   const config = getSystemConfig();
   if (config.userType == 'member') {
+    console.log(config.userInfo)
     return config.userInfo.url + '/views/desktop/index.html' + '?uuid=' + GetClientId() + '&token=' + config.userInfo.token
   }
 }

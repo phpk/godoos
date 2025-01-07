@@ -15,134 +15,153 @@
 					/>
 				</el-avatar>
 			</div>
-			<el-form
-				v-if="!isRegisterMode"
-				label-position="left"
-				label-width="0px"
-			>
-				<el-form-item>
-					<el-input
-						v-model="userName"
-						placeholder="请输入用户名"
-						autofocus
-						prefix-icon="UserFilled"
-					></el-input>
-				</el-form-item>
-				<el-form-item v-if="!sys._options.noPassword">
-					<el-input
-						v-model="userPassword"
-						type="password"
-						placeholder="请输入登录密码"
-						show-password
-						prefix-icon="Key"
-						@keyup.enter="onLogin"
-					></el-input>
-				</el-form-item>
-				<el-button
-					type="primary"
-					@click="onLogin"
-					>登录</el-button
+			<div v-if="store.page == 'login'">
+				<el-form
+					v-if="!isRegisterMode"
+					label-position="left"
+					label-width="0px"
 				>
-				<div class="divider">
-					<span>第三方登录</span>
-				</div>
-				<div class="third-party-login">
-					<img
-						v-for="platform in thirdPartyPlatforms"
-						:key="platform.name"
-						:src="platform.icon"
-						:alt="platform.name"
-						style="
-							width: 25px;
-							height: 25px;
-							cursor: pointer;
-							color: #409eff;
-						"
-						@click="onThirdPartyLogin(platform.name)"
-					/>
-				</div>
-				<div
-					class="actions"
+					<el-form-item>
+						<el-input
+							v-model="userName"
+							placeholder="请输入用户名"
+							autofocus
+							prefix-icon="UserFilled"
+						></el-input>
+					</el-form-item>
+					<el-form-item v-if="!sys._options.noPassword">
+						<el-input
+							v-model="userPassword"
+							type="password"
+							placeholder="请输入登录密码"
+							show-password
+							prefix-icon="Key"
+							@keyup.enter="onLogin"
+						></el-input>
+					</el-form-item>
+					<el-button
+						type="primary"
+						@click="onLogin"
+						>登录</el-button
+					>
+					<div class="divider">
+						<span>第三方登录</span>
+					</div>
+					<div class="third-party-login">
+						<img
+							v-for="platform in thirdPartyPlatforms"
+							:key="platform.name"
+							:src="platform.icon"
+							:alt="platform.name"
+							style="
+								width: 25px;
+								height: 25px;
+								cursor: pointer;
+								color: #409eff;
+							"
+							@click="onThirdPartyLogin(platform.name)"
+						/>
+					</div>
+					<div class="actions">
+						<a
+							href="#"
+							@click.prevent="toggleRegister"
+							>注册新用户</a
+						>
+						<a
+							href="#"
+							@click.prevent="toggleUserSwitch"
+							>切换角色</a
+						>
+					</div>
+				</el-form>
+				<el-form
+					v-else
+					label-position="left"
+					label-width="0px"
+					:model="regForm"
+					ref="regFormRef"
+					:rules="rules"
 				>
-					<a
-						href="#"
-						@click.prevent="toggleRegister"
-						>注册新用户</a
+					<el-form-item prop="username">
+						<el-input
+							v-model="regForm.username"
+							placeholder="请输入用户名"
+							prefix-icon="UserFilled"
+						></el-input>
+					</el-form-item>
+					<el-form-item prop="nickname">
+						<el-input
+							v-model="regForm.nickname"
+							placeholder="请输入真实姓名"
+							prefix-icon="Avatar"
+						></el-input>
+					</el-form-item>
+					<el-form-item prop="email">
+						<el-input
+							v-model="regForm.email"
+							placeholder="请输入邮箱"
+							prefix-icon="Message"
+						></el-input>
+					</el-form-item>
+					<el-form-item prop="phone">
+						<el-input
+							v-model="regForm.phone"
+							placeholder="请输入手机号"
+							prefix-icon="Iphone"
+						></el-input>
+					</el-form-item>
+					<el-form-item prop="password">
+						<el-input
+							v-model="regForm.password"
+							type="password"
+							placeholder="请输入密码"
+							show-password
+							prefix-icon="Key"
+						></el-input>
+					</el-form-item>
+					<el-form-item prop="confirmPassword">
+						<el-input
+							v-model="regForm.confirmPassword"
+							type="password"
+							placeholder="请再次输入密码"
+							show-password
+							prefix-icon="Lock"
+						></el-input>
+					</el-form-item>
+					<el-button
+						type="primary"
+						@click="onRegister"
+						>注册</el-button
 					>
-					<a
-						href="#"
-						@click.prevent="toggleUserSwitch"
-						>切换角色</a
-					>
-				</div>
-			</el-form>
-			<el-form
-				v-else
-				label-position="left"
-				label-width="0px"
-				:model="regForm"
-				ref="regFormRef"
-				:rules="rules"
-			>
-				<el-form-item prop="username">
-					<el-input
-						v-model="regForm.username"
-						placeholder="请输入用户名"
-						prefix-icon="UserFilled"
-					></el-input>
-				</el-form-item>
-				<el-form-item prop="nickname">
-					<el-input
-						v-model="regForm.nickname"
-						placeholder="请输入真实姓名"
-						prefix-icon="Avatar"
-					></el-input>
-				</el-form-item>
-				<el-form-item prop="email">
-					<el-input
-						v-model="regForm.email"
-						placeholder="请输入邮箱"
-						prefix-icon="Message"
-					></el-input>
-				</el-form-item>
-				<el-form-item prop="phone">
-					<el-input
-						v-model="regForm.phone"
-						placeholder="请输入手机号"
-						prefix-icon="Iphone"
-					></el-input>
-				</el-form-item>
-				<el-form-item prop="password">
-					<el-input
-						v-model="regForm.password"
-						type="password"
-						placeholder="请输入密码"
-						show-password
-						prefix-icon="Key"
-					></el-input>
-				</el-form-item>
-				<el-form-item prop="confirmPassword">
-					<el-input
-						v-model="regForm.confirmPassword"
-						type="password"
-						placeholder="请再次输入密码"
-						show-password
-						prefix-icon="Lock"
-					></el-input>
-				</el-form-item>
-				<el-button
-					type="primary"
-					@click="onRegister"
-					>注册</el-button
-				>
-				<div class="actions">
-					<a
-						href="#"
-						@click.prevent="toggleRegister"
-						>返回登录</a
-					>
-				</div>
-			</el-form>
+					<div class="actions">
+						<a
+							href="#"
+							@click.prevent="toggleRegister"
+							>返回登录</a
+						>
+					</div>
+				</el-form>
+			</div>
+			<div v-else-if="store.page == 'setphone'">
+				<el-form>
+					<el-form-item>
+						<el-input
+							v-model="userName"
+							placeholder="请输入手机号"
+							autofocus
+							prefix-icon="Iphone"
+						></el-input>
+					</el-form-item>
+					<el-form-item>
+						<el-button
+							type="primary"
+							@click="setPhone"
+							>确定</el-button
+						>
+					</el-form-item>
+				</el-form>
+			</div>
 		</el-card>
 	</div>
 </template>
@@ -153,7 +172,7 @@
 	import { getSystemConfig, setSystemConfig } from "@/system/config";
 	import router from "@/system/router";
 	import { RestartApp } from "@/util/goutil";
-	import { notifyError } from "@/util/msg";
+	import { notifyError, notifySuccess } from "@/util/msg";
 	import { onMounted, ref, watchEffect } from "vue";
 	import { useRoute } from "vue-router";
 	const route = useRoute();
@@ -164,19 +183,52 @@
 	const lockClassName = ref("screen-show");
 	const isRegisterMode = ref(false);
 
+	onMounted(() => {
+		getThirdpartyList();
+	});
+
+	const getThirdpartyList = async () => {
+		const result = await fetch(
+			config.userInfo.url + "/user/thirdparty/list"
+		);
+		if (result.ok) {
+			const data = await result.json();
+			console.log(data, "data");
+		}
+	};
+
+	const setPhone = async () => {
+		console.log("123");
+		const res = await fetch(config.userInfo.url + "/user/editdata", {
+			method: "POST",
+			body: JSON.stringify({
+				phone: userName.value,
+			}),
+			headers: {
+				ClientID: store.tempClientId,
+				Authorization: store.tempToken,
+			},
+		});
+		if (res.ok) {
+			notifySuccess("手机号设置成功");
+		} else {
+			notifyError("手机号设置失败");
+		}
+	};
+
 	const thirdPartyPlatforms = [
-		// {
-		// 	name: "wechat",
-		// 	icon: new URL("@/assets/login/wechat.png", import.meta.url).href,
-		// },
-		// {
-		// 	name: "qq",
-		// 	icon: new URL("@/assets/login/qq.png", import.meta.url).href,
-		// },
-		// {
-		// 	name: "sina",
-		// 	icon: new URL("@/assets/login/sina.png", import.meta.url).href,
-		// },
+		{
+			name: "qywechat",
+			icon: new URL("@/assets/login/qywechat.png", import.meta.url).href,
+		},
+		{
+			name: "dingding",
+			icon: new URL("@/assets/login/dingding.png", import.meta.url).href,
+		},
+		{
+			name: "phone",
+			icon: new URL("@/assets/login/phone.png", import.meta.url).href,
+		},
 		{
 			name: "github",
 			icon: new URL("@/assets/login/github.png", import.meta.url).href,
@@ -211,55 +263,46 @@
 	watchEffect(() => {
 		const code = route.query.code;
 		if (code) {
-			console.log(code, "---");
+			console.log("code:", code);
 			onLogin();
 		}
 	});
 
-	const onLogin = async () => {
-		//localStorage.removeItem("godoosClientId");
+	async function onLogin() {
 		if (loginCallback) {
-			const platform = store.ThirdPartyPlatform;
+			const platform = localStorage.getItem("ThirdPartyPlatform");
 			const code = router.currentRoute.value.query.code as string;
 
+			console.log(platform, "platform");
 			// 使用映射对象，将平台名称映射到相应的参数名称
 			const platformCodeMap: Record<string, string> = {
-				github: "github_code",
-				gitee: "gitee_code",
-				wechat: "wechat_code",
-				qq: "qq_code",
+				github: "github",
+				gitee: "gitee",
+				wechat: "wechat",
+				qq: "qq",
 			};
 
 			// 获取对应的参数名称
 			const codeParam = platform ? platformCodeMap[platform] : null;
 
-			let res;
-			if (codeParam) {
-				// 第三方登录统一调用
-				const returnedState = router.currentRoute.value.query
-					.state as string;
+			// 根据登录类型传递参数
+			const login_type = codeParam ? codeParam : "password";
+			console.log(login_type, "login_type");
 
-				if (returnedState !== store.State) {
-					notifyError("登录失败，请重试");
-					return;
-				}
+			const param = codeParam
+				? { code: code }
+				: { username: userName.value, password: userPassword.value };
 
-				res = await loginCallback(userName.value, userPassword.value, {
-					[codeParam]: code,
-				});
-			} else {
-				// 普通登录
-				res = await loginCallback(userName.value, userPassword.value);
-			}
+			const res = await loginCallback(login_type, param);
 
 			if (res) {
-				store.ThirdPartyPlatform = null;
+				localStorage.removeItem("ThirdPartyPlatform");
 				loginSuccess();
 			} else {
 				notifyError("登录失败，请重试");
 			}
 		}
-	};
+	}
 
 	const toggleRegister = () => {
 		isRegisterMode.value = !isRegisterMode.value;
@@ -365,29 +408,13 @@
 	};
 
 	const onThirdPartyLogin = async (platform: string) => {
+		localStorage.setItem("ThirdPartyPlatform", platform);
 		let loginFunction: (() => Promise<boolean>) | undefined;
-		// 当前选择的第三方登录方式
-		store.ThirdPartyPlatform = platform;
+
 		switch (platform) {
 			case "github":
-				// 跳转到 GitHub 授权页面
 				loginFunction = async function () {
 					return await authWithGithub();
-				};
-				break;
-			case "wechat":
-				loginFunction = async function () {
-					return await authWithWechat();
-				};
-				break;
-			case "qq":
-				loginFunction = async function () {
-					return await authWithQQ();
-				};
-				break;
-			case "sina":
-				loginFunction = async function () {
-					return await authWithSina();
 				};
 				break;
 			case "gitee":
@@ -395,6 +422,7 @@
 					return await authWithGitee();
 				};
 				break;
+			// 其他平台的处理
 			default:
 				notifyError("不支持的第三方登录平台");
 				return;
@@ -414,7 +442,8 @@
 		store.State = state;
 		// 获取当前页面url当做回调参数
 		const currentUrl = window.location.href;
-		const url = config.userInfo.url + "/github/authorize?state=" + state;
+		const url =
+			config.userInfo.url + "/user/github/authorize?state=" + state;
 		const res: any = await fetch(url, {
 			method: "POST",
 			body: JSON.stringify({
@@ -461,7 +490,8 @@
 		store.State = state;
 		// 获取当前页面url当做回调参数
 		const currentUrl = window.location.href;
-		const url = config.userInfo.url + "/gitee/authorize?state=" + state;
+		const url =
+			config.userInfo.url + "/user/gitee/authorize?state=" + state;
 		const res: any = await fetch(url, {
 			method: "POST",
 			body: JSON.stringify({
@@ -487,6 +517,8 @@
 			notifyError("获取授权URL失败");
 			return false;
 		}
+		// store.page = "phone";
+		// return true;
 	};
 </script>
 
