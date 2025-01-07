@@ -1,76 +1,117 @@
 <script setup>
 import { useChatStore } from "@/stores/chat";
+import { isMobileDevice } from "@/util/device";
 import { Setting as SettingIcon } from "@element-plus/icons-vue";
 
 const store = useChatStore();
 </script>
 
 <template>
-	<!-- 头像 -->
-	<el-row>
-		<el-avatar shape="square" :size="30" class="userAvatar" :src="store.userInfo.avatar" />
-	</el-row>
+	<template v-if="!isMobileDevice()">
+		<!-- 头像 -->
+		<el-row>
+			<el-avatar shape="square" :size="30" class="userAvatar" :src="store.userInfo.avatar" />
+		</el-row>
 
-	<!-- 菜单按钮 -->
-	<el-row @click="store.setCurrentNavId(0)">
-		<div class="menu-icon-box">
-			<el-icon v-if="store.currentNavId === 0" class="menu-icon-on">
-				<Comment />
-			</el-icon>
-			<el-icon v-else class="menu-icon">
-				<Comment />
-			</el-icon>
-		</div>
-	</el-row>
+		<!-- 菜单按钮 -->
+		<el-row @click="store.setCurrentNavId(0)">
+			<div class="menu-icon-box">
+				<el-icon v-if="store.currentNavId === 0" class="menu-icon-on">
+					<Comment />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<Comment />
+				</el-icon>
+			</div>
+		</el-row>
 
-	<el-row @click="store.setCurrentNavId(1)">
-		<div class="menu-icon-box">
-			<el-icon v-if="store.currentNavId === 1" class="menu-icon-on">
-				<UserFilled />
-			</el-icon>
-			<el-icon v-else class="menu-icon">
-				<User />
-			</el-icon>
-		</div>
-	</el-row>
-	<el-row @click="store.setCurrentNavId(3)">
-		<div class="menu-icon-box">
-			<el-icon v-if="store.currentNavId === 3" class="menu-icon-on">
-				<Promotion />
-			</el-icon>
-			<el-icon v-else class="menu-icon">
-				<Position />
-			</el-icon>
-		</div>
-	</el-row>
-	<el-row @click="store.setCurrentNavId(2)">
-		<div class="menu-icon-box">
-			<el-icon
-				v-if="store.currentNavId === 2"
-				class="menu-icon-on"
-			>
-				<Platform />
-			</el-icon>
-			<el-icon
-				v-else
-				class="menu-icon"
-			>
-				<Monitor />
-			</el-icon>
-		</div>
-	</el-row>
+		<el-row @click="store.setCurrentNavId(1)">
+			<div class="menu-icon-box">
+				<el-icon v-if="store.currentNavId === 1" class="menu-icon-on">
+					<UserFilled />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<User />
+				</el-icon>
+			</div>
+		</el-row>
+		<el-row @click="store.setCurrentNavId(3)">
+			<div class="menu-icon-box">
+				<el-icon v-if="store.currentNavId === 3" class="menu-icon-on">
+					<Promotion />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<Position />
+				</el-icon>
+			</div>
+		</el-row>
+		<el-row @click="store.setCurrentNavId(2)">
+			<div class="menu-icon-box">
+				<el-icon v-if="store.currentNavId === 2" class="menu-icon-on">
+					<Platform />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<Monitor />
+				</el-icon>
+			</div>
+		</el-row>
 
-	<!-- 设置按钮固定在底部 -->
-	<el-row class="settings-icon-row" @click="store.setCurrentNavId(5)">
-		<div class="menu-icon-box">
-			<el-icon v-if="store.currentNavId === 5" class="menu-icon-on">
-				<Tools />
-			</el-icon>
-			<el-icon v-else class="menu-icon">
-				<Tools />
-			</el-icon>
+		<!-- 设置按钮固定在底部 -->
+		<el-row class="settings-icon-row" @click="store.setCurrentNavId(5)">
+			<div class="menu-icon-box">
+				<el-icon v-if="store.currentNavId === 5" class="menu-icon-on">
+					<Tools />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<Tools />
+				</el-icon>
+			</div>
+		</el-row>
+	</template>
+	<template v-else>
+		<div class="menubar">
+			<div class="menu-icon-box" @click="store.setCurrentNavId(0)">
+				<el-icon v-if="store.currentNavId === 0" class="menu-icon-on">
+					<Comment />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<Comment />
+				</el-icon>
+			</div>
+			<div class="menu-icon-box" @click="store.setCurrentNavId(1)">
+				<el-icon v-if="store.currentNavId === 1" class="menu-icon-on">
+					<UserFilled />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<User />
+				</el-icon>
+			</div>
+			<div class="menu-icon-box" @click="store.setCurrentNavId(3)">
+				<el-icon v-if="store.currentNavId === 3" class="menu-icon-on">
+					<Promotion />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<Position />
+				</el-icon>
+			</div>
+			<div class="menu-icon-box" @click="store.setCurrentNavId(2)">
+				<el-icon v-if="store.currentNavId === 2" class="menu-icon-on">
+					<Platform />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<Monitor />
+				</el-icon>
+			</div>
+			<div class="menu-icon-box" @click="store.setCurrentNavId(5)">
+				<el-icon v-if="store.currentNavId === 5" class="menu-icon-on">
+					<Tools />
+				</el-icon>
+				<el-icon v-else class="menu-icon">
+					<Tools />
+				</el-icon>
+			</div>
 		</div>
-	</el-row>
+	</template>
 </template>
 
 <style scoped>
@@ -116,5 +157,12 @@ const store = useChatStore();
 	right: 0;
 	width: 55px;
 	height: 55px;
+}
+
+@media screen and (max-width: 768px) {
+	.menubar {
+		display: flex;
+		height: 60px;
+	}
 }
 </style>
