@@ -6,12 +6,15 @@ import { notifyError } from "@/util/msg.ts";
 import { ElScrollbar } from "element-plus";
 import { getSystemConfig } from "@/system/config";
 import { Vue3Lottie } from "vue3-lottie";
+import { file } from "jszip";
 const chatStore = useAiChatStore();
 const modelStore = useModelStore();
 const isPadding = ref(false); //是否发送中
 const webSearch = ref(false);
 const imageInput: any = ref(null);
 let imageData = ref("");
+let fileContent = ref("");
+let fileName = ref("");
 const messageContainerRef = ref<InstanceType<typeof ElScrollbar>>();
 const messageInnerRef = ref<HTMLDivElement>();
 // User Input Message
@@ -86,6 +89,8 @@ const createCompletion = async () => {
       engine: chatStore.chatInfo.engine,
       stream: false,
       webSearch: webSearch.value,
+      fileContent: fileContent.value,
+      fileName: fileName.value,
       options: chatConfig,
     };
     if (imageData.value != "") {
@@ -111,10 +116,12 @@ const createCompletion = async () => {
       method: "POST",
       body: JSON.stringify(postMsg),
     };
-
+    //console.log(postData)
     const completion = await fetch(config.apiUrl + '/ai/chat', postData);
     //const completion:any = await modelStore.getModel(postData)
     imageData.value = "";
+    fileContent.value = "";
+    fileName.value = "";
     if (!completion.ok) {
       const errorData = await completion.json();
       notifyError(errorData.error.message);
@@ -167,12 +174,6 @@ const handleKeydown = (e: any) => {
   }
 };
 const selectImage = async () => {
-  const img2txtModel = await modelStore.getModel("img2txt");
-  if (!img2txtModel) {
-    notifyError(t("aichat.notEyeModel"));
-    return;
-  }
-
   imageInput.value.click();
 };
 const uploadImage = async (event: any) => {
@@ -180,9 +181,24 @@ const uploadImage = async (event: any) => {
   if (!file) {
     return;
   }
+  //console.log(file)
+  if (file.type.startsWith('image/')) {
+    const img2txtModel = await modelStore.getModel("img2txt");
+    if (!img2txtModel) {
+      notifyError(t("aichat.notEyeModel"));
+      return;
+    }
+  }
   const reader = new FileReader();
   reader.onload = (e: any) => {
-    imageData.value = e.target.result.split(",")[1];
+    const fileData = e.target.result.split(",")[1];
+    if (file.type.startsWith('image/')) {
+      imageData.value = fileData;
+    } else {
+      fileContent.value = fileData;
+      fileName.value = file.name;
+    }
+    //console.log(fileContent.value)
   };
 
   reader.readAsDataURL(file);
@@ -214,15 +230,19 @@ const uploadImage = async (event: any) => {
       <div class="input-panel">
         <el-row :gutter="24" style="border-bottom: none;">
           <el-col :span="2">
-            <el-button @click="selectImage" size="large" icon="Paperclip" circle :class="{ 'selected-image': imageData != '' }"/>
-            <input type="file" ref="imageInput" accept="image/*" style="display: none" @change="uploadImage" />
+            <el-button @click="selectImage" size="large" icon="Paperclip" circle
+              :class="{ 'selected-image': imageData != ''|| fileContent != '' }" />
+            <input type="file" ref="imageInput"
+              accept="image/*,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/pdf"
+              style="display: none" @change="uploadImage" />
           </el-col>
           <el-col :span="2">
-            <el-button @click="webSearch = !webSearch" size="large" icon="ChromeFilled" circle :type="webSearch ? 'primary' : 'default'"/>
+            <el-button @click="webSearch = !webSearch" size="large" icon="ChromeFilled" circle
+              :type="webSearch ? 'primary' : 'default'" />
           </el-col>
           <el-col :span="17">
             <el-input v-model="userMessage" :placeholder="t('aichat.askme')" size="large" clearable
-              @keydown="handleKeydown" autofocus class="ai-input-area"/>
+              @keydown="handleKeydown" autofocus class="ai-input-area" />
           </el-col>
           <el-col :span="2">
             <el-button v-if="!isPadding" @click="sendMessage" icon="Promotion" type="info" size="large" circle />

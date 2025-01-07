@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"godo/ai/search"
 	"godo/libs"
+	"godo/office"
+	"log"
 	"net/http"
 	"time"
 )
@@ -15,6 +17,7 @@ type ChatRequest struct {
 	Stream      bool                   `json:"stream"`
 	WebSearch   bool                   `json:"webSearch"`
 	FileContent string                 `json:"fileContent"`
+	FileName    string                 `json:"fileName"`
 	Options     map[string]interface{} `json:"options"`
 	Messages    []Message              `json:"messages"`
 }
@@ -40,6 +43,13 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	if req.FileContent != "" {
+		err = ChatWithFile(&req)
+		if err != nil {
+			libs.ErrorMsg(w, err.Error())
+			return
+		}
+	}
 	headers, url, err := GetHeadersAndUrl(req, "chat")
 	// log.Printf("url: %s", url)
 	// log.Printf("headers: %v", headers)
@@ -49,15 +59,26 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	ForwardHandler(w, r, req, url, headers, "POST")
 }
+func ChatWithFile(req *ChatRequest) error {
+	fileContent, err := office.ProcessBase64File(req.FileContent, req.FileName)
+	if err != nil {
+		return err
+	}
+	lastMessage, err := GetLastMessage(*req)
+	if err != nil {
+		return err
+	}
+	userQuestion := fmt.Sprintf("请对\n%s\n的内容进行分析，给出对用户输入的回答: %s", fileContent, lastMessage)
+	log.Printf("the search file is %v", userQuestion)
+	req.Messages = append(req.Messages, Message{Role: "user", Content: userQuestion})
+	return nil
+}
 func ChatWithWeb(req *ChatRequest) error {
-	if len(req.Messages) == 0 {
-		return fmt.Errorf("the messages is empty")
+	lastMessage, err := GetLastMessage(*req)
+	if err != nil {
+		return err
 	}
-	lastMessage := req.Messages[len(req.Messages)-1]
-	if lastMessage.Role != "user" {
-		return fmt.Errorf("the last message is not user")
-	}
-	searchRequest := search.SearchWeb(lastMessage.Content)
+	searchRequest := search.SearchWeb(lastMessage)
 	if len(searchRequest) == 0 {
 		return fmt.Errorf("the search web is empty")
 	}
@@ -77,9 +98,8 @@ func ChatWithWeb(req *ChatRequest) error {
 
 # 用户问题：%s
 
-`, inputPrompt, currentDate, lastMessage.Content)
+`, inputPrompt, currentDate, lastMessage)
 	//log.Printf("the search web is %v", searchPrompt)
-	// userQuestion := fmt.Sprintf("问：%s，答：", lastMessage.Content)
 	// req.Messages = append([]Message{}, Message{Role: "assistant", Content: searchPrompt})
 	req.Messages = append([]Message{}, Message{Role: "user", Content: searchPrompt})
 	return nil
@@ -97,4 +117,14 @@ func EmbeddingHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ForwardHandler(w, r, req, url, headers, "POST")
+}
+func GetLastMessage(req ChatRequest) (string, error) {
+	if len(req.Messages) == 0 {
+		return "", fmt.Errorf("the messages is empty")
+	}
+	lastMessage := req.Messages[len(req.Messages)-1]
+	if lastMessage.Role != "user" {
+		return "", fmt.Errorf("the last message is not user")
+	}
+	return lastMessage.Content, nil
 }

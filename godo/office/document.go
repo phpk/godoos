@@ -20,11 +20,13 @@ package office
 import (
 	"archive/zip"
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"godo/libs"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -112,6 +114,49 @@ func ProcessFile(filePath string) DocResult {
 	}
 
 	return DocResult{filePath: filePath, newFilePath: newFilePath, err: nil}
+}
+
+// ProcessBase64File 处理解码后的文件并提取文本信息
+func ProcessBase64File(base64String string, fileName string) (string, error) {
+	// 解码 Base64 字符串
+	decodedBytes, err := base64.StdEncoding.DecodeString(base64String)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode base64 string: %v", err)
+	}
+	// 获取文件后缀并转换为小写
+	// fileExt := strings.ToLower(filepath.Ext(fileName))
+	// if fileExt == "" {
+	// 	return "", fmt.Errorf("file extension not found in filename: %s", fileName)
+	// }
+	// log.Printf("File type: %s\n", fileExt)
+	cacheDir := libs.GetCacheDir()
+	tempFilePath := filepath.Join(cacheDir, fileName)
+
+	// 创建临时文件
+	tempFile, err := os.Create(tempFilePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp file: %v", err)
+	}
+	defer tempFile.Close()
+
+	// 将解码后的数据写入临时文件
+	_, err = tempFile.Write(decodedBytes)
+	if err != nil {
+		return "", fmt.Errorf("failed to write to temp file: %v", err)
+	}
+
+	// 获取文档内容
+	doc, err := GetDocument(tempFilePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to get document: %v", err)
+	}
+	log.Printf("Document content: %s\n", doc.Content)
+
+	// 删除临时文件
+	defer os.Remove(tempFilePath)
+
+	// 提取文本内容
+	return doc.Content, nil
 }
 func GetDocument(pathname string) (*Document, error) {
 	if !libs.PathExists(pathname) {
