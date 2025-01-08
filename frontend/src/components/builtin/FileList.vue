@@ -72,6 +72,7 @@ import { dealSystemName, t } from "@/i18n";
 import { useChooseStore } from "@/stores/choose";
 import { getSystemKey } from "@/system/config";
 import { emitEvent, mountEvent } from "@/system/event";
+import { addKnowledge } from "@/hook/useAi";
 import {
 	basename,
 	BrowserWindow,
@@ -343,6 +344,26 @@ function handleRightClick(
 				},
 			});
 		}
+		menuArr.push({
+			label: "加入知识库",
+			click: () => {
+				//console.log(item.path)
+				addKnowledge(item.path).then((res:any) => {
+					console.log(res)
+					if(res.code != 0){
+						new Notify({
+							title: t("tips"),
+							content: res.message,
+						});
+					}else{
+						new Notify({
+							title: t("tips"),
+							content: "添加成功",
+						});
+					}
+				})
+			},
+		});
 	}
 	if (choose.ifShow) {
 		menuArr.push({

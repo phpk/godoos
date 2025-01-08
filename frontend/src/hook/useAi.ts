@@ -62,3 +62,28 @@ export async function askAi(question: any, action: string) {
 
 
 }
+export async function addKnowledge(path: string) {
+    const modelStore = useModelStore();
+    const config = getSystemConfig();
+    const model = await modelStore.getModel('embeddings')
+    if (!model) {
+        return {
+            code:-1,
+            message:'请先设置嵌入模型'
+        }
+    }
+    const apiUrl = config.aiUrl + '/ai/addknowledge'
+    const postMsg: any = {
+        engine: model.info.engine,
+        model: model.model,
+        file_path: path
+    };
+    const complain = await fetchPost(apiUrl, JSON.stringify(postMsg))
+    if (!complain.ok) {
+        return {
+            code:-1,
+            message:'请求失败'
+        }
+    }
+    return await complain.json()
+}

@@ -22,6 +22,7 @@ import (
 	"context"
 	"godo/ai/search"
 	model "godo/ai/server"
+	"godo/ai/vector"
 	"godo/deps"
 	"godo/files"
 	"godo/libs"
@@ -52,6 +53,7 @@ func OsStart() {
 	db.InitDB()
 	proxy.InitProxyHandlers()
 	webdav.InitWebdav()
+	// vector.InitMonitor()
 	router := mux.NewRouter()
 	router.Use(recoverMiddleware)
 	if libs.GetIsCors() {
@@ -149,6 +151,7 @@ func OsStart() {
 	aiRouter.HandleFunc("/chat", model.ChatHandler).Methods(http.MethodPost)
 	aiRouter.HandleFunc("/embeddings", model.EmbeddingHandler).Methods(http.MethodPost)
 	aiRouter.HandleFunc("/searchweb", search.SearchWebhandler).Methods(http.MethodGet)
+	aiRouter.HandleFunc("/addknowledge", vector.HandlerCreateKnowledge).Methods(http.MethodPost)
 	//注册浏览器路由
 	ieRouter := router.PathPrefix("/ie").Subrouter()
 	ieRouter.HandleFunc("/navigate", store.HandleNavigate).Methods(http.MethodGet)

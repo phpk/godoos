@@ -39,7 +39,7 @@ type DocResult struct {
 	err         error
 }
 
-func SetDocument(dirPath string) error {
+func SetDocument(dirPath string, knowledgeId uint) error {
 	if !libs.PathExists(dirPath) {
 		return nil
 	}
@@ -67,7 +67,7 @@ func SetDocument(dirPath string) error {
 			wg.Add(1)
 			go func(filePath string) {
 				defer wg.Done()
-				result := ProcessFile(filePath)
+				result := ProcessFile(filePath, knowledgeId)
 				results <- result
 			}(filePath)
 		}
@@ -94,7 +94,7 @@ func SetDocument(dirPath string) error {
 	return nil
 }
 
-func ProcessFile(filePath string) DocResult {
+func ProcessFile(filePath string, knowledgeId uint) DocResult {
 	doc, err := GetDocument(filePath)
 	if err != nil {
 		return DocResult{filePath: filePath, err: err}
@@ -105,9 +105,11 @@ func ProcessFile(filePath string) DocResult {
 		return DocResult{filePath: filePath, err: err}
 	}
 
-	newFileName := ".godoos." + filepath.Base(filePath)
+	//newFileName := ".godoos." + filepath.Base(filePath)
+	newFileName := fmt.Sprintf(".godoos.%d.%s.json", knowledgeId, filepath.Base(filePath))
 	newFilePath := filepath.Join(filepath.Dir(filePath), newFileName)
-
+	// log.Printf("New file name: %s", newFileName)
+	// log.Printf("New file path: %s", newFilePath)
 	err = os.WriteFile(newFilePath, jsonData, 0644)
 	if err != nil {
 		return DocResult{filePath: filePath, err: err}
