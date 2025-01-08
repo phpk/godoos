@@ -3,7 +3,8 @@ package model
 import (
 	"godo/libs"
 
-	_ "github.com/ncruces/go-sqlite3/embed"
+	_ "github.com/asg017/sqlite-vec-go-bindings/ncruces"
+	//_ "github.com/ncruces/go-sqlite3/embed"
 	"github.com/ncruces/go-sqlite3/gormlite"
 	"gorm.io/gorm"
 )
@@ -25,4 +26,6 @@ func InitDB() {
 	db.AutoMigrate(&SysUser{})
 	db.AutoMigrate(&ClientUser{})
 	db.AutoMigrate(&ServerUser{})
+	db.AutoMigrate(&VecList{})
+	db.AutoMigrate(&VecDoc{})
 }

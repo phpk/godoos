@@ -53,7 +53,6 @@ func OsStart() {
 	db.InitDB()
 	proxy.InitProxyHandlers()
 	webdav.InitWebdav()
-	// vector.InitMonitor()
 	router := mux.NewRouter()
 	router.Use(recoverMiddleware)
 	if libs.GetIsCors() {

@@ -1,178 +1,52 @@
 package vector
 
 import (
-	"encoding/json"
+	"context"
+	"errors"
 	"fmt"
-	"godo/ai/server"
-	"godo/libs"
-	"godo/office"
-	"log"
-	"os"
-	"path/filepath"
-	"strings"
-
-	"github.com/fsnotify/fsnotify"
 )
 
-var MapFilePathMonitors = map[string]uint{}
+// Document 表示单个文档。
+type Document struct {
+	ID        string            // 文档的唯一标识符
+	Metadata  map[string]string // 文档的元数据
+	Embedding []float32         // 文档的嵌入向量
+	Content   string            // 文档的内容
 
-func FolderMonitor() {
-	basePath, err := libs.GetOsDir()
-	if err != nil {
-		log.Printf("Error getting base path: %s", err.Error())
-		return
-	}
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		log.Printf("Error creating watcher: %s", err.Error())
-		return
-	}
-	defer watcher.Close()
-
-	// 递归添加所有子目录
-	addRecursive(basePath, watcher)
-
-	// Start listening for events.
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					log.Println("error:", err)
-					return
-				}
-				//log.Println("event:", event)
-				filePath := event.Name
-				result, knowledgeId := shouldProcess(filePath)
-				//log.Printf("result:%d,knowledgeId:%d", result, knowledgeId)
-				if result > 0 {
-					info, err := os.Stat(filePath)
-					if event.Has(fsnotify.Write) || event.Has(fsnotify.Create) {
-						log.Println("modified file:", filePath)
-						if !info.IsDir() {
-							handleGodoosFile(filePath, knowledgeId)
-						}
-					}
-					if event.Has(fsnotify.Create) || event.Has(fsnotify.Rename) {
-						// 处理创建或重命名事件，添加新目录
-						if err == nil && info.IsDir() {
-							addRecursive(filePath, watcher)
-						}
-					}
-					if event.Has(fsnotify.Remove) {
-						// 处理删除事件，移除目录
-						if err == nil && info.IsDir() {
-							watcher.Remove(filePath)
-						}
-					}
-				}
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					return
-				}
-				log.Println("error:", err)
-			}
-		}
-	}()
-
-	// Add a path.
-	err = watcher.Add(basePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Block main goroutine forever.
-	<-make(chan struct{})
+	// ⚠️ 当在此处添加未导出字段时，请考虑在 [DB.Export] 和 [DB.Import] 中添加一个持久化结构版本。
 }
 
-func shouldProcess(filePath string) (int, uint) {
-	// 规范化路径
-	filePath = filepath.Clean(filePath)
-
-	// 检查文件路径是否在 MapFilePathMonitors 中
-	for path, id := range MapFilePathMonitors {
-		if id < 1 {
-			return 0, 0
-		}
-		path = filepath.Clean(path)
-		if filePath == path {
-			return 1, id // 完全相等
-		}
-		if strings.HasPrefix(filePath, path+string(filepath.Separator)) {
-			return 2, id // 包含
-		}
+// NewDocument 创建一个新的文档，包括其嵌入向量。
+// 元数据是可选的。
+// 如果未提供嵌入向量，则使用嵌入函数创建。
+// 如果内容为空但需要存储嵌入向量，可以仅提供嵌入向量。
+// 如果 embeddingFunc 为 nil，则使用默认的嵌入函数。
+//
+// 如果你想创建没有嵌入向量的文档，例如让 [Collection.AddDocuments] 并发创建它们，
+// 可以使用 `chromem.Document{...}` 而不是这个构造函数。
+func NewDocument(ctx context.Context, id string, metadata map[string]string, embedding []float32, content string, embeddingFunc EmbeddingFunc) (Document, error) {
+	if id == "" {
+		return Document{}, errors.New("ID 不能为空")
 	}
-	return 0, 0 // 不存在
-}
+	if len(embedding) == 0 && content == "" {
+		return Document{}, errors.New("嵌入向量或内容必须至少有一个非空")
+	}
+	if embeddingFunc == nil {
+		embeddingFunc = NewEmbeddingFuncDefault()
+	}
 
-func addRecursive(path string, watcher *fsnotify.Watcher) {
-	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+	if len(embedding) == 0 {
+		var err error
+		embedding, err = embeddingFunc(ctx, content)
 		if err != nil {
-			log.Printf("Error walking path %s: %v", path, err)
-			return err
+			return Document{}, fmt.Errorf("无法生成嵌入向量: %w", err)
 		}
-		if info.IsDir() {
-			result, _ := shouldProcess(path)
-			if result > 0 {
-				if err := watcher.Add(path); err != nil {
-					log.Printf("Error adding path %s to watcher: %v", path, err)
-					return err
-				}
-				log.Printf("Added path %s to watcher", path)
-			}
+	}
 
-		}
-		return nil
-	})
-	if err != nil {
-		log.Printf("Error adding recursive paths: %v", err)
-	}
-}
-
-func handleGodoosFile(filePath string, knowledgeId uint) error {
-	log.Printf("========Handling .godoos file: %s", filePath)
-	baseName := filepath.Base(filePath)
-	if baseName[:8] != ".godoos." {
-		if baseName[:1] != "." {
-			office.ProcessFile(filePath, knowledgeId)
-		}
-		return nil
-	}
-	var doc office.Document
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(content, &doc)
-	if err != nil {
-		return err
-	}
-	if len(doc.Split) == 0 {
-		return fmt.Errorf("invalid .godoos file: %s", filePath)
-	}
-	knowData := GetVector(knowledgeId)
-	resList, err := server.GetEmbeddings(knowData.Engine, knowData.EmbeddingModel, doc.Split)
-	if err != nil {
-		return err
-	}
-	if len(resList) != len(doc.Split) {
-		return fmt.Errorf("invalid file len: %s, expected %d embeddings, got %d", filePath, len(doc.Split), len(resList))
-	}
-	// var vectordocs []model.Vectordoc
-	// for i, res := range resList {
-	// 	//log.Printf("res: %v", res)
-	// 	vectordoc := model.Vectordoc{
-	// 		Content:     doc.Split[i],
-	// 		Embed:       res,
-	// 		FilePath:    filePath,
-	// 		KnowledgeID: knowledgeId,
-	// 		Pos:         fmt.Sprintf("%d", i),
-	// 	}
-	// 	vectordocs = append(vectordocs, vectordoc)
-	// }
-	// result := vectorListDb.Create(&vectordocs)
-	// if result.Error != nil {
-	// 	return result.Error
-	// }
-	return nil
+	return Document{
+		ID:        id,
+		Metadata:  metadata,
+		Embedding: embedding,
+		Content:   content,
+	}, nil
 }
