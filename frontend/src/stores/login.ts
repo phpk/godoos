@@ -10,11 +10,24 @@ export const useLoginStore = defineStore("login", () => {
   // 临时clientId
   const tempClientId = ref<string>("");
   const ThirdPartyLoginMethod = ref("login");
+
+  const registerInfo = ref({
+    "username": "",
+    "nickname": "",
+    "password": "",
+    "email": "",
+    "phone": "",
+    "third_user_id": "",
+    "union_id": "",
+    "patform": "",
+    "confirmPassword": "",
+  });
   return {
     ThirdPartyPlatform,
     State,
     ThirdPartyLoginMethod,
     tempToken,
     tempClientId,
+    registerInfo,
   };
 },);

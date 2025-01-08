@@ -16,7 +16,7 @@
 				</el-avatar>
 			</div>
 			<el-form
-				v-if="ThirdPartyLoginMethod === 'login'"
+				v-if="store.ThirdPartyLoginMethod === 'login'"
 				label-position="left"
 				label-width="0px"
 			>
@@ -62,11 +62,13 @@
 					/>
 				</div>
 				<div class="actions">
-					<!-- <a
+					<a
 						href="#"
-						@click.prevent="toggleRegister"
+						@click.prevent="
+							store.ThirdPartyLoginMethod = 'register'
+						"
 						>注册新用户</a
-					> -->
+					>
 					<a
 						href="#"
 						@click.prevent="toggleUserSwitch"
@@ -75,44 +77,44 @@
 				</div>
 			</el-form>
 			<el-form
-				v-else-if="ThirdPartyLoginMethod === 'register'"
+				v-else-if="store.ThirdPartyLoginMethod === 'register'"
 				label-position="left"
 				label-width="0px"
-				:model="regForm"
+				:model="store.registerInfo"
 				ref="regFormRef"
 				:rules="rules"
 			>
 				<el-form-item prop="username">
 					<el-input
-						v-model="regForm.username"
+						v-model="store.registerInfo.username"
 						placeholder="请输入用户名"
 						prefix-icon="UserFilled"
 					></el-input>
 				</el-form-item>
 				<el-form-item prop="nickname">
 					<el-input
-						v-model="regForm.nickname"
+						v-model="store.registerInfo.nickname"
 						placeholder="请输入真实姓名"
 						prefix-icon="Avatar"
 					></el-input>
 				</el-form-item>
 				<el-form-item prop="email">
 					<el-input
-						v-model="regForm.email"
+						v-model="store.registerInfo.email"
 						placeholder="请输入邮箱"
 						prefix-icon="Message"
 					></el-input>
 				</el-form-item>
 				<el-form-item prop="phone">
 					<el-input
-						v-model="regForm.phone"
+						v-model="store.registerInfo.phone"
 						placeholder="请输入手机号"
 						prefix-icon="Iphone"
 					></el-input>
 				</el-form-item>
 				<el-form-item prop="password">
 					<el-input
-						v-model="regForm.password"
+						v-model="store.registerInfo.password"
 						type="password"
 						placeholder="请输入密码"
 						show-password
@@ -121,21 +123,31 @@
 				</el-form-item>
 				<el-form-item prop="confirmPassword">
 					<el-input
-						v-model="regForm.confirmPassword"
+						v-model="store.registerInfo.confirmPassword"
 						type="password"
 						placeholder="请再次输入密码"
 						show-password
 						prefix-icon="Lock"
 					></el-input>
 				</el-form-item>
-				<el-button
-					type="primary"
-					@click="onRegister"
-					>注册</el-button
-				>
+				<el-form-item>
+					<el-button
+						type="primary"
+						@click="onRegister"
+						>注册</el-button
+					>
+				</el-form-item>
+
+				<el-form-item>
+					<el-button
+						style="background-color: gray; color: white"
+						@click="store.ThirdPartyLoginMethod = 'login'"
+						>返回</el-button
+					>
+				</el-form-item>
 			</el-form>
 
-			<div v-else-if="ThirdPartyLoginMethod === 'dingding'">
+			<div v-else-if="store.ThirdPartyLoginMethod === 'dingding'">
 				<el-row>
 					<el-col :span="24">
 						<div class="qr-code">
@@ -145,31 +157,33 @@
 				</el-row>
 				<el-row>
 					<el-col :span="24">
-						<el-button @click="ThirdPartyLoginMethod = 'login'"
+						<el-button
+							@click="store.ThirdPartyLoginMethod = 'login'"
 							>返回</el-button
 						>
 					</el-col>
 				</el-row>
 			</div>
 			<!-- 企业微信 -->
-			<div v-else-if="ThirdPartyLoginMethod === 'qywechat'">
+			<div v-else-if="store.ThirdPartyLoginMethod === 'qyweixin'">
 				<el-row>
 					<el-col :span="24">
-						<div class="qr-code">
+						<div class="qywechat">
 							<div id="qywechat-qr-code"></div>
 						</div>
 					</el-col>
 				</el-row>
 				<el-row>
 					<el-col :span="24">
-						<el-button @click="ThirdPartyLoginMethod = 'login'"
+						<el-button
+							@click="store.ThirdPartyLoginMethod = 'login'"
 							>返回</el-button
 						>
 					</el-col>
 				</el-row>
 			</div>
 			<!-- 手机登录 -->
-			<div v-else-if="ThirdPartyLoginMethod === 'phone'">
+			<div v-else-if="store.ThirdPartyLoginMethod === 'phone'">
 				<el-row>
 					<el-col :span="24">
 						<el-form>
@@ -180,31 +194,43 @@
 								/>
 							</el-form-item>
 							<!-- 验证码 -->
-							<el-form-item>
-								<el-row :gutter="10">
-									<el-col :span="16">
+
+							<el-row :gutter="24">
+								<el-col :span="17">
+									<el-form-item>
 										<el-input
 											v-model="phoneForm.code"
 											placeholder="请输入验证码"
 										/>
-									</el-col>
-									<el-col :span="8">
+									</el-form-item>
+								</el-col>
+								<el-col :span="7">
+									<el-form-item>
 										<button
 											class="send-code-btn"
 											@click.prevent="onSendCode"
+											:disabled="isSendCodeButtonDisabled"
 										>
-											发送验证码
+											{{ sendCodeButtonText }}
 										</button>
-									</el-col>
-								</el-row>
-							</el-form-item>
+									</el-form-item>
+								</el-col>
+							</el-row>
 						</el-form>
 					</el-col>
 				</el-row>
-				<el-row>
-					<el-col :span="24">
-						<el-button @click="ThirdPartyLoginMethod = 'login'"
+				<el-row :gutter="24">
+					<el-col :span="12">
+						<el-button
+							style="background-color: gray; color: white"
+							@click="store.ThirdPartyLoginMethod = 'login'"
 							>返回</el-button
+						>
+					</el-col>
+					<el-col :span="12">
+						<el-button
+							@click="loginByPhone"
+							>登录</el-button
 						>
 					</el-col>
 				</el-row>
@@ -220,7 +246,6 @@
 	import router from "@/system/router";
 	import { RestartApp } from "@/util/goutil";
 	import { notifyError } from "@/util/msg";
-	import QRCode from "qrcode";
 	import { onMounted, ref, watchEffect } from "vue";
 	import { useRoute } from "vue-router";
 	const route = useRoute();
@@ -229,12 +254,13 @@
 	const loginCallback = sys._options.loginCallback;
 	const config = getSystemConfig();
 	const lockClassName = ref("screen-show");
-	const ThirdPartyLoginMethod = ref("login");
+
 	const phoneForm = ref({
 		phone: "",
 		code: "",
 	});
-	// 声明 DTFrameLogin 方法
+
+	// 声明 DTFrameLogin 和 WwLogin 方法
 	declare global {
 		interface Window {
 			DTFrameLogin: (
@@ -243,6 +269,13 @@
 				successCbk: (result: IDTLoginSuccess) => void,
 				errorCbk?: (error: any) => void
 			) => void;
+			WwLogin: (options: {
+				id: string; // 需要显示二维码的元素ID
+				appid: string; // 微信企业号的应用ID
+				agentid: string; // 微信企业号的代理ID
+				redirect_uri: string; // 登录成功后的重定向地址
+				state: string; // 用于防止CSRF攻击的状态参数
+			}) => void;
 		}
 	}
 	// 包裹容器的尺寸与样式需要接入方自己使用css设置
@@ -282,9 +315,10 @@
 			await result.json();
 		}
 	};
+    
 
 	const onDingDingScan = () => {
-		ThirdPartyLoginMethod.value = "dingding";
+		store.ThirdPartyLoginMethod = "dingding";
 		initDingDingScan();
 	};
 
@@ -338,13 +372,34 @@
 		});
 	}
 
+	const sendCodeButtonText = ref("发送验证码");
+	const isSendCodeButtonDisabled = ref(false);
+
 	const onSendCode = () => {
 		console.log("发送验证码");
+		startCountdown();
+	};
+
+	const startCountdown = () => {
+		let countdown = 2;
+		isSendCodeButtonDisabled.value = true;
+		sendCodeButtonText.value = `${countdown}秒后重试`;
+
+		const interval = setInterval(() => {
+			countdown--;
+			if (countdown > 0) {
+				sendCodeButtonText.value = `${countdown}秒后重试`;
+			} else {
+				clearInterval(interval);
+				sendCodeButtonText.value = "发送验证码";
+				isSendCodeButtonDisabled.value = false;
+			}
+		}, 1000);
 	};
 
 	const thirdPartyPlatforms = [
 		{
-			name: "qywechat",
+			name: "qyweixin",
 			icon: new URL("@/assets/login/qywechat.png", import.meta.url).href,
 		},
 		{
@@ -404,20 +459,28 @@
 			const platformCodeMap: Record<string, string> = {
 				github: "github",
 				gitee: "gitee",
-				qywechat: "qywechat",
+				qyweixin: "qyweixin_scan",
 				qq: "qq",
 				dingding: "dingtalk_scan",
+				phone: "sms_code",
 			};
 
 			// 获取对应的参数名称
 			const codeParam = platform ? platformCodeMap[platform] : null;
 
 			// 根据登录类型传递参数
-			const login_type = codeParam ? codeParam : "password";
+			let param;
+			if (codeParam) {
+				if (platform === "phone") {
+					param = { phone: phoneForm.value.phone, sms_code: code };
+				} else {
+					param = { code: code };
+				}
+			} else {
+				param = { username: userName.value, password: userPassword.value };
+			}
 
-			const param = codeParam
-				? { code: code }
-				: { username: userName.value, password: userPassword.value };
+			const login_type = codeParam ? codeParam : "password";
 
 			const res = await loginCallback(login_type, param);
 
@@ -436,14 +499,6 @@
 		RestartApp();
 	};
 
-	const regForm = ref({
-		username: "",
-		password: "",
-		confirmPassword: "",
-		email: "",
-		phone: "",
-		nickname: "",
-	});
 	const regFormRef: any = ref(null);
 
 	const rules = {
@@ -467,7 +522,7 @@
 					console.log(rule);
 					if (value === "") {
 						callback(new Error("请再次输入密码"));
-					} else if (value !== regForm.value.password) {
+					} else if (value !== store.registerInfo.password) {
 						callback(new Error("两次输入的密码不一致"));
 					} else {
 						callback();
@@ -506,11 +561,10 @@
 	const onRegister = async () => {
 		try {
 			await regFormRef.value.validate();
-			const save = toRaw(regForm.value);
 			const userInfo = config.userInfo;
-			const comp = await fetch(userInfo.url + "/member/register", {
+			const comp = await fetch(userInfo.url + "/user/register", {
 				method: "POST",
-				body: JSON.stringify(save),
+				body: JSON.stringify(store.registerInfo),
 			});
 			if (!comp.ok) {
 				notifyError("网络错误，注册失败");
@@ -519,7 +573,12 @@
 			const res = await comp.json();
 			if (res.success) {
 				notifyError("注册成功");
-				// toggleRegister();
+				loginSuccess();
+				window.location.href = "/";
+				// 设置用户名和密码
+				config.userInfo.username = store.registerInfo.username;
+				config.userInfo.password = store.registerInfo.password;
+				setSystemConfig(config);
 			} else {
 				notifyError(res.message);
 				return;
@@ -566,7 +625,7 @@
 					return await authWithDingDing();
 				};
 				break;
-			case "qywechat":
+			case "qyweixin":
 				loginFunction = async function () {
 					return await authWithWechat();
 				};
@@ -590,8 +649,12 @@
 	};
 
 	const authWithPhone = async (): Promise<boolean> => {
-		ThirdPartyLoginMethod.value = "phone";
+		store.ThirdPartyLoginMethod = "phone";
 		return true;
+	};
+
+	const loginByPhone = async () => {
+		await onLogin();
 	};
 
 	const authWithDingDing = async (): Promise<boolean> => {
@@ -619,7 +682,6 @@
 		}
 		const data = await res.json();
 		if (data && data.data && data.data.url) {
-			console.log(data.data.url, "---");
 			// 使用正则表达式检查URL格式
 			const urlPattern = /client_id=[^&]+/;
 			if (urlPattern.test(data.data.url)) {
@@ -636,29 +698,32 @@
 	};
 
 	const authWithWechat = async (): Promise<boolean> => {
-		ThirdPartyLoginMethod.value = "qywechat";
-		const res = await fetch(
-			"http://server001.godoos.com/user/qyweixin/qrcode"
+		await loadScript(
+			"http://rescdn.qqmail.com/node/ww/wwopenmng/js/sso/wwLogin-1.0.0.js"
 		);
+		store.ThirdPartyLoginMethod = "qyweixin";
+		const res = await fetch(
+			"http://server001.godoos.com/user/qyweixin/conf"
+		);
+
 		if (res.ok) {
 			const data = await res.json();
-			if (data.success && data.data.url) {
-				// 生成二维码
-				QRCode.toCanvas(
-					document.getElementById("qywechat-qr-code"),
-					data.data.url,
-					function (error: any) {
-						if (error) console.error(error);
-						console.log("二维码生成成功");
-					}
-				);
-			} else {
-				notifyError("获取授权URL失败");
+			if (data.success) {
+				console.log(data.data);
+				window.WwLogin({
+					id: "qywechat-qr-code",
+					appid: data.data.corp_id,
+					agentid: data.data.agent_id,
+					redirect_uri: data.data.redirect,
+					state: "WWLogin",
+				});
+				return true;
 			}
+			return false;
 		} else {
 			notifyError("网络错误，无法获取二维码");
+			return false;
 		}
-		return true;
 	};
 
 	const authWithGitee = async (): Promise<boolean> => {
@@ -716,7 +781,7 @@
 		backdrop-filter: blur(7px);
 
 		.login-box {
-			width: 300px;
+			width: 400px;
 			padding: 20px;
 			text-align: center;
 			background: #ffffff;
@@ -863,5 +928,31 @@
 		border-radius: 4px;
 		line-height: 40px;
 		cursor: pointer;
+		transition: background 0.3s ease;
+
+		&:disabled {
+			background: #c0c4cc; // 灰色背景
+			cursor: not-allowed; // 禁用时的鼠标样式
+		}
+	}
+	.qywechat {
+		width: 300px;
+		height: 400px;
+		padding: 10px;
+		margin: 0 auto;
+		overflow: hidden;
+		border: 1px solid rgb(203, 203, 203);
+		border-radius: 10px;
+
+		// 使用 :deep 选择器来确保样式应用到子元素
+		:deep(#qywechat-qr-code) {
+			width: 100%;
+			height: 100%;
+			iframe {
+				width: 100%;
+				height: 100%;
+				border: none; // 确保没有额外的边框
+			}
+		}
 	}
 </style>

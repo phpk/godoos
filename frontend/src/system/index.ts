@@ -26,11 +26,12 @@ import { pick } from '../util/modash';
 import { clearSystemConfig, fetchGet, getFileUrl, getSystemConfig, getSystemKey, setSystemConfig, setSystemKey } from './config';
 import { OsFileInterface } from './core/FIleInterface';
 import { extname } from './core/Path';
-import { getCropId } from './dinglogin.ts';
+import { authWithDing } from './dinglogin.ts';
 import { initBuiltinApp, initBuiltinFileOpener } from './initBuiltin';
 import { defaultConfig } from './initConfig';
 import { Tray, TrayOptions } from './menu/Tary';
 import { Notify, NotifyConstructorOptions } from './notification/Notification';
+import { authWithWechat } from './qiyeweixinlogin.ts';
 import { Dialog } from './window/Dialog';
 
 export type OsPlugin = (system: System) => void;
@@ -102,16 +103,26 @@ export class System {
     initBuiltinApp(this);
     initBuiltinFileOpener(this); // 注册内建文件打开器
     await this.initSavedConfig(); // 初始化保存的配置
-    // 判断是否登录
+
+    // 判断是否为钉钉工作台登录
     const login_type = new URLSearchParams(window.location.search).get("login_type");
     if (login_type === "dingding") {
-      let islogin = await getCropId();
+      let islogin = await authWithDing();
       alert(islogin);
       if (!islogin) {
-        console.log("登录失败，无法继续操作");
+        alert("登录失败，无法继续操作");
         return;
       }
     }
+    if (login_type === "qiyeweixin") {
+      let islogin = await authWithWechat();
+      if (!islogin) {
+        alert("登录失败，无法继续操作");
+        return;
+      }
+    }
+
+    // 判断是否登录
     await this.isLogin();
 
     initEventListener(); // 初始化事件侦听
@@ -235,9 +246,20 @@ export class System {
 
             if (jsondata.code == 10000) {
               const loginStore = useLoginStore();
-              loginStore.tempToken = jsondata.data.token;
-              loginStore.tempClientId = jsondata.data.client_id;
               loginStore.ThirdPartyLoginMethod = "register";
+
+              // 注册信息
+              loginStore.registerInfo = {
+                username: jsondata.data.username,
+                nickname: jsondata.data.nickname,
+                password: jsondata.data.password,
+                email: jsondata.data.email,
+                phone: jsondata.data.phone,
+                third_user_id: jsondata.data.third_user_id,
+                union_id: jsondata.data.union_id,
+                patform: jsondata.data.patform,
+                confirmPassword: "",
+              }
               return true;
             }
 
