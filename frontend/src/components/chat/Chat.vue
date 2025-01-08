@@ -96,7 +96,8 @@ const drawer = ref(false)
 			<ai-chat-left v-if="store.currentNavId == 3" />
 		</el-drawer>
 		<el-container class="chat-box">
-			<el-button v-if="isMobileDevice()" icon="Menu" size="small" @click="drawer = !drawer"></el-button>
+			<el-button v-if="isMobileDevice() && store.currentNavId !== 2 && store.currentNavId !== 5" icon="Menu" size="small"
+				@click="drawer = !drawer"></el-button>
 			<chat-box v-if="store.currentNavId < 1" />
 			<chat-user-info v-if="store.currentNavId == 1"></chat-user-info>
 			<ai-chat-main v-if="store.currentNavId == 3" />
