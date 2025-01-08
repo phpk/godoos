@@ -9,12 +9,11 @@ export const useLoginStore = defineStore("login", () => {
   const tempToken = ref<string>("");
   // 临时clientId
   const tempClientId = ref<string>("");
-  const page = ref("login");
-
+  const ThirdPartyLoginMethod = ref("login");
   return {
     ThirdPartyPlatform,
     State,
-    page,
+    ThirdPartyLoginMethod,
     tempToken,
     tempClientId,
   };

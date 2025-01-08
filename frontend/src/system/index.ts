@@ -226,7 +226,7 @@ export class System {
               const loginStore = useLoginStore();
               loginStore.tempToken = jsondata.data.token;
               loginStore.tempClientId = jsondata.data.client_id;
-              loginStore.page = "setphone";
+              loginStore.ThirdPartyLoginMethod = "register";
               return true;
             }
 

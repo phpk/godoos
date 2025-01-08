@@ -15,152 +15,199 @@
 					/>
 				</el-avatar>
 			</div>
-			<div v-if="store.page == 'login'">
-				<el-form
-					v-if="!isRegisterMode"
-					label-position="left"
-					label-width="0px"
+			<el-form
+				v-if="ThirdPartyLoginMethod === 'login'"
+				label-position="left"
+				label-width="0px"
+			>
+				<el-form-item>
+					<el-input
+						v-model="userName"
+						placeholder="请输入用户名"
+						autofocus
+						prefix-icon="UserFilled"
+					></el-input>
+				</el-form-item>
+				<el-form-item v-if="!sys._options.noPassword">
+					<el-input
+						v-model="userPassword"
+						type="password"
+						placeholder="请输入登录密码"
+						show-password
+						prefix-icon="Key"
+						@keyup.enter="onLogin()"
+					></el-input>
+				</el-form-item>
+				<el-button
+					type="primary"
+					@click="onLogin()"
+					>登录</el-button
 				>
-					<el-form-item>
-						<el-input
-							v-model="userName"
-							placeholder="请输入用户名"
-							autofocus
-							prefix-icon="UserFilled"
-						></el-input>
-					</el-form-item>
-					<el-form-item v-if="!sys._options.noPassword">
-						<el-input
-							v-model="userPassword"
-							type="password"
-							placeholder="请输入登录密码"
-							show-password
-							prefix-icon="Key"
-							@keyup.enter="onLogin"
-						></el-input>
-					</el-form-item>
-					<el-button
-						type="primary"
-						@click="onLogin"
-						>登录</el-button
+				<div class="divider">
+					<span>第三方登录</span>
+				</div>
+				<div class="third-party-login">
+					<img
+						v-for="platform in thirdPartyPlatforms"
+						:key="platform.name"
+						:src="platform.icon"
+						:alt="platform.name"
+						style="
+							width: 25px;
+							height: 25px;
+							cursor: pointer;
+							color: #409eff;
+						"
+						@click="onThirdPartyLogin(platform.name)"
+					/>
+				</div>
+				<div class="actions">
+					<!-- <a
+						href="#"
+						@click.prevent="toggleRegister"
+						>注册新用户</a
+					> -->
+					<a
+						href="#"
+						@click.prevent="toggleUserSwitch"
+						>切换角色</a
 					>
-					<div class="divider">
-						<span>第三方登录</span>
-					</div>
-					<div class="third-party-login">
-						<img
-							v-for="platform in thirdPartyPlatforms"
-							:key="platform.name"
-							:src="platform.icon"
-							:alt="platform.name"
-							style="
-								width: 25px;
-								height: 25px;
-								cursor: pointer;
-								color: #409eff;
-							"
-							@click="onThirdPartyLogin(platform.name)"
-						/>
-					</div>
-					<div class="actions">
-						<a
-							href="#"
-							@click.prevent="toggleRegister"
-							>注册新用户</a
-						>
-						<a
-							href="#"
-							@click.prevent="toggleUserSwitch"
-							>切换角色</a
-						>
-					</div>
-				</el-form>
-				<el-form
-					v-else
-					label-position="left"
-					label-width="0px"
-					:model="regForm"
-					ref="regFormRef"
-					:rules="rules"
+				</div>
+			</el-form>
+			<el-form
+				v-else-if="ThirdPartyLoginMethod === 'register'"
+				label-position="left"
+				label-width="0px"
+				:model="regForm"
+				ref="regFormRef"
+				:rules="rules"
+			>
+				<el-form-item prop="username">
+					<el-input
+						v-model="regForm.username"
+						placeholder="请输入用户名"
+						prefix-icon="UserFilled"
+					></el-input>
+				</el-form-item>
+				<el-form-item prop="nickname">
+					<el-input
+						v-model="regForm.nickname"
+						placeholder="请输入真实姓名"
+						prefix-icon="Avatar"
+					></el-input>
+				</el-form-item>
+				<el-form-item prop="email">
+					<el-input
+						v-model="regForm.email"
+						placeholder="请输入邮箱"
+						prefix-icon="Message"
+					></el-input>
+				</el-form-item>
+				<el-form-item prop="phone">
+					<el-input
+						v-model="regForm.phone"
+						placeholder="请输入手机号"
+						prefix-icon="Iphone"
+					></el-input>
+				</el-form-item>
+				<el-form-item prop="password">
+					<el-input
+						v-model="regForm.password"
+						type="password"
+						placeholder="请输入密码"
+						show-password
+						prefix-icon="Key"
+					></el-input>
+				</el-form-item>
+				<el-form-item prop="confirmPassword">
+					<el-input
+						v-model="regForm.confirmPassword"
+						type="password"
+						placeholder="请再次输入密码"
+						show-password
+						prefix-icon="Lock"
+					></el-input>
+				</el-form-item>
+				<el-button
+					type="primary"
+					@click="onRegister"
+					>注册</el-button
 				>
-					<el-form-item prop="username">
-						<el-input
-							v-model="regForm.username"
-							placeholder="请输入用户名"
-							prefix-icon="UserFilled"
-						></el-input>
-					</el-form-item>
-					<el-form-item prop="nickname">
-						<el-input
-							v-model="regForm.nickname"
-							placeholder="请输入真实姓名"
-							prefix-icon="Avatar"
-						></el-input>
-					</el-form-item>
-					<el-form-item prop="email">
-						<el-input
-							v-model="regForm.email"
-							placeholder="请输入邮箱"
-							prefix-icon="Message"
-						></el-input>
-					</el-form-item>
-					<el-form-item prop="phone">
-						<el-input
-							v-model="regForm.phone"
-							placeholder="请输入手机号"
-							prefix-icon="Iphone"
-						></el-input>
-					</el-form-item>
-					<el-form-item prop="password">
-						<el-input
-							v-model="regForm.password"
-							type="password"
-							placeholder="请输入密码"
-							show-password
-							prefix-icon="Key"
-						></el-input>
-					</el-form-item>
-					<el-form-item prop="confirmPassword">
-						<el-input
-							v-model="regForm.confirmPassword"
-							type="password"
-							placeholder="请再次输入密码"
-							show-password
-							prefix-icon="Lock"
-						></el-input>
-					</el-form-item>
-					<el-button
-						type="primary"
-						@click="onRegister"
-						>注册</el-button
-					>
-					<div class="actions">
-						<a
-							href="#"
-							@click.prevent="toggleRegister"
-							>返回登录</a
+			</el-form>
+
+			<div v-else-if="ThirdPartyLoginMethod === 'dingding'">
+				<el-row>
+					<el-col :span="24">
+						<div class="qr-code">
+							<div id="dd-qr-code"></div>
+						</div>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="24">
+						<el-button @click="ThirdPartyLoginMethod = 'login'"
+							>返回</el-button
 						>
-					</div>
-				</el-form>
+					</el-col>
+				</el-row>
 			</div>
-			<div v-else-if="store.page == 'setphone'">
-				<el-form>
-					<el-form-item>
-						<el-input
-							v-model="userName"
-							placeholder="请输入手机号"
-							autofocus
-							prefix-icon="Iphone"
-						></el-input>
-					</el-form-item>
-					<el-form-item>
-						<el-button
-							type="primary"
-							@click="setPhone"
-							>确定</el-button
+			<!-- 企业微信 -->
+			<div v-else-if="ThirdPartyLoginMethod === 'qywechat'">
+				<el-row>
+					<el-col :span="24">
+						<div class="qr-code">
+							<div id="qywechat-qr-code"></div>
+						</div>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="24">
+						<el-button @click="ThirdPartyLoginMethod = 'login'"
+							>返回</el-button
 						>
-					</el-form-item>
-				</el-form>
+					</el-col>
+				</el-row>
+			</div>
+			<!-- 手机登录 -->
+			<div v-else-if="ThirdPartyLoginMethod === 'phone'">
+				<el-row>
+					<el-col :span="24">
+						<el-form>
+							<el-form-item>
+								<el-input
+									v-model="phoneForm.phone"
+									placeholder="请输入手机号"
+								/>
+							</el-form-item>
+							<!-- 验证码 -->
+							<el-form-item>
+								<el-row :gutter="10">
+									<el-col :span="16">
+										<el-input
+											v-model="phoneForm.code"
+											placeholder="请输入验证码"
+										/>
+									</el-col>
+									<el-col :span="8">
+										<button
+											class="send-code-btn"
+											@click.prevent="onSendCode"
+										>
+											发送验证码
+										</button>
+									</el-col>
+								</el-row>
+							</el-form-item>
+						</el-form>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="24">
+						<el-button @click="ThirdPartyLoginMethod = 'login'"
+							>返回</el-button
+						>
+					</el-col>
+				</el-row>
 			</div>
 		</el-card>
 	</div>
@@ -172,7 +219,8 @@
 	import { getSystemConfig, setSystemConfig } from "@/system/config";
 	import router from "@/system/router";
 	import { RestartApp } from "@/util/goutil";
-	import { notifyError, notifySuccess } from "@/util/msg";
+	import { notifyError } from "@/util/msg";
+	import QRCode from "qrcode";
 	import { onMounted, ref, watchEffect } from "vue";
 	import { useRoute } from "vue-router";
 	const route = useRoute();
@@ -181,7 +229,46 @@
 	const loginCallback = sys._options.loginCallback;
 	const config = getSystemConfig();
 	const lockClassName = ref("screen-show");
-	const isRegisterMode = ref(false);
+	const ThirdPartyLoginMethod = ref("login");
+	const phoneForm = ref({
+		phone: "",
+		code: "",
+	});
+	// 声明 DTFrameLogin 方法
+	declare global {
+		interface Window {
+			DTFrameLogin: (
+				frameParams: IDTLoginFrameParams,
+				loginParams: IDTLoginLoginParams,
+				successCbk: (result: IDTLoginSuccess) => void,
+				errorCbk?: (error: any) => void
+			) => void;
+		}
+	}
+	// 包裹容器的尺寸与样式需要接入方自己使用css设置
+	interface IDTLoginFrameParams {
+		id: string; // 必传，包裹容器元素ID，不带'#'
+		width?: number; // 选传，二维码iframe元素宽度，最小280，默认300
+		height?: number; // 选传，二维码iframe元素高度，最小280，默认300
+	}
+	// 增加了isPre参数来设定运行环境
+	interface IDTLoginLoginParams {
+		redirect_uri: string; // 必传，注意url需要encode
+		response_type: string; // 必传，值固定为code
+		client_id: string; // 必传
+		scope: string; // 必传，如果值为openid+corpid，则下面的org_type和corpId参数必传，否则无法成功登录
+		prompt: string; // 必传，值为consent。
+		state?: string; // 选传
+		org_type?: string; // 选传，当scope值为openid+corpid时必传
+		corpId?: string; // 选传，当scope值为openid+corpid时必传
+		exclusiveLogin?: string; // 选传，如需生成专属组织专用二维码时，可指定为true，可以限制非组织帐号的扫码
+		exclusiveCorpId?: string; // 选传，当exclusiveLogin为true时必传，指定专属组织的corpId
+	}
+	interface IDTLoginSuccess {
+		redirectUrl: string; // 登录成功后的重定向地址，接入方可以直接使用该地址进行重定向
+		authCode: string; // 登录成功后获取到的authCode，接入方可直接进行认证，无需跳转页面
+		state?: string; // 登录成功后获取到的state
+	}
 
 	onMounted(() => {
 		getThirdpartyList();
@@ -192,28 +279,67 @@
 			config.userInfo.url + "/user/thirdparty/list"
 		);
 		if (result.ok) {
-			const data = await result.json();
-			console.log(data, "data");
+			await result.json();
 		}
 	};
 
-	const setPhone = async () => {
-		console.log("123");
-		const res = await fetch(config.userInfo.url + "/user/editdata", {
-			method: "POST",
-			body: JSON.stringify({
-				phone: userName.value,
-			}),
-			headers: {
-				ClientID: store.tempClientId,
-				Authorization: store.tempToken,
-			},
-		});
-		if (res.ok) {
-			notifySuccess("手机号设置成功");
-		} else {
-			notifyError("手机号设置失败");
+	const onDingDingScan = () => {
+		ThirdPartyLoginMethod.value = "dingding";
+		initDingDingScan();
+	};
+
+	const initDingDingScan = async () => {
+		try {
+			// 加载钉钉登录脚本
+			await loadScript(
+				"https://g.alicdn.com/dingding/h5-dingtalk-login/0.21.0/ddlogin.js"
+			);
+
+			const res = await fetch("http://192.168.1.10:8816/user/ding/conf");
+			const data = await res.json();
+
+			// 在这里可以调用DTFrameLogin或其他依赖于该脚本的方法
+			window.DTFrameLogin(
+				{
+					id: "dd-qr-code",
+					width: 200,
+					height: 300,
+				},
+				{
+					redirect_uri: encodeURIComponent(data.data.host),
+					client_id: data.data.client_id,
+					scope: "openid",
+					response_type: "code",
+					state: "xxxxxxxxx",
+					prompt: "consent",
+				},
+				(loginResult: any) => {
+					const { authCode } = loginResult;
+					onLogin(authCode);
+				},
+				(errorMsg: any) => {
+					console.log("二维码获取错误", errorMsg);
+				}
+			);
+		} catch (error) {
+			console.error(error);
 		}
+	};
+
+	// 函数用于动态加载外部JS文件
+	function loadScript(url: string): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const script = document.createElement("script");
+			script.src = url;
+			script.onload = () => resolve();
+			script.onerror = () =>
+				reject(new Error(`Failed to load script ${url}`));
+			document.head.appendChild(script);
+		});
+	}
+
+	const onSendCode = () => {
+		console.log("发送验证码");
 	};
 
 	const thirdPartyPlatforms = [
@@ -268,18 +394,19 @@
 		}
 	});
 
-	async function onLogin() {
+	async function onLogin(authCode?: string) {
 		if (loginCallback) {
 			const platform = localStorage.getItem("ThirdPartyPlatform");
-			const code = router.currentRoute.value.query.code as string;
+			const code =
+				authCode || (router.currentRoute.value.query.code as string);
 
-			console.log(platform, "platform");
 			// 使用映射对象，将平台名称映射到相应的参数名称
 			const platformCodeMap: Record<string, string> = {
 				github: "github",
 				gitee: "gitee",
-				wechat: "wechat",
+				qywechat: "qywechat",
 				qq: "qq",
+				dingding: "dingtalk_scan",
 			};
 
 			// 获取对应的参数名称
@@ -287,7 +414,6 @@
 
 			// 根据登录类型传递参数
 			const login_type = codeParam ? codeParam : "password";
-			console.log(login_type, "login_type");
 
 			const param = codeParam
 				? { code: code }
@@ -303,10 +429,6 @@
 			}
 		}
 	}
-
-	const toggleRegister = () => {
-		isRegisterMode.value = !isRegisterMode.value;
-	};
 
 	const toggleUserSwitch = () => {
 		config.userType = "person";
@@ -397,7 +519,7 @@
 			const res = await comp.json();
 			if (res.success) {
 				notifyError("注册成功");
-				toggleRegister();
+				// toggleRegister();
 			} else {
 				notifyError(res.message);
 				return;
@@ -405,6 +527,23 @@
 		} catch (error) {
 			console.error(error);
 		}
+
+		// 		console.log("123");
+		// const res = await fetch(config.userInfo.url + "/user/editdata", {
+		// 	method: "POST",
+		// 	body: JSON.stringify({
+		// 		phone: userName.value,
+		// 	}),
+		// 	headers: {
+		// 		ClientID: store.tempClientId,
+		// 		Authorization: store.tempToken,
+		// 	},
+		// });
+		// if (res.ok) {
+		// 	notifySuccess("手机号设置成功");
+		// } else {
+		// 	notifyError("手机号设置失败");
+		// }
 	};
 
 	const onThirdPartyLogin = async (platform: string) => {
@@ -422,7 +561,21 @@
 					return await authWithGitee();
 				};
 				break;
-			// 其他平台的处理
+			case "dingding":
+				loginFunction = async function () {
+					return await authWithDingDing();
+				};
+				break;
+			case "qywechat":
+				loginFunction = async function () {
+					return await authWithWechat();
+				};
+				break;
+			case "phone":
+				loginFunction = async function () {
+					return await authWithPhone();
+				};
+				break;
 			default:
 				notifyError("不支持的第三方登录平台");
 				return;
@@ -434,6 +587,16 @@
 				loginSuccess();
 			}
 		}
+	};
+
+	const authWithPhone = async (): Promise<boolean> => {
+		ThirdPartyLoginMethod.value = "phone";
+		return true;
+	};
+
+	const authWithDingDing = async (): Promise<boolean> => {
+		onDingDingScan();
+		return true;
 	};
 
 	const authWithGithub = async (): Promise<boolean> => {
@@ -472,16 +635,30 @@
 		}
 	};
 
-	const authWithWechat = (): boolean | PromiseLike<boolean> => {
-		throw new Error("Function not implemented.");
-	};
-
-	const authWithQQ = (): boolean | PromiseLike<boolean> => {
-		throw new Error("Function not implemented.");
-	};
-
-	const authWithSina = (): boolean | PromiseLike<boolean> => {
-		throw new Error("Function not implemented.");
+	const authWithWechat = async (): Promise<boolean> => {
+		ThirdPartyLoginMethod.value = "qywechat";
+		const res = await fetch(
+			"http://server001.godoos.com/user/qyweixin/qrcode"
+		);
+		if (res.ok) {
+			const data = await res.json();
+			if (data.success && data.data.url) {
+				// 生成二维码
+				QRCode.toCanvas(
+					document.getElementById("qywechat-qr-code"),
+					data.data.url,
+					function (error: any) {
+						if (error) console.error(error);
+						console.log("二维码生成成功");
+					}
+				);
+			} else {
+				notifyError("获取授权URL失败");
+			}
+		} else {
+			notifyError("网络错误，无法获取二维码");
+		}
+		return true;
 	};
 
 	const authWithGitee = async (): Promise<boolean> => {
@@ -646,6 +823,23 @@
 		}
 	}
 
+	.qr-code {
+		width: 200px;
+		height: 200px;
+		padding: 10px;
+		margin: 0 auto;
+		overflow: hidden;
+		border: 1px solid rgb(203, 203, 203);
+		border-radius: 10px;
+		:deep(#dd-qr-code) {
+			width: 200px;
+			height: 200px;
+			iframe {
+				margin-top: -50px;
+			}
+		}
+	}
+
 	@keyframes outan {
 		0% {
 			opacity: 1;
@@ -659,5 +853,15 @@
 			transform: translateY(-100%);
 			opacity: 0;
 		}
+	}
+
+	.send-code-btn {
+		border: none;
+		height: 40px;
+		background: #409eff;
+		color: #fff;
+		border-radius: 4px;
+		line-height: 40px;
+		cursor: pointer;
 	}
 </style>
