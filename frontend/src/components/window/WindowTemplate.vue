@@ -401,8 +401,10 @@ const dragBorders = [
 
 @media screen and (max-width: 768px) {
 	.wintmp_outer {
-		height: vh(100);
+		box-sizing: border-box;
+		height: 100vh;
 		padding-top: vh(40);
+		border: 0px;
 	}
 
 	.title {

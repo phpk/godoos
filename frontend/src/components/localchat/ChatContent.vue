@@ -320,4 +320,15 @@ $win10-light-grey: #f2f2f2;
   /* -webkit-box-orient: vertical; */
   /* overflow: hidden; */
 }
+
+@media screen and (max-width: 768px) {
+  .chatContentContainer {
+    display: flex;
+    flex-direction: column;
+
+    .message-area {
+      flex: 1 !important;
+    }
+  }
+}
 </style>

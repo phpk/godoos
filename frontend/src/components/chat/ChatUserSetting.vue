@@ -4,6 +4,7 @@ import { ref, reactive, onMounted } from "vue";
 import { useChatStore } from "@/stores/chat";
 import { notifyError, notifySuccess } from "@/util/msg";
 import { fetchGet, fetchPost, getSystemConfig, setSystemKey } from "@/system/config";
+import { isMobileDevice } from '@/util/device';
 const store = useChatStore()
 // const form = ref({
 //     nickname: '',
@@ -14,7 +15,7 @@ interface ImgItem {
 }
 const editType = ref(0)
 const userInfo = getSystemConfig().userInfo
-const userInfoForm: {[key: string]: any} = reactive({
+const userInfoForm: { [key: string]: any } = reactive({
     nickname: '',
     phone: '',
     email: '',
@@ -24,12 +25,12 @@ const dialogShow = ref(false)
 let imgList = reactive<ImgItem[]>([])
 let pos = ref(0)
 // 换头像
-const showChange = (val: boolean) =>{
+const showChange = (val: boolean) => {
     dialogShow.value = val
 }
 // 获取头像列表
 const getHeadList = async () => {
-    let res = await fetchGet (`${userInfo.url}/files/avatarlist`)
+    let res = await fetchGet(`${userInfo.url}/files/avatarlist`)
     // const apiUrl = getSystemConfig().apiUrl + '/upload/avatar/';
     const apiUrl = userInfo.url + '/upload/avatar/';
     if (res.ok) {
@@ -45,7 +46,7 @@ const getHeadList = async () => {
 const chooseImg = (index: number) => {
     pos.value = index
 }
-const toChangeHead = async ()=>{
+const toChangeHead = async () => {
     let res = await fetchGet(`${userInfo.url}/files/saveavatar?id=${userInfo.id}&name=${imgList[pos.value]?.name}`)
     if (!res.ok) {
         notifyError("头像换取失败")
@@ -59,26 +60,26 @@ const toChangeHead = async ()=>{
     showChange(false)
 }
 //修改资料
-const userRef:any = ref(null)
+const userRef: any = ref(null)
 const userRule = {
     nickname: [
-        { required: true, message: '昵称不能为空', trigger: 'blur'},
-        { min: 2, max: 10, message: '昵称长度应该在2到10位', trigger: 'blur'}
+        { required: true, message: '昵称不能为空', trigger: 'blur' },
+        { min: 2, max: 10, message: '昵称长度应该在2到10位', trigger: 'blur' }
     ],
     phone: [
-        { required: true, message: '手机号不能为空', trigger: 'blur'},
-        { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur'}
+        { required: true, message: '手机号不能为空', trigger: 'blur' },
+        { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
     ],
     email: [
-        { required: true, message: '邮箱不能为空', trigger: 'blur'},
-        { pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, message: '邮箱格式不正确', trigger: 'blur'}
+        { required: true, message: '邮箱不能为空', trigger: 'blur' },
+        { pattern: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/, message: '邮箱格式不正确', trigger: 'blur' }
     ]
     // desc: [
     //     { required: true, message: '昵称不能为空', trigger: 'blur'},
     //     { min: 2, max: 10, message: '昵称长度应该在2到10位', trigger: 'blur'}
     // ],
 }
-const onSubmit = async () => {                                                                                                                                                                                                                                                                                                
+const onSubmit = async () => {
     try {
         for (const key in userInfoForm) {
             userInfo[key] = userInfoForm[key]
@@ -95,7 +96,7 @@ const onSubmit = async () => {
         } else {
             notifyError(result?.message)
         }
-    }catch (e) {
+    } catch (e) {
         console.log(e)
     }
 }
@@ -105,7 +106,7 @@ const passwordForm = reactive({
     newPassword: '',
     confirmPassword: ''
 })
-const passwordRef:any = ref(null)
+const passwordRef: any = ref(null)
 const rules = {
     oldPassword: [
         { required: true, message: '密码不能为空', trigger: 'blur' }
@@ -116,17 +117,19 @@ const rules = {
     ],
     confirmPassword: [
         { required: true, message: '请再次输入密码', trigger: 'blur' },
-        { validator: (rule: any, value:any, callback:any) => {
-            console.log('rule:', rule);
-            
-        if (value === '') {
-            callback(new Error('请再次输入密码'));
-        } else if (value !== passwordForm.newPassword) {
-            callback(new Error('两次输入的密码不一致'));
-        } else {
-            callback();
+        {
+            validator: (rule: any, value: any, callback: any) => {
+                console.log('rule:', rule);
+
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== passwordForm.newPassword) {
+                    callback(new Error('两次输入的密码不一致'));
+                } else {
+                    callback();
+                }
+            }, trigger: 'blur'
         }
-        }, trigger: 'blur' }
     ],
 }
 const toChangePwd = async () => {
@@ -146,7 +149,7 @@ const toChangePwd = async () => {
         console.log(e)
     }
 }
-onMounted(()=>{
+onMounted(() => {
     getHeadList()
     for (const key in userInfoForm) {
         userInfoForm[key] = userInfo[key]
@@ -157,13 +160,14 @@ onMounted(()=>{
 <template>
     <el-container>
         <el-aside>
-            <div @click="editType = 0" :class="{'is-active': editType == 0}">修改资料</div>
-            <div @click="editType = 1" :class="{'is-active': editType == 1}">修改密码</div>
+            <div @click="editType = 0" :class="{ 'is-active': editType == 0 }">修改资料</div>
+            <div @click="editType = 1" :class="{ 'is-active': editType == 1 }">修改密码</div>
         </el-aside>
-        <el-main>  
-            <el-form v-if="editType == 0" :model="userInfoForm" :rules="userRule"  ref="userRef" label-width="130px" style="padding: 30px;">
+        <el-main>
+            <el-form v-if="editType == 0" :model="userInfoForm" :rules="userRule" ref="userRef"
+                :label-width="isMobileDevice() ? '90px' : '130px'" style="padding: 30px;">
                 <el-form-item label="头像">
-                    <el-avatar :size="90" :src="store.userInfo.avatar" @click="showChange(true)"/>
+                    <el-avatar :size="90" :src="store.userInfo.avatar" @click="showChange(true)" />
                 </el-form-item>
                 <el-form-item label="昵称" prop="nickname">
                     <el-input v-model="userInfoForm.nickname" />
@@ -175,33 +179,22 @@ onMounted(()=>{
                     <el-input v-model="userInfoForm.email" />
                 </el-form-item>
                 <el-form-item label="自我介绍" prop="desc">
-                    <el-input v-model="userInfoForm.desc" type="textarea" maxlength="100" show-word-limit/>
+                    <el-input v-model="userInfoForm.desc" type="textarea" maxlength="100" show-word-limit />
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="onSubmit">保存</el-button>
                 </el-form-item>
             </el-form>
-            <el-form v-else :model="passwordForm" :rules="rules" ref="passwordRef" label-width="120px" style="padding: 30px;">
+            <el-form v-else :model="passwordForm" :rules="rules" ref="passwordRef" label-width="120px"
+                style="padding: 30px;">
                 <el-form-item label="旧密码" prop="oldPassword">
-                    <el-input 
-                        v-model="passwordForm.oldPassword"
-                        type="password" 
-                        show-password
-                    />
+                    <el-input v-model="passwordForm.oldPassword" type="password" show-password />
                 </el-form-item>
                 <el-form-item label="新密码" prop="newPassword">
-                    <el-input  
-                        v-model="passwordForm.newPassword"
-                        type="password" 
-                        show-password
-                    />
+                    <el-input v-model="passwordForm.newPassword" type="password" show-password />
                 </el-form-item>
                 <el-form-item label="再次输入密码" prop="confirmPassword">
-                    <el-input  
-                        v-model="passwordForm.confirmPassword" 
-                        type="password" 
-                        show-password
-                    />
+                    <el-input v-model="passwordForm.confirmPassword" type="password" show-password />
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="toChangePwd">保存</el-button>
@@ -210,28 +203,20 @@ onMounted(()=>{
         </el-main>
         <el-dialog v-model="dialogShow" title="修改头像" width="400px" draggable>
             <div>
-                <span
-                    v-for="(item, index) in imgList"
-                    :key="item.name"
-                    class="img-box"
-                >
-                    <el-avatar  
-                        :size="80" 
-                        :src="item.url"
-                        @click="chooseImg(index)"
-                        :class="{'is-active': pos == index}"
-                    >
+                <span v-for="(item, index) in imgList" :key="item.name" class="img-box">
+                    <el-avatar :size="80" :src="item.url" @click="chooseImg(index)"
+                        :class="{ 'is-active': pos == index }">
                     </el-avatar>
                     <el-icon v-show="pos == index"><Select /></el-icon>
                 </span>
             </div>
             <template #footer>
-            <div class="dialog-footer">
-                <el-button @click="showChange(false)">{{  t("cancel") }}</el-button>
-                <el-button type="primary" @click="toChangeHead">
-                {{  t("confirm") }}
-                </el-button>
-            </div>
+                <div class="dialog-footer">
+                    <el-button @click="showChange(false)">{{ t("cancel") }}</el-button>
+                    <el-button type="primary" @click="toChangeHead">
+                        {{ t("confirm") }}
+                    </el-button>
+                </div>
             </template>
         </el-dialog>
     </el-container>
@@ -244,17 +229,21 @@ onMounted(()=>{
         overflow-y: scroll
     }
 }
+
 .img-box {
     position: relative;
+
     .el-avatar {
         margin: 10px;
     }
+
     .is-active {
         width: 90px;
         height: 90px;
         border: 2px solid green;
         box-sizing: border-box;
     }
+
     .el-icon {
         position: absolute;
         bottom: 0;
@@ -264,9 +253,10 @@ onMounted(()=>{
         border-radius: 50%;
         color: white;
         background-color: green;
-        transform: translate(-50%,0)
+        transform: translate(-50%, 0)
     }
 }
+
 .el-container {
 
     .el-aside {
@@ -281,13 +271,46 @@ onMounted(()=>{
             height: 40px;
             font-size: 14px;
         }
+
         .is-active,
         div:hover {
             font-weight: bold;
             color: #16b777;
         }
+
         .el-input {
             width: 200px;
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .el-container {
+        position: relative;
+
+        .el-aside {
+            position: absolute;
+            display: flex;
+            width: 100%;
+            padding: 0;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f9f9f9;
+
+            div {
+                text-align: center;
+                line-height: 40px;
+
+                &:first-child {
+                    border-right: 1px solid #fff;
+                }
+            }
+
+        }
+
+        .el-form {
+            margin-top: vh(60);
+            padding: 0 !important;
         }
     }
 }

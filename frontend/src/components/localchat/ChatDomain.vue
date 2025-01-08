@@ -64,11 +64,11 @@
       </div>
     </el-scrollbar>
   </div>
-  
-  <el-dialog v-model="store.showAddUser" title="系统设置" width="500">
+
+  <el-dialog v-model="store.showAddUser" title="系统设置" width="500" :fullscreen="isMobileDevice() ? true : false">
     <el-form>
-     
-      <el-form-item label="IP段第一位">
+
+      <el-form-item label=" IP段第一位">
         <el-input v-model="conf.first" autocomplete="off" placeholder="输入ip段第一位 例如：192" />
       </el-form-item>
       <el-form-item label="IP段第二位">
@@ -114,6 +114,7 @@
 import { useLocalChatStore } from "@/stores/localchat";
 import { formatChatTime } from "@/util/common";
 import { getSystemKey } from "@/system/config";
+import { isMobileDevice } from "@/util/device";
 const store = useLocalChatStore();
 const conf = ref(getSystemKey('chatConf'))
 </script>
@@ -255,7 +256,8 @@ const conf = ref(getSystemKey('chatConf'))
 .el-empty {
   margin: auto;
 }
-.text-center{
+
+.text-center {
   text-align: center;
 }
 </style>
