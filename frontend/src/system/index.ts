@@ -26,6 +26,7 @@ import { pick } from '../util/modash';
 import { clearSystemConfig, fetchGet, getFileUrl, getSystemConfig, getSystemKey, setSystemConfig, setSystemKey } from './config';
 import { OsFileInterface } from './core/FIleInterface';
 import { extname } from './core/Path';
+import { getCropId } from './dinglogin.ts';
 import { initBuiltinApp, initBuiltinFileOpener } from './initBuiltin';
 import { defaultConfig } from './initConfig';
 import { Tray, TrayOptions } from './menu/Tary';
@@ -102,7 +103,17 @@ export class System {
     initBuiltinFileOpener(this); // 注册内建文件打开器
     await this.initSavedConfig(); // 初始化保存的配置
     // 判断是否登录
+    const login_type = new URLSearchParams(window.location.search).get("login_type");
+    if (login_type === "dingding") {
+      let islogin = await getCropId();
+      alert(islogin);
+      if (!islogin) {
+        console.log("登录失败，无法继续操作");
+        return;
+      }
+    }
     await this.isLogin();
+
     initEventListener(); // 初始化事件侦听
 
 
