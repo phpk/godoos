@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useChatStore } from "@/stores/chat";
 import { getWorkflowUrl } from "@/system/config";
+import { isMobileDevice } from "@/util/device";
 import { Search } from "@element-plus/icons-vue";
 const store = useChatStore();
 const workUrl = getWorkflowUrl();
@@ -41,6 +42,7 @@ watch(
 		}
 	}
 );
+const drawer = ref(false)
 </script>
 <template>
 	<el-container class="container">
@@ -70,7 +72,31 @@ watch(
 			</div>
 			<ai-chat-left v-if="store.currentNavId == 3" />
 		</el-container>
+		<!-- 手机端侧边栏 -->
+		<el-drawer v-if="isMobileDevice()" v-model="drawer" :with-header="false" direction="ltr" size="50%">
+			<!--搜索栏-->
+			<div v-if="store.currentNavId < 2">
+				<el-header class="search">
+					<el-input placeholder="搜索" :prefix-icon="Search" class="search-input" v-model="store.searchInput" />
+					<!-- 邀请群聊 -->
+					<button class="inviteGroupChats" @click="store.setGroupChatInvitedDialogVisible(true)">
+						<el-icon>
+							<Plus />
+						</el-icon>
+					</button>
+				</el-header>
+				<!--好友列表-->
+				<el-main class="list">
+					<el-scrollbar>
+						<chat-msg-list v-if="store.currentNavId == 0" />
+						<chat-user-list v-if="store.currentNavId == 1" />
+					</el-scrollbar>
+				</el-main>
+			</div>
+			<ai-chat-left v-if="store.currentNavId == 3" />
+		</el-drawer>
 		<el-container class="chat-box">
+			<el-button v-if="isMobileDevice()" icon="Menu" size="small" @click="drawer = !drawer"></el-button>
 			<chat-box v-if="store.currentNavId < 1" />
 			<chat-user-info v-if="store.currentNavId == 1"></chat-user-info>
 			<ai-chat-main v-if="store.currentNavId == 3" />
@@ -84,8 +110,19 @@ watch(
 	</el-container>
 
 	<!-- 邀请群聊弹窗 -->
-	<el-dialog v-model="store.groupChatInvitedDialogVisible" width="80%" title="创建群聊" style="height: 550px"
-		align-center>
+	<el-dialog v-model="store.groupChatInvitedDialogVisible" width="80%" title="创建群聊"
+		:style="{ height: isMobileDevice() ? '100%' : '550px' }" align-center
+		:fullscreen="isMobileDevice() ? true : false" :show-close="isMobileDevice() ? false : true">
+		<template #header v-if="isMobileDevice()">
+			<div class="dialog-header">
+				<el-button style="background-color: #0078d4; color: #fff"
+					@click="store.groupChatInvitedDialogVisible = false">取消</el-button>
+
+				<div class="dialog-title">创建群聊</div>
+				<el-button style="background-color: #0078d4; color: #fff"
+					@click="store.createGroupChat(users)">确定</el-button>
+			</div>
+		</template>
 		<div class="dialog-body">
 			<!-- 添加输入部门名的输入框 -->
 			<div>
@@ -109,7 +146,7 @@ watch(
 			</el-transfer>
 		</div>
 
-		<template #footer>
+		<template #footer v-if="!isMobileDevice()">
 			<span class="dialog-footer">
 				<el-button style="background-color: #0078d4; color: #fff"
 					@click="store.groupChatInvitedDialogVisible = false">取消</el-button>
@@ -286,6 +323,55 @@ watch(
 		width: 100vw;
 		position: fixed;
 		bottom: 0;
+	}
+
+	.side {
+		display: none;
+	}
+
+	:deep(.el-drawer__body) {
+		padding: 0;
+	}
+
+	.chat-box {
+		position: relative;
+
+		.el-button {
+			position: absolute;
+			right: 0;
+			top: 50%;
+			transform: translateY(-50%);
+			z-index: 99;
+		}
+	}
+
+	.dialog-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	::v-deep.dialog-body {
+		height: max-content;
+	}
+
+	::v-deep.el-transfer {
+		flex-direction: column;
+		width: auto;
+		height: max-content !important;
+
+		.el-transfer-panel {
+			width: 100% !important;
+		}
+
+		.el-transfer__buttons {
+			transform: rotate(90deg);
+			margin: 40px 0;
+		}
+	}
+
+	.chat-setting {
+		width: 100%;
 	}
 }
 </style>
