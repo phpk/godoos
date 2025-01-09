@@ -68,32 +68,6 @@ func HandleReadDir(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// 如果是文件，读取内容
-		if osFileInfo.IsFile {
-			file, err := os.Open(filepath.Join(basePath, osFileInfo.Path))
-			if err != nil {
-				libs.HTTPError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to open file: %v", err))
-				return
-			}
-			defer file.Close()
-
-			content, err := io.ReadAll(file)
-			if err != nil {
-				libs.HTTPError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to read file content: %v", err))
-				return
-			}
-
-			osFileInfo.Content = string(content)
-			// 检查文件内容是否以"link::"开头
-			if strings.HasPrefix(osFileInfo.Content, "link::") {
-				osFileInfo.IsSymlink = true
-			} else {
-				osFileInfo.Content = ""
-			}
-
-			osFileInfo.IsPwd = IsPwdFile(content)
-		}
-
 		osFileInfos = append(osFileInfos, *osFileInfo)
 	}
 	// 按照 ModTime 进行降序排序
@@ -126,7 +100,6 @@ func HandleStat(w http.ResponseWriter, r *http.Request) {
 		libs.HTTPError(w, http.StatusNotFound, err.Error())
 		return
 	}
-	// fmt.Printf("basePath: %+s", basePath)
 	if osFileInfo.IsFile {
 		// 是否为加密文件
 		file, err := os.Open(filepath.Join(basePath, path))
@@ -140,19 +113,12 @@ func HandleStat(w http.ResponseWriter, r *http.Request) {
 			if err == io.EOF {
 				// EOF说明文件大小小于34字节
 				osFileInfo.IsPwd = false
-				res := libs.APIResponse{
-					Message: "File information retrieved successfully.",
-					Data:    osFileInfo,
-				}
-				json.NewEncoder(w).Encode(res)
-				return
 			}
-			libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-			return
+		} else {
+			osFileInfo.IsPwd = IsPwdFile(buffer)
 		}
-		osFileInfo.IsPwd = IsPwdFile(buffer)
-	}
 
+	}
 	res := libs.APIResponse{
 		Message: "File information retrieved successfully.",
 		Data:    osFileInfo,
@@ -217,16 +183,7 @@ func HandleUnlink(w http.ResponseWriter, r *http.Request) {
 
 // HandleClear removes the entire filesystem (Caution: Use with care!)
 func HandleClear(w http.ResponseWriter, r *http.Request) {
-	// basePath, err := libs.GetOsDir()
-	// if err != nil {
-	// 	libs.HTTPError(w, http.StatusInternalServerError, err.Error())
-	// 	return
-	// }
-	// err = Clear(basePath)
-	// if err != nil {
-	// 	libs.HTTPError(w, http.StatusConflict, err.Error())
-	// 	return
-	// }
+
 	err := RecoverOsSystem()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())
@@ -475,6 +432,7 @@ func parseMode(modeStr string) (os.FileMode, error) {
 	return os.FileMode(mode), nil
 }
 func HandleDesktop(w http.ResponseWriter, r *http.Request) {
+	//log.Printf("=====Received request: %v", r)
 	rootInfo, err := GetDesktop()
 	if err != nil {
 		libs.HTTPError(w, http.StatusInternalServerError, err.Error())

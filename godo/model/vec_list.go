@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"log"
 
 	"gorm.io/gorm"
 )
@@ -54,7 +53,7 @@ func CreateVirtualTable(db *gorm.DB, vectorID uint, embeddingSize int) error {
 			embedding float[%d] distance_metric=cosine
 		)
 	`, vectorID, embeddingSize)
-	log.Printf("sql: %s", sql)
+	//log.Printf("sql: %s", sql)
 	return db.Exec(sql).Error
 }
 

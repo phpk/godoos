@@ -52,6 +52,7 @@ func OsStart() {
 	}
 	db.InitDB()
 	proxy.InitProxyHandlers()
+	vector.InitMonitorVector()
 	webdav.InitWebdav()
 	router := mux.NewRouter()
 	router.Use(recoverMiddleware)
@@ -151,6 +152,8 @@ func OsStart() {
 	aiRouter.HandleFunc("/embeddings", model.EmbeddingHandler).Methods(http.MethodPost)
 	aiRouter.HandleFunc("/searchweb", search.SearchWebhandler).Methods(http.MethodGet)
 	aiRouter.HandleFunc("/addknowledge", vector.HandlerCreateKnowledge).Methods(http.MethodPost)
+	aiRouter.HandleFunc("/askknowledge", vector.HandlerAskKnowledge).Methods(http.MethodPost)
+	aiRouter.HandleFunc("/deleteknowledge", vector.HandlerDelKnowledge).Methods(http.MethodGet)
 	//注册浏览器路由
 	ieRouter := router.PathPrefix("/ie").Subrouter()
 	ieRouter.HandleFunc("/navigate", store.HandleNavigate).Methods(http.MethodGet)

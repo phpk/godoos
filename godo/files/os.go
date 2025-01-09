@@ -33,23 +33,24 @@ import (
 // Common response structure
 
 type OsFileInfo struct {
-	IsFile     bool        `json:"isFile"`
-	IsDir      bool        `json:"isDirectory"`
-	IsSymlink  bool        `json:"isSymlink"`
-	Size       int64       `json:"size"`
-	ModTime    time.Time   `json:"modTime"`
-	AccessTime time.Time   `json:"atime"`
-	CreateTime time.Time   `json:"birthtime"`
-	Mode       os.FileMode `json:"mode"`
-	Name       string      `json:"name"`         // 文件名
-	Path       string      `json:"path"`         // 文件路径
-	OldPath    string      `json:"oldPath"`      // 旧的文件路径
-	ParentPath string      `json:"parentPath"`   // 父目录路径
-	Content    string      `json:"content"`      // 文件内容
-	Ext        string      `json:"ext"`          // 文件扩展名
-	Title      string      `json:"title"`        // 文件名（不包含扩展名）
-	ID         int         `json:"id,omitempty"` // 文件ID（可选）
-	IsPwd      bool        `json:"isPwd"`        // 是否加密
+	IsFile      bool        `json:"isFile"`
+	IsDir       bool        `json:"isDirectory"`
+	IsSymlink   bool        `json:"isSymlink"`
+	IsKnowledge bool        `json:"isKnowledge"`
+	Size        int64       `json:"size"`
+	ModTime     time.Time   `json:"modTime"`
+	AccessTime  time.Time   `json:"atime"`
+	CreateTime  time.Time   `json:"birthtime"`
+	Mode        os.FileMode `json:"mode"`
+	Name        string      `json:"name"`         // 文件名
+	Path        string      `json:"path"`         // 文件路径
+	OldPath     string      `json:"oldPath"`      // 旧的文件路径
+	ParentPath  string      `json:"parentPath"`   // 父目录路径
+	Content     string      `json:"content"`      // 文件内容
+	Ext         string      `json:"ext"`          // 文件扩展名
+	Title       string      `json:"title"`        // 文件名（不包含扩展名）
+	ID          int         `json:"id,omitempty"` // 文件ID（可选）
+	IsPwd       bool        `json:"isPwd"`        // 是否加密
 }
 
 // validateFilePath 验证路径不为空
@@ -272,6 +273,12 @@ func GetFileInfo(entry interface{}, basePath, parentPath string) (*OsFileInfo, e
 	osFileInfo.ParentPath = parentPath
 	osFileInfo.Title = strings.TrimSuffix(osFileInfo.Name, filepath.Ext(osFileInfo.Name))
 	osFileInfo.Ext = strings.TrimPrefix(filepath.Ext(osFileInfo.Name), ".")
+	if osFileInfo.IsDir {
+		knowledgeFilePath := filepath.Join(filePath, ".knowledge")
+		if libs.PathExists(knowledgeFilePath) {
+			osFileInfo.IsKnowledge = true
+		}
+	}
 
 	return osFileInfo, nil
 }
@@ -342,8 +349,5 @@ func IsPwdFile(fileData []byte) bool {
 
 	// 使用正则表达式验证中间的字符串是否为 MD5 加密的字符串
 	md5Regex := regexp.MustCompile(`^[a-fA-F0-9]{32}$`)
-	if !md5Regex.MatchString(middleStr) {
-		return false
-	}
-	return true
+	return md5Regex.MatchString(middleStr)
 }

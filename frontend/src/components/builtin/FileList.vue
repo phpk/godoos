@@ -347,7 +347,7 @@ function handleRightClick(
 		menuArr.push({
 			label: "加入知识库",
 			click: () => {
-				//console.log(item.path)
+				console.log(item)
 				addKnowledge(item.path).then((res:any) => {
 					console.log(res)
 					if(res.code != 0){

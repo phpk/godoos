@@ -65,7 +65,7 @@ func getOllamaEmbedding(model string, text []string) ([][]float32, error) {
 	if err != nil {
 		return nil, fmt.Errorf("couldn't unmarshal response body: %w", err)
 	}
-	log.Printf("Embedding: %v", embeddingResponse.Embeddings)
+	//log.Printf("Embedding: %v", embeddingResponse.Embeddings)
 
 	// Return the embeddings directly.
 	if len(embeddingResponse.Embeddings) == 0 {

@@ -17,6 +17,14 @@ func InitDB() {
 	if err != nil {
 		return
 	}
+	// Enable PRAGMAs
+	// - busy_timeout (ms) to prevent db lockups as we're accessing the DB from multiple separate processes in otto8
+	tx := db.Exec(`
+PRAGMA busy_timeout = 10000;
+`)
+	if tx.Error != nil {
+		return
+	}
 	Db = db
 	// 自动迁移模式
 	db.AutoMigrate(&SysDisk{})
