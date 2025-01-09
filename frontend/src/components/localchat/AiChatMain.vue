@@ -7,6 +7,7 @@ import { ElScrollbar } from "element-plus";
 import { getSystemConfig } from "@/system/config";
 import { Vue3Lottie } from "vue3-lottie";
 import { file } from "jszip";
+import { isMobileDevice } from "@/util/device";
 const chatStore = useAiChatStore();
 const modelStore = useModelStore();
 const isPadding = ref(false); //是否发送中
@@ -242,7 +243,7 @@ const uploadImage = async (event: any) => {
           </el-col>
           <el-col :span="17">
             <el-input v-model="userMessage" :placeholder="t('aichat.askme')" size="large" clearable
-              @keydown="handleKeydown" autofocus class="ai-input-area" />
+              @keydown="handleKeydown" :autofocus="isMobileDevice() ? false : true" class="ai-input-area" />
           </el-col>
           <el-col :span="2">
             <el-button v-if="!isPadding" @click="sendMessage" icon="Promotion" type="info" size="large" circle />

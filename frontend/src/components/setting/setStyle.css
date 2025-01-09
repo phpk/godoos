@@ -74,8 +74,34 @@
   text-align: right;
 }
 @media screen and (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
   .nav {
-    width: 25%;
+    background-color: #f9f9f9;
+    width: 100%;
+  }
+  .nav ul {
+    display: flex;
+    justify-content: space-evenly;
+  }
+  .nav li {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+  }
+  .nav li.active {
+    background-color: #fff;
+  }
+  .nav li.active:hover {
+    background-color: #fff;
+  }
+  .nav li.active::after {
+    background-color: #80bbe9;
+  }
+  .setting {
+    margin-top: 20px;
+    box-sizing: border-box;
   }
   .setting-item:first-child {
     margin-top: 0px !important;

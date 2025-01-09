@@ -108,11 +108,9 @@
   @media screen and (max-width: 768px) {
     .chat-bot{
         .input-area{
+            padding: 0;
             .file-btn{
-                margin-left: vw(-20);
-            }
-            .websearch-btn{
-                margin-left: vw(-5);
+                margin-left: vw(-10);
             }
         }
     }
