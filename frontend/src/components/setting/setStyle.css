@@ -82,10 +82,11 @@
     width: 100%;
   }
   .nav ul {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(33.3%, 1fr));
+    display: flex;
+    justify-content: space-evenly;
   }
   .nav li {
+    flex: 1;
     padding: 10px 0;
     text-align: center;
   }
