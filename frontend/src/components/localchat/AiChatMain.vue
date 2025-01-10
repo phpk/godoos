@@ -6,13 +6,14 @@ import { notifyError } from "@/util/msg.ts";
 import { ElScrollbar } from "element-plus";
 import { getSystemConfig } from "@/system/config";
 import { Vue3Lottie } from "vue3-lottie";
-import { file } from "jszip";
+import { BrowserWindow } from "@/system";
 import { isMobileDevice } from "@/util/device";
 const chatStore = useAiChatStore();
 const modelStore = useModelStore();
 const isPadding = ref(false); //是否发送中
 const webSearch = ref(false);
 const imageInput: any = ref(null);
+const win: any = inject<BrowserWindow>("browserWindow");
 let imageData = ref("");
 let fileContent = ref("");
 let fileName = ref("");
@@ -32,6 +33,10 @@ const promptMessage = computed(() => {
     },
   ];
 });
+onMounted(async () => {
+  await chatStore.initChat()
+  //await aiStore.initChat()
+});
 const requestMessages = computed(() => {
   const contextLen = modelStore.chatConfig.chat.contextLength;
   //console.log(contextLen)
@@ -45,8 +50,43 @@ const requestMessages = computed(() => {
 });
 const sendMessage = async () => {
   if (chatStore.activeId < 1) {
-    notifyError(t("index.notFindChatModel"));
+    notifyError(t("aichat.selectModel"));
     return;
+  }
+  const knowledgeId = win?.config?.knowledgeId || 0;
+  if (knowledgeId > 0) {
+    const askData: any = {
+      id: knowledgeId,
+      input: userMessage.value,
+    }
+    const config = getSystemConfig()
+    const postData: any = {
+      method: "POST",
+      body: JSON.stringify(askData),
+    };
+    const completion = await fetch(config.apiUrl + '/ai/askknowledge', postData);
+    if (!completion.ok) {
+      const errorData = await completion.json();
+      //console.log(errorData)
+      notifyError(errorData.message);
+      isPadding.value = false;
+      return;
+    }
+    const res = await completion.json();
+    console.log(res)
+    let prompt = await chatStore.getPrompt("knowledge")
+    if (prompt == '') {
+      notifyError("知识库prompt为空")
+      return
+    }
+    if (res && res.data.length > 0) {
+      let context: string = "";
+      res.data.forEach((item: any) => {
+        context += "- " + item.content + "\n";
+      })
+      prompt = prompt.replace("{content}", context)
+      chatStore.chatInfo.prompt = prompt
+    }
   }
   if (userMessage.value) {
     // Add the message to the list
@@ -207,6 +247,9 @@ const uploadImage = async (event: any) => {
 
 </script>
 <template>
+  <el-dialog v-model="chatStore.showInfo" width="600" append-to-body :fullscreen="isMobileDevice() ? true : false">
+    <ai-chat-info />
+  </el-dialog>
   <div class="chat-bot">
     <div class="top-menu">
       <el-icon size="15" @click.stop="chatStore.showBox(true)" class="top-menu-button">

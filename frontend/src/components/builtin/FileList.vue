@@ -344,26 +344,47 @@ function handleRightClick(
 				},
 			});
 		}
-		menuArr.push({
-			label: "加入知识库",
-			click: () => {
-				console.log(item)
-				addKnowledge(item.path).then((res:any) => {
-					console.log(res)
-					if(res.code != 0){
-						new Notify({
-							title: t("tips"),
-							content: res.message,
-						});
-					}else{
-						new Notify({
-							title: t("tips"),
-							content: "添加成功",
-						});
-					}
-				})
-			},
-		});
+		if (!item.knowledgeId) {
+			menuArr.push({
+				label: "加入知识库",
+				click: () => {
+					console.log(item)
+					addKnowledge(item.path).then((res: any) => {
+						console.log(res)
+						if (res.code != 0) {
+							new Notify({
+								title: t("tips"),
+								content: res.message,
+							});
+						} else {
+							new Notify({
+								title: t("tips"),
+								content: "添加成功",
+							});
+						}
+					})
+				},
+			});
+		}else{
+			menuArr.push({
+				label: "对话知识库",
+				click: () => {
+					const win = new BrowserWindow({
+						title: "对话知识库",
+						content: "AiChatMain",
+						config: {
+							path: item.path,
+							knowledgeId: item.knowledgeId,
+						},
+						width: 700,
+						height: 600,
+						center: true,
+					});
+					win.show();
+				},
+			});
+		}
+
 	}
 	if (choose.ifShow) {
 		menuArr.push({

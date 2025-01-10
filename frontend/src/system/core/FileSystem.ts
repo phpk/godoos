@@ -94,6 +94,7 @@ class OsFileInfo {
 class OsFile extends OsFileInfo {
   name = ''; // 文件名
   path: string; // 文件路径
+  knowledgeId?:number;//知识库id
   oldPath?: string; // 旧的文件路径
   parentPath: string; // 父目录路径
   content: any; // 文件内容

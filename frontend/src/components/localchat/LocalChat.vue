@@ -22,17 +22,17 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useAiChatStore } from "@/stores/aichat";
+//import { useAiChatStore } from "@/stores/aichat";
 import { useLocalChatStore } from "@/stores/localchat";
 import { isMobileDevice } from "@/util/device";
 
 const store = useLocalChatStore();
-const aiStore = useAiChatStore();
+//const aiStore = useAiChatStore();
 const showLeft = ref(false)
 //let source:any;
 onMounted(async () => {
   await store.init()
-  await aiStore.initChat()
+  //await aiStore.initChat()
 });
 
 </script>

@@ -26,6 +26,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -36,7 +37,7 @@ type OsFileInfo struct {
 	IsFile      bool        `json:"isFile"`
 	IsDir       bool        `json:"isDirectory"`
 	IsSymlink   bool        `json:"isSymlink"`
-	IsKnowledge bool        `json:"isKnowledge"`
+	KnowledgeId uint        `json:"knowledgeId"`
 	Size        int64       `json:"size"`
 	ModTime     time.Time   `json:"modTime"`
 	AccessTime  time.Time   `json:"atime"`
@@ -276,7 +277,17 @@ func GetFileInfo(entry interface{}, basePath, parentPath string) (*OsFileInfo, e
 	if osFileInfo.IsDir {
 		knowledgeFilePath := filepath.Join(filePath, ".knowledge")
 		if libs.PathExists(knowledgeFilePath) {
-			osFileInfo.IsKnowledge = true
+			file, err := os.Open(knowledgeFilePath)
+			if err == nil {
+				fileData, err := io.ReadAll(file)
+				if err == nil {
+					idstr := string(fileData)
+					id, err := strconv.Atoi(idstr)
+					if err == nil {
+						osFileInfo.KnowledgeId = uint(id)
+					}
+				}
+			}
 		}
 	}
 

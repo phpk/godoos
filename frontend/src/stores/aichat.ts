@@ -28,6 +28,9 @@ export const useAiChatStore = defineStore('aichat', () => {
     const promptData = await promptStore.getPrompt('chat')
     return await addChat(t('aichat.newchat'), currentModel, promptData, "")
   }
+  const getPrompt = async (type: string) => {
+    return await promptStore.getPrompt(type)
+  }
   const initChat = async () => {
     if (activeId.value === 0) {
       await newChat()
@@ -165,6 +168,7 @@ export const useAiChatStore = defineStore('aichat', () => {
     showInfo,
     editInfo,
     isEditor,
+    getPrompt,
     modelList,
     promptList,
     initChat,
