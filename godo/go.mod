@@ -12,9 +12,10 @@ require (
 	github.com/ebitengine/purego v0.8.1
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gorilla/mux v1.8.1
+	github.com/ikawaha/kagome-dict/ipa v1.2.0
+	github.com/ikawaha/kagome/v2 v2.10.0
 	github.com/mattetti/filebuffer v1.0.1
 	github.com/minio/selfupdate v0.6.0
-	github.com/ncruces/go-sqlite3 v0.21.3
 	github.com/ncruces/go-sqlite3/gormlite v0.21.0
 	github.com/richardlehane/mscfb v1.0.4
 	github.com/shirou/gopsutil v3.21.11+incompatible
@@ -29,10 +30,11 @@ require (
 	aead.dev/minisign v0.2.0 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
+	github.com/ikawaha/kagome-dict v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/ncruces/go-sqlite3 v0.21.3 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/richardlehane/msoleps v1.0.1 // indirect

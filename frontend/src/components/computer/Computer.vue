@@ -312,7 +312,7 @@ let chosenCallback: (rect: Rect) => void = () => {
 	//
 };
 function onChosen(callback: (rect: Rect) => void) {
-	console.log(callback)
+	//console.log(callback)
 	chosenCallback = callback;
 }
 
@@ -377,10 +377,26 @@ async function handleNavRefresh(path: string) {
 		refersh();
 	}
 }
-async function handleNavSearch(path: string) {
-	console.log(path)
+async function handleNavSearch(query: string) {
+	//console.log(query)
 	//setRouter("search:" + path);
-	refersh();
+	if (query == "") {
+		system.fs.readdir(router_url.value).then((file: any) => {
+			if (file) {
+				currentList.value = [...file];
+				refersh();
+			}
+		});
+	}else{
+		system.fs.search(router_url.value,query).then((file: any) => {
+		if (file) {
+			currentList.value = [...file];
+			//refersh();
+		}
+	});
+	}
+	
+	
 }
 document.addEventListener('paste', function() {
 	if(router_url.value !== "/" && !router_url.value.startsWith("/B")){

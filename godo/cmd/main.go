@@ -111,6 +111,7 @@ func OsStart() {
 	fileRouter.HandleFunc("/zip", files.HandleZip).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/unzip", files.HandleUnZip).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/watch", files.WatchHandler).Methods(http.MethodGet)
+	fileRouter.HandleFunc("/search", files.HandleSarch).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/setfilepwd", files.HandleSetFilePwd).Methods(http.MethodGet)
 	fileRouter.HandleFunc("/onlyofficecallback", files.OnlyOfficeCallbackHandler).Methods(http.MethodPost)
 

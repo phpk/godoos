@@ -76,6 +76,13 @@ export async function handleUnlink(path: string): Promise<any> {
   }
   return await res.json();
 }
+export async function handleSearch(path: string,query:string): Promise<any> {
+  const res = await fetchGet(`${API_BASE_URL}/search?path=${encodeURIComponent(path)}&query=${encodeURIComponent(query)}`);
+  if (!res.ok) {
+    return false;
+  }
+  return await res.json();
+}
 
 export async function handleClear(): Promise<any> {
   const res = await fetchGet(`${API_BASE_URL}/clear`);
@@ -298,9 +305,12 @@ export const useOsFile = () => {
       }
       return false;
     },
-    async search(path: string, options: any) {
-      console.log('search:', path, options)
-      return true;
+    async search(path: string, query: string) {
+      const response = await handleSearch(path, query);
+      if (response && response.data) {
+        return response.data;
+      }
+      return false;
     },
     async zip(path: string, ext: string) {
       const response = await handleZip(path, ext);
