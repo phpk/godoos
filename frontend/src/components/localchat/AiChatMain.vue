@@ -48,50 +48,54 @@ const requestMessages = computed(() => {
     return [...promptMessage.value, ...slicedMessages];
   }
 });
+// async function addKnowledge(){
+//   const knowledgeId = win?.config?.knowledgeId || 0;
+//   let msg = userMessage.value
+//   if (knowledgeId > 0) {
+//     const askData: any = {
+//       id: knowledgeId,
+//       input: userMessage.value,
+//     }
+//     const config = getSystemConfig()
+//     const postData: any = {
+//       method: "POST",
+//       body: JSON.stringify(askData),
+//     };
+//     const completion = await fetch(config.apiUrl + '/ai/askknowledge', postData);
+//     if (!completion.ok) {
+//       const errorData = await completion.json();
+//       //console.log(errorData)
+//       notifyError(errorData.message);
+//       isPadding.value = false;
+//       return;
+//     }
+//     const res = await completion.json();
+//     console.log(res)
+//     // let prompt = await chatStore.getPrompt("knowledge")
+//     // if (prompt == '') {
+//     //   notifyError("知识库prompt为空")
+//     //   return
+//     // }
+//     if (res && res.data.length > 0) {
+//       let context: string = "";
+//       res.data.forEach((item: any) => {
+//         context += "- " + item.content + "\n";
+//       })
+//       //prompt = prompt.replace("{content}", context)
+//       msg = `请对\n${context}\n的内容进行分析，给出对用户输入的回答:${userMessage.value} `
+//     }
+//   }
+//   return msg
+// }
 const sendMessage = async () => {
   if (chatStore.activeId < 1) {
     notifyError(t("aichat.selectModel"));
     return;
   }
-  const knowledgeId = win?.config?.knowledgeId || 0;
-  if (knowledgeId > 0) {
-    const askData: any = {
-      id: knowledgeId,
-      input: userMessage.value,
-    }
-    const config = getSystemConfig()
-    const postData: any = {
-      method: "POST",
-      body: JSON.stringify(askData),
-    };
-    const completion = await fetch(config.apiUrl + '/ai/askknowledge', postData);
-    if (!completion.ok) {
-      const errorData = await completion.json();
-      //console.log(errorData)
-      notifyError(errorData.message);
-      isPadding.value = false;
-      return;
-    }
-    const res = await completion.json();
-    console.log(res)
-    let prompt = await chatStore.getPrompt("knowledge")
-    if (prompt == '') {
-      notifyError("知识库prompt为空")
-      return
-    }
-    if (res && res.data.length > 0) {
-      let context: string = "";
-      res.data.forEach((item: any) => {
-        context += "- " + item.content + "\n";
-      })
-      prompt = prompt.replace("{content}", context)
-      chatStore.chatInfo.prompt = prompt
-    }
-  }
   if (userMessage.value) {
     // Add the message to the list
     if (isPadding.value === true) return;
-    const saveMessage = {
+    let saveMessage:any = {
       content: userMessage.value,
       chatId: chatStore.activeId,
       role: "user",
@@ -99,6 +103,7 @@ const sendMessage = async () => {
       createdAt: Date.now(),
     };
     chatStore.messageList.push(saveMessage);
+    
     await chatStore.addMessages(chatStore.activeId, saveMessage);
 
     // Clear the input
@@ -124,6 +129,7 @@ const createCompletion = async () => {
     };
 
     const chatConfig = modelStore.chatConfig.chat;
+    const knowledgeId = win?.config?.knowledgeId*1 || 0;
     let postMsg: any = {
       messages: requestMessages.value,
       model: chatStore.chatInfo.model,
@@ -133,6 +139,7 @@ const createCompletion = async () => {
       fileContent: fileContent.value,
       fileName: fileName.value,
       options: chatConfig,
+      knowledgeId:knowledgeId,
     };
     if (imageData.value != "") {
       const img2txtModel = await modelStore.getModel("img2txt");
@@ -151,8 +158,10 @@ const createCompletion = async () => {
             images: [imageData.value],
           },
         ],
+        knowledgeId:knowledgeId,
       };
     }
+    
     const postData: any = {
       method: "POST",
       body: JSON.stringify(postMsg),

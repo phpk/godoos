@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"godo/ai/search"
 	"godo/libs"
+	"godo/model"
 	"godo/office"
 	"log"
 	"net/http"
@@ -20,6 +21,7 @@ type ChatRequest struct {
 	FileName    string                 `json:"fileName"`
 	Options     map[string]interface{} `json:"options"`
 	Messages    []Message              `json:"messages"`
+	KnowledgeId uint                   `json:"knowledgeId"`
 }
 
 type Message struct {
@@ -39,15 +41,19 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 	if req.WebSearch {
 		err = ChatWithWeb(&req)
 		if err != nil {
-			libs.ErrorMsg(w, err.Error())
-			return
+			log.Printf("the chat with web error:%v", err)
 		}
 	}
 	if req.FileContent != "" {
 		err = ChatWithFile(&req)
 		if err != nil {
-			libs.ErrorMsg(w, err.Error())
-			return
+			log.Printf("the chat with file error:%v", err)
+		}
+	}
+	if req.KnowledgeId != 0 {
+		err = ChatWithKnowledge(&req)
+		if err != nil {
+			log.Printf("the chat with knowledge error:%v", err)
 		}
 	}
 	headers, url, err := GetHeadersAndUrl(req, "chat")
@@ -70,7 +76,39 @@ func ChatWithFile(req *ChatRequest) error {
 	}
 	userQuestion := fmt.Sprintf("请对\n%s\n的内容进行分析，给出对用户输入的回答: %s", fileContent, lastMessage)
 	log.Printf("the search file is %v", userQuestion)
-	req.Messages = append(req.Messages, Message{Role: "user", Content: userQuestion})
+	req.Messages = append([]Message{}, Message{Role: "user", Content: userQuestion})
+	return nil
+}
+func ChatWithKnowledge(req *ChatRequest) error {
+	lastMessage, err := GetLastMessage(*req)
+	if err != nil {
+		return err
+	}
+	askrequest := model.AskRequest{
+		ID:    req.KnowledgeId,
+		Input: lastMessage,
+	}
+	var knowData model.VecList
+	if err := model.Db.First(&knowData, askrequest.ID).Error; err != nil {
+		return fmt.Errorf("the knowledge id is not exist")
+	}
+	//var filterDocs
+	filterDocs := []string{askrequest.Input}
+	// 获取嵌入向量
+	resList, err := GetEmbeddings(knowData.Engine, knowData.EmbeddingModel, filterDocs)
+	if err != nil {
+		return fmt.Errorf("the embeddings get error:%v", err)
+	}
+	res, err := model.AskDocument(askrequest.ID, resList[0])
+	if err != nil {
+		return fmt.Errorf("the ask document error:%v", err)
+	}
+	msg := ""
+	for _, res := range res {
+		msg += fmt.Sprintf("- %s\n", res.Content)
+	}
+	prompt := fmt.Sprintf(`从文档\n\"\"\"\n%s\n\"\"\"\n中找问题\n\"\"\"\n%s\n\"\"\"\n的答案，找到答案就使用文档语句回答问题，找不到答案就用自身知识回答并且告诉用户该信息不是来自文档。\n不要复述问题，直接开始回答。`, msg, lastMessage)
+	req.Messages = append([]Message{}, Message{Role: "user", Content: prompt})
 	return nil
 }
 func ChatWithWeb(req *ChatRequest) error {

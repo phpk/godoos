@@ -45,7 +45,13 @@ function useContextMenu() {
         callback?.();
       });
     }
-
+    // document.addEventListener('keydown', function (event) {
+    //   // 检测 Control + V
+    //   if (event.ctrlKey && event.key === 'v') {
+    //     console.log('Control + V 被按下',path);
+    //     // 在这里添加你的粘贴逻辑
+    //   }
+    // });
     //console.log(path)
     let menuArr: any = [
       {
@@ -321,6 +327,7 @@ function useContextMenu() {
   }
 
   async function copyFile(files: OsFileWithoutContent[]) {
+    //console.log(files)
     const system = useSystem();
     const rootState = system._rootState;
     if (!system) return;
@@ -329,6 +336,7 @@ function useContextMenu() {
     }
   }
   async function pasteFile(path: string) {
+    //console.log(path);
     const system = useSystem();
     if (!system) return;
     if (["/", "/B"].includes(path)) return;
@@ -353,6 +361,7 @@ function useContextMenu() {
         }
         return system.fs.copyFile(clipFile, fspath.join(path, tempName) + ext);
       });
+      rootState.clipboard = [];
     } else {
       system.emitError('no file in clipboard');
     }

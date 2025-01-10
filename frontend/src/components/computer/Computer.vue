@@ -92,7 +92,7 @@ const currentList = ref<Array<OsFileWithoutContent>>([]);
 
 const system = useSystem();
 const { dragFileToDrop } = useFileDrag(system);
-const { createDesktopContextMenu } = useContextMenu();
+const { createDesktopContextMenu,pasteFile } = useContextMenu();
 // 选择保存文件路径时，传递选择路径
 const props = defineProps({
 	translateSavePath: {
@@ -312,6 +312,7 @@ let chosenCallback: (rect: Rect) => void = () => {
 	//
 };
 function onChosen(callback: (rect: Rect) => void) {
+	console.log(callback)
 	chosenCallback = callback;
 }
 
@@ -380,6 +381,12 @@ async function handleNavSearch(path: string) {
 	setRouter("search:" + path);
 	refersh();
 }
+document.addEventListener('paste', function() {
+	if(router_url.value !== "/" && !router_url.value.startsWith("/B")){
+		pasteFile(router_url.value)
+		refersh();
+	}
+});
 /* ------------ 路径输入框end ---------*/
 </script>
 <style lang="scss" scoped>

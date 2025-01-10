@@ -89,6 +89,10 @@ type AskDocResponse struct {
 	Score    float32 `json:"score"`
 	FilePath string  `json:"file_path"`
 }
+type AskRequest struct {
+	ID    uint   `json:"id"`
+	Input string `json:"input"`
+}
 
 func AskDocument(listId uint, query []float32) ([]AskDocResponse, error) {
 	// 序列化查询向量

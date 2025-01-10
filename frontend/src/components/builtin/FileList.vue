@@ -252,7 +252,28 @@ function startDragApp(mouse: DragEvent, item: OsFileWithoutContent) {
 		});
 	}
 }
+document.addEventListener('copy', function () {
+	const files = chosenIndexs.value.map(
+		(index) => props.fileList[index]
+	)
+	if (files.length > 0) {
+		copyFile(files);
+		chosenIndexs.value = [];
+	}
 
+});
+// document.addEventListener('keydown', function (event) {
+// 	// 检测 Control + C
+// 	if (event.ctrlKey && event.key === 'c') {
+// 		//console.log('Control + C 被按下');
+// 		copyFile(
+// 			chosenIndexs.value.map(
+// 				(index) => props.fileList[index]
+// 			)
+// 		);
+// 		chosenIndexs.value = [];
+// 	}
+// });
 function handleRightClick(
 	mouse: MouseEvent,
 	item: OsFileWithoutContent,
@@ -361,11 +382,12 @@ function handleRightClick(
 								title: t("tips"),
 								content: "添加成功",
 							});
+							props.onRefresh();
 						}
 					})
 				},
 			});
-		}else{
+		} else {
 			menuArr.push({
 				label: "对话知识库",
 				click: () => {

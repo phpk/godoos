@@ -82,10 +82,7 @@ func HandlerCreateKnowledge(w http.ResponseWriter, r *http.Request) {
 	libs.SuccessMsg(w, id, "create vector success")
 }
 func HandlerAskKnowledge(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID    uint   `json:"id"`
-		Input string `json:"input"`
-	}
+	var req model.AskRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		libs.ErrorMsg(w, "the chat request error:"+err.Error())
