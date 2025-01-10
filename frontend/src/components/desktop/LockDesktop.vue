@@ -48,7 +48,7 @@
 				</div>
 				<div class="third-party-login">
 					<img
-						v-for="platform in thirdPartyPlatforms"
+						v-for="platform in availablePlatforms"
 						:key="platform.name"
 						:src="platform.icon"
 						:alt="platform.name"
@@ -141,7 +141,7 @@
 				<el-form-item>
 					<el-button
 						style="background-color: gray; color: white"
-						@click="store.ThirdPartyLoginMethod = 'login'"
+						@click="backToLogin"
 						>返回</el-button
 					>
 				</el-form-item>
@@ -157,10 +157,7 @@
 				</el-row>
 				<el-row>
 					<el-col :span="24">
-						<el-button
-							@click="store.ThirdPartyLoginMethod = 'login'"
-							>返回</el-button
-						>
+						<el-button @click="backToLogin">返回</el-button>
 					</el-col>
 				</el-row>
 			</div>
@@ -175,10 +172,7 @@
 				</el-row>
 				<el-row>
 					<el-col :span="24">
-						<el-button
-							@click="store.ThirdPartyLoginMethod = 'login'"
-							>返回</el-button
-						>
+						<el-button @click="backToLogin">返回</el-button>
 					</el-col>
 				</el-row>
 			</div>
@@ -186,21 +180,26 @@
 			<div v-else-if="store.ThirdPartyLoginMethod === 'phone'">
 				<el-row>
 					<el-col :span="24">
-						<el-form>
-							<el-form-item>
+						<el-form
+							:model="phoneForm"
+							:rules="phoneLoginRules"
+							ref="phoneLoginFormRef"
+						>
+							<el-form-item prop="phone">
 								<el-input
 									v-model="phoneForm.phone"
 									placeholder="请输入手机号"
+									prefix-icon="Iphone"
 								/>
 							</el-form-item>
 							<!-- 验证码 -->
-
 							<el-row :gutter="24">
 								<el-col :span="17">
-									<el-form-item>
+									<el-form-item prop="code">
 										<el-input
 											v-model="phoneForm.code"
 											placeholder="请输入验证码"
+											prefix-icon="Key"
 										/>
 									</el-form-item>
 								</el-col>
@@ -208,7 +207,7 @@
 									<el-form-item>
 										<button
 											class="send-code-btn"
-											@click.prevent="onSendCode"
+											@click.prevent="startCountdown"
 											:disabled="isSendCodeButtonDisabled"
 										>
 											{{ sendCodeButtonText }}
@@ -223,13 +222,95 @@
 					<el-col :span="12">
 						<el-button
 							style="background-color: gray; color: white"
-							@click="store.ThirdPartyLoginMethod = 'login'"
+							@click="backToLogin"
 							>返回</el-button
 						>
 					</el-col>
 					<el-col :span="12">
+						<el-button @click="validateAndLoginByPhone"
+							>登录</el-button
+						>
+					</el-col>
+				</el-row>
+			</div>
+			<div v-else-if="store.ThirdPartyLoginMethod === 'email'">
+				<el-row>
+					<el-col :span="24">
+						<el-form>
+							<el-form-item>
+								<el-input
+									v-model="emailForm.email"
+									placeholder="请输入邮箱"
+									prefix-icon="Message"
+								/>
+							</el-form-item>
+							<el-row :gutter="24">
+								<el-col :span="17">
+									<el-form-item>
+										<el-input
+											v-model="emailForm.code"
+											placeholder="请输入验证码"
+											prefix-icon="Key"
+										/>
+									</el-form-item>
+								</el-col>
+								<el-col :span="7">
+									<el-form-item>
+										<button
+											class="send-code-btn"
+											@click.prevent="onSendCode()"
+											:disabled="
+												isSendEmailCodeButtonDisabled
+											"
+										>
+											{{ sendEmailCodeButtonText }}
+										</button>
+									</el-form-item>
+								</el-col>
+							</el-row>
+						</el-form>
+					</el-col>
+				</el-row>
+
+				<el-row :gutter="24">
+					<el-col :span="12">
 						<el-button
-							@click="loginByPhone"
+							style="background-color: gray; color: white"
+							@click="backToLogin"
+							>返回</el-button
+						>
+					</el-col>
+					<el-col :span="12">
+						<el-button @click="loginByEmail">登录</el-button>
+					</el-col>
+				</el-row>
+			</div>
+			<div v-else-if="store.ThirdPartyLoginMethod === 'thirdparty'">
+				<el-row :gutter="24">
+					<el-col :span="24">
+						<el-form
+							label-position="right"
+							label-width="100px"
+						>
+							<el-form-item label="用户特征码">
+								<el-input
+									v-model="thirdpartyCode"
+									placeholder="请输入用户特征码"
+								/>
+							</el-form-item>
+						</el-form>
+					</el-col>
+				</el-row>
+				<el-row :gutter="24">
+					<el-col :span="12">
+						<el-button
+							@click="backToLogin"
+							style="background-color: gray; color: white"
+							>返回</el-button
+						>
+					</el-col>
+					<el-col :span="12">
+						<el-button @click="validateAndLoginByThirdparty"
 							>登录</el-button
 						>
 					</el-col>
@@ -246,7 +327,7 @@
 	import router from "@/system/router";
 	import { RestartApp } from "@/util/goutil";
 	import { notifyError } from "@/util/msg";
-	import { onMounted, ref, watchEffect } from "vue";
+	import { computed, onMounted, ref, watchEffect } from "vue";
 	import { useRoute } from "vue-router";
 	const route = useRoute();
 	const store = useLoginStore();
@@ -255,10 +336,30 @@
 	const config = getSystemConfig();
 	const lockClassName = ref("screen-show");
 
+	const backToLogin = () => {
+		store.ThirdPartyLoginMethod = "login";
+		localStorage.removeItem("ThirdPartyPlatform");
+	};
+
 	const phoneForm = ref({
 		phone: "",
 		code: "",
 	});
+
+	const emailForm = ref({
+		email: "",
+		code: "",
+	});
+
+	const thirdpartyCode = ref("");
+
+	const validateAndLoginByThirdparty = () => {
+		if (thirdpartyCode.value === "") {
+			notifyError("请输入第三方登录码");
+			return;
+		}
+		onLogin(thirdpartyCode.value);
+	};
 
 	// 声明 DTFrameLogin 和 WwLogin 方法
 	declare global {
@@ -303,8 +404,8 @@
 		state?: string; // 登录成功后获取到的state
 	}
 
-	onMounted(() => {
-		getThirdpartyList();
+	onMounted(async () => {
+		await getThirdpartyList();
 	});
 
 	const getThirdpartyList = async () => {
@@ -312,10 +413,20 @@
 			config.userInfo.url + "/user/thirdparty/list"
 		);
 		if (result.ok) {
-			await result.json();
+			const data = await result.json();
+			store.thirdpartyList = data.data.list;
+			console.log(data);
 		}
 	};
-    
+
+	const isPlatformAvailable = (platform: string) => {
+		for (let i = 0; i < store.thirdpartyList.length; i++) {
+			if (store.thirdpartyList[i] === platform) {
+				return true;
+			}
+		}
+		return false;
+	};
 
 	const onDingDingScan = () => {
 		store.ThirdPartyLoginMethod = "dingding";
@@ -375,9 +486,34 @@
 	const sendCodeButtonText = ref("发送验证码");
 	const isSendCodeButtonDisabled = ref(false);
 
-	const onSendCode = () => {
-		console.log("发送验证码");
-		startCountdown();
+	const onSendCode = async () => {
+		try {
+			const response = await fetch(
+				config.userInfo.url + "/user/emailcode",
+				{
+					method: "POST",
+					body: JSON.stringify({ email: emailForm.value.email }),
+				}
+			);
+
+			console.log(response);
+
+			if (!response.ok) {
+				notifyError("发送验证码失败，请重试");
+				return;
+			}
+
+			const result = await response.json();
+			if (result.success) {
+				console.log("验证码发送成功");
+				startEmailCountdown();
+			} else {
+				notifyError(result.message || "发送验证码失败，请重试");
+			}
+		} catch (error) {
+			console.error("发送验证码时发生错误", error);
+			notifyError("发送验证码时发生错误，请重试");
+		}
 	};
 
 	const startCountdown = () => {
@@ -393,6 +529,26 @@
 				clearInterval(interval);
 				sendCodeButtonText.value = "发送验证码";
 				isSendCodeButtonDisabled.value = false;
+			}
+		}, 1000);
+	};
+
+	const sendEmailCodeButtonText = ref("发送验证码");
+	const isSendEmailCodeButtonDisabled = ref(false);
+
+	const startEmailCountdown = () => {
+		let countdown = 2;
+		isSendEmailCodeButtonDisabled.value = true;
+		sendEmailCodeButtonText.value = `${countdown}秒后重试`;
+
+		const interval = setInterval(() => {
+			countdown--;
+			if (countdown > 0) {
+				sendEmailCodeButtonText.value = `${countdown}秒后重试`;
+			} else {
+				clearInterval(interval);
+				sendEmailCodeButtonText.value = "发送验证码";
+				isSendEmailCodeButtonDisabled.value = false;
 			}
 		}, 1000);
 	};
@@ -418,7 +574,21 @@
 			name: "gitee",
 			icon: new URL("@/assets/login/gitee.png", import.meta.url).href,
 		},
+		{
+			name: "email",
+			icon: new URL("@/assets/login/email.png", import.meta.url).href,
+		},
+		{
+			name: "thirdparty",
+			icon: new URL("@/assets/login/login.png", import.meta.url).href,
+		},
 	];
+
+	const availablePlatforms = computed(() => {
+		return thirdPartyPlatforms.filter((platform) =>
+			isPlatformAvailable(platform.name)
+		);
+	});
 
 	function loginSuccess() {
 		lockClassName.value = "screen-hidean";
@@ -436,7 +606,7 @@
 			userPassword.value = sys._options.login?.password || "";
 		} else {
 			userName.value = config.userInfo.username;
-			userPassword.value = config.userInfo.password;
+			// userPassword.value = config.userInfo.password;
 		}
 	});
 
@@ -463,8 +633,9 @@
 				qq: "qq",
 				dingding: "dingtalk_scan",
 				phone: "sms_code",
+				email: "email",
+				thirdparty: "third_api",
 			};
-
 			// 获取对应的参数名称
 			const codeParam = platform ? platformCodeMap[platform] : null;
 
@@ -472,12 +643,27 @@
 			let param;
 			if (codeParam) {
 				if (platform === "phone") {
-					param = { phone: phoneForm.value.phone, sms_code: code };
+					param = {
+						phone: phoneForm.value.phone,
+						sms_code: phoneForm.value.code,
+					};
+				} else if (platform === "email") {
+					param = {
+						email: emailForm.value.email,
+						code: emailForm.value.code,
+					};
+				} else if (platform === "thirdparty") {
+					param = {
+						unionid: thirdpartyCode.value,
+					};
 				} else {
 					param = { code: code };
 				}
 			} else {
-				param = { username: userName.value, password: userPassword.value };
+				param = {
+					username: userName.value,
+					password: userPassword.value,
+				};
 			}
 
 			const login_type = codeParam ? codeParam : "password";
@@ -488,7 +674,7 @@
 				localStorage.removeItem("ThirdPartyPlatform");
 				loginSuccess();
 			} else {
-				notifyError("登录失败，请重试");
+				console.log("登录失败");
 			}
 		}
 	}
@@ -508,6 +694,11 @@
 				min: 3,
 				max: 20,
 				message: "用户名长度应在3到20个字符之间",
+				trigger: "blur",
+			},
+			{
+				pattern: /^[a-zA-Z0-9]+$/,
+				message: "用户名只能包含英文和数字",
 				trigger: "blur",
 			},
 		],
@@ -635,6 +826,16 @@
 					return await authWithPhone();
 				};
 				break;
+			case "email":
+				loginFunction = async function () {
+					return await authWithEmail();
+				};
+				break;
+			case "thirdparty":
+				loginFunction = async function () {
+					return await authWithThirdParty();
+				};
+				break;
 			default:
 				notifyError("不支持的第三方登录平台");
 				return;
@@ -648,13 +849,14 @@
 		}
 	};
 
-	const authWithPhone = async (): Promise<boolean> => {
-		store.ThirdPartyLoginMethod = "phone";
+	const authWithThirdParty = async (): Promise<boolean> => {
+		store.ThirdPartyLoginMethod = "thirdparty";
 		return true;
 	};
 
-	const loginByPhone = async () => {
-		await onLogin();
+	const authWithPhone = async (): Promise<boolean> => {
+		store.ThirdPartyLoginMethod = "phone";
+		return true;
 	};
 
 	const authWithDingDing = async (): Promise<boolean> => {
@@ -761,6 +963,41 @@
 		}
 		// store.page = "phone";
 		// return true;
+	};
+
+	const authWithEmail = async (): Promise<boolean> => {
+		store.ThirdPartyLoginMethod = "email";
+		return true;
+	};
+
+	const loginByEmail = async () => {
+		await onLogin();
+	};
+
+	const phoneLoginFormRef: any = ref(null);
+
+	const phoneLoginRules = {
+		phone: [
+			{ required: true, message: "手机号不能为空", trigger: "blur" },
+			{
+				pattern: /^\d{11}$/,
+				message: "手机号格式不正确，必须为11位有效数字",
+				trigger: "blur",
+			},
+		],
+		code: [
+			{ required: true, message: "验证码不能为空", trigger: "blur" },
+			{
+				pattern: /^\d{4,6}$/,
+				message: "验证码必须为4到6位数字",
+				trigger: "blur",
+			},
+		],
+	};
+
+	const validateAndLoginByPhone = async () => {
+		await phoneLoginFormRef.value.validate();
+		onLogin();
 	};
 </script>
 

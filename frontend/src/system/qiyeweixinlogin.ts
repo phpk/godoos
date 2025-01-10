@@ -5,7 +5,6 @@ export async function authWithWechat(): Promise<boolean> {
   const queryParams = new URLSearchParams(window.location.search);
   const code = queryParams.get("code");
   if (!code) {
-    alert("登录失败，无法继续操作");
     return false;
   }
   return await toLogin(code);
@@ -36,7 +35,7 @@ async function toLogin(code: string): Promise<boolean> {
       return true;
     }
   } catch (error) {
-    alert(error);
+    console.error(error);
   }
   return false;
 }
