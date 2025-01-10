@@ -68,7 +68,7 @@
 				<span
 					class="path-p"
 					:key="p"
-					v-for="(p, index) in modelValue?.split('/').slice(1)"
+					v-for="(p, index) in modelValue?.split(Split).slice(1)"
 					@click.stop="handlePathPClick(index)"
 				>
 					{{ p }}<span class="iconfont icon-arrow-down"></span
@@ -108,7 +108,13 @@
 		"refresh",
 		"search",
 	]);
-
+	const Split = computed(() => {
+		if(props.modelValue?.indexOf("/") === -1){
+			return "\\";
+		}else{
+			return "/";
+		}
+	});
 	function backFolder() {
 		emit("backFolder");
 	}
@@ -144,9 +150,9 @@
 
 	function handlePathPClick(index: number) {
 		const path = props.modelValue
-			?.split("/")
+			?.split(Split.value)
 			.slice(0, index + 2)
-			.join("/");
+			.join(Split.value);
 		if (path === undefined) return;
 		if (path === props.modelValue) return;
 		emit("refresh", path);

@@ -378,7 +378,8 @@ async function handleNavRefresh(path: string) {
 	}
 }
 async function handleNavSearch(path: string) {
-	setRouter("search:" + path);
+	console.log(path)
+	//setRouter("search:" + path);
 	refersh();
 }
 document.addEventListener('paste', function() {

@@ -98,8 +98,10 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 - ***完善的应用商店体系，简单学习一下[应用商店配置](./docs/Store.md)即可开发出复杂的应用***
 
 ## 💖 开源地址
-- [Gitee](https://gitee.com/ruitao_admin/godoos)
+- [Gitee](https://gitee.com/godoos/godoos)
+- [Gitcode](https://gitcode.com/aiok/godoos)
 - [Github](https://github.com/phpk/godoos)
+
 
 ## 🚀 演示视频
 - [全程操作](https://www.bilibili.com/video/BV1NdvaeEEz3/?vd_source=739e0e59aeefdb2e9f760e5037d00245)
@@ -444,4 +446,4 @@ chmod +x osadmin_linux_amd64
 ## 💌 支持作者
 
 如果觉得不错，或者已经在使用了，希望你可以去 
-<a target="_blank" href="https://gitee.com/ruitao_admin/godoos">Gitee</a> 帮我点个 ⭐ Star，这将是对我极大的鼓励与支持。
+<a target="_blank" href="https://gitee.com/godoos/godoos">Gitee</a> <a target="_blank" href="https://gitcode.com/aiok/godoos">GitCode</a> <a target="_blank" href="https://github.com/phpk/godoos">Github</a> 帮我点个 ⭐ Star，这将是对我极大的鼓励与支持。
