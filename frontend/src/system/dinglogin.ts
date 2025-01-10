@@ -14,11 +14,11 @@ export function loadScript(url: string): Promise<void> {
   })
 }
 
-const currentUrl = window.location.origin
+// const currentUrl = window.location.origin
 
 export async function authWithDing(): Promise<boolean> {
   try {
-    const res = await fetch(currentUrl + "/user/ding/conf");
+    const res = await fetch("http://server001.godoos.com/user/ding/conf");
     const data = await res.json();
     console.log(data)
     if (data.success) {
@@ -61,13 +61,13 @@ async function toLogin(code: string): Promise<boolean> {
       code,
     },
   };
-  const res = await fetch(currentUrl + "/user/login", {
+  const res = await fetch("http://server001.godoos.com/user/login", {
     method: "POST",
     body: JSON.stringify(data),
   });
   const jsondata = await res.json();
   if (jsondata.success) {
-    jsondata.data.url = currentUrl;
+    jsondata.data.url = "http://server001.godoos.com";
     config.userInfo = jsondata.data;
     config.userType = "member";
     setSystemConfig(config);

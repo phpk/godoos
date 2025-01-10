@@ -11,6 +11,8 @@ export const useLoginStore = defineStore("login", () => {
   const tempClientId = ref<string>("");
   const ThirdPartyLoginMethod = ref("login");
 
+  const thirdpartyList = ref([]);
+
   const registerInfo = ref({
     "username": "",
     "nickname": "",
@@ -29,5 +31,6 @@ export const useLoginStore = defineStore("login", () => {
     tempToken,
     tempClientId,
     registerInfo,
+    thirdpartyList,
   };
 },);

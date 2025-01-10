@@ -108,12 +108,12 @@ export class System {
     const login_type = new URLSearchParams(window.location.search).get("login_type");
     if (login_type === "dingding") {
       let islogin = await authWithDing();
-      alert(islogin);
       if (!islogin) {
         alert("登录失败，无法继续操作");
         return;
       }
     }
+    // 企业微信登录
     if (login_type === "qiyeweixin") {
       let islogin = await authWithWechat();
       if (!islogin) {
@@ -122,6 +122,16 @@ export class System {
       }
     }
 
+    // // 第三方登录
+    // if (login_type === "thirdapi") {
+    //   const unionid = new URLSearchParams(window.location.search).get("unionid");
+    //   if (unionid) {
+    //     let islogin = await authWithThirdParty(unionid);
+    //     if (!islogin) {
+    //       return;
+    //     }
+    //   }
+    // }
     // 判断是否登录
     await this.isLogin();
 
@@ -268,7 +278,7 @@ export class System {
             window.location.href = "/";
             return true;
           } else {
-            notifyError(jsondata.message);
+            notifyError("登录失败");
             return false;
           }
         };
