@@ -47,19 +47,24 @@
 					<span>第三方登录</span>
 				</div>
 				<div class="third-party-login">
-					<img
+					<el-tooltip
 						v-for="platform in availablePlatforms"
 						:key="platform.name"
-						:src="platform.icon"
-						:alt="platform.name"
-						style="
-							width: 25px;
-							height: 25px;
-							cursor: pointer;
-							color: #409eff;
-						"
-						@click="onThirdPartyLogin(platform.name)"
-					/>
+						:content="platform.content"
+						placement="top"
+					>
+						<img
+							:src="platform.icon"
+							:alt="platform.name"
+							style="
+								width: 25px;
+								height: 25px;
+								cursor: pointer;
+								color: #409eff;
+							"
+							@click="onThirdPartyLogin(platform.name)"
+						/>
+					</el-tooltip>
 				</div>
 				<div class="actions">
 					<a
@@ -557,30 +562,37 @@
 		{
 			name: "qyweixin",
 			icon: new URL("@/assets/login/qywechat.png", import.meta.url).href,
+			content: "企业微信",
 		},
 		{
 			name: "dingding",
 			icon: new URL("@/assets/login/dingding.png", import.meta.url).href,
+			content: "钉钉",
 		},
 		{
 			name: "phone",
 			icon: new URL("@/assets/login/phone.png", import.meta.url).href,
+			content: "手机号",
 		},
 		{
 			name: "github",
 			icon: new URL("@/assets/login/github.png", import.meta.url).href,
+			content: "Github",
 		},
 		{
 			name: "gitee",
 			icon: new URL("@/assets/login/gitee.png", import.meta.url).href,
+			content: "Gitee",
 		},
 		{
 			name: "email",
 			icon: new URL("@/assets/login/email.png", import.meta.url).href,
+			content: "邮箱",
 		},
 		{
 			name: "thirdparty",
 			icon: new URL("@/assets/login/login.png", import.meta.url).href,
+			content: "第三方服务登录",
 		},
 	];
 
