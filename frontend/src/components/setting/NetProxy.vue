@@ -2,9 +2,18 @@
 	import { useProxyStore } from "@/stores/proxy";
 	import { notifyError, notifySuccess } from "@/util/msg";
 	import { Plus } from "@element-plus/icons-vue";
-	import { ref } from "vue";
+	import { onMounted, ref } from "vue";
+	import { useRoute } from "vue-router";
 
+	const route = useRoute();
 	const proxyStore = useProxyStore();
+	const {
+		proxies,
+		fetchProxies,
+		fetchProxyByName,
+		deleteProxyByName,
+		updateProxyByName,
+	} = proxyStore;
 
 	const proxyDialogShow = ref(false);
 	const isEditing = ref(false);
@@ -24,20 +33,11 @@
 
 	const addProxy = () => {
 		if (pwdRef.value.validate()) {
-			// const isNameDuplicate = proxyStore.proxies.some(
-			// 	(p) => p.name === proxyStore.proxyData.name
-			// );
-			// if (isNameDuplicate) {
-			// 	notifyError("代理名称已存在");
-			// 	return;
-			// }
-			// proxyStore.addProxy({ ...proxyStore.proxyData });
-			// proxyDialogShow.value = false;
-			// proxyStore.resetProxyData();
-			// 调用 store 中的 createFrpcConfig 方法
 			proxyStore
 				.createFrpcConfig()
 				.then(() => {
+					proxyDialogShow.value = false;
+					proxyStore.addProxy({ ...proxyStore.proxyData });
 					proxyDialogShow.value = false;
 					proxyStore.resetProxyData();
 					notifySuccess("代理配置已成功创建");
@@ -48,24 +48,16 @@
 		}
 	};
 
-	const updateProxy = () => {
+	const updateProxy = async () => {
 		if (pwdRef.value.validate()) {
-			const index = proxyStore.proxies.findIndex(
-				(p) => p.id === proxyStore.proxyData.id
-			);
-			if (index !== -1) {
-				const isNameDuplicate = proxyStore.proxies.some(
-					(p, i) =>
-						p.name === proxyStore.proxyData.name && i !== index
-				);
-				if (isNameDuplicate) {
-					notifyError("代理名称已存在");
-					return;
-				}
-				proxyStore.updateProxy({ ...proxyStore.proxyData });
+			try {
+				await updateProxyByName(proxyStore.proxyData);
+				notifySuccess("编辑成功");
 				proxyDialogShow.value = false;
 				proxyStore.resetProxyData();
 				isEditing.value = false;
+			} catch (error) {
+				notifyError(`编辑失败: ${error.message}`);
 			}
 		}
 	};
@@ -120,6 +112,34 @@
 			}
 		});
 	};
+
+	const loadProxies = async () => {
+		await fetchProxies();
+	};
+
+	const editProxyBefore = async (proxy: any) => {
+		await fetchProxyByName(proxy.name);
+		proxyDialogShow.value = true;
+		isEditing.value = true;
+	};
+
+	const deleteProxy = async (name: string) => {
+		try {
+			await deleteProxyByName(name);
+			notifySuccess("删除成功");
+		} catch (error) {
+			console.error("Error deleting proxy:", error);
+			notifyError(`删除失败: ${error.message}`);
+		}
+	};
+
+	onMounted(() => {
+		loadProxies();
+		const name = route.query.name as string;
+		if (name) {
+			fetchProxyByName(name);
+		}
+	});
 </script>
 
 <template>
@@ -154,21 +174,29 @@
 			<el-table-column
 				prop="domain"
 				label="代理域名"
-				width="180"
 			/>
 			<el-table-column label="操作">
 				<template #default="scope">
-					<el-button
-						size="small"
-						@click="editProxy(scope.row)"
-						>编辑</el-button
+					<el-row
+						:gutter="24"
+						justify="start"
 					>
-					<el-button
-						size="small"
-						type="danger"
-						@click="deleteProxy(scope.row.id)"
-						>删除</el-button
-					>
+						<el-col :span="10">
+							<el-button
+								size="small"
+								@click="editProxyBefore(scope.row)"
+								>编辑</el-button
+							>
+						</el-col>
+						<el-col :span="10">
+							<el-button
+								size="small"
+								type="danger"
+								@click="deleteProxy(scope.row.name)"
+								>删除</el-button
+							>
+						</el-col>
+					</el-row>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -525,8 +553,9 @@
 						type="primary"
 						@click="saveProxy"
 						style="width: 100px"
-						>保存</el-button
 					>
+						{{ isEditing ? '编辑' : '保存' }}
+					</el-button>
 					<el-button
 						type="primary"
 						style="width: 100px"

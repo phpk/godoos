@@ -579,18 +579,18 @@ func DeleteFrpcConfigHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateFrpcConfigHandler(w http.ResponseWriter, r *http.Request) {
-	// 获取请求参数中的 name
-	name := r.URL.Query().Get("name")
-	if name == "" {
-		http.Error(w, "Name parameter is required", http.StatusBadRequest)
-		return
-	}
-
 	// 解析请求体中的更新数据
 	var updateData Proxy
 	err := json.NewDecoder(r.Body).Decode(&updateData)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// 从更新数据中获取 name
+	name := updateData.Name
+	if name == "" {
+		http.Error(w, "Name field is required in the request body", http.StatusBadRequest)
 		return
 	}
 

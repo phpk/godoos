@@ -28,7 +28,7 @@ export interface ProxyItem {
 export const useProxyStore = defineStore('proxyStore', () => {
   const localKey = "godoos_net_proxy";
 
-  const proxies = ref<ProxyItem[]>(getProxies());
+  const proxies = ref<ProxyItem[]>([]);
   const customDomains = ref<string[]>([""]);
   const proxyData = ref<ProxyItem>(createNewProxyData());
 
@@ -58,10 +58,6 @@ export const useProxyStore = defineStore('proxyStore', () => {
     };
   }
 
-  function getProxies(): ProxyItem[] {
-    const proxies = localStorage.getItem(localKey);
-    return proxies ? JSON.parse(proxies) : [];
-  }
 
   function saveProxies(proxies: ProxyItem[]) {
     localStorage.setItem(localKey, JSON.stringify(proxies));
@@ -160,10 +156,126 @@ export const useProxyStore = defineStore('proxyStore', () => {
 
       const data = await response.json();
       console.log("Response data:", data);
-      // 可以在这里添加成功通知
     } catch (error) {
       console.error("Error:", error);
-      // 可以在这里添加错误通知
+    }
+  };
+
+  const fetchProxies = async () => {
+    const url = "http://localhost:56780/frpc/list";
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        proxies.value = data.data;
+        saveProxies(proxies.value);
+      } else {
+        console.error("Failed to retrieve proxies:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching proxies:", error);
+    }
+  };
+
+  const fetchProxyByName = async (name: string) => {
+    const url = `http://localhost:56780/frpc/get?name=${encodeURIComponent(name)}`;
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      const text = await response.text();
+      console.log("Response text:", text);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = JSON.parse(text);
+      if (data.success) {
+        proxyData.value = data.data.proxy;
+        customDomains.value = proxyData.value.customDomains || [""];
+      } else {
+        console.error("Failed to retrieve proxy:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching proxy:", error);
+    }
+  };
+
+  const deleteProxyByName = async (name: string) => {
+    const url = `http://localhost:56780/frpc/delete?name=${encodeURIComponent(name)}`;
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        proxies.value = proxies.value.filter(p => p.name !== name);
+        saveProxies(proxies.value);
+        console.log("Proxy deleted successfully");
+      } else {
+        console.error("Failed to delete proxy:", data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting proxy:", error);
+    }
+  };
+
+  const updateProxyByName = async (proxy: ProxyItem) => {
+    const url = `http://localhost:56780/frpc/update`;
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(proxy)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        const index = proxies.value.findIndex(p => p.name === proxy.name);
+        if (index !== -1) {
+          proxies.value[index] = proxy;
+          saveProxies(proxies.value);
+          console.log("Proxy updated successfully");
+        }
+      } else {
+        console.error("Failed to update proxy:", data.message);
+      }
+    } catch (error) {
+      console.error("Error updating proxy:", error);
     }
   };
 
@@ -178,5 +290,9 @@ export const useProxyStore = defineStore('proxyStore', () => {
     removeCustomDomain,
     resetProxyData,
     createFrpcConfig,
+    fetchProxies,
+    fetchProxyByName,
+    deleteProxyByName,
+    updateProxyByName,
   };
 });
