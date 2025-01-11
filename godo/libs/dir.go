@@ -266,3 +266,27 @@ func PathExists(dir string) bool {
 		return false
 	}
 }
+
+func GetAppExecDir() string {
+	// 获取当前用户主目录
+	homeDir, err := GetAppDir()
+	if err != nil {
+		return ".godoos"
+	}
+	return filepath.Join(homeDir, "app")
+}
+
+func GetCmdPath(path string, name string) (string, error) {
+	// 根据操作系统添加.exe后缀
+	binaryExt := ""
+	if runtime.GOOS == "windows" {
+		binaryExt = ".exe"
+	}
+	scriptName := name + binaryExt
+	exeDir := GetAppExecDir() // 获取执行程序的目录
+	scriptPath := filepath.Join(exeDir, path, scriptName)
+	if !PathExists(scriptPath) {
+		return "", fmt.Errorf("script %s not found", scriptPath)
+	}
+	return scriptPath, nil
+}
