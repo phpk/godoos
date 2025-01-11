@@ -171,10 +171,13 @@ func OsStart() {
 	// 注册frpc路由
 	frpcRouter := router.PathPrefix("/frpc").Subrouter()
 	frpcRouter.HandleFunc("/create", proxy.CreateFrpcHandler).Methods(http.MethodPost)
-	frpcRouter.HandleFunc("/delete", proxy.DeleteFrpcConfigHandler).Methods(http.MethodGet) // 删除frpc配置
-	frpcRouter.HandleFunc("/get", proxy.GetFrpcConfigHandler).Methods(http.MethodGet)       // 获取frpc配置
-	frpcRouter.HandleFunc("/list", proxy.GetFrpcProxiesHandler).Methods(http.MethodGet)     // 获取frpc代理列表
+	frpcRouter.HandleFunc("/delete", proxy.DeleteFrpcConfigHandler).Methods(http.MethodGet)  // 删除frpc配置
+	frpcRouter.HandleFunc("/get", proxy.GetFrpcConfigHandler).Methods(http.MethodGet)        // 获取frpc配置
+	frpcRouter.HandleFunc("/list", proxy.GetFrpcProxiesHandler).Methods(http.MethodGet)      // 获取frpc代理列表
 	frpcRouter.HandleFunc("/update", proxy.UpdateFrpcConfigHandler).Methods(http.MethodPost) // 更新frpc配置
+	frpcRouter.HandleFunc("/start", proxy.StartFrpcHandler).Methods(http.MethodPost)         // 启动frpc服务
+	frpcRouter.HandleFunc("/stop", proxy.StopFrpcHandler).Methods(http.MethodPost)           // 停止frpc服务
+	frpcRouter.HandleFunc("/restart", proxy.RestartFrpcHandler).Methods(http.MethodPost)     // 重启frpc服务
 
 	// 注册根路径的处理函数
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")

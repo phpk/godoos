@@ -10,13 +10,18 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
+	"strings"
 	"sync"
+
+	"github.com/shirou/gopsutil/process"
 )
 
 type Process struct {
 	Name     string
 	Running  bool
 	ExitCode int
+	Pid      int
 	Cmd      *exec.Cmd
 }
 
@@ -31,6 +36,7 @@ func RegisterProcess(name string, cmdstr *exec.Cmd) {
 	processes[name] = &Process{
 		Name:    name,
 		Running: true,
+		Pid:     cmdstr.Process.Pid,
 		Cmd:     cmdstr,
 	}
 }
@@ -121,15 +127,24 @@ func StopCmd(name string) error {
 	if !ok {
 		return fmt.Errorf("process information for '%s' not found", name)
 	}
+	if cmd.Running == false {
+		return nil
+	}
 
 	// 停止进程并更新status
-	if err := cmd.Cmd.Process.Kill(); err != nil {
+	// TODO: 如果有多个pid 的情况，需要处理
+	if err := KillByPid(cmd.Pid); err != nil {
 		return fmt.Errorf("failed to kill process %s: %v", name, err)
 	}
+
+	// if err := cmd.Cmd.Process.Kill(); err != nil {
+	// 	return fmt.Errorf("failed to kill process %s: %v", name, err)
+	// }
 	//delete(processes, name) // 更新status，表示进程已停止
 	cmd.Running = false
 	return nil
 }
+
 func RestartCmd(name string) error {
 	if err := StopCmd(name); err != nil {
 		return err
@@ -146,4 +161,42 @@ func StopAllCmd() error {
 		}
 	}
 	return nil
+}
+
+func KillByPid(pid int) error {
+	log.Println("Killing process with PID:", pid)
+	p, err := process.NewProcess(int32(pid))
+	if err != nil {
+		return fmt.Errorf("failed to create process object: %w", err)
+	}
+
+	// 杀死进程及其子进程
+	if err := p.Kill(); err != nil {
+		return fmt.Errorf("failed to kill process: %w", err)
+	}
+	return nil
+}
+
+// findPidsWindows 在 Windows 系统下查找具有指定名称的进程的 PID
+func findPidsWindows(name string) ([]int, error) {
+	cmd := exec.Command("tasklist")
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute tasklist: %w", err)
+	}
+	lines := strings.Split(string(output), "\r\n")
+	var pids []int
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		if len(fields) >= 3 {
+			if strings.Contains(strings.ToLower(fields[0]), strings.ToLower(name)) {
+				pid, err := strconv.Atoi(fields[1])
+				if err != nil {
+					return nil, fmt.Errorf("failed to convert PID to integer: %w", err)
+				}
+				pids = append(pids, pid)
+			}
+		}
+	}
+	return pids, nil
 }
