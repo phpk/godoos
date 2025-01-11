@@ -168,6 +168,13 @@ func OsStart() {
 	proxyRouter.HandleFunc("/local/get", proxy.GetLocalProxyHandler).Methods(http.MethodGet)
 	proxyRouter.HandleFunc("/local/list", proxy.GetLocalProxiesHandler).Methods(http.MethodGet)
 	proxyRouter.HandleFunc("/local/update", proxy.UpdateLocalProxyHandler).Methods(http.MethodPost)
+	// 注册frpc路由
+	frpcRouter := router.PathPrefix("/frpc").Subrouter()
+	frpcRouter.HandleFunc("/create", proxy.CreateFrpcHandler).Methods(http.MethodPost)
+	frpcRouter.HandleFunc("/delete", proxy.DeleteFrpcConfigHandler).Methods(http.MethodGet) // 删除frpc配置
+	frpcRouter.HandleFunc("/get", proxy.GetFrpcConfigHandler).Methods(http.MethodGet)       // 获取frpc配置
+	frpcRouter.HandleFunc("/list", proxy.GetFrpcProxiesHandler).Methods(http.MethodGet)     // 获取frpc代理列表
+	frpcRouter.HandleFunc("/update", proxy.UpdateFrpcConfigHandler).Methods(http.MethodPost) // 更新frpc配置
 
 	// 注册根路径的处理函数
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")

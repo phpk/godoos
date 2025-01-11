@@ -46,4 +46,5 @@ require (
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
+	gopkg.in/ini.v1 v1.67.0
 )

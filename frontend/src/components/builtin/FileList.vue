@@ -52,6 +52,7 @@
 		}
 			"
 	>
+  <!-- {{item.name}} -->
 		<div class="file-item_img">
 			<FileIcon :file="item" />
 		</div>
