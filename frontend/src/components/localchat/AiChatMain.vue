@@ -132,7 +132,7 @@ const createCompletion = async () => {
     };
 
     const chatConfig = modelStore.chatConfig.chat;
-    const knowledgeId = chatStore.chatInfo.knowledgeId;
+    const knowledgeId = chatStore.chatInfo.knowledgeId*1;
     let postMsg: any = {
       messages: requestMessages.value,
       model: chatStore.chatInfo.model,
