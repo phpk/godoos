@@ -3,3 +3,7 @@ deps/dist
 deps/*.zip
 godo
 testdata
+deps/darwin/*.zip
+deps/linux/*.zip
+deps/windows/*.zip
+.DS_Store
