@@ -280,9 +280,9 @@ func handleGodoosFile(filePath string, knowledgeId uint) error {
 	// 检查是否为 .godoos 文件
 	if strings.HasPrefix(baseName, ".godoos.") {
 		// 去掉 .godoos. 前缀和 .json 后缀
-		fileName := strings.TrimSuffix(strings.TrimPrefix(baseName, ".godoos."), ".json")
-		//提取实际文件名部分
-		actualFileName := extractFileName(fileName)
+		// fileName := strings.TrimSuffix(strings.TrimPrefix(baseName, ".godoos."), ".json")
+		// //提取实际文件名部分
+		// actualFileName := extractFileName(fileName)
 
 		// 读取文件内容
 		content, err := os.ReadFile(filePath)
@@ -304,6 +304,10 @@ func handleGodoosFile(filePath string, knowledgeId uint) error {
 
 		// 获取向量数据
 		knowData, err := GetVector(knowledgeId)
+		if err != nil {
+			return err
+		}
+		basePath, err := libs.GetOsDir()
 		if err != nil {
 			return err
 		}
@@ -329,8 +333,8 @@ func handleGodoosFile(filePath string, knowledgeId uint) error {
 			//log.Printf("Adding document: %s", res)
 			vectordoc := model.VecDoc{
 				Content:  res,
-				FilePath: filePath,
-				FileName: actualFileName,
+				FilePath: strings.TrimPrefix(doc.RePath, basePath),
+				FileName: doc.Title,
 				ListID:   knowledgeId,
 			}
 			vectordocs = append(vectordocs, vectordoc)
@@ -348,11 +352,11 @@ func handleGodoosFile(filePath string, knowledgeId uint) error {
 	}
 }
 
-func extractFileName(fileName string) string {
-	// 假设文件名格式为：21.GodoOS企业版介绍
-	parts := strings.SplitN(fileName, ".", 3)
-	if len(parts) < 2 {
-		return fileName
-	}
-	return parts[1]
-}
+// func extractFileName(fileName string) string {
+// 	// 假设文件名格式为：21.GodoOS企业版介绍
+// 	parts := strings.SplitN(fileName, ".", 3)
+// 	if len(parts) < 2 {
+// 		return fileName
+// 	}
+// 	return parts[1]
+// }

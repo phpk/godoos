@@ -10,7 +10,6 @@ import (
 	"godo/office"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -73,13 +72,9 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 			libs.ErrorMsg(w, err.Error())
 			return
 		}
-		basePath, err := libs.GetOsDir()
-		if err != nil {
-			libs.ErrorMsg(w, "get vector db path error:"+err.Error())
-			return
-		}
+
 		for _, s := range resk {
-			s.FilePath = strings.TrimPrefix(s.FilePath, basePath)
+			// s.FilePath = strings.TrimPrefix(s.FilePath, basePath)
 			res.Documents = append(res.Documents, types.AskDocResponse{Content: s.Content, Score: s.Score, FilePath: s.FilePath, FileName: s.FileName})
 		}
 		libs.SuccessMsg(w, res, "")
