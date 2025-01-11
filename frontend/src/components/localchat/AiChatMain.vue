@@ -21,6 +21,7 @@ const messageContainerRef = ref<InstanceType<typeof ElScrollbar>>();
 const messageInnerRef = ref<HTMLDivElement>();
 // User Input Message
 const userMessage = ref("");
+const knowledgeId = ref(0)
 const promptMessage = computed(() => {
   return [
     {
@@ -34,7 +35,9 @@ const promptMessage = computed(() => {
   ];
 });
 onMounted(async () => {
-  await chatStore.initChat()
+  knowledgeId.value = win?.config?.knowledgeId || 0
+  console.log(knowledgeId.value, 'knowledgeId')
+  await chatStore.initChat(knowledgeId.value)
   //await aiStore.initChat()
 });
 const requestMessages = computed(() => {
@@ -95,7 +98,7 @@ const sendMessage = async () => {
   if (userMessage.value) {
     // Add the message to the list
     if (isPadding.value === true) return;
-    let saveMessage:any = {
+    let saveMessage: any = {
       content: userMessage.value,
       chatId: chatStore.activeId,
       role: "user",
@@ -103,7 +106,7 @@ const sendMessage = async () => {
       createdAt: Date.now(),
     };
     chatStore.messageList.push(saveMessage);
-    
+
     await chatStore.addMessages(chatStore.activeId, saveMessage);
 
     // Clear the input
@@ -129,7 +132,7 @@ const createCompletion = async () => {
     };
 
     const chatConfig = modelStore.chatConfig.chat;
-    const knowledgeId = win?.config?.knowledgeId*1 || 0;
+    const knowledgeId = win?.config?.knowledgeId * 1 || 0;
     let postMsg: any = {
       messages: requestMessages.value,
       model: chatStore.chatInfo.model,
@@ -139,7 +142,7 @@ const createCompletion = async () => {
       fileContent: fileContent.value,
       fileName: fileName.value,
       options: chatConfig,
-      knowledgeId:knowledgeId,
+      knowledgeId: knowledgeId,
     };
     if (imageData.value != "") {
       const img2txtModel = await modelStore.getModel("img2txt");
@@ -158,10 +161,10 @@ const createCompletion = async () => {
             images: [imageData.value],
           },
         ],
-        knowledgeId:knowledgeId,
+        knowledgeId: knowledgeId,
       };
     }
-    
+
     const postData: any = {
       method: "POST",
       body: JSON.stringify(postMsg),
