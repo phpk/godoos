@@ -44,7 +44,8 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 		for _, s := range searchRes {
 			res.WebSearch = append(res.WebSearch, types.WebSearchResult{Title: s.Title, Content: s.Content, Link: s.Url})
 		}
-		libs.SuccessMsg(w, res, "")
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
 		return
 	}
 	if req.FileContent != "" {
@@ -58,7 +59,8 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 			libs.ErrorMsg(w, err.Error())
 			return
 		}
-		libs.SuccessMsg(w, res, "")
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
 		return
 	}
 	if req.KnowledgeId != 0 {
@@ -77,7 +79,8 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 			// s.FilePath = strings.TrimPrefix(s.FilePath, basePath)
 			res.Documents = append(res.Documents, types.AskDocResponse{Content: s.Content, Score: s.Score, FilePath: s.FilePath, FileName: s.FileName})
 		}
-		libs.SuccessMsg(w, res, "")
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
 		return
 	}
 

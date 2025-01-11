@@ -12,43 +12,21 @@ type ChatRequest struct {
 	KnowledgeId uint                   `json:"knowledgeId"`
 }
 
-type InvokeResp struct {
-	RequestID      string   `json:"requestId"`
-	Content        string   `json:"content"`
-	Problems       []string `json:"problems"`
-	DocumentSlices []struct {
-		Document      Document `json:"document"`
-		SliceInfo     []Slice  `json:"slice_info"`
-		HidePositions bool     `json:"hide_positions"`
-		Images        []Image  `json:"images"`
-	} `json:"documents"`
-}
 type AskDocResponse struct {
-	Content  string  `json:"content"`
-	Score    float32 `json:"score"`
-	FilePath string  `json:"file_path"`
-	FileName string  `json:"file_name"`
-}
-type Document struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	URL   string `json:"url"`
-	Dtype int    `json:"dtype"`
+	Content  string   `json:"content"`
+	Score    float32  `json:"score"`
+	FilePath string   `json:"file_path"`
+	FileName string   `json:"file_name"`
+	Position Position `json:"position,omitempty"`
 }
 
-type Slice struct {
-	DocumentID string    `json:"document_id"`
-	Position   *Position `json:"position,omitempty"`
-	Line       int       `json:"line,omitempty"`
-	SheetName  string    `json:"sheet_name,omitempty"`
-	Text       string    `json:"text"`
-}
 type Position struct {
 	X0     float64 `json:"x0"`
 	X1     float64 `json:"x1"`
 	Top    float64 `json:"top"`
 	Bottom float64 `json:"bottom"`
 	Page   int     `json:"page"`
+	Line   int     `json:"line"`
 	Height float64 `json:"height"`
 	Width  float64 `json:"width"`
 }
@@ -65,6 +43,8 @@ type OpenAIResponse struct {
 	Usage     Usage             `json:"usage"`
 	WebSearch []WebSearchResult `json:"web_search,omitempty"`
 	Documents []AskDocResponse  `json:"documents"`
+	Problems  []string          `json:"problems"`
+	Images    []string          `json:"images"`
 }
 type Choice struct {
 	Index        int        `json:"index"`
