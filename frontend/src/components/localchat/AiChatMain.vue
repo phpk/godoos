@@ -6,7 +6,7 @@ import { notifyError } from "@/util/msg.ts";
 import { ElScrollbar } from "element-plus";
 import { getSystemConfig } from "@/system/config";
 import { Vue3Lottie } from "vue3-lottie";
-import { BrowserWindow } from "@/system";
+import { BrowserWindow, useSystem } from "@/system";
 import { isMobileDevice } from "@/util/device";
 const chatStore = useAiChatStore();
 const modelStore = useModelStore();
@@ -22,6 +22,7 @@ const messageInnerRef = ref<HTMLDivElement>();
 // User Input Message
 const userMessage = ref("");
 const knowledgeId = ref(0)
+const system = useSystem()
 const promptMessage = computed(() => {
   return [
     {
@@ -132,7 +133,7 @@ const createCompletion = async () => {
     };
 
     const chatConfig = modelStore.chatConfig.chat;
-    const knowledgeId = chatStore.chatInfo.knowledgeId*1;
+    const knowledgeId = chatStore.chatInfo.knowledgeId * 1;
     let postMsg: any = {
       messages: requestMessages.value,
       model: chatStore.chatInfo.model,
@@ -182,11 +183,17 @@ const createCompletion = async () => {
       return;
     }
     const res = await completion.json();
-    //console.log(res)
+    console.log(res)
     if (res && res.choices && res.choices.length > 0) {
       if (res.choices[0].message.content) {
         const msg = res.choices[0].message.content;
         saveMessage.content = msg;
+        if (res.documents && res.documents.length > 0) {
+          saveMessage.doc = res.documents;
+        }
+        if (res.web_search && res.web_search.length > 0) {
+          saveMessage.web_search = res.web_search;
+        }
         chatStore.messageList.push(saveMessage);
         await chatStore.addMessages(chatStore.activeId, saveMessage);
       }
@@ -275,7 +282,8 @@ const uploadImage = async (event: any) => {
       <el-scrollbar v-if="chatStore.messageList.length > 0" class="message-container" ref="messageContainerRef">
         <div ref="messageInnerRef">
           <ai-chat-message v-for="message in chatStore.messageList" :key="message.messageId" :content="message.content"
-            :link="message.link" :role="message.role" :createdAt="message.createdAt" />
+            :link="message.link" :role="message.role" :createdAt="message.createdAt" :doc="message.doc || []"
+            :web_search="message.web_search || []" :system="system" />
         </div>
       </el-scrollbar>
       <div class="no-message-container" v-else>
