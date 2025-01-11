@@ -4,57 +4,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"godo/ai/search"
+	"godo/ai/types"
 	"godo/libs"
 	"godo/model"
 	"godo/office"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
-type ChatRequest struct {
-	Model       string                 `json:"model"`
-	Engine      string                 `json:"engine"`
-	Stream      bool                   `json:"stream"`
-	WebSearch   bool                   `json:"webSearch"`
-	FileContent string                 `json:"fileContent"`
-	FileName    string                 `json:"fileName"`
-	Options     map[string]interface{} `json:"options"`
-	Messages    []Message              `json:"messages"`
-	KnowledgeId uint                   `json:"knowledgeId"`
-}
-
-type Message struct {
-	Role    string   `json:"role"`
-	Content string   `json:"content"`
-	Images  []string `json:"images"`
-}
-
 func ChatHandler(w http.ResponseWriter, r *http.Request) {
 	var url string
-	var req ChatRequest
+	var req types.ChatRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		libs.ErrorMsg(w, "the chat request error:"+err.Error())
 		return
-	}
-	if req.WebSearch {
-		err = ChatWithWeb(&req)
-		if err != nil {
-			log.Printf("the chat with web error:%v", err)
-		}
-	}
-	if req.FileContent != "" {
-		err = ChatWithFile(&req)
-		if err != nil {
-			log.Printf("the chat with file error:%v", err)
-		}
-	}
-	if req.KnowledgeId != 0 {
-		err = ChatWithKnowledge(&req)
-		if err != nil {
-			log.Printf("the chat with knowledge error:%v", err)
-		}
 	}
 	headers, url, err := GetHeadersAndUrl(req, "chat")
 	// log.Printf("url: %s", url)
@@ -63,9 +29,66 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 		libs.ErrorMsg(w, "the chat request header or url errors:"+err.Error())
 		return
 	}
+	if req.WebSearch {
+		searchRes, err := ChatWithWeb(&req)
+		if err != nil {
+			log.Printf("the chat with web error:%v", err)
+			libs.ErrorMsg(w, err.Error())
+			return
+		}
+		res, err := SendChat(w, r, req, url, headers)
+		if err != nil {
+			log.Printf("the chat with web error:%v", err)
+			libs.ErrorMsg(w, err.Error())
+			return
+		}
+		for _, s := range searchRes {
+			res.WebSearch = append(res.WebSearch, types.WebSearchResult{Title: s.Title, Content: s.Content, Link: s.Url})
+		}
+		libs.SuccessMsg(w, res, "")
+		return
+	}
+	if req.FileContent != "" {
+		err = ChatWithFile(&req)
+		if err != nil {
+			log.Printf("the chat with file error:%v", err)
+		}
+		res, err := SendChat(w, r, req, url, headers)
+		if err != nil {
+			log.Printf("the chat with web error:%v", err)
+			libs.ErrorMsg(w, err.Error())
+			return
+		}
+		libs.SuccessMsg(w, res, "")
+		return
+	}
+	if req.KnowledgeId != 0 {
+		resk, err := ChatWithKnowledge(&req)
+		if err != nil {
+			log.Printf("the chat with knowledge error:%v", err)
+		}
+		res, err := SendChat(w, r, req, url, headers)
+		if err != nil {
+			log.Printf("the chat with web error:%v", err)
+			libs.ErrorMsg(w, err.Error())
+			return
+		}
+		basePath, err := libs.GetOsDir()
+		if err != nil {
+			libs.ErrorMsg(w, "get vector db path error:"+err.Error())
+			return
+		}
+		for _, s := range resk {
+			s.FilePath = strings.TrimPrefix(s.FilePath, basePath)
+			res.Documents = append(res.Documents, types.AskDocResponse{Content: s.Content, Score: s.Score, FilePath: s.FilePath, FileName: s.FileName})
+		}
+		libs.SuccessMsg(w, res, "")
+		return
+	}
+
 	ForwardHandler(w, r, req, url, headers, "POST")
 }
-func ChatWithFile(req *ChatRequest) error {
+func ChatWithFile(req *types.ChatRequest) error {
 	fileContent, err := office.ProcessBase64File(req.FileContent, req.FileName)
 	if err != nil {
 		return err
@@ -76,13 +99,14 @@ func ChatWithFile(req *ChatRequest) error {
 	}
 	userQuestion := fmt.Sprintf("请对\n%s\n的内容进行分析，给出对用户输入的回答: %s", fileContent, lastMessage)
 	log.Printf("the search file is %v", userQuestion)
-	req.Messages = append([]Message{}, Message{Role: "user", Content: userQuestion})
+	req.Messages = append([]types.Message{}, types.Message{Role: "user", Content: userQuestion})
 	return nil
 }
-func ChatWithKnowledge(req *ChatRequest) error {
+func ChatWithKnowledge(req *types.ChatRequest) ([]types.AskDocResponse, error) {
+	var res []types.AskDocResponse
 	lastMessage, err := GetLastMessage(*req)
 	if err != nil {
-		return err
+		return res, err
 	}
 	askrequest := model.AskRequest{
 		ID:    req.KnowledgeId,
@@ -90,35 +114,37 @@ func ChatWithKnowledge(req *ChatRequest) error {
 	}
 	var knowData model.VecList
 	if err := model.Db.First(&knowData, askrequest.ID).Error; err != nil {
-		return fmt.Errorf("the knowledge id is not exist")
+		return res, fmt.Errorf("the knowledge id is not exist")
 	}
 	//var filterDocs
 	filterDocs := []string{askrequest.Input}
 	// 获取嵌入向量
 	resList, err := GetEmbeddings(knowData.Engine, knowData.EmbeddingModel, filterDocs)
 	if err != nil {
-		return fmt.Errorf("the embeddings get error:%v", err)
+		return res, fmt.Errorf("the embeddings get error:%v", err)
 	}
-	res, err := model.AskDocument(askrequest.ID, resList[0])
+	resk, err := model.AskDocument(askrequest.ID, resList[0])
 	if err != nil {
-		return fmt.Errorf("the ask document error:%v", err)
+		return res, fmt.Errorf("the ask document error:%v", err)
 	}
 	msg := ""
-	for _, res := range res {
-		msg += fmt.Sprintf("- %s\n", res.Content)
+	for _, item := range resk {
+		msg += fmt.Sprintf("- %s\n", item.Content)
+		res = append(res, types.AskDocResponse{Content: item.Content, Score: item.Score, FilePath: item.FilePath, FileName: item.FileName})
 	}
 	prompt := fmt.Sprintf(`从文档\n\"\"\"\n%s\n\"\"\"\n中找问题\n\"\"\"\n%s\n\"\"\"\n的答案，找到答案就使用文档语句回答问题，找不到答案就用自身知识回答并且告诉用户该信息不是来自文档。\n不要复述问题，直接开始回答。`, msg, lastMessage)
-	req.Messages = append([]Message{}, Message{Role: "user", Content: prompt})
-	return nil
+	req.Messages = append([]types.Message{}, types.Message{Role: "user", Content: prompt})
+	return res, nil
 }
-func ChatWithWeb(req *ChatRequest) error {
+func ChatWithWeb(req *types.ChatRequest) ([]search.Entity, error) {
 	lastMessage, err := GetLastMessage(*req)
+	var searchRequest []search.Entity
 	if err != nil {
-		return err
+		return searchRequest, err
 	}
-	searchRequest := search.SearchWeb(lastMessage)
+	searchRequest = search.SearchWeb(lastMessage)
 	if len(searchRequest) == 0 {
-		return fmt.Errorf("the search web is empty")
+		return searchRequest, fmt.Errorf("the search web is empty")
 	}
 	var inputPrompt string
 	for _, search := range searchRequest {
@@ -139,11 +165,11 @@ func ChatWithWeb(req *ChatRequest) error {
 `, inputPrompt, currentDate, lastMessage)
 	//log.Printf("the search web is %v", searchPrompt)
 	// req.Messages = append([]Message{}, Message{Role: "assistant", Content: searchPrompt})
-	req.Messages = append([]Message{}, Message{Role: "user", Content: searchPrompt})
-	return nil
+	req.Messages = append([]types.Message{}, types.Message{Role: "user", Content: searchPrompt})
+	return searchRequest, nil
 }
 func EmbeddingHandler(w http.ResponseWriter, r *http.Request) {
-	var req ChatRequest
+	var req types.ChatRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		libs.ErrorMsg(w, "the chat request error:"+err.Error())
@@ -156,7 +182,7 @@ func EmbeddingHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	ForwardHandler(w, r, req, url, headers, "POST")
 }
-func GetLastMessage(req ChatRequest) (string, error) {
+func GetLastMessage(req types.ChatRequest) (string, error) {
 	if len(req.Messages) == 0 {
 		return "", fmt.Errorf("the messages is empty")
 	}

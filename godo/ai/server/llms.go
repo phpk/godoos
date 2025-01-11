@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"godo/ai/types"
 	"godo/libs"
 	"log"
 )
@@ -24,7 +25,7 @@ var OpenAIApiMaps = map[string]string{
 	"siliconflow": "https://api.siliconflow.cn/v1",
 }
 
-func GetHeadersAndUrl(req ChatRequest, chattype string) (map[string]string, string, error) {
+func GetHeadersAndUrl(req types.ChatRequest, chattype string) (map[string]string, string, error) {
 	// engine, ok := req["engine"].(string)
 	// if !ok {
 	// 	return nil, "", fmt.Errorf("invalid engine field in request")

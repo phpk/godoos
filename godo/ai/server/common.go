@@ -3,12 +3,43 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"godo/ai/types"
 	"godo/libs"
 	"io"
 	"log"
 	"net/http"
 )
 
+func SendChat(w http.ResponseWriter, r *http.Request, reqBody interface{}, url string, headers map[string]string) (types.OpenAIResponse, error) {
+	var res types.OpenAIResponse
+	payloadBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		return res, fmt.Errorf("Error marshaling payload")
+	}
+	// 创建POST请求，复用原始请求的上下文（如Cookies）
+	req, err := http.NewRequestWithContext(r.Context(), "POST", url, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		return res, fmt.Errorf("Failed to create request")
+	}
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+	//req.Header.Set("Content-Type", "application/json")
+
+	// 发送请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return res, fmt.Errorf("Failed to send request")
+	}
+	defer resp.Body.Close()
+
+	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return res, fmt.Errorf("Failed to decode response body")
+	}
+	return res, nil
+}
 func ForwardHandler(w http.ResponseWriter, r *http.Request, reqBody interface{}, url string, headers map[string]string, method string) {
 	payloadBytes, err := json.Marshal(reqBody)
 	if err != nil {

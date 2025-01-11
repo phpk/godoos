@@ -12,6 +12,7 @@ type VecDoc struct {
 	gorm.Model
 	Content  string `json:"content"`
 	FilePath string `json:"file_path" gorm:"not null"`
+	FileName string `json:"file_name"`
 	ListID   uint   `json:"list_id"`
 }
 
@@ -88,6 +89,7 @@ type AskDocResponse struct {
 	Content  string  `json:"content"`
 	Score    float32 `json:"score"`
 	FilePath string  `json:"file_path"`
+	FileName string  `json:"file_name"`
 }
 type AskRequest struct {
 	ID    uint   `json:"id"`
@@ -142,6 +144,7 @@ func AskDocument(listId uint, query []float32) ([]AskDocResponse, error) {
 			Content:  doc.Content,
 			Score:    results[i].Distance,
 			FilePath: doc.FilePath,
+			FileName: doc.FileName,
 		})
 	}
 	// 按 Score 降序排序

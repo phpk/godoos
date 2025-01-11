@@ -218,7 +218,31 @@ func GetDocument(pathname string) (*Document, error) {
 		_, err = getContentData(&data, html2txt)
 	case ".json":
 		_, err = getContentData(&data, json2txt)
+	// case ".md", ".txt", ".py", ".java", ".c", ".cpp", ".h", ".hpp", ".js", ".ts", ".go", ".rb", ".php", ".swift", ".kt", ".scala", ".rust", ".perl", ".bash", ".sh", ".lua", ".dart", ".r", ".matlab", ".pl", ".pm", ".tcl", ".sql", ".groovy", ".cs", ".vb", ".fs", ".hs", ".erl", ".elixir", ".crystal", ".nim", ".d", ".coffeescript", ".typescript", ".vue", ".svelte", ".jsx", ".tsx", ".html", ".css", ".scss", ".less", ".json", ".xml", ".yaml", ".yml", ".toml", ".ini", ".makefile", ".dockerfile", ".gitignore", ".editorconfig", ".prettierrc", ".eslintrc", ".babelrc", ".jsonp", ".graphql", ".proto", ".plist", ".edn":
+	// 	_, err = getContentData(&data, text2txt)
+	default:
+		_, err = getContentData(&data, text2txt)
 	}
+	if err != nil {
+		return &data, err
+	}
+	return &data, nil
+}
+func GetTxtDoc(pathname string) (*Document, error) {
+	if !libs.PathExists(pathname) {
+		return nil, fmt.Errorf("file does not exist: %s", pathname)
+	}
+	abPath, err := filepath.Abs(pathname)
+	if err != nil {
+		return nil, err
+	}
+	filename := path.Base(pathname)
+	data := Document{path: pathname, RePath: abPath, Title: filename}
+	_, err = getFileInfoData(&data)
+	if err != nil {
+		return &data, err
+	}
+	_, err = getContentData(&data, text2txt)
 	if err != nil {
 		return &data, err
 	}
