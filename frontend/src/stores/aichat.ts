@@ -104,7 +104,7 @@ export const useAiChatStore = defineStore(
         model: modelData.model,
         engine: modelData.info.engine,
         createdAt: Date.now(),
-        knowledgeId,
+        knowledgeId: knowledgeId || 0,
       }
       //console.log(newChat)
       activeId.value = await db.addOne('aichatlist', newChat)

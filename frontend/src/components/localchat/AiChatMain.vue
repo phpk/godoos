@@ -132,7 +132,7 @@ const createCompletion = async () => {
     };
 
     const chatConfig = modelStore.chatConfig.chat;
-    const knowledgeId = win?.config?.knowledgeId * 1 || 0;
+    const knowledgeId = chatStore.chatInfo.knowledgeId;
     let postMsg: any = {
       messages: requestMessages.value,
       model: chatStore.chatInfo.model,
