@@ -4,50 +4,49 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
+	"godo/libs"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-// extractZip 解压嵌入的 zip 文件到目标目录
-func extractZip(zipData []byte, targetDir string) error {
-	log.Println("Extracting embedded ZIP file...")
+func InitDir() error {
+	// 获取当前用户主目录
+	runDir := libs.GetAppExeDir()
+	if !libs.PathExists(runDir) {
+		if err := os.MkdirAll(runDir, 0o755); err != nil {
+			return fmt.Errorf("failed to create user directory: %v", err)
+		}
+		err := ExtractEmbeddedZip(runDir)
+		if err != nil {
+			return fmt.Errorf("failed to extract embedded zip: %v", err)
+		}
+
+	}
+
+	return nil
+}
+
+// ExtractEmbeddedZip 解压嵌入的ZIP文件到指定目录
+func ExtractEmbeddedZip(exeDir string) error {
 	// 使用内存缓冲区来读取嵌入的ZIP数据
-	reader := bytes.NewReader(zipData)
-	zipReader, err := zip.NewReader(reader, int64(len(zipData)))
+	reader := bytes.NewReader(embeddedZip)
+	zipReader, err := zip.NewReader(reader, int64(len(embeddedZip)))
 	if err != nil {
 		return fmt.Errorf("failed to create zip reader: %v", err)
 	}
 
 	// 遍历ZIP文件中的每个条目并解压
 	for _, zipEntry := range zipReader.File {
-		// 忽略 __MACOSX 文件夹
-		if strings.HasPrefix(zipEntry.Name, "__MACOSX") {
-			continue
-		}
-
 		// 检查条目名称是否以"."开头，如果是，则跳过
 		if strings.HasPrefix(zipEntry.Name, ".") {
 			fmt.Printf("Skipping hidden entry: %s\n", zipEntry.Name)
 			continue
 		}
 
-		// 去掉 ZIP 文件中的顶层目录(zip文件名本身)
-		entryName := zipEntry.Name
-		if idx := strings.Index(entryName, "/"); idx != -1 {
-			entryName = entryName[idx+1:] // 去掉顶层目录
-		}
-
-		// 如果 entryName 为空，说明是顶层目录本身，跳过
-		if entryName == "" {
-			continue
-		}
-
 		// 构建解压后的文件或目录路径
-		entryPath := filepath.Join(targetDir, entryName)
-		fmt.Println("Extracting:", entryName)
+		entryPath := filepath.Join(exeDir, zipEntry.Name)
 
 		// 如果是目录，则创建目录
 		if zipEntry.FileInfo().IsDir() {
@@ -80,7 +79,6 @@ func extractZip(zipData []byte, targetDir string) error {
 		}
 	}
 
-	log.Println("Embedded ZIP extracted to", targetDir)
-
+	fmt.Println("Embedded ZIP extracted to", exeDir)
 	return nil
 }

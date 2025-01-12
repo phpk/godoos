@@ -5,11 +5,10 @@ import (
 	"sort"
 
 	sqlite_vec "github.com/asg017/sqlite-vec-go-bindings/ncruces"
-	"gorm.io/gorm"
 )
 
 type VecDoc struct {
-	gorm.Model
+	BaseModel
 	Content  string `json:"content"`
 	FilePath string `json:"file_path" gorm:"not null"`
 	FileName string `json:"file_name"`

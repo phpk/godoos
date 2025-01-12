@@ -54,6 +54,7 @@ func OsStart() {
 	proxy.InitProxyHandlers()
 	vector.InitMonitorVector()
 	webdav.InitWebdav()
+	deps.InitDir()
 	router := mux.NewRouter()
 	router.Use(recoverMiddleware)
 	if libs.GetIsCors() {
@@ -171,13 +172,16 @@ func OsStart() {
 	// 注册frpc路由
 	frpcRouter := router.PathPrefix("/frpc").Subrouter()
 	frpcRouter.HandleFunc("/create", proxy.CreateFrpcHandler).Methods(http.MethodPost)
-	frpcRouter.HandleFunc("/delete", proxy.DeleteFrpcConfigHandler).Methods(http.MethodGet)  // 删除frpc配置
-	frpcRouter.HandleFunc("/get", proxy.GetFrpcConfigHandler).Methods(http.MethodGet)        // 获取frpc配置
-	frpcRouter.HandleFunc("/list", proxy.GetFrpcProxiesHandler).Methods(http.MethodGet)      // 获取frpc代理列表
-	frpcRouter.HandleFunc("/update", proxy.UpdateFrpcConfigHandler).Methods(http.MethodPost) // 更新frpc配置
-	frpcRouter.HandleFunc("/start", proxy.StartFrpcHandler).Methods(http.MethodPost)         // 启动frpc服务
-	frpcRouter.HandleFunc("/stop", proxy.StopFrpcHandler).Methods(http.MethodPost)           // 停止frpc服务
-	frpcRouter.HandleFunc("/restart", proxy.RestartFrpcHandler).Methods(http.MethodPost)     // 重启frpc服务
+	frpcRouter.HandleFunc("/delete", proxy.DeleteFrpcHandler).Methods(http.MethodGet)           // 删除frpc配置
+	frpcRouter.HandleFunc("/get", proxy.GetFrpcHandler).Methods(http.MethodGet)                 // 获取frpc配置
+	frpcRouter.HandleFunc("/list", proxy.GetFrpcListHandler).Methods(http.MethodGet)            // 获取frpc代理列表
+	frpcRouter.HandleFunc("/update", proxy.UpdateFrpcHandler).Methods(http.MethodPost)          // 更新frpc配置
+	frpcRouter.HandleFunc("/setconfig", proxy.UpdateFrpcConfigHandler).Methods(http.MethodPost) // 更新frpc配置
+	frpcRouter.HandleFunc("/getconfig", proxy.GetFrpcConfigHandler).Methods(http.MethodGet)
+	frpcRouter.HandleFunc("/start", proxy.StartFrpcHandler).Methods(http.MethodGet)     // 启动frpc服务
+	frpcRouter.HandleFunc("/stop", proxy.StopFrpcHandler).Methods(http.MethodGet)       // 停止frpc服务
+	frpcRouter.HandleFunc("/restart", proxy.RestartFrpcHandler).Methods(http.MethodGet) // 重启frpc服务
+	frpcRouter.HandleFunc("/status", proxy.StatusFrpcHandler).Methods(http.MethodGet)
 
 	// 注册根路径的处理函数
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")

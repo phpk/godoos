@@ -7,7 +7,7 @@ import (
 )
 
 type VecList struct {
-	gorm.Model
+	BaseModel
 	FilePath       string `json:"file_path" gorm:"not null"`
 	Engine         string `json:"engine" gorm:"not null"`
 	EmbedSize      int    `json:"embed_size"`

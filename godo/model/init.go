@@ -2,6 +2,7 @@ package model
 
 import (
 	"godo/libs"
+	"time"
 
 	_ "github.com/asg017/sqlite-vec-go-bindings/ncruces"
 	//_ "github.com/ncruces/go-sqlite3/embed"
@@ -36,4 +37,12 @@ PRAGMA busy_timeout = 10000;
 	db.AutoMigrate(&ServerUser{})
 	db.AutoMigrate(&VecList{})
 	db.AutoMigrate(&VecDoc{})
+	db.AutoMigrate(&FrpcProxy{})
+}
+
+type BaseModel struct {
+	ID        uint           `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 }

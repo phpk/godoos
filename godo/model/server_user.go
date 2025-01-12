@@ -1,9 +1,7 @@
 package model
 
-import "gorm.io/gorm"
-
 type ServerUser struct {
-	gorm.Model
+	BaseModel
 	DiskId   string `json:"disk_id"`
 	AuthType string `json:"auth_type"`
 	Username string `json:"username"`

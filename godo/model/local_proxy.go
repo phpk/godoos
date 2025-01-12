@@ -1,9 +1,7 @@
 package model
 
-import "gorm.io/gorm"
-
 type LocalProxy struct {
-	gorm.Model
+	BaseModel
 	Port      uint   `json:"port"`
 	ProxyType string `json:"proxy_type"`
 	Domain    string `json:"domain"`

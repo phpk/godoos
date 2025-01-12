@@ -228,27 +228,36 @@ func GetTrueCacheDir() (string, error) {
 	cacheDir := filepath.Join(homeDir, "cache")
 	return cacheDir, nil
 }
-func GetAiExeDir() string {
+func GetAppExeDir() string {
 	// 获取当前用户主目录
 	homeDir, err := GetAppDir()
 	if err != nil {
 		return ".godoos"
 	}
-	return filepath.Join(homeDir, "ai")
+	return filepath.Join(homeDir, "app")
 }
-func GetAiRunDir() (string, error) {
-	exeDir := GetAiExeDir()
-	var osType string
-	switch runtime.GOOS {
-	case "windows":
-		osType = "windows"
-	case "darwin": // macOS
-		osType = "darwin"
-	default: // 包含了Linux和其他未明确列出的系统
-		osType = "linux"
+func GetAppRunDir() string {
+	exeDir := GetAppExeDir()
+	// var osType string
+	// switch runtime.GOOS {
+	// case "windows":
+	// 	osType = "windows"
+	// case "darwin": // macOS
+	// 	osType = "darwin"
+	// default: // 包含了Linux和其他未明确列出的系统
+	// 	osType = "linux"
+	// }
+	var arch string
+	switch runtime.GOARCH {
+	case "amd64":
+		arch = "amd64"
+	case "arm64":
+		arch = "arm64"
+	default:
+		arch = "amd64"
 	}
-	runDir := filepath.Join(exeDir, osType)
-	return runDir, nil
+	runDir := filepath.Join(exeDir, arch)
+	return runDir
 }
 func PathExists(dir string) bool {
 	_, err := os.Stat(dir)
@@ -276,15 +285,15 @@ func GetAppExecDir() string {
 	return filepath.Join(homeDir, "app")
 }
 
-func GetCmdPath(path string, name string) (string, error) {
+func GetCmdPath(name string) (string, error) {
 	// 根据操作系统添加.exe后缀
 	binaryExt := ""
 	if runtime.GOOS == "windows" {
 		binaryExt = ".exe"
 	}
 	scriptName := name + binaryExt
-	exeDir := GetAppExecDir() // 获取执行程序的目录
-	scriptPath := filepath.Join(exeDir, path, scriptName)
+	exeDir := GetAppRunDir() // 获取执行程序的目录
+	scriptPath := filepath.Join(exeDir, name, scriptName)
 	if !PathExists(scriptPath) {
 		return "", fmt.Errorf("script %s not found", scriptPath)
 	}

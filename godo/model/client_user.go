@@ -1,9 +1,7 @@
 package model
 
-import "gorm.io/gorm"
-
 type ClientUser struct {
-	gorm.Model
+	BaseModel
 	ServerUrl string `json:"server_url"`
 	DiskId    string `json:"disk_id"`
 	Username  string `json:"username"`

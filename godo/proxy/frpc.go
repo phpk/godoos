@@ -4,144 +4,167 @@ import (
 	"encoding/json"
 	"fmt"
 	"godo/libs"
+	"godo/model"
+	"godo/progress"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
-
-	"gopkg.in/ini.v1"
 )
 
 // FrpConfig 结构体用于存储 FRP 配置
 type FrpConfig struct {
-	ServerAddr                 string // 服务器地址
-	ServerPort                 int    // 服务器端口
-	AuthMethod                 string // 认证方法，例如 "token" 或 "multiuser"
-	AuthToken                  string // 认证令牌，当 AuthMethod 为 "token" 时使用
-	User                       string // 用户名，当 AuthMethod 为 "multiuser" 时使用
-	MetaToken                  string // 元数据令牌，当 AuthMethod 为 "multiuser" 时使用
-	TransportHeartbeatInterval int    // 传输心跳间隔（秒）
-	TransportHeartbeatTimeout  int    // 传输心跳超时（秒）
-	LogLevel                   string // 日志级别，例如 "info"、"warn"、"error"
-	LogMaxDays                 int    // 日志保留天数
-	WebPort                    int    // Web 管理界面的端口
-	TlsConfigEnable            bool   // 是否启用 TLS 配置
-	TlsConfigCertFile          string // TLS 证书文件路径
-	TlsConfigKeyFile           string // TLS 密钥文件路径
-	TlsConfigTrustedCaFile     string // TLS 信任的 CA 文件路径
-	TlsConfigServerName        string // TLS 服务器名称
-	ProxyConfigEnable          bool   // 是否启用代理配置
-	ProxyConfigProxyUrl        string // 代理 URL
+	IsOn       bool   `json:"isOn"`
+	ServerAddr string `json:"serverAddr"`
+	ServerPort int    `json:"serverPort"`
+	AuthMethod string `json:"authMethod"`
+	AuthToken  string `json:"authToken"`
+	User       string `json:"user"`
+	MetaToken  string `json:"metaToken"`
 }
 
-// Proxy 结构体用于存储代理配置
-type Proxy struct {
-	Name              string   `json:"name"`              // 代理名称
-	Type              string   `json:"type"`              // 代理类型，例如 "tcp"、"http"、"stcp"
-	LocalIp           string   `json:"localIp"`           // 本地 IP 地址
-	LocalPort         int      `json:"localPort"`         // 本地端口
-	RemotePort        int      `json:"remotePort"`        // 远程端口
-	CustomDomains     []string `json:"customDomains"`     // 自定义域名列表
-	Subdomain         string   `json:"subdomain"`         // 子域名
-	BasicAuth         bool     `json:"basicAuth"`         // 是否启用基本认证
-	HttpUser          string   `json:"httpUser"`          // HTTP 基本认证用户名
-	HttpPassword      string   `json:"httpPassword"`      // HTTP 基本认证密码
-	StcpModel         string   `json:"stcpModel"`         // STCP 模式，例如 "visitors" 或 "visited"
-	ServerName        string   `json:"serverName"`        // 服务器名称
-	BindAddr          string   `json:"bindAddr"`          // 绑定地址
-	BindPort          int      `json:"bindPort"`          // 绑定端口
-	FallbackTo        string   `json:"fallbackTo"`        // 回退到的目标
-	FallbackTimeoutMs int      `json:"fallbackTimeoutMs"` // 回退超时时间（毫秒）
-	SecretKey         string   `json:"secretKey"`         // 密钥，用于加密通信
+var FrpcRequest struct {
+	Config  FrpConfig         `json:"config"`
+	Proxies []model.FrpcProxy `json:"proxies"`
 }
 
-type Response struct {
-	Code    string      `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
-	Success bool        `json:"success"`
-}
-
-func NewResponse(code string, message string, data interface{}) Response {
-	return Response{
-		Code:    code,
-		Message: message,
-		Data:    data,
-		Success: true,
+func InitFrpcServer() {
+	frpcConf, err := GetFrpcConfig()
+	if err != nil {
+		return
+	}
+	if frpcConf.IsOn {
+		if err := progress.StartCmd("frpc"); err != nil {
+			log.Printf("Failed to start frpc: %v", err)
+			return
+		}
 	}
 }
 
-// isRangePort 检查端口是否为范围端口
-func isRangePort(proxy Proxy) bool {
-	// 这里假设范围端口的判断逻辑
-	// 你可以根据实际情况调整
-	return strings.Contains(proxy.Name, ":")
-}
-
 // GenFrpcIniConfig 生成 FRP 配置文件内容
-func GenFrpcIniConfig(config FrpConfig, proxys []Proxy) string {
-	var proxyIni []string
+func GenFrpcIniConfig(config FrpConfig, proxys []model.FrpcProxy) string {
+	var builder strings.Builder
+
+	builder.WriteString(fmt.Sprintf(`serverAddr = "%s"
+serverPort = %d
+`,
+		config.ServerAddr,
+		config.ServerPort,
+	))
+
+	if config.AuthMethod == "token" {
+		builder.WriteString(fmt.Sprintf(`auth.token = "%s"
+`,
+			config.AuthToken,
+		))
+	}
 
 	for _, m := range proxys {
-		rangePort := isRangePort(m)
-		ini := fmt.Sprintf("[%s%s]\ntype = \"%s\"\n",
-			func() string {
-				if rangePort {
-					return "range:"
-				}
-				return ""
-			}(),
+		builder.WriteString(fmt.Sprintf(`[[proxies]]
+name="%s"
+type = "%s"
+`,
 			m.Name,
 			m.Type,
-		)
+		))
 
 		switch m.Type {
 		case "tcp", "udp":
-			ini += fmt.Sprintf(`
-localIP = "%s"
-localPort = %d
-remotePort = %d
+			if m.LocalIp != "" {
+				builder.WriteString(fmt.Sprintf(`localIP = "%s"
 `,
-				m.LocalIp,
-				m.LocalPort,
-				m.RemotePort,
-			)
+					m.LocalIp,
+				))
+			}
+			if m.LocalPort > 0 {
+				builder.WriteString(fmt.Sprintf(`localPort = %d
+`,
+					m.LocalPort,
+				))
+			}
+			if m.RemotePort > 0 {
+				builder.WriteString(fmt.Sprintf(`remotePort = %d
+`,
+					m.RemotePort,
+				))
+			}
+			if m.Type == "tcp" {
+				if m.StaticFile && m.LocalPath != "" {
+					builder.WriteString(fmt.Sprintf(`[proxies.plugin]
+type = "static_file"
+localPath = "%s"
+`, m.LocalPath))
+					if m.StripPrefix != "" {
+						builder.WriteString(fmt.Sprintf(`stripPrefix = "%s"
+`,
+							m.StripPrefix,
+						))
+
+					}
+				}
+			}
 		case "http", "https":
-			ini += fmt.Sprintf(`
-localIP = "%s"
-localPort = %d
+			if m.LocalIp != "" {
+				builder.WriteString(fmt.Sprintf(`localIP = "%s"
 `,
-				m.LocalIp,
+					m.LocalIp,
+				))
+			}
+			builder.WriteString(fmt.Sprintf(`localPort = %d
+`,
 				m.LocalPort,
-			)
+			))
 
 			if len(m.CustomDomains) > 0 {
-				ini += fmt.Sprintf(`custom_domains = [%s]
+				domains := strings.Split(m.CustomDomains, ",")
+				domainArr := []string{}
+				for _, domain := range domains {
+					domainArr = append(domainArr, fmt.Sprintf(`"%s"`, domain))
+				}
+				builder.WriteString(fmt.Sprintf(`customDomains = [%s]
 `,
-					strings.Join(m.CustomDomains, ","),
-				)
+					strings.Join(domainArr, ","),
+				))
 			}
 
 			if m.Subdomain != "" {
-				ini += fmt.Sprintf(`subdomain="%s"
+				builder.WriteString(fmt.Sprintf(`subdomain = "%s"
 `,
 					m.Subdomain,
-				)
+				))
 			}
 			if m.BasicAuth {
-				ini += fmt.Sprintf(`
-httpUser = "%s"
+				builder.WriteString(fmt.Sprintf(`httpUser = "%s"
 httpPassword = "%s"
 `,
 					m.HttpUser,
 					m.HttpPassword,
-				)
+				))
 			}
+			if m.Type == "https" {
+				builder.WriteString(fmt.Sprintf(`[proxies.plugin]
+type = "https2http"
+localAddr = "%s:%d"
+`,
+					m.LocalIp,
+					m.LocalPort,
+				))
+				if m.Https2httpCaFile != "" && m.Https2httpKeyFile != "" {
+					builder.WriteString(fmt.Sprintf(`crtPath = "%s"
+	keyPath = "%s"
+	`,
+						m.Https2httpCaFile,
+						m.Https2httpKeyFile,
+					))
+				}
+			}
+
 		case "stcp", "xtcp", "sudp":
 			if m.StcpModel == "visitors" {
 				// 访问者
-				ini += fmt.Sprintf(`
-role = visitor
+				builder.WriteString(fmt.Sprintf(`[[visitors]]
 serverName = "%s"
 bindAddr = "%s"
 bindPort = %d
@@ -149,502 +172,336 @@ bindPort = %d
 					m.ServerName,
 					m.BindAddr,
 					m.BindPort,
-				)
+				))
 				if m.FallbackTo != "" {
-					ini += fmt.Sprintf(`
-fallbackTo = %s
+					builder.WriteString(fmt.Sprintf(`fallbackTo = %s
 fallbackTimeoutMs = %d
 `,
 						m.FallbackTo,
 						m.FallbackTimeoutMs,
-					)
+					))
 				}
 			} else if m.StcpModel == "visited" {
 				// 被访问者
-				ini += fmt.Sprintf(`
-localIP = "%s"
+				builder.WriteString(fmt.Sprintf(`localIP = "%s"
 localPort = %d
 `,
 					m.LocalIp,
 					m.LocalPort,
-				)
+				))
 			}
-			ini += fmt.Sprintf(`
-sk="%s"
+			builder.WriteString(fmt.Sprintf(`sk="%s"
 `,
 				m.SecretKey,
-			)
+			))
 		default:
 			// 默认情况不做处理
 		}
-
-		proxyIni = append(proxyIni, ini)
 	}
 
-	ini := fmt.Sprintf(`[common]
-serverAddr = %s
-serverPort = %d
-%s
-%s
-%s
-%s
-logFile = "frpc.log"
-logLevel = %s
-logMaxDays = %d
-adminAddr = 127.0.0.1
-adminPort = %d
-tlsEnable = %t
-%s
-%s
-%s
-%s
-%s
-`,
-		config.ServerAddr,
-		config.ServerPort,
-		func() string {
-			if config.AuthMethod == "token" {
-				return fmt.Sprintf(`
-authenticationMethod = %s
-token = %s
-`,
-					config.AuthMethod,
-					config.AuthToken,
-				)
-			}
-			return ""
-		}(),
-		func() string {
-			if config.AuthMethod == "multiuser" {
-				return fmt.Sprintf(`
-user = %s
-metaToken = %s
-`,
-					config.User,
-					config.MetaToken,
-				)
-			}
-			return ""
-		}(),
-		func() string {
-			if config.TransportHeartbeatInterval > 0 {
-				return fmt.Sprintf(`
-heartbeatInterval = %d
-`,
-					config.TransportHeartbeatInterval,
-				)
-			}
-			return ""
-		}(),
-		func() string {
-			if config.TransportHeartbeatTimeout > 0 {
-				return fmt.Sprintf(`
-heartbeatTimeout = %d
-`,
-					config.TransportHeartbeatTimeout,
-				)
-			}
-			return ""
-		}(),
-		config.LogLevel,
-		config.LogMaxDays,
-		config.WebPort,
-		config.TlsConfigEnable,
-		func() string {
-			if config.TlsConfigEnable && config.TlsConfigCertFile != "" {
-				return fmt.Sprintf(`
-tlsCertFile = %s
-`,
-					config.TlsConfigCertFile,
-				)
-			}
-			return ""
-		}(),
-		func() string {
-			if config.TlsConfigEnable && config.TlsConfigKeyFile != "" {
-				return fmt.Sprintf(`
-tlsKeyFile = %s
-`,
-					config.TlsConfigKeyFile,
-				)
-			}
-			return ""
-		}(),
-		func() string {
-			if config.TlsConfigEnable && config.TlsConfigTrustedCaFile != "" {
-				return fmt.Sprintf(`
-tlsTrustedCaFile = %s
-`,
-					config.TlsConfigTrustedCaFile,
-				)
-			}
-			return ""
-		}(),
-		func() string {
-			if config.TlsConfigEnable && config.TlsConfigServerName != "" {
-				return fmt.Sprintf(`
-tlsServerName = %s
-`,
-					config.TlsConfigServerName,
-				)
-			}
-			return ""
-		}(),
-		func() string {
-			if config.ProxyConfigEnable {
-				return fmt.Sprintf(`
-httpProxy = "%s"
-`,
-					config.ProxyConfigProxyUrl,
-				)
-			}
-			return ""
-		}(),
-	)
+	ini := builder.String()
 
-	ini += strings.Join(proxyIni, "")
+	// 去除多余的空格和换行符
+	ini = strings.TrimSpace(ini)
+	ini = strings.ReplaceAll(ini, "\n\n", "\n")
 
 	return ini
+}
+func CheckConfig() error {
+	runDir := libs.GetAppRunDir()
+	configPath := filepath.Join(runDir, "frpc", "config.json")
+	if !libs.PathExists(configPath) {
+		return fmt.Errorf("请先配置服务端")
+	}
+	return nil
+}
+func GetFrpcConfig() (FrpConfig, error) {
+	runDir := libs.GetAppRunDir()
+	configPath := filepath.Join(runDir, "frpc", "config.json")
+	if !libs.PathExists(configPath) {
+		return FrpConfig{}, fmt.Errorf("请先配置服务端")
+	}
+
+	configFile, err := os.Open(configPath)
+	if err != nil {
+		return FrpConfig{}, err
+	}
+	defer configFile.Close()
+
+	var config FrpConfig
+	decoder := json.NewDecoder(configFile)
+	if err := decoder.Decode(&config); err != nil {
+		return FrpConfig{}, err
+	}
+
+	return config, nil
+}
+
+func SetFrpcConfig(config FrpConfig) error {
+	runDir := libs.GetAppRunDir()
+	configPath := filepath.Join(runDir, "frpc", "config.json")
+
+	// 检查配置目录是否存在
+	if !libs.PathExists(filepath.Join(runDir, "frpc")) {
+		log.Printf("Config file not found at %s, creating new file", configPath)
+	}
+
+	// 打开或创建配置文件
+	configFile, err := os.Create(configPath)
+	if err != nil {
+		log.Printf("Failed to create or open config file: %v", err)
+		return err
+	}
+	defer configFile.Close()
+
+	// 将配置写入文件
+	encoder := json.NewEncoder(configFile)
+	encoder.SetIndent("", "  ") // 设置缩进以便于阅读
+	if err := encoder.Encode(config); err != nil {
+		log.Printf("Failed to encode config to file: %v", err)
+		return err
+	}
+	return nil
+}
+
+func UpdateFrpcIni() error {
+	frpcConf, err := GetFrpcConfig()
+	if err != nil {
+		return err
+	}
+	var proxyList []model.FrpcProxy
+	if err := model.Db.Model(&proxyList).Find(&proxyList).Error; err != nil {
+		// 发生了查询错误，返回内部服务器错误
+		return fmt.Errorf("查询失败")
+	}
+	runDir := libs.GetAppRunDir()
+	filePath := filepath.Join(runDir, "frpc", "frpc.ini")
+	// 生成新的配置内容
+	iniContent := GenFrpcIniConfig(frpcConf, proxyList)
+
+	err = os.WriteFile(filePath, []byte(iniContent), 0644)
+	if err != nil {
+		return fmt.Errorf("写入失败")
+	}
+	return nil
 }
 
 // CreateFrpcHandler 创建frpc配置
 func CreateFrpcHandler(w http.ResponseWriter, r *http.Request) {
-	var requestData struct {
-		Config  FrpConfig `json:"config"`
-		Proxies []Proxy   `json:"proxies"`
-	}
-
-	err := json.NewDecoder(r.Body).Decode(&requestData)
+	var req model.FrpcProxy
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		libs.ErrorMsg(w, "解析结构体错误："+err.Error())
+		return
+	}
+	err = CheckConfig()
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
 		return
 	}
 
-	// 读取现有配置
-	path := libs.GetAppExecDir()
-	filePath := filepath.Join(path, "frpc", "frpc.ini")
+	var existingProxy model.FrpcProxy
+	err = model.Db.Model(&existingProxy).Where("name = ?", req.Name).First(&existingProxy).Error
 
-	var existingProxies []Proxy
-	if iniContent, err := os.ReadFile(filePath); err == nil {
-		cfg, err := ini.Load(iniContent)
-		if err == nil {
-			for _, section := range cfg.Sections() {
-				if section.Name() == "common" {
-					continue
-				}
-				proxy := Proxy{
-					Name:              section.Name(),
-					Type:              section.Key("type").String(),
-					LocalIp:           section.Key("localIP").String(),
-					LocalPort:         section.Key("localPort").MustInt(),
-					RemotePort:        section.Key("remotePort").MustInt(),
-					CustomDomains:     strings.Split(section.Key("custom_domains").String(), ","),
-					Subdomain:         section.Key("subdomain").String(),
-					BasicAuth:         section.Key("httpUser").String() != "",
-					HttpUser:          section.Key("httpUser").String(),
-					HttpPassword:      section.Key("httpPassword").String(),
-					StcpModel:         section.Key("role").String(),
-					ServerName:        section.Key("serverName").String(),
-					BindAddr:          section.Key("bindAddr").String(),
-					BindPort:          section.Key("bindPort").MustInt(),
-					FallbackTo:        section.Key("fallbackTo").String(),
-					FallbackTimeoutMs: section.Key("fallbackTimeoutMs").MustInt(),
-					SecretKey:         section.Key("sk").String(),
-				}
-				existingProxies = append(existingProxies, proxy)
-			}
-		}
+	if err == nil {
+		// 记录存在，返回错误
+		libs.ErrorMsg(w, "已存在相同名称的配置")
+		return
+	}
+	if err := model.Db.Create(&req).Error; err != nil {
+		// 发生了插入错误，返回内部服务器错误
+		libs.ErrorMsg(w, "数据库插入错误")
+		return
+	}
+	if err := UpdateFrpcIni(); err != nil {
+		libs.ErrorMsg(w, "更新配置错误："+err.Error())
+		return
+	}
+	if err := RestartFrpc(); err != nil {
+		log.Printf("Failed to restarted frpc service: %v", err)
+	}
+	libs.SuccessMsg(w, nil, "配置已创建")
+}
+
+// GetFrpcConfigHandler 处理获取单个 FRPC 配置的 HTTP 请求
+func GetFrpcHandler(w http.ResponseWriter, r *http.Request) {
+	// 获取请求参数中的 id
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "Name parameter is required", http.StatusBadRequest)
+		return
+	}
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+	var proxy model.FrpcProxy
+	if err := model.Db.First(&proxy, uint(id)).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	libs.SuccessMsg(w, proxy, "")
+}
+
+// GetFrpcProxiesHandler 获取 FRPC 代理列表
+func GetFrpcListHandler(w http.ResponseWriter, r *http.Request) {
+	// 获取查询参数 page 和 limit
+	pageStr := r.URL.Query().Get("page")
+	limitStr := r.URL.Query().Get("limit")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
 	}
 
-	// 合并现有代理和新代理
-	proxyMap := make(map[string]Proxy)
-	for _, proxy := range existingProxies {
-		proxyMap[proxy.Name] = proxy
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 10
 	}
 
-	for _, proxy := range requestData.Proxies {
-		proxyMap[proxy.Name] = proxy // 新代理会覆盖同 Name 的旧代理
+	// 定义响应结构体
+	type ProxyResponse struct {
+		List  []model.FrpcProxy `json:"list"`
+		Total int64             `json:"total"`
 	}
 
-	var allProxies []Proxy
-	for _, proxy := range proxyMap {
-		allProxies = append(allProxies, proxy)
-	}
-
-	// 生成新的配置内容
-	iniContent := GenFrpcIniConfig(requestData.Config, allProxies)
-
-	if _, err := os.Stat(filepath.Join(path, "frpc")); os.IsNotExist(err) {
-		os.MkdirAll(filepath.Join(path, "frpc"), 0755)
-	}
-
-	err = os.WriteFile(filePath, []byte(iniContent), 0644)
+	// 修改处理函数
+	proxies, total, err := model.GetFrpcList(page, limit)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(NewResponse("0", "Configuration created successfully", nil))
+	response := ProxyResponse{
+		List:  proxies,
+		Total: total,
+	}
+	libs.SuccessMsg(w, response, "")
 }
 
-// GetFrpcConfigHandler 处理获取单个 FRPC 配置的 HTTP 请求
-func GetFrpcConfigHandler(w http.ResponseWriter, r *http.Request) {
-	// 获取请求参数中的 name
-	name := r.URL.Query().Get("name")
-	if name == "" {
+func DeleteFrpcHandler(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
 		http.Error(w, "Name parameter is required", http.StatusBadRequest)
 		return
 	}
-
-	// 使用 os.ReadFile 读取配置文件内容
-	path := libs.GetAppExecDir()
-	filePath := filepath.Join(path, "frpc", "frpc.ini")
-
-	iniContent, err := os.ReadFile(filePath)
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "Failed to read configuration file", http.StatusInternalServerError)
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
 
-	// 解析 ini 文件
-	cfg, err := ini.Load(iniContent)
-	if err != nil {
-		http.Error(w, "Failed to parse configuration file", http.StatusInternalServerError)
+	if err := model.Db.Delete(&model.FrpcProxy{}, uint(id)).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	// 提取 [common] 部分
-	commonSection := cfg.Section("common")
-	frpConfig := FrpConfig{
-		ServerAddr:                 commonSection.Key("serverAddr").String(),
-		ServerPort:                 commonSection.Key("serverPort").MustInt(),
-		AuthMethod:                 commonSection.Key("authenticationMethod").String(),
-		AuthToken:                  commonSection.Key("token").String(),
-		User:                       commonSection.Key("user").String(),
-		MetaToken:                  commonSection.Key("metaToken").String(),
-		TransportHeartbeatInterval: commonSection.Key("heartbeatInterval").MustInt(),
-		TransportHeartbeatTimeout:  commonSection.Key("heartbeatTimeout").MustInt(),
-		LogLevel:                   commonSection.Key("logLevel").String(),
-		LogMaxDays:                 commonSection.Key("logMaxDays").MustInt(),
-		WebPort:                    commonSection.Key("adminPort").MustInt(),
-		TlsConfigEnable:            commonSection.Key("tlsEnable").MustBool(),
-		TlsConfigCertFile:          commonSection.Key("tlsCertFile").String(),
-		TlsConfigKeyFile:           commonSection.Key("tlsKeyFile").String(),
-		TlsConfigTrustedCaFile:     commonSection.Key("tlsTrustedCaFile").String(),
-		TlsConfigServerName:        commonSection.Key("tlsServerName").String(),
-		ProxyConfigEnable:          commonSection.Key("httpProxy").String() != "",
-		ProxyConfigProxyUrl:        commonSection.Key("httpProxy").String(),
-	}
-
-	// 查找指定 name 的代理
-	var proxy *Proxy
-	for _, section := range cfg.Sections() {
-		if section.Name() == "common" {
-			continue
-		}
-		if section.Name() == name {
-			proxy = &Proxy{
-				Name:       section.Name(),
-				Type:       section.Key("type").String(),
-				LocalIp:    section.Key("localIP").String(),
-				LocalPort:  section.Key("localPort").MustInt(),
-				RemotePort: section.Key("remotePort").MustInt(),
-				// 继续提取其他字段...
-			}
-			break
-		}
-	}
-
-	if proxy == nil {
-		http.Error(w, "Proxy not found", http.StatusNotFound)
+	if err := UpdateFrpcIni(); err != nil {
+		libs.ErrorMsg(w, err.Error())
 		return
 	}
-
-	// 创建响应
-	responseData := struct {
-		Config FrpConfig `json:"config"`
-		Proxy  Proxy     `json:"proxy"`
-	}{
-		Config: frpConfig,
-		Proxy:  *proxy,
+	if err := RestartFrpc(); err != nil {
+		log.Printf("Failed to restarted frpc service: %v", err)
 	}
-
-	response := NewResponse("0", "Configuration retrieved successfully", responseData)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	libs.SuccessMsg(w, nil, "配置已删除")
 }
 
-// GetFrpcProxiesHandler 获取 FRPC 代理列表
-func GetFrpcProxiesHandler(w http.ResponseWriter, r *http.Request) {
-	// 使用 os.ReadFile 读取配置文件内容
-	path := libs.GetAppExecDir()
-	filePath := filepath.Join(path, "frpc", "frpc.ini")
-
-	iniContent, err := os.ReadFile(filePath)
-	if err != nil {
-		http.Error(w, "Failed to read configuration file", http.StatusInternalServerError)
-		return
-	}
-
-	// 解析 ini 文件
-	cfg, err := ini.Load(iniContent)
-	if err != nil {
-		http.Error(w, "Failed to parse configuration file", http.StatusInternalServerError)
-		return
-	}
-
-	// 提取代理部分
-	var proxies []Proxy
-	for _, section := range cfg.Sections() {
-		if section.Name() == "common" {
-			continue
-		}
-		proxy := Proxy{
-			Name:              section.Name(),
-			Type:              section.Key("type").String(),
-			LocalIp:           section.Key("localIP").String(),
-			LocalPort:         section.Key("localPort").MustInt(),
-			RemotePort:        section.Key("remotePort").MustInt(),
-			CustomDomains:     strings.Split(section.Key("custom_domains").String(), ","),
-			Subdomain:         section.Key("subdomain").String(),
-			BasicAuth:         section.Key("httpUser").String() != "",
-			HttpUser:          section.Key("httpUser").String(),
-			HttpPassword:      section.Key("httpPassword").String(),
-			StcpModel:         section.Key("role").String(),
-			ServerName:        section.Key("serverName").String(),
-			BindAddr:          section.Key("bindAddr").String(),
-			BindPort:          section.Key("bindPort").MustInt(),
-			FallbackTo:        section.Key("fallbackTo").String(),
-			FallbackTimeoutMs: section.Key("fallbackTimeoutMs").MustInt(),
-			SecretKey:         section.Key("sk").String(),
-		}
-		proxies = append(proxies, proxy)
-	}
-
-	// 创建响应
-	response := NewResponse("0", "Proxies retrieved successfully", proxies)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-}
-
-func DeleteFrpcConfigHandler(w http.ResponseWriter, r *http.Request) {
-	// 获取请求参数中的 name
-	name := r.URL.Query().Get("name")
-	if name == "" {
-		http.Error(w, "Name parameter is required", http.StatusBadRequest)
-		return
-	}
-
-	// 使用 os.ReadFile 读取配置文件内容
-	path := libs.GetAppExecDir()
-	filePath := filepath.Join(path, "frpc", "frpc.ini")
-
-	iniContent, err := os.ReadFile(filePath)
-	if err != nil {
-		http.Error(w, "Failed to read configuration file", http.StatusInternalServerError)
-		return
-	}
-
-	// 解析 ini 文件
-	cfg, err := ini.Load(iniContent)
-	if err != nil {
-		http.Error(w, "Failed to parse configuration file", http.StatusInternalServerError)
-		return
-	}
-
-	// 检查是否存在指定 name 的代理
-	if cfg.Section(name) == nil {
-		http.Error(w, "Proxy not found", http.StatusNotFound)
-		return
-	}
-
-	// 删除指定 name 的代理
-	cfg.DeleteSection(name)
-
-	// 将更新后的配置写回文件
-	err = cfg.SaveTo(filePath)
-	if err != nil {
-		http.Error(w, "Failed to save configuration file", http.StatusInternalServerError)
-		return
-	}
-
-	// 创建响应
-	response := NewResponse("0", "Configuration deleted successfully", nil)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-}
-
-func UpdateFrpcConfigHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateFrpcHandler(w http.ResponseWriter, r *http.Request) {
 	// 解析请求体中的更新数据
-	var updateData Proxy
+	var updateData model.FrpcProxy
 	err := json.NewDecoder(r.Body).Decode(&updateData)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	// 从更新数据中获取 name
-	name := updateData.Name
-	if name == "" {
-		http.Error(w, "Name field is required in the request body", http.StatusBadRequest)
+	if err := model.Db.Model(&model.FrpcProxy{}).Where("id = ?", updateData.ID).Updates(updateData).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	// 使用 os.ReadFile 读取配置文件内容
-	path := libs.GetAppExecDir()
-	filePath := filepath.Join(path, "frpc", "frpc.ini")
-
-	iniContent, err := os.ReadFile(filePath)
+	if err := UpdateFrpcIni(); err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	if err := RestartFrpc(); err != nil {
+		log.Printf("Failed to restarted frpc service: %v", err)
+	}
+	libs.SuccessMsg(w, nil, "配置已更新")
+}
+func GetFrpcConfigHandler(w http.ResponseWriter, r *http.Request) {
+	frpcConf, err := GetFrpcConfig()
 	if err != nil {
-		http.Error(w, "Failed to read configuration file", http.StatusInternalServerError)
+		libs.ErrorMsg(w, err.Error())
 		return
 	}
-
-	// 解析 ini 文件
-	cfg, err := ini.Load(iniContent)
+	libs.SuccessMsg(w, frpcConf, "配置已更新")
+}
+func UpdateFrpcConfigHandler(w http.ResponseWriter, r *http.Request) {
+	// 解析请求体中的更新数据
+	var updateData FrpConfig
+	err := json.NewDecoder(r.Body).Decode(&updateData)
 	if err != nil {
-		http.Error(w, "Failed to parse configuration file", http.StatusInternalServerError)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-
-	// 查找指定 name 的代理
-	section := cfg.Section(name)
-	if section == nil {
-		http.Error(w, "Proxy not found", http.StatusNotFound)
+	if err := SetFrpcConfig(updateData); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	// 更新代理配置
-	section.Key("type").SetValue(updateData.Type)
-	section.Key("localIP").SetValue(updateData.LocalIp)
-	section.Key("localPort").SetValue(fmt.Sprintf("%d", updateData.LocalPort))
-	section.Key("remotePort").SetValue(fmt.Sprintf("%d", updateData.RemotePort))
-	section.Key("custom_domains").SetValue(strings.Join(updateData.CustomDomains, ","))
-	section.Key("subdomain").SetValue(updateData.Subdomain)
-	section.Key("httpUser").SetValue(updateData.HttpUser)
-	section.Key("httpPassword").SetValue(updateData.HttpPassword)
-	section.Key("role").SetValue(updateData.StcpModel)
-	section.Key("serverName").SetValue(updateData.ServerName)
-	section.Key("bindAddr").SetValue(updateData.BindAddr)
-	section.Key("bindPort").SetValue(fmt.Sprintf("%d", updateData.BindPort))
-	section.Key("fallbackTo").SetValue(updateData.FallbackTo)
-	section.Key("fallbackTimeoutMs").SetValue(fmt.Sprintf("%d", updateData.FallbackTimeoutMs))
-	section.Key("sk").SetValue(updateData.SecretKey)
-
-	// 将更新后的配置写回文件
-	err = cfg.SaveTo(filePath)
+	if err := UpdateFrpcIni(); err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	if err := RestartFrpc(); err != nil {
+		log.Printf("Failed to restarted frpc service: %v", err)
+	}
+	libs.SuccessMsg(w, nil, "配置已更新")
+}
+func RestartFrpc() error {
+	status := progress.GetCmd("frpc").Running
+	if status {
+		return progress.RestartCmd("frpc")
+	}
+	return nil
+}
+func StatusFrpcHandler(w http.ResponseWriter, r *http.Request) {
+	libs.SuccessMsg(w, progress.GetCmd("frpc").Running, "")
+}
+func StartFrpcHandler(w http.ResponseWriter, r *http.Request) {
+	err := CheckConfig()
 	if err != nil {
-		http.Error(w, "Failed to save configuration file", http.StatusInternalServerError)
+		libs.ErrorMsg(w, err.Error())
 		return
 	}
+	if err := progress.StartCmd("frpc"); err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	libs.SuccessMsg(w, nil, "frpc service started")
+}
 
-	// 创建响应
-	response := NewResponse("0", "Configuration updated successfully", nil)
+func StopFrpcHandler(w http.ResponseWriter, r *http.Request) {
+	err := CheckConfig()
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	if err := progress.StopCmd("frpc"); err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	libs.SuccessMsg(w, nil, "frpc service stoped")
+}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+func RestartFrpcHandler(w http.ResponseWriter, r *http.Request) {
+	err := CheckConfig()
+	if err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	if err := progress.RestartCmd("frpc"); err != nil {
+		libs.ErrorMsg(w, err.Error())
+		return
+	}
+	libs.SuccessMsg(w, nil, "frpc service restarted")
 }

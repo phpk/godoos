@@ -1,17 +1,13 @@
 package progress
 
 import (
-	"errors"
 	"fmt"
-	"godo/deps"
 	"godo/libs"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/shirou/gopsutil/process"
@@ -41,9 +37,16 @@ func RegisterProcess(name string, cmdstr *exec.Cmd) {
 	}
 }
 func GetCmd(name string) *Process {
-	processesMu.Lock()
-	defer processesMu.Unlock()
-	return processes[name]
+	// processesMu.Lock()
+	// defer processesMu.Unlock()
+	info, ok := processes[name]
+	if !ok {
+		return &Process{
+			Name:    name,
+			Running: false,
+		}
+	}
+	return info
 }
 
 // StartCmd 执行指定名称的脚本。
@@ -56,22 +59,10 @@ func StartCmd(name string) error {
 	if ok && info.Running {
 		return fmt.Errorf("process information for '%s' is runing", name)
 	}
-
-	path := name
-	appName := name
-	scriptPath, err := libs.GetCmdPath(path, name)
+	//appName := name
+	scriptPath, err := libs.GetCmdPath(name)
 	if err != nil {
-		// 不存在，解压应用
-		switch name {
-		case deps.FRPCAPP:
-			appName = deps.FRPCAPP
-		default:
-			return errors.New("app not found")
-		}
-		err = deps.ExtractZip(appName, libs.GetAppExecDir())
-		if err != nil {
-			return fmt.Errorf("failed to extract zip file: %v", err)
-		}
+		return fmt.Errorf("failed to extract zip file: %v", err)
 	}
 
 	// 设置并启动脚本执行命令
@@ -79,7 +70,8 @@ func StartCmd(name string) error {
 	switch name {
 	case "frpc":
 		// 检查配置文件
-		configPath := filepath.Join(libs.GetAppExecDir(), appName, "frpc.ini")
+		configPath := filepath.Join(filepath.Dir(scriptPath), "frpc.ini")
+		log.Printf("Config file not found at %s, creating new file", configPath)
 		if !libs.PathExists(configPath) {
 			return fmt.Errorf("frpc config file not found")
 		}
@@ -92,7 +84,8 @@ func StartCmd(name string) error {
 	default:
 		cmd = exec.Command(scriptPath)
 	}
-
+	log.Printf("Starting %s", scriptPath)
+	//cmd = exec.Command(scriptPath)
 	if runtime.GOOS == "windows" {
 		// 在Windows上，通过设置CreationFlags来隐藏窗口
 		cmd = SetHideConsoleCursor(cmd)
@@ -100,14 +93,14 @@ func StartCmd(name string) error {
 	go func() {
 		// 启动脚本命令并返回可能的错误
 		if err := cmd.Start(); err != nil {
-			log.Printf("failed to start process %s: %v", name, err)
+			//log.Printf("failed to start process %s: %v", name, err)
 			return
 		}
 		RegisterProcess(name, cmd)
 		// 等待命令完成
 		if err := cmd.Wait(); err != nil {
 			log.Printf("command failed for %s: %v", name, err)
-			return
+			//return
 		} else {
 			log.Printf("%s command completed successfully", name)
 		}
@@ -127,7 +120,7 @@ func StopCmd(name string) error {
 	if !ok {
 		return fmt.Errorf("process information for '%s' not found", name)
 	}
-	if cmd.Running == false {
+	if !cmd.Running {
 		return nil
 	}
 
@@ -147,6 +140,7 @@ func StopCmd(name string) error {
 
 func RestartCmd(name string) error {
 	if err := StopCmd(name); err != nil {
+		log.Printf("stopping the app encountered an error: %s", err)
 		return err
 	}
 	return StartCmd(name)
@@ -177,26 +171,26 @@ func KillByPid(pid int) error {
 	return nil
 }
 
-// findPidsWindows 在 Windows 系统下查找具有指定名称的进程的 PID
-func findPidsWindows(name string) ([]int, error) {
-	cmd := exec.Command("tasklist")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute tasklist: %w", err)
-	}
-	lines := strings.Split(string(output), "\r\n")
-	var pids []int
-	for _, line := range lines {
-		fields := strings.Fields(line)
-		if len(fields) >= 3 {
-			if strings.Contains(strings.ToLower(fields[0]), strings.ToLower(name)) {
-				pid, err := strconv.Atoi(fields[1])
-				if err != nil {
-					return nil, fmt.Errorf("failed to convert PID to integer: %w", err)
-				}
-				pids = append(pids, pid)
-			}
-		}
-	}
-	return pids, nil
-}
+// // findPidsWindows 在 Windows 系统下查找具有指定名称的进程的 PID
+// func findPidsWindows(name string) ([]int, error) {
+// 	cmd := exec.Command("tasklist")
+// 	output, err := cmd.Output()
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to execute tasklist: %w", err)
+// 	}
+// 	lines := strings.Split(string(output), "\r\n")
+// 	var pids []int
+// 	for _, line := range lines {
+// 		fields := strings.Fields(line)
+// 		if len(fields) >= 3 {
+// 			if strings.Contains(strings.ToLower(fields[0]), strings.ToLower(name)) {
+// 				pid, err := strconv.Atoi(fields[1])
+// 				if err != nil {
+// 					return nil, fmt.Errorf("failed to convert PID to integer: %w", err)
+// 				}
+// 				pids = append(pids, pid)
+// 			}
+// 		}
+// 	}
+// 	return pids, nil
+// }

@@ -34,10 +34,6 @@ func CreateLocalProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 // GetLocalProxiesHandler 获取所有 LocalProxy 的 HTTP 处理函数
 func GetLocalProxiesHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	// 获取查询参数 page 和 limit
 	pageStr := r.URL.Query().Get("page")
@@ -136,6 +132,7 @@ func DeleteLocalProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 // 初始化代理处理函数
 func InitProxyHandlers() {
+	go InitFrpcServer()
 	proxies, _, err := model.GetLocalProxies(1, 1000) // 获取所有代理配置
 	if err != nil {
 		fmt.Println("Failed to get local proxies:", err)

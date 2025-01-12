@@ -10,7 +10,7 @@ import (
 )
 
 type SysDisk struct {
-	gorm.Model
+	BaseModel
 	Name   string `json:"name"`
 	Disk   string `json:"disk" gorm:"unique"`
 	Size   int64  `json:"size"`
