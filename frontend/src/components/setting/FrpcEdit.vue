@@ -1,9 +1,10 @@
 <script lang="ts" setup>
+	import { useChooseStore } from "@/stores/choose";
 	import { useProxyStore } from "@/stores/proxy";
-	import { OpenDirDialog } from "@/util/goutil";
 	import { notifyError, notifySuccess } from "@/util/msg";
 	import { ref } from "vue";
 	const proxyStore = useProxyStore();
+	const choose = useChooseStore();
 	const { updateProxy } = proxyStore;
 
 	const proxyDialogShow = ref(false);
@@ -12,14 +13,9 @@
 	// 定义表单验证规则
 	const proxyRules = {
 		name: [{ required: true, message: "请输入代理名称", trigger: "blur" }],
-		// port: [
-		//     { required: true, message: "请输入端口", trigger: "blur" },
-		//     { type: "number", message: "端口必须是数字", trigger: "blur" },
-		// ],
-		domain: [{ required: false, message: "请输入域名", trigger: "blur" }],
 		type: [{ required: true, message: "请选择类型", trigger: "blur" }],
 		localIp: [
-			{ required: false, message: "请输入内网地址", trigger: "blur" },
+			{ required: true, message: "请输入内网地址", trigger: "blur" },
 			{
 				pattern: /^[\w-]+(\.[\w-]+)+$/,
 				message: "请输入正确的内网地址",
@@ -34,6 +30,51 @@
 				message: "请输入正确的端口",
 				trigger: "blur",
 			},
+		],
+		customDomains: [
+			{ required: false, message: "请输入自定义域名", trigger: "blur" },
+			{
+				pattern: /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+				message: "请输入有效的域名",
+				trigger: "blur",
+			},
+		],
+		subdomain: [
+			{ required: true, message: "请输入子域名", trigger: "blur" },
+			{
+				pattern: /^[a-zA-Z0-9.-]+$/,
+				message: "子域名只能包含字母、数字、连字符和点号",
+				trigger: "blur",
+			},
+		],
+		basicAuth: [
+			{
+				required: true,
+				message: "请选择是否启用基本认证",
+				trigger: "change",
+			},
+		],
+		httpUser: [
+			{ required: true, message: "请输入认证用户名", trigger: "blur" },
+			{
+				min: 3,
+				message: "用户名至少需要3个字符",
+				trigger: "blur",
+			},
+		],
+		httpPassword: [
+			{ required: true, message: "请输入认证密码", trigger: "blur" },
+			{
+				min: 6,
+				message: "密码至少需要6个字符",
+				trigger: "blur",
+			},
+		],
+		https2httpCaFile: [
+			{ required: false, message: "请选择证书文件", trigger: "blur" },
+		],
+		https2httpKeyFile: [
+			{ required: false, message: "请选择密钥文件", trigger: "blur" },
 		],
 	};
 
@@ -87,17 +128,23 @@
 		{ label: "被访问者", value: "visited" },
 	]);
 
-	const handleSelectFile = (mod: number) => {
-		OpenDirDialog().then((res: string) => {
-			if (mod == 1) {
-				proxyStore.proxyData.https2httpCaFile = res;
-			} else if (mod == 2) {
-				proxyStore.proxyData.https2httpKeyFile = res;
-			} else if (mod == 3) {
-				proxyStore.proxyData.localPath = res;
-			}
-		});
+	const handleSelectFile = () => {
+		choose.select("选择文件", "*");
 	};
+
+	watch(
+		() => choose.path,
+		(newVal, oldVal) => {
+			console.log("newVal", newVal);
+			console.log("oldVal", oldVal);
+			if (newVal.length > 0) {
+				console.log("choose.path", choose.path);
+				proxyStore.proxyData.https2httpCaFile = choose.path[0];
+				choose.path = [];
+			}
+		},
+		{ deep: true }
+	);
 </script>
 
 <template>
@@ -183,7 +230,6 @@
 					proxyStore.proxyData.type === 'https'
 				"
 				label="自定义域名："
-				prop="customDomain"
 			>
 				<el-row
 					v-for="(_, index) in proxyStore.customDomains"
@@ -222,11 +268,11 @@
 					proxyStore.proxyData.type === 'https'
 				"
 				label="子域名："
-				prop="domain"
+				prop="subdomain"
 			>
 				<el-input
 					v-model="proxyStore.proxyData.subdomain"
-					placeholder="子域名"
+					placeholder="help.example.com"
 				/>
 			</el-form-item>
 			<el-form-item
@@ -252,7 +298,7 @@
 			>
 				<el-form-item
 					label="HTTP基本认证："
-					prop="BasicAuth"
+					prop="basicAuth"
 				>
 					<el-switch v-model="proxyStore.proxyData.basicAuth" />
 				</el-form-item>
@@ -278,28 +324,37 @@
 					/>
 				</el-form-item>
 			</template>
-			<el-form-item
-				v-if="proxyStore.proxyData.type === 'https'"
-				label="证书文件："
-				prop="https2httpCaFile"
-			>
-				<el-input
-					v-model="proxyStore.proxyData.https2httpCaFile"
-					placeholder="点击选择证书文件"
-					@click="handleSelectFile(1)"
-				/>
-			</el-form-item>
-			<el-form-item
-				v-if="proxyStore.proxyData.type === 'https'"
-				label="密钥文件："
-				prop="https2httpKeyFile"
-			>
-				<el-input
-					v-model="proxyStore.proxyData.https2httpKeyFile"
-					placeholder="点击选择密钥文件"
-					@click="handleSelectFile(2)"
-				/>
-			</el-form-item>
+
+			<template v-if="proxyStore.proxyData.type === 'https'">
+				<el-form-item
+					label="https2http"
+					prop="https2http"
+				>
+					<el-switch v-model="proxyStore.proxyData.https2http" />
+				</el-form-item>
+				<el-form-item
+					label="证书文件："
+					prop="https2httpCaFile"
+					v-if="proxyStore.proxyData.https2http"
+				>
+					<el-input
+						v-model="proxyStore.proxyData.https2httpCaFile"
+						placeholder="点击选择证书文件"
+						@click="handleSelectFile"
+					/>
+				</el-form-item>
+				<el-form-item
+					v-if="proxyStore.proxyData.https2http"
+					label="密钥文件："
+					prop="https2httpKeyFile"
+				>
+					<el-input
+						v-model="proxyStore.proxyData.https2httpKeyFile"
+						placeholder="点击选择密钥文件"
+						@click="handleSelectFile"
+					/>
+				</el-form-item>
+			</template>
 		</template>
 		<template v-if="proxyStore.proxyData.type === 'tcp'">
 			<el-form-item
@@ -316,7 +371,7 @@
 				<el-input
 					v-model="proxyStore.proxyData.localPath"
 					placeholder="点击选择文件夹路径"
-					@click="handleSelectFile(3)"
+					@click="handleSelectFile"
 				/>
 			</el-form-item>
 			<el-form-item

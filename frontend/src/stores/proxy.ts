@@ -36,7 +36,7 @@ export interface ProxyItem {
 export const useProxyStore = defineStore('proxyStore', () => {
 
   const proxies = ref<ProxyItem[]>([]);
-  const customDomains = ref<string[]>([]);
+  const customDomains = ref<string[]>([""]);
   const proxyData = ref<ProxyItem>(createNewProxyData());
   const apiUrl = getSystemKey("apiUrl")
   const isEditor = ref(false)
