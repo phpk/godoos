@@ -1,19 +1,19 @@
+import { getSystemKey } from "@/system/config";
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { getSystemKey } from "@/system/config"
 export interface ProxyItem {
-  id?:number;
+  id?: number;
   port: number;
-  domain: string;
+  subdomain: string;
   type: string;
   name: string;
   localPort: number;
   localIp: string;
   serverAddr: string;
   serverPort: number;
-  httpAuth: boolean;
-  authUsername: string;
-  authPassword: string;
+  basicAuth: boolean;
+  httpUser: string;
+  httpPassword: string;
   https2http: boolean;
   https2httpCaFile: string;
   https2httpKeyFile: string;
@@ -27,8 +27,8 @@ export interface ProxyItem {
   fallbackTimeoutMs?: number;
   keepAlive?: boolean;
   customDomains?: string;
-  staticFile?:boolean;
-  localPath?:string;
+  staticFile?: boolean;
+  localPath?: string;
   stripPrefix?: string;
 
 }
@@ -52,18 +52,18 @@ export const useProxyStore = defineStore('proxyStore', () => {
   })
   function createNewProxyData(): ProxyItem {
     return {
-      id:0,
+      id: 0,
       type: "http",
       name: "",
       port: 8000,
-      domain: "",
+      subdomain: "",
       localPort: 56780,
       localIp: "127.0.0.1",
       serverAddr: "",
       serverPort: 0,
-      httpAuth: false,
-      authUsername: "",
-      authPassword: "",
+      basicAuth: false,
+      httpUser: "",
+      httpPassword: "",
       https2http: false,
       https2httpCaFile: "",
       https2httpKeyFile: "",
@@ -77,9 +77,9 @@ export const useProxyStore = defineStore('proxyStore', () => {
       fallbackTimeoutMs: 500,
       keepAlive: false,
       customDomains: "",
-      staticFile:false,
-      localPath:"",
-      stripPrefix:""
+      staticFile: false,
+      localPath: "",
+      stripPrefix: ""
     };
   }
 
@@ -99,8 +99,8 @@ export const useProxyStore = defineStore('proxyStore', () => {
 
   const createFrpc = async () => {
     const url = `${apiUrl}/proxy/frpc/create`;
-    const postData:any = toRaw(proxyData.value)
-    if(customDomains.value.length > 0){
+    const postData: any = toRaw(proxyData.value)
+    if (customDomains.value.length > 0) {
       postData.customDomains = customDomains.value.join(',');
     }
     postData.LocalPort = parseInt(postData.localPort)
@@ -118,7 +118,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
   async function pageChange(val: number) {
     page.value.current = val
     await fetchProxies()
-   }
+  }
   const fetchProxies = async () => {
     const url = `${apiUrl}/proxy/frpc/list?page=${page.value.current}&limit=${page.value.size}`;
     const response = await fetch(url);
@@ -166,7 +166,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
 
   const updateProxy = async (proxy: ProxyItem) => {
     const url = `${apiUrl}/proxy/frpc/update`;
-    if(customDomains.value.length > 0){
+    if (customDomains.value.length > 0) {
       proxy.customDomains = customDomains.value.join(',');
     }
     fetch(url, {
