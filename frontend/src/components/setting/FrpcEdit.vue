@@ -76,6 +76,42 @@
 		https2httpKeyFile: [
 			{ required: false, message: "请选择密钥文件", trigger: "blur" },
 		],
+		remotePort: [
+			{ required: true, message: "请输入外网端口", trigger: "blur" },
+			{
+				type: "number",
+				min: 1,
+				max: 65535,
+				message: "外网端口必须在1到65535之间",
+				trigger: "blur",
+			},
+		],
+		// 被访问者代理名称
+		visitedName: [
+			{
+				required: true,
+				message: "请输入被访问者代理名称",
+				trigger: "blur",
+			},
+		],
+		bindAddr: [
+			{ required: true, message: "请输入绑定地址", trigger: "blur" },
+			{
+				pattern: /^[\w-]+(\.[\w-]+)+$/,
+				message: "请输入正确的绑定地址",
+				trigger: "blur",
+			},
+		],
+		bindPort: [
+			{ required: true, message: "请输入绑定端口", trigger: "blur" },
+			{
+				type: "number",
+				min: 1,
+				max: 65535,
+				message: "绑定端口必须在1到65535之间",
+				trigger: "blur",
+			},
+		],
 	};
 
 	const addProxy = async () => {
@@ -285,15 +321,14 @@
 			>
 				<el-input-number
 					v-model="proxyStore.proxyData.remotePort"
-					:min="0"
+					:min="1"
 					:max="65535"
 				/>
 			</el-form-item>
 			<template
 				v-if="
 					proxyStore.proxyData.type === 'http' ||
-					proxyStore.proxyData.type === 'https' ||
-					proxyStore.proxyData.type === 'tcp'
+					proxyStore.proxyData.type === 'https'
 				"
 			>
 				<el-form-item
@@ -356,7 +391,7 @@
 				</el-form-item>
 			</template>
 		</template>
-		<template v-if="proxyStore.proxyData.type === 'tcp'">
+		<!-- <template v-if="proxyStore.proxyData.type === 'tcp'">
 			<el-form-item
 				label="文件访问："
 				prop="staticFile"
@@ -384,7 +419,7 @@
 					placeholder="URL的前缀"
 				/>
 			</el-form-item>
-		</template>
+		</template> -->
 
 		<!-- STCP/XTCP/SUDP模式 -->
 		<template
@@ -428,11 +463,7 @@
 
 			<!-- 被访问者代理名称 -->
 			<el-form-item
-				v-if="
-					proxyStore.proxyData.type === 'stcp' ||
-					proxyStore.proxyData.type === 'xtcp' ||
-					proxyStore.proxyData.type === 'sudp'
-				"
+				v-if="proxyStore.proxyData.stcpModel == 'visitors'"
 				label="被访问者代理名称："
 				prop="visitedName"
 			>
@@ -442,13 +473,7 @@
 				/>
 			</el-form-item>
 
-			<template
-				v-if="
-					proxyStore.proxyData.type === 'stcp' ||
-					proxyStore.proxyData.type === 'xtcp' ||
-					proxyStore.proxyData.type === 'sudp'
-				"
-			>
+			<template v-if="proxyStore.proxyData.stcpModel == 'visitors'">
 				<el-row :gutter="20">
 					<el-col :span="10">
 						<el-form-item
@@ -475,7 +500,38 @@
 					</el-col>
 				</el-row>
 			</template>
-			<template v-if="proxyStore.proxyData.type === 'xtcp'">
+
+			<template v-if="proxyStore.proxyData.stcpModel !== 'visitors'">
+				<el-row :gutter="20">
+					<!-- 内网地址 -->
+					<el-col :span="10">
+						<el-form-item
+							label="内网地址："
+							prop="localIp"
+						>
+							<el-input v-model="proxyStore.proxyData.localIp" />
+						</el-form-item>
+					</el-col>
+					<!-- 内网端口 -->
+					<el-col :span="10">
+						<el-form-item
+							label="内网端口："
+							prop="localPort"
+						>
+							<el-input-number
+								v-model="proxyStore.proxyData.localPort"
+							/>
+						</el-form-item>
+					</el-col>
+				</el-row>
+			</template>
+
+			<template
+				v-if="
+					proxyStore.proxyData.type === 'xtcp' &&
+					proxyStore.proxyData.stcpModel == 'visitors'
+				"
+			>
 				<el-row :gutter="20">
 					<el-col :span="10">
 						<el-form-item
@@ -522,7 +578,7 @@
 			<el-button
 				type="primary"
 				style="width: 100px"
-				@click="proxyDialogShow = false"
+				@click="proxyStore.addShow = false"
 				>取消</el-button
 			>
 		</el-row>

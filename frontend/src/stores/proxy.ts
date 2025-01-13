@@ -68,7 +68,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
       https2httpCaFile: "",
       https2httpKeyFile: "",
       remotePort: 0,
-      stcpModel: "",
+      stcpModel: "visitors",
       secretKey: "",
       visitedName: "",
       bindAddr: "",
@@ -95,6 +95,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
   };
   const resetProxyData = () => {
     proxyData.value = createNewProxyData();
+    customDomains.value = [""];
   };
 
   const createFrpc = async () => {
