@@ -138,7 +138,6 @@ declare module 'vue' {
     MusicViewer: typeof import('./src/components/builtin/MusicViewer.vue')['default']
     NasClient: typeof import('./src/components/setting/NasClient.vue')['default']
     NetProxy: typeof import('./src/components/setting/NetProxy.vue')['default']
-    'NetProxy copy': typeof import('./src/components/setting/NetProxy copy.vue')['default']
     NetWork: typeof import('./src/components/taskbar/NetWork.vue')['default']
     NetworkPop: typeof import('./src/components/taskbar/NetworkPop.vue')['default']
     NotFound: typeof import('./src/components/window/NotFound.vue')['default']

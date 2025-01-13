@@ -3,12 +3,19 @@ package model
 type LocalProxy struct {
 	BaseModel
 	Port      uint   `json:"port"`
-	ProxyType string `json:"proxy_type"`
+	ProxyType string `json:"proxyType"`
 	Domain    string `json:"domain"`
+	Path      string `json:"path"`
+	Status    bool   `json:"status"`
 }
 
 func (*LocalProxy) TableName() string {
 	return "local_proxy"
+}
+func GetLocalProxiesOn() ([]LocalProxy, error) {
+	var proxies []LocalProxy
+	err := Db.Where("status = ?", true).Find(&proxies).Error
+	return proxies, err
 }
 
 // GetLocalProxies 获取所有 LocalProxy，支持分页

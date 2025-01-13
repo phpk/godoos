@@ -14,9 +14,9 @@ type SysDisk struct {
 	Name   string `json:"name"`
 	Disk   string `json:"disk" gorm:"unique"`
 	Size   int64  `json:"size"`
-	Type   uint   `json:"type"` //0C-E本地 1nasserver 2nasclient 3webdavserver 4webdavclient 5F分享 6B回收站
+	Type   uint   `json:"type"` //0C-E系统 1nasserver 2nasclient 3webdavserver 4webdavclient 5F分享 9B回收站
 	Path   string `json:"path"`
-	Status uint   `json:"status"`
+	Status bool   `json:"status"`
 }
 
 func (*SysDisk) TableName() string {
@@ -31,10 +31,10 @@ func initSysDisk(db *gorm.DB) {
 	}
 	if count == 0 {
 		disks := []SysDisk{
-			{Disk: "B", Name: "回收站", Size: 0, Path: filepath.Join(basePath, "B"), Type: 6, Status: 1},
-			{Disk: "C", Name: "系统", Size: 0, Path: filepath.Join(basePath, "C"), Type: 0, Status: 1},
-			{Disk: "D", Name: "文档", Size: 0, Path: filepath.Join(basePath, "D"), Type: 0, Status: 1},
-			{Disk: "E", Name: "办公", Size: 0, Path: filepath.Join(basePath, "E"), Type: 0, Status: 1},
+			{Disk: "B", Name: "回收站", Size: 0, Path: filepath.Join(basePath, "B"), Type: 9, Status: true},
+			{Disk: "C", Name: "系统", Size: 0, Path: filepath.Join(basePath, "C"), Type: 0, Status: true},
+			{Disk: "D", Name: "文档", Size: 0, Path: filepath.Join(basePath, "D"), Type: 0, Status: true},
+			{Disk: "E", Name: "办公", Size: 0, Path: filepath.Join(basePath, "E"), Type: 0, Status: true},
 		}
 		db.Create(&disks)
 		fmt.Println("Initialized A-Z disks")

@@ -98,7 +98,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
   };
 
   const createFrpc = async () => {
-    const url = `${apiUrl}/frpc/create`;
+    const url = `${apiUrl}/proxy/frpc/create`;
     const postData:any = toRaw(proxyData.value)
     if(customDomains.value.length > 0){
       postData.customDomains = customDomains.value.join(',');
@@ -120,7 +120,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
     await fetchProxies()
    }
   const fetchProxies = async () => {
-    const url = `${apiUrl}/frpc/list?page=${page.value.current}&limit=${page.value.size}`;
+    const url = `${apiUrl}/proxy/frpc/list?page=${page.value.current}&limit=${page.value.size}`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -133,13 +133,13 @@ export const useProxyStore = defineStore('proxyStore', () => {
     } else {
       console.error("Failed to retrieve proxies:", res.message);
     }
-    fetch(`${apiUrl}/frpc/status`).then(res => res.json()).then(res => {
+    fetch(`${apiUrl}/proxy/frpc/status`).then(res => res.json()).then(res => {
       status.value = res.data
     })
   };
 
   const fetchProxy = async (id: number) => {
-    fetch(`${apiUrl}/frpc/get?id=${id}`).then(res => res.json()).then(res => {
+    fetch(`${apiUrl}/proxy/frpc/get?id=${id}`).then(res => res.json()).then(res => {
       if (res.code == 0) {
         proxyData.value = res.data;
         customDomains.value = proxyData.value.customDomains?.split(',') || [];
@@ -148,7 +148,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
   };
 
   const deleteProxyById = async (id: number) => {
-    const url = `${apiUrl}/frpc/delete?id=${id}`;
+    const url = `${apiUrl}/proxy/frpc/delete?id=${id}`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -165,7 +165,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
   };
 
   const updateProxy = async (proxy: ProxyItem) => {
-    const url = `${apiUrl}/frpc/update`;
+    const url = `${apiUrl}/proxy/frpc/update`;
     if(customDomains.value.length > 0){
       proxy.customDomains = customDomains.value.join(',');
     }
@@ -182,7 +182,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
     })
   };
   const getConfig = async () => {
-    return await fetch(`${apiUrl}/frpc/getconfig`).then(res => res.json())
+    return await fetch(`${apiUrl}/proxy/frpc/getconfig`).then(res => res.json())
   }
   const setConfig = async (config: any) => {
     return await fetch(`${apiUrl}/frpc/setconfig`, {
@@ -194,21 +194,21 @@ export const useProxyStore = defineStore('proxyStore', () => {
     }).then(res => res.json())
   }
   const startFrpc = async () => {
-    return await fetch(`${apiUrl}/frpc/start`).then(res => res.json()).then(res => {
+    return await fetch(`${apiUrl}/proxy/frpc/start`).then(res => res.json()).then(res => {
       if (res.code == 0) {
         status.value = true
       }
     })
   }
   const stopFrpc = async () => {
-    return await fetch(`${apiUrl}/frpc/stop`).then(res => res.json()).then(res => {
+    return await fetch(`${apiUrl}/proxy/frpc/stop`).then(res => res.json()).then(res => {
       if (res.code == 0) {
         status.value = false
       }
     })
   }
   const restartFrpc = async () => {
-    return await fetch(`${apiUrl}/frpc/restart`).then(res => res.json()).then(res => {
+    return await fetch(`${apiUrl}/proxy/frpc/restart`).then(res => res.json()).then(res => {
       if (res.code == 0) {
         status.value = true
       }

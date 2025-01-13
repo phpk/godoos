@@ -217,11 +217,12 @@ function useContextMenu() {
     const system = useSystem();
     if (!system) return;
     const filePath = file.path;
-    if (filePath === "/") return;
+    if (filePath === "/"|| filePath === "\\") return;
 
     const vol = filePath.charAt(1);
     if (vol != "B") return;
     let newPath: any = file.oldPath;
+    const Sp = filePath.charAt(0);
     //console.log(newPath)
     if (await system.fs.exists(newPath)) {
 
@@ -234,7 +235,7 @@ function useContextMenu() {
 
       } else {
         let i = 1;
-        let parentPath = '/B' + file.parentPath.substring(2)
+        let parentPath = Sp + 'B' + file.parentPath.substring(2)
         while (await system.fs.exists(fspath.join(parentPath, `${file.title}(${i}).${file.ext}`))) {
           i++;
         }
@@ -252,22 +253,24 @@ function useContextMenu() {
     if (!system) return;
     if (!file) return;
     const filePath = file.path;
-    if (filePath === "/") return;
+    const Sp = filePath.charAt(0);
+    const vol = filePath.charAt(1);
+    if (filePath === "/" || filePath === "\\") return;
 
-    if (file.isDirectory) {
-      if (["/", "/B", "/C", "/D", "/E", "/F"].includes(file.path)) return;
+    if (file.isDirectory && filePath.length == 2) {
+      if (["B", "C", "D", "E", "F"].includes(vol)) return;
     }
     //console.log(file)
-    const vol = filePath.charAt(1);
+    
     //console.log(vol)
     if (file && file.id && file.id < 1) {
       if (["C", "D", "E"].includes(vol)) {
         //console.log('/B' + filePath.substring(2))
-        let newPath = '/B' + filePath
+        let newPath = Sp + 'B' + filePath
         // if (file.parentPath == "/C/Users/Desktop" && !file.isDirectory) {
         //   newPath = '/B/' + file.title + "." + file.ext
         // }
-        const fileDir = '/B' + (file.isDirectory ? file.path : file.path.replace(file.name, ""))
+        const fileDir = Sp + 'B' + (file.isDirectory ? file.path : file.path.replace(file.name, ""))
         //console.log(fileDir)
         if (!(await system.fs.exists(fileDir))) {
           await system.fs.mkdir(fileDir)
@@ -283,7 +286,7 @@ function useContextMenu() {
 
           } else {
             let i = 1;
-            let parentPath = '/B' + file.parentPath
+            let parentPath = Sp + 'B' + file.parentPath
             while (await system.fs.exists(fspath.join(parentPath, `${file.title}(${i}).${file.ext}`))) {
               i++;
             }

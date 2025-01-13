@@ -399,7 +399,8 @@ async function handleNavSearch(query: string) {
 	
 }
 document.addEventListener('paste', function() {
-	if(router_url.value !== "/" && !router_url.value.startsWith("/B")){
+	const sp = router_url.value.charAt(0);
+	if(router_url.value !== sp && !router_url.value.startsWith(sp + "B")){
 		pasteFile(router_url.value)
 		refersh();
 	}
