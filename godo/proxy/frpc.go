@@ -246,6 +246,14 @@ func SetFrpcConfig(config FrpConfig) error {
 		log.Printf("Config file not found at %s, creating new file", configPath)
 	}
 
+	// 没有就创建
+	if !libs.PathExists(filepath.Join(runDir, "frpc")) {
+		if err := os.MkdirAll(filepath.Join(runDir, "frpc"), 0755); err != nil {
+			log.Printf("Failed to create frpc directory: %v", err)
+			return err
+		}
+	}
+
 	// 打开或创建配置文件
 	configFile, err := os.Create(configPath)
 	if err != nil {
