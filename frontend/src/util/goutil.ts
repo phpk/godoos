@@ -6,6 +6,13 @@ export async function OpenDirDialog() {
         return ""
     }
 }
+export async function ChooseFileDialog() {
+    if ((window as any).go) {
+        return (window as any)['go']['app']['App']['ChooseFileDialog']();
+    } else {
+        return ""
+    }
+}
 export async function checkUrl(url: string) {
     try {
         await fetch(url, {

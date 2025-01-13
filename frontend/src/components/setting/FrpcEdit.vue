@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-	import { useChooseStore } from "@/stores/choose";
+	import { ChooseFileDialog,OpenDirDialog } from "@/util/goutil";
 	import { useProxyStore } from "@/stores/proxy";
 	import { notifyError, notifySuccess } from "@/util/msg";
 	import { ref } from "vue";
 	const proxyStore = useProxyStore();
-	const choose = useChooseStore();
+	
 	const { updateProxy } = proxyStore;
 
 	const proxyDialogShow = ref(false);
@@ -128,23 +128,23 @@
 		{ label: "被访问者", value: "visited" },
 	]);
 
-	const handleSelectFile = () => {
-		choose.select("选择文件", "*");
-	};
-
-	watch(
-		() => choose.path,
-		(newVal, oldVal) => {
-			console.log("newVal", newVal);
-			console.log("oldVal", oldVal);
-			if (newVal.length > 0) {
-				console.log("choose.path", choose.path);
-				proxyStore.proxyData.https2httpCaFile = choose.path[0];
-				choose.path = [];
+	const handleSelectFile = (type :number) => {
+		//choose.select("选择文件", "*");
+		ChooseFileDialog().then((res) => {
+			if (type === 1) {
+				proxyStore.proxyData.https2httpCaFile = res;
+			} else if (type === 2) {
+				proxyStore.proxyData.https2httpKeyFile = res;
 			}
-		},
-		{ deep: true }
-	);
+		});
+	};
+	const handleSelectPath = (type : number) => {
+		OpenDirDialog().then((res) => {
+			if (type === 1) {
+				proxyStore.proxyData.localPath = res;
+			} 
+		});
+	};
 </script>
 
 <template>
@@ -340,7 +340,7 @@
 					<el-input
 						v-model="proxyStore.proxyData.https2httpCaFile"
 						placeholder="点击选择证书文件"
-						@click="handleSelectFile"
+						@click="handleSelectFile(1)"
 					/>
 				</el-form-item>
 				<el-form-item
@@ -351,7 +351,7 @@
 					<el-input
 						v-model="proxyStore.proxyData.https2httpKeyFile"
 						placeholder="点击选择密钥文件"
-						@click="handleSelectFile"
+						@click="handleSelectFile(2)"
 					/>
 				</el-form-item>
 			</template>
@@ -371,7 +371,7 @@
 				<el-input
 					v-model="proxyStore.proxyData.localPath"
 					placeholder="点击选择文件夹路径"
-					@click="handleSelectFile"
+					@click="handleSelectPath(1)"
 				/>
 			</el-form-item>
 			<el-form-item

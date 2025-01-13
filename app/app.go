@@ -40,7 +40,15 @@ func (a *App) OpenDirDialog() string {
 	}
 	return path
 }
-
+func (a *App) ChooseFileDialog() string {
+	path, err := wruntime.OpenFileDialog(a.ctx, wruntime.OpenDialogOptions{
+		Title: "Select File",
+	})
+	if err != nil {
+		wruntime.LogErrorf(a.ctx, "Error: %+v\n", err)
+	}
+	return path
+}
 func (a *App) RestartApp() error {
 	name, err := os.Executable()
 	if err != nil {

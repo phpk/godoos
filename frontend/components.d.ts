@@ -121,6 +121,7 @@ declare module 'vue' {
     InstallCompony: typeof import('./src/components/install/InstallCompony.vue')['default']
     InstallMember: typeof import('./src/components/install/InstallMember.vue')['default']
     InstallPerson: typeof import('./src/components/install/InstallPerson.vue')['default']
+    KnowledgeChat: typeof import('./src/components/localchat/KnowledgeChat.vue')['default']
     LocalChat: typeof import('./src/components/localchat/LocalChat.vue')['default']
     LocalNas: typeof import('./src/components/setting/LocalNas.vue')['default']
     LocalProxy: typeof import('./src/components/setting/LocalProxy.vue')['default']
