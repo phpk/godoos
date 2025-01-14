@@ -38,6 +38,8 @@ func CreateLocalProxyHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	// 残留数据id 设置为 0
+	lp.ID = 0
 
 	err = model.Db.Create(&lp).Error
 	if err != nil {
@@ -109,8 +111,19 @@ func UpdateLocalProxyHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if lp.ID == 0 {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+	updata := map[string]interface{}{
+		"port":       lp.Port,
+		"proxy_type": lp.ProxyType,
+		"domain":     lp.Domain,
+		"status":     lp.Status,
+		// path
+	}
 
-	err = model.Db.Model(&model.LocalProxy{}).Where("id = ?", lp.ID).Updates(lp).Error
+	err = model.Db.Model(&model.LocalProxy{}).Where("id = ?", lp.ID).Updates(updata).Error
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -285,7 +298,7 @@ func httpProxyHandler(proxy model.LocalProxy) {
 
 	proxyServers.Store(proxy.ID, ProxyServer{Type: "http", Server: server})
 
-	fmt.Printf("Starting HTTP proxy on port %d and forwarding to %s:%d\n", proxy.Port, proxy.Domain, proxy.Port)
+	fmt.Printf("Starting HTTP proxy on LocalHost port %d and forwarding to %s\n", proxy.Port, proxy.Domain)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		fmt.Printf("Failed to start HTTP proxy on port %d: %v\n", proxy.Port, err)
 	}
