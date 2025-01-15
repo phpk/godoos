@@ -31,6 +31,7 @@ import (
 	"godo/proxy"
 	"godo/store"
 	"godo/sys"
+	"godo/user"
 	"godo/webdav"
 	"io/fs"
 	"log"
@@ -183,6 +184,12 @@ func OsStart() {
 	proxyRouter.HandleFunc("/frpc/stop", proxy.StopFrpcHandler).Methods(http.MethodGet)       // 停止frpc服务
 	proxyRouter.HandleFunc("/frpc/restart", proxy.RestartFrpcHandler).Methods(http.MethodGet) // 重启frpc服务
 	proxyRouter.HandleFunc("/frpc/status", proxy.StatusFrpcHandler).Methods(http.MethodGet)
+
+	userRouter := router.PathPrefix("/user").Subrouter()
+	userRouter.HandleFunc("/register", user.RegisterSysUserHandler).Methods(http.MethodPost)
+	userRouter.HandleFunc("/screen/lock", user.LockedScreenHandler).Methods(http.MethodPost)
+	userRouter.HandleFunc("/screen/unlock", user.UnLockScreenHandler).Methods(http.MethodPost)
+	userRouter.HandleFunc("/screen/status", user.CheckLockedScreenHandler).Methods(http.MethodGet)
 
 	// 注册根路径的处理函数
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")
