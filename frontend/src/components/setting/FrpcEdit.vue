@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-	import { ChooseFileDialog,OpenDirDialog } from "@/util/goutil";
 	import { useProxyStore } from "@/stores/proxy";
+	import { ChooseFileDialog } from "@/util/goutil";
 	import { notifyError, notifySuccess } from "@/util/msg";
 	import { ref } from "vue";
 	const proxyStore = useProxyStore();
-	
+
 	const { updateProxy } = proxyStore;
 
-	const proxyDialogShow = ref(false);
+	// const proxyDialogShow = ref(false);
 	const pwdRef = ref<any>(null);
 
 	// 定义表单验证规则
@@ -164,9 +164,10 @@
 		{ label: "被访问者", value: "visited" },
 	]);
 
-	const handleSelectFile = (type :number) => {
+	const handleSelectFile = (type: number) => {
 		//choose.select("选择文件", "*");
 		ChooseFileDialog().then((res) => {
+			console.log("res");
 			if (type === 1) {
 				proxyStore.proxyData.https2httpCaFile = res;
 			} else if (type === 2) {
@@ -174,13 +175,13 @@
 			}
 		});
 	};
-	const handleSelectPath = (type : number) => {
-		OpenDirDialog().then((res) => {
-			if (type === 1) {
-				proxyStore.proxyData.localPath = res;
-			} 
-		});
-	};
+	// const handleSelectPath = (type: number) => {
+	// OpenDirDialog().then((res) => {
+	// 	if (type === 1) {
+	// 		proxyStore.proxyData.localPath = res;
+	// 	}
+	// });
+	// };
 </script>
 
 <template>

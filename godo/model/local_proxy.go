@@ -2,11 +2,12 @@ package model
 
 type LocalProxy struct {
 	BaseModel
-	Port      uint   `json:"port"`
-	ProxyType string `json:"proxyType"`
-	Domain    string `json:"domain"`
-	Path      string `json:"path"`
-	Status    bool   `json:"status"`
+	Port       uint   `json:"port"`       // 本地端口
+	ProxyType  string `json:"proxyType"`  // 代理类型
+	Domain     string `json:"domain"`     // 代理域名
+	Path       string `json:"path"`       // 代理路径
+	Status     bool   `json:"status"`     // 状态
+	ListenPort uint   `json:"listenPort"` // 代理端口
 }
 
 func (*LocalProxy) TableName() string {

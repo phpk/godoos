@@ -186,7 +186,7 @@ export const useProxyStore = defineStore('proxyStore', () => {
     return await fetch(`${apiUrl}/proxy/frpc/getconfig`).then(res => res.json())
   }
   const setConfig = async (config: any) => {
-    return await fetch(`${apiUrl}/frpc/setconfig`, {
+    return await fetch(`${apiUrl}/proxy/frpc/setconfig`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

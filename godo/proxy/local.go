@@ -116,10 +116,11 @@ func UpdateLocalProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	updata := map[string]interface{}{
-		"port":       lp.Port,
-		"proxy_type": lp.ProxyType,
-		"domain":     lp.Domain,
-		"status":     lp.Status,
+		"port":        lp.Port,
+		"proxy_type":  lp.ProxyType,
+		"domain":      lp.Domain,
+		"status":      lp.Status,
+		"listen_port": lp.ListenPort,
 		// path
 	}
 
@@ -158,6 +159,8 @@ func DeleteLocalProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 	libs.SuccessMsg(w, nil, "delete proxy success")
 }
+
+// HandlerSetProxyStatus 设置代理状态
 func HandlerSetProxyStatus(w http.ResponseWriter, r *http.Request) {
 	idStr := r.URL.Query().Get("id")
 	if idStr == "" {
@@ -270,37 +273,52 @@ func stopProxy(id uint) {
 
 // HTTP 代理处理函数
 func httpProxyHandler(proxy model.LocalProxy) {
-	remote, err := url.Parse(proxy.Domain)
+	// 如果 ListenPort 没有传递，默认为 80
+	if proxy.ListenPort == 0 {
+		proxy.ListenPort = 80
+	}
+
+	fmt.Printf("Initializing HTTP proxy for ID %d on domain %s and listen port %d\n", proxy.ID, proxy.Domain, proxy.ListenPort)
+
+	// 使用 proxy.Port 作为本地目标端口
+	remote, err := url.Parse(fmt.Sprintf("http://localhost:%d", proxy.Port))
 	if err != nil {
 		fmt.Printf("Failed to parse remote URL for port %d: %v\n", proxy.Port, err)
 		return
 	}
-
-	if remote.Scheme == "" {
-		fmt.Printf("Remote URL for port %d does not contain a scheme (http/https): %s\n", proxy.Port, proxy.Domain)
-		return
-	}
+	fmt.Printf("Parsed remote URL: %s\n", remote.String())
 
 	reverseProxy := httputil.NewSingleHostReverseProxy(remote)
+	reverseProxy.Director = func(req *http.Request) {
+		req.URL.Scheme = remote.Scheme
+		req.URL.Host = remote.Host
+		req.Host = remote.Host
+		req.URL.Path = proxy.Path + req.URL.Path // 使用代理路径
+		fmt.Printf("Proxying request to: %s\n", req.URL.String())
+	}
 
-	// 设置请求头
-	// reverseProxy.Director = func(req *http.Request) {
-	// 	req.Header.Add("X-Forwarded-For", req.RemoteAddr)
-	// 	req.Header.Add("X-Real-IP", req.RemoteAddr)
-	// 	req.Host = remote.Host
-	// }
+	reverseProxy.ModifyResponse = func(resp *http.Response) error {
+		fmt.Printf("Received response with status: %s\n", resp.Status)
+		return nil
+	}
 
-	// 启动 HTTP 服务器并监听指定端口
+	reverseProxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, err error) {
+		fmt.Printf("Error during proxying: %v\n", err)
+		http.Error(rw, "Proxy error", http.StatusBadGateway)
+	}
+
+	// 监听配置中指定的域名和端口
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", proxy.Port),
+		Addr:    fmt.Sprintf(":%d", proxy.ListenPort),
 		Handler: reverseProxy,
 	}
 
 	proxyServers.Store(proxy.ID, ProxyServer{Type: "http", Server: server})
 
-	fmt.Printf("Starting HTTP proxy on LocalHost port %d and forwarding to %s\n", proxy.Port, proxy.Domain)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		fmt.Printf("Failed to start HTTP proxy on port %d: %v\n", proxy.Port, err)
+		fmt.Printf("Failed to start HTTP proxy on domain %s and listen port %d: %v\n", proxy.Domain, proxy.ListenPort, err)
+	} else {
+		fmt.Printf("HTTP proxy on domain %s and listen port %d started successfully\n", proxy.Domain, proxy.ListenPort)
 	}
 }
 
