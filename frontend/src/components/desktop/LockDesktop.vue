@@ -414,6 +414,9 @@
 	});
 
 	const getThirdpartyList = async () => {
+		if(!config.userInfo.url){
+			return;
+		}
 		const result = await fetch(
 			config.userInfo.url + "/user/thirdparty/list"
 		);
@@ -694,6 +697,9 @@
 	const toggleUserSwitch = () => {
 		config.userType = "person";
 		setSystemConfig(config);
+		//lockClassName.value = "screen-hide";
+		// loginSuccess()
+		//window.location.reload();
 		RestartApp();
 	};
 

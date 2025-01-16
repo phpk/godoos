@@ -165,9 +165,9 @@ export class System {
    */
   private async isLogin() {
     const config = getSystemConfig();
-
+  
     if (config.userType == 'person') {
-      if (!this._options.login) {
+      if (!this._options.login || (window as any).go) {
         this._rootState.state = SystemStateEnum.open;
         return;
       } else {

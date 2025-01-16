@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/launcher"
 )
 
 type PageState struct {
@@ -16,6 +19,17 @@ type PageState struct {
 
 var pageState = &PageState{}
 
+func browserNavigate(url string) {
+	// 启动浏览器
+	launch := launcher.New().Headless(false) // 设置为 false 可以看到浏览器界面
+	browser := rod.New().ControlURL(launch.MustLaunch()).MustConnect()
+	//defer browser.MustClose()
+
+	// 打开一个页面
+	// page := browser.MustPage(url)
+	// page.MustWaitLoad()
+	browser.MustPage(url)
+}
 func fetchPageContent(url string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -56,19 +70,19 @@ func HandleNavigate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "URL parameter is required", http.StatusBadRequest)
 		return
 	}
+	browserNavigate(url)
+	// html, err := fetchPageContent(url)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
 
-	html, err := fetchPageContent(url)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	// pageState.History = append(pageState.History, url)
+	// pageState.Index = len(pageState.History) - 1
+	// pageState.URL = url
 
-	pageState.History = append(pageState.History, url)
-	pageState.Index = len(pageState.History) - 1
-	pageState.URL = url
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprint(w, html)
+	// w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	// fmt.Fprint(w, html)
 }
 
 func HandleBack(w http.ResponseWriter, r *http.Request) {

@@ -11,6 +11,7 @@ require (
 	github.com/cavaliergopher/grab/v3 v3.0.1
 	github.com/ebitengine/purego v0.8.1
 	github.com/fsnotify/fsnotify v1.7.0
+	github.com/go-rod/rod v0.116.2
 	github.com/gorilla/mux v1.8.1
 	github.com/ikawaha/kagome-dict/ipa v1.2.0
 	github.com/ikawaha/kagome/v2 v2.10.0
@@ -44,7 +45,11 @@ require (
 	github.com/tetratelabs/wazero v1.8.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect
+	github.com/ysmood/fetchup v0.2.3 // indirect
+	github.com/ysmood/goob v0.4.0 // indirect
+	github.com/ysmood/got v0.40.0 // indirect
+	github.com/ysmood/gson v0.7.3 // indirect
+	github.com/ysmood/leakless v0.9.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	golang.org/x/crypto v0.31.0 // indirect
-	gopkg.in/ini.v1 v1.67.0
 )
