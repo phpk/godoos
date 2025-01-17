@@ -11,7 +11,7 @@
 		domain: string;
 		path?: string;
 		status: boolean;
-		listenPort: number;
+		// listenPort: number;
 	}
 	const proxyInit = {
 		id: Date.now(),
@@ -20,7 +20,7 @@
 		domain: "", // 代理域名
 		path: "", // 文件路径
 		status: true,
-		listenPort: 80,
+		// listenPort: 80,
 	};
 	const config = getSystemConfig();
 	const proxies = ref<ProxyItem[]>([]);
@@ -143,7 +143,7 @@
 		pwdRef.value.validate((valid: boolean) => {
 			if (valid) {
 				proxyData.value.port = Number(proxyData.value.port);
-				proxyData.value.listenPort = Number(proxyData.value.listenPort);
+				// proxyData.value.listenPort = Number(proxyData.value.listenPort);
 				if (isEditing.value) {
 					updateProxies(proxyData.value);
 				} else {
@@ -169,8 +169,8 @@
 			{ required: true, message: "代理域名不能为空", trigger: "blur" },
 			{
 				pattern:
-					/^(https?:\/\/)?((?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}|localhost)(:\d{1,5})?(\/[^\s]*)?$/,
-				message: "请输入有效的域名格式",
+					/^(https?:\/\/)?((?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}|localhost|(\d{1,3}\.){3}\d{1,3})(:\d{1,5})?(\/[^\s]*)?$/,
+				message: "请输入有效的域名、IP或端口格式",
 				trigger: "blur",
 			},
 		],
@@ -289,12 +289,12 @@
 						>
 							<el-input v-model="proxyData.domain" />
 						</el-form-item>
-						<el-form-item
+						<!-- <el-form-item
 							label="代理端口"
 							prop="listenPort"
 						>
 							<el-input v-model="proxyData.listenPort" />
-						</el-form-item>
+						</el-form-item> -->
 					</div>
 					<el-form-item
 						label="文件路径"
