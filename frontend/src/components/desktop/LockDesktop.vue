@@ -1,9 +1,11 @@
 <template>
 	<div
+		v-if="!sys._options.noPassword"
 		class="lockscreen"
 		:class="lockClassName"
 	>
 		<el-card
+			v-if="sys._rootState.state !== SystemStateEnum.lock"
 			class="login-box"
 			shadow="never"
 		>
@@ -322,6 +324,34 @@
 				</el-row>
 			</div>
 		</el-card>
+		<el-card
+			v-else
+			class="lock-card"
+		>
+			<div class="avatar-container">
+				<el-avatar size="large">
+					<img
+						src="/logo.png"
+						alt="Logo"
+					/>
+				</el-avatar>
+			</div>
+			<el-form v-model="unlockForm">
+				<el-form-item>
+					<el-input
+						v-model="unlockForm.username"
+						placeholder="请输入锁屏用户名"
+					/>
+				</el-form-item>
+				<el-form-item>
+					<el-input
+						v-model="unlockForm.password"
+						placeholder="请输入锁屏密码"
+					/>
+				</el-form-item>
+			</el-form>
+			<el-button @click="lockScreen">锁屏</el-button>
+		</el-card>
 	</div>
 </template>
 
@@ -330,8 +360,9 @@
 	import { useSystem } from "@/system";
 	import { getSystemConfig, setSystemConfig } from "@/system/config";
 	import router from "@/system/router";
+	import { SystemStateEnum } from "@/system/type/enum";
 	import { RestartApp } from "@/util/goutil";
-	import { notifyError } from "@/util/msg";
+	import { notifyError, notifySuccess } from "@/util/msg";
 	import { computed, onMounted, ref, watchEffect } from "vue";
 	import { useRoute } from "vue-router";
 	const route = useRoute();
@@ -346,6 +377,12 @@
 		localStorage.removeItem("ThirdPartyPlatform");
 	};
 
+	// /screen/unlock
+	const unlockForm = ref({
+		username: "123",
+		password: "123",
+	});
+
 	const phoneForm = ref({
 		phone: "",
 		code: "",
@@ -355,6 +392,20 @@
 		email: "",
 		code: "",
 	});
+
+	const lockScreen = async () => {
+		const res = await fetch(config.apiUrl + "/user/screen/unlock", {
+			method: "POST",
+			body: JSON.stringify(unlockForm.value),
+		});
+		const data = await res.json();
+		if (data.code == 0) {
+			sys._rootState.state = SystemStateEnum.open;
+			notifySuccess("解锁成功");
+		} else {
+			notifyError("解锁失败");
+		}
+	};
 
 	const thirdpartyCode = ref("");
 
@@ -1209,5 +1260,18 @@
 				border: none; // 确保没有额外的边框
 			}
 		}
+	}
+
+	.lock-card {
+		border-radius: 10px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		width: 300px;
+		height: 300px;
+		background-color: #ffffff;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+		padding: 20px;
 	}
 </style>

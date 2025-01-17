@@ -103,6 +103,28 @@ export class System {
     initBuiltinApp(this);
     initBuiltinFileOpener(this); // 注册内建文件打开器
     await this.initSavedConfig(); // 初始化保存的配置
+    const config = getSystemConfig();
+    const syslock = localStorage.getItem("syslock");
+    const lockData = JSON.parse(syslock || "{}");
+
+    // 判断是解锁
+    if (lockData.lock) {
+      const sysuser = lockData.sysuser;
+      const res = await fetch(config.apiUrl + "/user/screen/status", {
+        headers: {
+          "sysuser": sysuser,
+        },
+      });
+      const data = await res.json();
+      // data.data 为 true 表示锁屏
+      // 如果没锁屏，则删除 sysuser
+      if (!data.data) {
+        lockData.lock = false;
+        lockData.sysuser = "";
+        localStorage.setItem("syslock", JSON.stringify(lockData));
+      }
+    }
+
 
     // 判断是否为钉钉工作台登录
     const login_type = new URLSearchParams(window.location.search).get("login_type");
@@ -177,6 +199,13 @@ export class System {
         }
 
         this._rootState.state = SystemStateEnum.lock;
+
+        const syslock = localStorage.getItem("syslock");
+        const lockData = JSON.parse(syslock || "{}");
+        if (!lockData.lock) {
+          this._rootState.state = SystemStateEnum.open;
+        }
+
         const tempCallBack = this._options.loginCallback;
         if (!tempCallBack) {
           throw new Error('没有设置登录回调函数');
