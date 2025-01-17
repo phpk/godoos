@@ -75,12 +75,12 @@
 		</el-row>
 		<el-table
 			:data="proxyStore.proxies"
-			style="width: 98%; border: none"
+			style="width: 100%; border: none"
 		>
 			<el-table-column
 				prop="name"
 				label="名称"
-				width="100"
+				width="80"
 			/>
 			<el-table-column
 				prop="type"
@@ -96,7 +96,7 @@
 				prop="localIp"
 				label="本地Ip"
 			/>
-			<el-table-column label="操作">
+			<el-table-column fixed="right" width="120" label="操作">
 				<template #default="scope">
 					<el-row
 						:gutter="24"
