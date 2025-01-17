@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"fmt"
 	"godo/libs"
 	"godo/model"
 	"io"
@@ -74,14 +75,6 @@ func LockedScreenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userEncodeStr, err := libs.EncodeFile("godoos", strconv.Itoa(int(user.ID)))
-	if err != nil {
-		libs.ErrorMsg(w, "failed to encode user")
-		return
-	}
-
-	// w.Header().Set("sysuser", userEncodeStr)
-
 	// 登录成功，锁屏状态设置为 true
 	mu.Lock()
 	if userLockedScreen == nil {
@@ -90,7 +83,7 @@ func LockedScreenHandler(w http.ResponseWriter, r *http.Request) {
 	userLockedScreen[user.ID] = true
 	mu.Unlock()
 
-	libs.SuccessMsg(w, userEncodeStr, "system locked")
+	libs.SuccessMsg(w, fmt.Sprint(user.ID), "system locked")
 }
 
 // 系统用户登录（解锁）
@@ -130,18 +123,13 @@ func CheckLockedScreenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	decoderUid := r.Header.Get("sysuser")
-	if decoderUid == "" {
+	uidStr := r.Header.Get("sysuser")
+	if uidStr == "" {
 		//获取锁屏状态
 		libs.SuccessMsg(w, false, "")
 		return
 	}
 
-	uidStr, err := libs.DecodeFile("godoos", decoderUid)
-	if err != nil {
-		libs.ErrorMsg(w, "invalid uid")
-		return
-	}
 	uid, err := strconv.Atoi(uidStr)
 	if err != nil {
 		libs.ErrorMsg(w, "parse uid fail")
