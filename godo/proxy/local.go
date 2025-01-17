@@ -135,8 +135,10 @@ func UpdateLocalProxyHandler(w http.ResponseWriter, r *http.Request) {
 	// 停止旧的代理服务
 	stopProxy(lp.ID)
 
-	// 启动新的代理服务
-	go startProxy(lp)
+	if !lp.Status {
+		// 启动新的代理服务
+		go startProxy(lp)
+	}
 
 	libs.SuccessMsg(w, lp, "")
 }
@@ -237,11 +239,13 @@ func stopProxy(id uint) {
 
 		switch proxyServer.Type {
 		case "http":
+			fmt.Println("closing http proxy...")
 			httpServer, ok := proxyServer.Server.(*http.Server)
 			if ok {
 				// 创建一个上下文，用于传递给 server.Shutdown(ctx)
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				defer cancel()
+				defer httpServer.Close()
 				if err := httpServer.Shutdown(ctx); err != nil {
 					fmt.Printf("Failed to shutdown HTTP server on port %s: %v\n", httpServer.Addr, err)
 				} else {
