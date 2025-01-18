@@ -3,13 +3,16 @@ package proxy
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"godo/libs"
 	"godo/model"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -116,11 +119,10 @@ func UpdateLocalProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	updata := map[string]interface{}{
-		"port":        lp.Port,
-		"proxy_type":  lp.ProxyType,
-		"domain":      lp.Domain,
-		"status":      lp.Status,
-		"listen_port": lp.ListenPort,
+		"port":       lp.Port,
+		"proxy_type": lp.ProxyType,
+		"domain":     lp.Domain,
+		"status":     lp.Status,
 		// path
 	}
 
@@ -133,8 +135,10 @@ func UpdateLocalProxyHandler(w http.ResponseWriter, r *http.Request) {
 	// 停止旧的代理服务
 	stopProxy(lp.ID)
 
-	// 启动新的代理服务
-	go startProxy(lp)
+	if !lp.Status {
+		// 启动新的代理服务
+		go startProxy(lp)
+	}
 
 	libs.SuccessMsg(w, lp, "")
 }
@@ -235,11 +239,13 @@ func stopProxy(id uint) {
 
 		switch proxyServer.Type {
 		case "http":
+			fmt.Println("closing http proxy...")
 			httpServer, ok := proxyServer.Server.(*http.Server)
 			if ok {
 				// 创建一个上下文，用于传递给 server.Shutdown(ctx)
 				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				defer cancel()
+				defer httpServer.Close()
 				if err := httpServer.Shutdown(ctx); err != nil {
 					fmt.Printf("Failed to shutdown HTTP server on port %s: %v\n", httpServer.Addr, err)
 				} else {
@@ -267,58 +273,56 @@ func stopProxy(id uint) {
 		default:
 			fmt.Printf("Unknown proxy type: %s\n", proxyServer.Type)
 		}
+
 		proxyServers.Delete(id)
 	}
 }
 
 // HTTP 代理处理函数
 func httpProxyHandler(proxy model.LocalProxy) {
-	// 如果 ListenPort 没有传递，默认为 80
-	if proxy.ListenPort == 0 {
-		proxy.ListenPort = 80
-	}
-
-	fmt.Printf("Initializing HTTP proxy for ID %d on domain %s and listen port %d\n", proxy.ID, proxy.Domain, proxy.ListenPort)
-
-	// 使用 proxy.Port 作为本地目标端口
-	remote, err := url.Parse(fmt.Sprintf("http://localhost:%d", proxy.Port))
+	remote, err := url.Parse(proxy.Domain)
 	if err != nil {
 		fmt.Printf("Failed to parse remote URL for port %d: %v\n", proxy.Port, err)
 		return
 	}
-	fmt.Printf("Parsed remote URL: %s\n", remote.String())
 
+	if remote.Scheme == "" {
+		fmt.Printf("Remote URL for port %d does not contain a scheme (http/https): %s\n", proxy.Port, proxy.Domain)
+		return
+	}
+
+	// 创建反向代理
 	reverseProxy := httputil.NewSingleHostReverseProxy(remote)
+
+	// 设置请求头（如需要可以启用）
 	reverseProxy.Director = func(req *http.Request) {
+		req.Header.Set("X-Forwarded-Host", req.Host)
+		req.Header.Set("X-Origin-Host", remote.Host)
+		req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; curl/7.68.0)") // 设置常见的 User-Agent
+		req.Host = remote.Host
 		req.URL.Scheme = remote.Scheme
 		req.URL.Host = remote.Host
-		req.Host = remote.Host
-		req.URL.Path = proxy.Path + req.URL.Path // 使用代理路径
-		fmt.Printf("Proxying request to: %s\n", req.URL.String())
 	}
 
-	reverseProxy.ModifyResponse = func(resp *http.Response) error {
-		fmt.Printf("Received response with status: %s\n", resp.Status)
-		return nil
-	}
+	reverseProxy.ErrorLog = log.New(os.Stderr, "proxy-debug: ", log.LstdFlags)
 
-	reverseProxy.ErrorHandler = func(rw http.ResponseWriter, req *http.Request, err error) {
-		fmt.Printf("Error during proxying: %v\n", err)
-		http.Error(rw, "Proxy error", http.StatusBadGateway)
-	}
-
-	// 监听配置中指定的域名和端口
+	// 启动 HTTP 服务器并监听指定端口
+	bindAddress := "127.0.0.1"
+	serverAddr := fmt.Sprintf("%s:%d", bindAddress, proxy.Port)
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", proxy.ListenPort),
+		Addr:    serverAddr,
 		Handler: reverseProxy,
 	}
 
 	proxyServers.Store(proxy.ID, ProxyServer{Type: "http", Server: server})
 
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		fmt.Printf("Failed to start HTTP proxy on domain %s and listen port %d: %v\n", proxy.Domain, proxy.ListenPort, err)
-	} else {
-		fmt.Printf("HTTP proxy on domain %s and listen port %d started successfully\n", proxy.Domain, proxy.ListenPort)
+	fmt.Printf("Starting HTTP proxy on LocalHost port %d and forwarding to %s \n", proxy.Port, proxy.Domain)
+	if err := server.ListenAndServe(); err != nil {
+		if errors.Is(err, http.ErrServerClosed) {
+			fmt.Printf("HTTP proxy on port %d stopped gracefully.\n", proxy.Port)
+		} else {
+			fmt.Printf("Error starting HTTP proxy on port %d: %v\n", proxy.Port, err)
+		}
 	}
 }
 

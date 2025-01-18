@@ -186,10 +186,10 @@ func OsStart() {
 	proxyRouter.HandleFunc("/frpc/status", proxy.StatusFrpcHandler).Methods(http.MethodGet)
 
 	userRouter := router.PathPrefix("/user").Subrouter()
-	userRouter.HandleFunc("/register", user.RegisterSysUserHandler).Methods(http.MethodPost)
-	userRouter.HandleFunc("/screen/lock", user.LockedScreenHandler).Methods(http.MethodPost)
-	userRouter.HandleFunc("/screen/unlock", user.UnLockScreenHandler).Methods(http.MethodPost)
-	userRouter.HandleFunc("/screen/status", user.CheckLockedScreenHandler).Methods(http.MethodGet)
+	userRouter.HandleFunc("/register", user.RegisterSysUserHandler).Methods(http.MethodPost)       // 注册系统用户
+	userRouter.HandleFunc("/screen/lock", user.LockedScreenHandler).Methods(http.MethodPost)       // 锁屏
+	userRouter.HandleFunc("/screen/unlock", user.UnLockScreenHandler).Methods(http.MethodPost)     // 解锁
+	userRouter.HandleFunc("/screen/status", user.CheckLockedScreenHandler).Methods(http.MethodGet) // 检查锁屏状态
 
 	// 注册根路径的处理函数
 	distFS, _ := fs.Sub(deps.Frontendassets, "dist")

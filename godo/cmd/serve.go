@@ -115,7 +115,7 @@ func recoverMiddleware(next http.Handler) http.Handler {
 
 // CORS 中间件
 func corsMiddleware() mux.MiddlewareFunc {
-	allowHeaders := "Content-Type, Accept, Authorization, Origin, Pwd"
+	allowHeaders := "Content-Type, Accept, Authorization, Origin, Pwd, sysuser"
 	allowMethods := "GET, POST, PUT, DELETE, OPTIONS"
 
 	return func(next http.Handler) http.Handler {

@@ -2,8 +2,11 @@ package user
 
 import (
 	"encoding/json"
+	"fmt"
 	"godo/libs"
 	"godo/model"
+	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"sync"
@@ -21,20 +24,35 @@ func RegisterSysUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user model.SysUser
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+
+	// 获取请求体
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Println("读取请求体错误:", err)
 		libs.ErrorMsg(w, "invalid input")
 		return
 	}
+
+	// 解析请求体
+	if err := json.Unmarshal(body, &user); err != nil {
+		log.Println("解析请求体错误:", err)
+		libs.ErrorMsg(w, "invalid input")
+		return
+	}
+
+	// 检查用户名和密码是否为空
 	if user.Username == "" || user.Password == "" {
 		libs.ErrorMsg(w, "username or password is empty")
 		return
 	}
 
+	// 创建用户
 	if err := model.Db.Create(&user).Error; err != nil {
 		libs.ErrorMsg(w, "failed to create user")
 		return
 	}
 
+	// 返回成功消息
 	libs.SuccessMsg(w, user.ID, "")
 }
 
@@ -57,14 +75,6 @@ func LockedScreenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userEncodeStr, err := libs.EncodeFile("godoos", strconv.Itoa(int(user.ID)))
-	if err != nil {
-		libs.ErrorMsg(w, "failed to encode user")
-		return
-	}
-
-	w.Header().Set("sysuser", userEncodeStr)
-
 	// 登录成功，锁屏状态设置为 true
 	mu.Lock()
 	if userLockedScreen == nil {
@@ -73,7 +83,7 @@ func LockedScreenHandler(w http.ResponseWriter, r *http.Request) {
 	userLockedScreen[user.ID] = true
 	mu.Unlock()
 
-	libs.SuccessMsg(w, nil, "system locked")
+	libs.SuccessMsg(w, fmt.Sprint(user.ID), "system locked")
 }
 
 // 系统用户登录（解锁）
@@ -113,16 +123,13 @@ func CheckLockedScreenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	decoderUid := r.Header.Get("sysuser")
-	if decoderUid == "" {
-		libs.ErrorMsg(w, "invalid uid")
+	uidStr := r.Header.Get("sysuser")
+	if uidStr == "" {
+		//获取锁屏状态
+		libs.SuccessMsg(w, false, "")
 		return
 	}
-	uidStr, err := libs.DecodeFile("godoos", decoderUid)
-	if err != nil {
-		libs.ErrorMsg(w, "invalid uid")
-		return
-	}
+
 	uid, err := strconv.Atoi(uidStr)
 	if err != nil {
 		libs.ErrorMsg(w, "parse uid fail")
