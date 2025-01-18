@@ -34,6 +34,8 @@ import (
 	"godo/store"
 )
 
+var onlineUsersMutex sync.Mutex
+
 // 发送 UDP 包并忽略响应
 func sendUDPPacket(ip string) error {
 	hostname, err := os.Hostname()
@@ -87,7 +89,7 @@ func concurrentGetIpInfo(ips []string) {
 	semaphore := make(chan struct{}, maxConcurrency)
 
 	failedIPs := make(map[string]bool)
-
+	failedIPsMutex := sync.Mutex{}
 	for _, ip := range ips {
 		if containArr(hostips, ip) || failedIPs[ip] || !containArr(validIPs, ip) {
 			continue
@@ -102,7 +104,9 @@ func concurrentGetIpInfo(ips []string) {
 			err := sendUDPPacket(ip)
 			if err != nil {
 				log.Printf("Failed to send packet to IP %s: %v", ip, err)
-				failedIPs[ip] = true // 标记失败的 IP
+				failedIPsMutex.Lock()   // 加锁
+				failedIPs[ip] = true    // 标记失败的 IP
+				failedIPsMutex.Unlock() // 解锁
 			}
 		}(ip)
 	}
@@ -122,6 +126,8 @@ func CheckOnline() {
 }
 
 func CleanOnlineUsers() {
+	onlineUsersMutex.Lock()
+	defer onlineUsersMutex.Unlock()
 	OnlineUsers = make(map[string]UserStatus)
 }
 
@@ -135,6 +141,8 @@ func containArr(s []string, str string) bool {
 }
 
 func UpdateUserStatus(ip string, hostname string) UserStatus {
+	onlineUsersMutex.Lock()
+	defer onlineUsersMutex.Unlock()
 	OnlineUsers[ip] = UserStatus{
 		Hostname: hostname,
 		IP:       ip,
