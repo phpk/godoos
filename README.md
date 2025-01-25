@@ -13,15 +13,17 @@
 
 </div>
 
-## 🎉 V1.0.5更新日志（未发包）
+## 🎉 V1.0.5更新日志
 
 - 新增配置本地代理和远程代理，本地代理可实现本机ip映射外部域名，远程代理内嵌frpc设置后可实现内网用户外网域名访问。
 - 修改锁屏机制，确保外网访问安全。
 - 支持本地聊天ai对话文件和联网搜索。
-- 支持知识库根据文件夹智能生成，一键添加知识库索引，一键搜索知识库。
+- 新增知识库，支持知识库根据文件夹智能生成，一键添加知识库索引，一键搜索知识库。
 - 新增复制/粘贴快捷键
 - 新增文件检索，支持分词查询文档内容
-- 新增frpc客户端管理
+- 新增frpc客户端管理，无需下载，支持一键启动和停止frpc客户端，实现内网穿透。
+- 新增本地代理管理，支持http/静态文件/udp转发代理，支持一键启动和停止本地代理服务。
+- 新增后台锁屏管理，可设定管理员和密码
 
 ## 🏭 第三阶段目标（一月底发布）
 1. **文档处理与Markdown智能升级**：（已完成）
@@ -33,28 +35,22 @@
 2. **本地文件级知识库管理**：（已完成）
 	- 引入全新的知识库管理系统，实现对本地文件的智能分类、标签化管理与高效检索，让您的知识积累更加有序、便捷。
 
-3. **图形处理一键生图**：
-	- 创新功能上线，只需简单操作，即可根据文字描述或数据自动生成高质量图表与图像，为报告、演示增添视觉亮点。	
-
-4. **Markdown扩展功能**：
+3. **Markdown扩展功能**：
 	- **思维导图生成**：支持Markdown内容直接转换为思维导图，可视化呈现信息架构，提升思维整理效率。（已完成）
-	- **PPT一键制作**：无缝衔接Markdown文档，轻松导出专业级PPT，让汇报与分享更加生动、专业。
 
-5. **文字转声音功能**：
-	- 新增文字朗读服务，支持多种语音风格与语速调节，无论是阅读文档、学习资料还是辅助视力障碍者，都能享受前所未有的便捷与舒适。
 
-### 📥 下载安装(v1.0.4)
+### 📥 下载安装(v1.0.5)
 
 1. 💻 **Windows 用户**:
    
-- Windows (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_windows_amd64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.4/desktop/godoos-amd64-installer.exe)
-- Windows (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_windows_arm64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.4/desktop/godoos-arm64-installer.exe)
+- Windows (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.5/web/godoos_web_windows_amd64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.5/desktop/godoos-amd64-installer.exe)
+- Windows (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.5/web/godoos_web_windows_arm64.exe) [**桌面版**](https://godoos.com/upload/godoos/1.0.5/desktop/godoos-arm64-installer.exe)
 
 
 2. 💼 **MacOS 用户**:
 
-- MacOS (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_darwin_amd64)
-- MacOS (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_darwin_arm64)
+- MacOS (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.5/web/godoos_web_darwin_amd64)
+- MacOS (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.5/web/godoos_web_darwin_arm64)
 
 提示：下载后以godoos_web_darwin_amd64为例，命令行：
 ```
@@ -64,8 +60,8 @@ sudo ./godoos_web_darwin_amd64
 
 3. 💽 **Linux 用户**:
 
-- Linux (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_linux_amd64)
-- Linux (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.4/web/godoos_web_linux_arm64)
+- Linux (AMD64) [**Web版**](https://godoos.com/upload/godoos/1.0.5/web/godoos_web_linux_amd64)
+- Linux (ARM64) [**Web版**](https://godoos.com/upload/godoos/1.0.5/web/godoos_web_linux_arm64)
 提示：下载后以godoos_web_darwin_amd64为例，root账号登录，命令行：
 ```
 chmod +x godoos_web_darwin_amd64
@@ -112,7 +108,7 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 - 2024年11月15日，发布v1.0.2版本，企业版跟随发布。
 - 2024年8月1日，发布v1.0.0版本，发布后，项目进入第二阶段。
 
-## 🎉 V1.0.4更新日志
+## 🎉 V1.0.5更新日志
 
 - 新增配置远程存储状态下是否支持跨域
 - 修复系统重启错误
