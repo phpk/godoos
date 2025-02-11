@@ -9,7 +9,7 @@ dbInit.version(1).stores({
   // 模型标签
   modelslabel: '++id,name,zhdesc,endesc,family,chanel,models,action,engine',
   // 模型列表
-  modelslist: '++id,model,label,action,status,params,type,isdef,info,created_at',
+  modelslist: '++id,model,label,engine,action,status,params,type,isdef,info,created_at',
   // ai对话列表
   aichatlist: '++id,title,model,engine,promptId,prompt,knowledgeId,createdAt',
   // ai对话消息

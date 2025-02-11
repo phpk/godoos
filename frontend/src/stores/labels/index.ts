@@ -1,4 +1,5 @@
 import { qwenLabels } from './qwen.ts'
+import { deepseekLabels } from './deepseek.ts'
 import { gemmaLabels } from './gemma.ts'
 import { chatglmLabels } from './chatglm.ts'
 import { llamaLabels } from './llama.ts'
@@ -42,6 +43,7 @@ import { paraformerLabel } from './paraformer.ts'
 import { telespeechLabel } from './telespeech.ts'
 import { vitsLabel } from './vits.ts'
 export const aiLabels = [
+    deepseekLabels,
     qwenLabels,
     gemmaLabels,
     chatglmLabels,

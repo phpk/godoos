@@ -79,6 +79,7 @@ export const useModelStore = defineStore('modelStore', () => {
         if (d.action == "") {
           d.action = "chat"
         }
+        d.engine = "ollama"
       });
       await db.clear("modelslist");
       await db.addAll("modelslist", data);
@@ -258,7 +259,8 @@ export const useModelStore = defineStore('modelStore', () => {
     }
   }
   async function initModel() {
-    await db.clear("modelslabel")
+    const num = await db.count("modelslabel")
+    if (num > 0) return
     await db.addAll("modelslabel", aiLabels);
   }
 
