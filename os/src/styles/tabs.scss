@@ -1,0 +1,32 @@
+
+:deep(.el-tabs__nav-scroll) {
+    padding: 0 20px 0 20px;
+}
+
+.el-tab-pane{
+    height: 100%;
+}
+.cat-container {
+    padding: 0 20px 20px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-column-gap: 20px;
+
+    .cat-items {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 6px;
+
+        &:hover {
+            cursor: pointer;
+            box-shadow: rgba(0, 0, 0, 0.2) 0px 3px 6px;
+        }
+
+        .cat-icon {
+            margin-right: 10px;
+            color: #f5c645;
+        }
+    }
+}

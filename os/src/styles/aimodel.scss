@@ -1,0 +1,201 @@
+$list-item-height: 42px;
+$primary-color: #0078D4; // 已定义的Windows 10主题蓝色
+$secondary-color: #444; // 已定义的辅助颜色
+$divider-color: #efeded; // 原有的分割线颜色，可考虑调整以匹配Win10风格
+$text-hover-color: #0078D4; // 文本悬停时的颜色，与主题色一致
+$background-color: #fff; // 基础背景色
+$border-color: #ddd; // 边框颜色
+$hover-background: rgba(0, 0, 0, 0.05); // 鼠标悬停背景色
+$shadow-color: rgba(0, 0, 0, 0.1); // 阴影颜色
+.list-item {
+    display: flex;
+    align-items: center;
+    height: $list-item-height;
+    padding: 0 12px; // 增加内边距以适应Win10的舒适感
+    border-bottom: 1px solid lighten($divider-color, 10%); // 调整分割线颜色使其更柔和
+    transition: background-color 0.1s ease-in-out; // 添加过渡效果
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05); // 给予微妙的鼠标悬停反馈
+        cursor: pointer;
+    }
+}
+
+
+
+.list-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; // 使用系统字体以贴近Win10风格
+    color: #333;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+        color: $text-hover-color; // 文本悬停颜色与主题色一致
+    }
+}
+
+.delete-btn {
+    margin-left: 10px;
+    padding: 0 5px;
+    cursor: pointer;
+    line-height: $list-item-height;
+    color: $secondary-color; // 使用辅助颜色作为默认按钮颜色
+    background-color: transparent;
+    border: none;
+    transition: color 0.1s ease-in-out;
+
+    &:hover {
+        color: darken($secondary-color, 10%); // 悬停时颜色变深
+    }
+}
+
+.list-time {
+    font-size: 12px;
+    color: #999;
+    margin-left: auto; // 将时间移到右边，以适应列表项的布局
+}
+
+.list-time:hover {
+    color: $text-hover-color; // 时间悬停颜色与标题一致
+}
+
+.list-column {
+    display: flex;
+    height: 60px;
+    padding: 0 12px;
+    border-bottom: 1px solid $divider-color; // 调整分割线颜色使其更柔和
+    transition: background-color 0.1s ease-in-out; // 添加过渡效果
+    flex-direction: column;
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05); // 给予微妙的鼠标悬停反馈
+        cursor: pointer;
+    } 
+}
+
+.list-column-title {
+    flex: 1;
+    display: flex; // 为标题添加Flexbox布局
+    align-items: center; // 实现上下居中
+    justify-content: flex-start; // 保持文本靠左
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; // 使用系统字体以贴近Win10风格
+    color: #333;
+    cursor: pointer;
+
+    &:hover {
+        color: $text-hover-color; // 文本悬停颜色与主题色一致
+    }
+}
+
+.list-footer {
+    display: flex;
+   
+    justify-content: space-between; // 使时间与按钮左右对齐
+    align-items: center; // 确保时间与按钮垂直居中
+    width: 100%; // 确保底部元素宽度适应容器
+    padding: 8px 12px; // 与上部对齐，保持内边距一致
+}
+
+
+.main {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    margin-top:5px;
+    background-color: $background-color;
+}
+
+.scrollbarHeightList {
+    height: 450px;
+}
+
+.model-list {
+    padding: 0px 24px 24px 24px; // 增加内边距以提高舒适感
+    background-color: $background-color;
+
+    .model-item {
+        transition: all 0.3s;
+        border-bottom: 1px solid $border-color;
+        padding-bottom: 10px;
+        padding-top: 10px;
+
+        &:hover {
+            transition: all 0.3s;
+            background-color: $hover-background;
+            box-shadow: $shadow-color 0 2px 4px 0 !important;
+            cursor: pointer;
+        }
+    }
+}
+
+.drawer-model-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px; // 增加间距
+    justify-content: flex-end;
+}
+
+.pa-5 {
+    padding: 0 24px; // 增加内边距
+}
+
+.flex-fill {
+    flex: 1;
+}
+
+.mx-5 {
+    margin-left: 24px;
+    margin-right: 24px; // 增加外边距
+}
+.ml-10{
+    margin-left: 10px;
+}
+.mr-10{
+    margin-right: 10px;
+}
+.font-weight-bold {
+    font-weight: bold;
+    font-size: 18px; // 增大字体大小
+    margin: 16px 0; // 增加间距
+}
+
+.desc {
+    font-size: 16px; // 增大字体大小
+}
+@media screen and (max-width: 768px) {
+    .mx-5 {
+      margin: 0;
+    }
+    :deep(.el-page-header){
+        height: 5vh;
+        .el-page-header__left{
+           margin-right: 0;
+           .el-page-header__back{
+            width: 0;
+           }
+           .el-divider--vertical{
+            margin: 0 5px;
+           }
+           .el-page-header__content{
+            display: flex;
+           }
+        }
+    }
+    .scrollbarHeightList{
+        height: 80vh;
+    }
+    :deep(.el-dialog){
+        width: 100vw!important;
+        label{
+            width: 20vw!important;
+        }
+    }
+}

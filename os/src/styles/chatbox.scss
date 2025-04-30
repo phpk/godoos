@@ -1,0 +1,336 @@
+.system-main {
+    width: 100%;
+
+    /* 占据整个宽度 */
+    height: 90%;
+    padding: 0;
+    border-top: 1px solid #edebeb;
+    display: flex;
+    justify-content: space-between;
+}
+
+.msg-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.msg-time {
+    text-align: center;
+    font-size: 12px;
+    color: #656a72;
+    padding: 15px 0;
+}
+
+.box-card {
+
+    width: 80%;
+    border: 0;
+    border-radius: 10px;
+}
+
+.el-card .el-card__body {
+    padding: 0;
+}
+
+.msg-main {
+    width: 100%;
+
+    /* 占据整个宽度 */
+    height: 75%;
+    padding: 0;
+    border-top: 1px solid #edebeb;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* 聊天消息滚动区域 */
+.msg-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* 群成员滚动区域 */
+.member-container {
+    border-left: 1px solid #edebeb;
+    width: 140px;
+    height: calc(100% - 10px);
+}
+
+.input-main {
+    width: 100%;
+    height: 40px;
+    background-color: #ffffff;
+}
+
+.invite-group-button {
+    background-color: #0078d4;
+    color: #fff;
+    position: absolute;
+    bottom: 10px;
+    right: 50px;
+}
+
+.infinite-list {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    padding: 0;
+    width: 100%;
+    margin: 0;
+}
+
+.infinite-list-item {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    /* 每个成员之间的间距 */
+}
+
+:deep(.el-drawer__header) {
+    background-color: red;
+    padding: 0px 20px;
+    height: 50px;
+    color: #000000;
+    margin-bottom: 0px;
+}
+
+:deep(.el-drawer__title) {
+    font-size: 20px;
+}
+
+.group-member-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    /* 添加滚动条 */
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.avatar-container {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.member-item span {
+    width: 150px;
+    margin-left: 10px;
+    font-size: 12px;
+    color: #86909c;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.group-name {
+    font-size: 16px;
+    border-top: 1px solid #edebeb;
+    border-bottom: 1px solid #edebeb;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    height: 50px;
+}
+
+.group-member-list {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+    align-items: center;
+    height: 50px;
+    overflow: hidden;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #edebeb;
+}
+
+.group-member-add {
+    background-color: #0078d4;
+    border-radius: 50px;
+    width: 40px;
+    height: 40px;
+    color: #fff;
+    border: none;
+}
+
+.group-member {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+}
+
+.el-transfer {
+    display: flex;
+    flex-direction: row;
+    /* 将布局方向设置为横向 */
+    width: 550px;
+    /* 让穿梭框占满宽度 */
+}
+
+.el-transfer-panel {
+    width: 300px !important;
+    height: 530px !important;
+}
+
+.el-transfer-panel__body {
+    height: 450px !important;
+}
+
+.el-checkbox__label {
+    margin-left: 10px !important;
+}
+
+.el-transfer-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label span {
+    left: 150px;
+    right: 0px;
+}
+
+.el-transfer__buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center !important;
+    /* 水平居中对齐 */
+    justify-content: center !important;
+    gap: 10px;
+    /* 子元素之间的间距 */
+    padding: 0 15px;
+}
+
+.el-transfer__buttons .el-button {
+    min-width: 35px !important;
+    text-align: center;
+    margin-left: 0 !important;
+}
+
+.el-transfer__buttons .el-transfer__button {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+}
+
+.chatbox-main {
+    width: 100%;
+    height: 100%;
+}
+
+.chat-header {
+    width: 100%;
+    /* 占据整个宽度 */
+    height: 49px;
+    line-height: 50px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-title-name {
+    height: 50px;
+    line-height: 50px;
+    font-size: 20px;
+}
+
+.msg-footer {
+    width: 100%;
+    /* 占据整个宽度 */
+    height: calc(100% - 75% - 49px);
+    border: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+}
+
+.input-option {
+    height: 20px;
+    padding: 5px;
+}
+
+.input-option-icon {
+    margin-left: 10px;
+    color: #656a72;
+    cursor: pointer;
+}
+
+.input-textarea {
+    height: calc(100% - 50px);
+    width: calc(100% - 20px);
+    /* 减去左右边距 */
+    margin: 10px;
+}
+
+.textarea {
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    width: 100%;
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    --el-input-border-radius: 0;
+    --el-input-border-color: transparent;
+    --el-input-hover-border-color: transparent;
+    --el-input-clear-hover-color: transparent;
+    --el-input-focus-border-color: transparent;
+}
+
+.input-button {
+    margin-left: 10px;
+    color: #2a6bf2;
+}
+
+.input-button:hover {
+    background-color: #d1e4ff;
+    /* 悬浮时颜色略深，保持浅色调 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* 稍微增强阴影 */
+}
+
+.input-button:active {
+    background-color: #b3d4fc;
+    /* 按下时颜色更深，但依然保持清新 */
+    box-shadow: 0 1px 2px rgba(0, 0, 0.1);
+    /* 回复初始阴影 */
+    transform: translateY(1px);
+    /* 微小下移，模拟按下 */
+}
+
+.empty-chatbox {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-canel-button {
+    background-color: #0078d4;
+    color: #fff;
+    position: absolute;
+    bottom: 10px;
+    right: 120px;
+}
+
+.chat-dropdown-menu {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-dropdown-icon {
+    cursor: pointer;
+    color: black;
+    font-size: 15px;
+}

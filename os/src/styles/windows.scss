@@ -1,0 +1,217 @@
+.window-titlebar-back {
+    cursor: pointer;
+    height: 100%;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.window-titlebar-back:hover {
+    background: #ddd;
+}
+
+.window-manager {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: var(--taskbar-height);
+    pointer-events: none;
+}
+
+.window {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #c0c0c0;
+    border-radius: 6px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    pointer-events: all;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    padding: 0 8px;
+}
+
+.window-active {
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+}
+
+.window-titlebar {
+    height: 45px;
+    border-bottom: #eee solid 1px;
+    display: flex;
+    align-items: center;
+    cursor: move;
+    user-select: none;
+    justify-content: flex-start;
+}
+.title-area{
+    display: flex;
+    align-items: center;
+}
+.window-title {
+    display: flex;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    padding-left:10px;
+    padding-right:20px;
+    text-align: left;
+}
+
+
+
+.window-controls {
+    display: flex;
+    gap: 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.window-controls .el-icon {
+    width: 40px;
+    height: 100%;
+    cursor: pointer;
+}
+
+.window-controls .el-icon:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.window-controls .el-icon.active {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.window-content {
+    flex: 1;
+    display: flex; /* 使用 Flexbox 布局 */
+    overflow: hidden;
+}
+
+.left-sidebar {
+    width: 30%; /* 左侧栏宽度 */
+    padding: 5px; /* 可选：设置内边距 */
+    border-right: #eee 1px solid;
+    box-sizing: border-box; /* 确保内边距和边框包含在宽度内 */
+    transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out, box-shadow 0.5s ease-in-out; /* 添加过渡效果 */
+    overflow: auto;
+    background-color: #fff; /* 初始背景颜色 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 初始阴影效果 */
+}
+
+.right-content {
+    width: 70%; /* 右侧栏宽度 */
+    box-sizing: border-box; /* 确保内边距和边框包含在宽度内 */
+    overflow: auto; /* 可选：允许内容滚动 */
+    transition: width 0.5s ease-in-out; /* 添加过渡效果 */
+}
+
+.window-content.sidebar-hidden .left-sidebar {
+    width: 0; /* 隐藏左侧栏 */
+    padding: 0; /* 移除内边距 */
+    border-right: none; /* 移除右侧边框 */
+    background-color: transparent; /* 背景颜色变为透明 */
+    box-shadow: none; /* 移除阴影效果 */
+}
+
+.window-content.sidebar-hidden .right-content {
+    width: 100%; /* 右侧栏占满整个宽度 */
+}
+
+.window-resize-handle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 16px;
+    height: 16px;
+    cursor: se-resize;
+}
+
+.window-resize-handle::after {
+    content: "";
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #666;
+    border-bottom: 2px solid #666;
+}
+
+/* 添加动画效果 */
+.window-enter-active,
+.window-leave-active {
+    transition: all 0.5s ease;
+}
+
+.window-enter-from,
+.window-leave-to {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.window-maximized {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto !important;
+    height: auto !important;
+}
+/* 拖动时的样式 */
+.window-dragging {
+    border: 3px solid #333; /* 深色边框 */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); /* 深色阴影 */
+}
+/* 最小化动画 */
+.minimizing {
+    animation: minimize 0.5s ease forwards;
+    transform-origin: bottom center;
+    perspective: 1000px;
+}
+
+@keyframes minimize {
+    from {
+        transform: rotateX(0deg) scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: rotateX(-90deg) scale(0.5);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .window-manager{
+        position: relative;
+        z-index: 999;
+    }
+    .window {
+        width: 100vw !important;
+        padding: 0;
+    }
+    .window-controls{
+        display: none;
+    }
+    .window-titlebar{
+        position: relative;
+    }
+    .back-icon{
+        margin-left: 10px;
+    }
+    .title-area{
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .buttons-controls{
+        position: absolute;
+        right: 10px;
+    }
+}

@@ -1,0 +1,277 @@
+.calendar * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  .calendar {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    margin: 0;
+    box-sizing: border-box;
+    border: 2px solid #4E6EF2;
+    display: flex;
+    height: 465px;
+    overflow: hidden;
+  
+    .container {
+      padding-top: 14px;
+  
+      .bar {
+        position: relative;
+        display: flex;
+        height: 30px;
+        padding: 0 10px;
+        margin-bottom: 24px;
+  
+        div {
+          position: relative;
+          flex: 1;
+          text-align: center;
+        }
+  
+        div.button {
+          position: absolute;
+          right: 0;
+          width: 68px;
+          height: 30px;
+          line-height: 30px;
+          text-align: center;
+          background: #F5F5F6;
+          border-radius: 6px;
+          color: #333;
+          cursor: pointer;
+          font-size: 13px;
+        }
+  
+        input, select {
+          border: 1px solid #D7D9E0;
+          box-sizing: border-box;
+          padding: 7px;
+          border-radius: 6px;
+          line-height: 1;
+          cursor: pointer;
+          position: relative;
+          background: #FFFFFF;
+          width: 80px;
+          margin-right: 6px;
+          text-align: center;
+        }
+  
+        select {
+          appearance: none;
+        }
+  
+      }
+  
+      ul, ol {
+        list-style: none;
+        width: 448px;
+      }
+  
+      ul.head {
+        li {
+          float: left;
+          width: 64px;
+          height: 36px;
+          font-size: 13px;
+          text-align: center;
+  
+        }
+      }
+  
+      ul.body {
+        ol {
+          li {
+            float: left;
+            width: 64px;
+            position: relative;
+            height: 60px;
+            padding: 2px;
+            cursor: pointer;
+  
+            div.inner {
+              padding: 4px;
+              border-radius: 6px;
+              border: 2px solid transparent;
+              text-align: center;
+  
+              b {
+                display: block;
+                font-weight: normal;
+                height: 22px;
+                font-size: 18px;
+                color: #000;
+              }
+  
+              i {
+                display: block;
+                font-style: normal;
+                color: #333;
+                font-size: 12px;
+              }
+  
+              u {
+                position: absolute;
+                text-decoration: none;
+                left: 7px;
+                top: 7px;
+                color: #626675;
+                font-size: 12px;
+                line-height: 12px;
+              }
+            }
+  
+          }
+  
+          li.other {
+            filter: alpha(opacity=40);
+            opacity: 0.4;
+          }
+  
+          li:hover {
+            div.inner {
+              border: 2px solid #BDBFC8;
+            }
+          }
+  
+          li.selected {
+            div.inner {
+              border: 2px solid #BDBFC8;
+            }
+          }
+  
+          li.holiday {
+            div.inner {
+              background: #f5f5f6;
+              b{
+                  text-align: center;
+              }
+            }
+          }
+  
+          li.holiday.rest {
+            div.inner {
+              background: #FDE3E4;
+            }
+          }
+  
+          li.rest {
+            div.inner {
+              b {
+                color: #F73131;
+                text-align: center;
+              }
+  
+              u {
+                color: #F73131;
+              }
+            }
+          }
+  
+          li.today {
+            div.inner {
+              border: 2px solid #4E6EF2 !important;
+            }
+          }
+        }
+      }
+    }
+  
+    .side {
+      background: #4E6EF2;
+      width: 112px;
+      color: #fff;
+  
+      .ymd {
+        line-height: 45px;
+        font-size: 13px;
+      }
+  
+      .day {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        line-height: 80px;
+        font-size: 52px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        text-align: center;
+      }
+  
+      .lunar {
+        margin-top: 6px;
+  
+        div {
+          font-size: 13px;
+          line-height: 21px;
+          text-align: center;
+        }
+      }
+  
+      .festival {
+        position: relative;
+        margin-top: 13px;
+        padding-left: 22px;
+        padding-right: 14px;
+        text-align: justify;
+        color: #FFF;
+        font-size: 12px;
+        line-height: 16px;
+      }
+  
+      .festival::before {
+        content: '';
+        position: absolute;
+        top: 6px;
+        left: 16px;
+        width: 3px;
+        height: 3px;
+        background: #fff;
+        border-radius: 50%;
+      }
+  
+      .yiji {
+        position: relative;
+        margin-top: 12px;
+        padding-top: 12px;
+        background: rgba(255, 255, 255, 0.15);
+        height: 80%;
+        text-align: center;
+  
+        .yi {
+          float: left;
+          width: 50%;
+  
+          div {
+            font-size: 12px;
+            line-height: 20px;
+          }
+        }
+  
+        .ji {
+          float: right;
+          width: 50%;
+  
+          div {
+            font-size: 12px;
+            line-height: 20px;
+          }
+        }
+  
+        b {
+          display: block;
+          width: 30px;
+          height: 30px;
+          line-height: 30px;
+          text-align: center;
+          margin: 0 auto;
+          font-style: normal;
+          font-size: 24px;
+          color: #fff;
+        }
+      }
+  
+    }
+  }

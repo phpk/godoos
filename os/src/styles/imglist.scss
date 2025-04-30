@@ -1,0 +1,66 @@
+.image-gallery {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 10px; /* 增加项目间的间隔，模仿Win11的间隔 */
+  }
+  
+  .image-gallery li {
+    position: relative;
+    border-radius: 8px; /* 圆角 */
+    overflow: hidden; /* 隐藏超出边界的图片部分，以便于应用亚克力效果 */
+    width: calc((100% / 3) - 20px); /* 减去左右边界的总宽度，考虑gap */
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加轻微阴影，模仿浮动物理效果 */
+    background: rgba(255, 255, 255, 0.1); /* 亚克力背景效果的基础层 */
+    backdrop-filter: blur(4px); /* 亚克力模糊效果 */
+    transition: all 0.2s ease-in-out; /* 平滑过渡效果 */
+  }
+  
+  .image-gallery li img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover; /* 保持图片的宽高比并填充容器 */
+  }
+  
+  .image-gallery li.selected {
+    /* 增加更明显的边框，这里使用Win11的强调色 */
+    border: 2px solid #0078D4;
+    /* 加深阴影效果，提高立体感 */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25), 0 0 0 2px #0078D4 inset;
+    /* 提升亚克力背景的不透明度，使颜色更饱和 */
+    background-color: rgba(0, 126, 212, 0.2);
+    /* 添加一个微妙的缩放效果，使选中项略微放大 */
+    transform: scale(1.02);
+    transition: all 0.2s ease; /* 平滑过渡效果 */
+  }
+  
+  /* 可以考虑在鼠标悬停时给予未选中的项一个预览效果，与选中状态接近但不完全相同 */
+  .image-gallery li:not(.selected):hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 0 1px #0078D4 inset;
+    background-color: rgba(0, 126, 212, 0.1);
+    transform: scale(1.01);
+  }
+  
+  /* 可选：增加悬停效果，提升交互体验 */
+  .image-gallery li:hover {
+    transform: translateY(-2px); /* 微小上移，模仿悬浮感 */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* 加强阴影 */
+  }
+  
+  /* 适应不同屏幕尺寸，可能需要媒体查询调整每行的图片数量 */
+  @media (max-width: 768px) {
+    .image-gallery li {
+      width: calc((100% / 2) - 20px); /* 在较小屏幕上每行显示两个 */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .image-gallery li {
+      width: 100%; /* 在移动设备上全宽显示 */
+    }
+  }
