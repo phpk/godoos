@@ -80,6 +80,10 @@ docker run -d -p 56780:56780 --name godoos godoos/godoos:latest
 ## 🚀 演示视频
 - [全程操作](https://www.bilibili.com/video/BV1NdvaeEEz3/?vd_source=739e0e59aeefdb2e9f760e5037d00245)
 
+## 🎉 V1.0.6更新
+- 重构前端，使开发难度降低
+- 新增手机端，支持手机端文件管理
+
 
 ## 🎉 V1.0.5更新日志
 
