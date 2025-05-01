@@ -10,6 +10,18 @@
   ],
   "permissions": [
     "autostart:default",
-    "autostart:default"
+    "autostart:default",
+    "store:allow-get",
+    "store:allow-set",
+    "store:allow-save",
+    "store:allow-load",
+    "fs:default",
+    "os:default",
+    "notification:default",
+    "upload:default",
+    "updater:default",
+    "process:default",
+    "opener:default",
+    "websocket:default"
   ]
 }

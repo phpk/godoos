@@ -16,7 +16,7 @@
         "width": 1024,
         "height": 768,
         "resizable": true,
-        "fullscreen": true
+        "fullscreen": false
       }
     ],
     "security": {
@@ -33,5 +33,14 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IHJzaWduIGVuY3J5cHRlZCBzZWNyZXQga2V5ClJXUlRZMEl5VHZia2krc3dDK0U1REJiUmFydk5vQTNqWENYVEFrOWhrUE5OSmJkdXpaOEFBQkFBQUFBQUFBQUFBQUlBQUFBQXRmalV2Z3d5bGovak5hLzBnNmRjTCtlelNVeVpDeDdXYkxIbDE3bktKLytadk1WRHhrRWtnV1QxcFMvYmNaQjU2eGl5akF0bWczZUdxT1ZPaGxvNTFwTjNxUDR2NmlJNHJEeXRFaXdFbSt1K0xuUWlJcFNtTmRyNXY0ZUNsWkkxbDA1UU5aS2c2MTg9Cg==",
+      "endpoints": [
+        "https://releases.myapp.com/{{target}}/{{arch}}/{{current_version}}",
+        "https://github.com/user/repo/releases/latest/download/latest.json"
+      ]
+    }
   }
 }

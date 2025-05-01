@@ -7,6 +7,6 @@
   ],
   "permissions": [
     "core:default",
-    "fs:default"
+    "updater:default"
   ]
 }

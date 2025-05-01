@@ -55,6 +55,7 @@ onMounted(async () => {
   }, 1000);
 });
 const initSystem = async () => {
+  settingsStore.osInit();
   messageStore.initMessage();
   await assistantStore.initPrompt();
   await modelStore.initModel();

@@ -4,12 +4,6 @@
 	import { reactive, ref } from "vue";
 
 	const store = useLoginStore();
-
-	const loginForm = ref({
-		username: "",
-		password: "",
-	});
-
 	const rules = reactive({
 		username: [
 			{ required: true, message: "请输入用户名", trigger: "blur" },
@@ -38,7 +32,7 @@
 			if (valid) {
 				store.onLogin({
 					loginType: "password",
-					params: loginForm.value,
+					params: store.loginForm,
 				});
 			} else {
 				ElMessage.error("请检查输入内容");
@@ -52,14 +46,14 @@
 	<el-form
 		ref="formRef"
 		label-position="left"
-		:model="loginForm"
+		:model="store.loginForm"
 		:rules="rules"
 		label-width="0px"
 	>
 		<el-form-item prop="username">
 			<el-input
 				style="border-radius: 50px; height: 45px"
-				v-model="loginForm.username"
+				v-model="store.loginForm.username"
 				size="large"
 				placeholder="请输入用户名"
 				autofocus
@@ -69,7 +63,7 @@
 		<el-form-item prop="password">
 			<el-input
 				style="border-radius: 50px; height: 45px"
-				v-model="loginForm.password"
+				v-model="store.loginForm.password"
 				size="large"
 				type="password"
 				placeholder="请输入登录密码"
@@ -78,6 +72,9 @@
 				@keyup.enter="submitForm"
 			></el-input>
 		</el-form-item>
+		<el-form-item class="remember-me">
+            <el-checkbox v-model:checked="store.loginForm.rememberMe" size="large">记住密码</el-checkbox>
+        </el-form-item>
 		<el-form-item class="button-center">
 			<el-button
 				style="height: 45px"
@@ -99,6 +96,11 @@
 			border-radius: 50px;
 		}
 	}
+	.remember-me {
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 5px;
+}
 
 	:deep(.el-input__wrapper) {
 		border-radius: 50px;

@@ -48,28 +48,28 @@ export const systemSettingList = [
             },
         ],
     },
-    // {
-    //     key: "custom",
-    //     title: "代理",
-    //     desc: "本地代理、远程代理",
-    //     icon: "proxy",
-    //     content: "SetCustom",
-    //     children: [
-    //         {
-    //             key: "local",
-    //             title: "本地代理",
-    //             icon: "local",
-    //             content: "nas/SetLocal",
-    //         },
-    //         {
-    //             key: "remote",
-    //             title: "远程代理",
-    //             icon: "netproxy",
-    //             content: "nas/SetRemote",
-    //         }
+    {
+        key: "custom",
+        title: "代理",
+        desc: "本地代理、远程代理",
+        icon: "proxy",
+        content: "SetCustom",
+        children: [
+            {
+                key: "local",
+                title: "本地代理",
+                icon: "local",
+                content: "nas/SetLocal",
+            },
+            {
+                key: "remote",
+                title: "远程代理",
+                icon: "netproxy",
+                content: "nas/SetRemote",
+            }
 
-    //     ],
-    // },
+        ],
+    },
     {
         key: "nas",
         title: "存储",
@@ -136,6 +136,17 @@ export const settingsConfig = {
         timeout: 0,
         activeTime: 0,
         password: ''
+    },
+    system : {
+        userType: "person",
+        storeType:  "local",
+        netUrl: "",
+    },
+    wallpaper: {
+        type: "image",
+        color: "#ffffff",
+        imageList: [bg1, bg2, bg3, bg4, bg5, bg6, bg7, bg8, bg9],
+        url: bg6,
     },
     storeType: "local",
     storePath: "",

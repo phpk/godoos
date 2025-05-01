@@ -131,7 +131,7 @@
 
     .slider {
         display: flex;
-        width: 40%;
+        width: 60%;
         height: 45px;
         background-color: rgb(215, 212, 212);
         border-radius: 50px;
@@ -178,7 +178,15 @@
 @media (max-width: 768px) {
     .login-container {
         .login-box {
-            width: 90%;
+            width: 80vw;
+            height: 60vh;
+        }
+        :deep(.el-card__body){
+            width: 80%;
         }
     }
+    .register-form {
+        width: 100%;
+    }
+    
 }

@@ -19,7 +19,11 @@ export const useLoginStore = defineStore('login', () => {
   // 第三方列表
   const thirdpartyList: Ref<any[]> = ref([])
   const desktopStore = useDesktopStore()
-
+  const loginForm = ref({
+		username: "",
+		password: "",
+		rememberMe: false
+	});
   // 用户信息
   const userInfo: Ref<any> = ref({})
 
@@ -44,7 +48,12 @@ export const useLoginStore = defineStore('login', () => {
       param: params.params,
     }
     loginIn(postData).then((res: any) => {
-      console.log(res)
+      //console.log(res)
+      if(!params.params.rememberMe) {
+        loginForm.value.rememberMe = false
+        loginForm.value.username = ''
+        loginForm.value.password = ''
+      }
       if (res.success) {
         successMsg('登录成功')
         userInfo.value = res.data.user
@@ -246,6 +255,7 @@ export const useLoginStore = defineStore('login', () => {
 
   return {
     userInfo,
+    loginForm,
     isLoginState,
     isLogining,
     thirdPartyPlatform,
@@ -264,6 +274,6 @@ export const useLoginStore = defineStore('login', () => {
 }, {
   persist: {
     key: 'loginStore',
-    pick: ['userInfo', 'isLoginState'],
+    pick: ['userInfo', 'isLoginState','loginForm'],
   },
 })
