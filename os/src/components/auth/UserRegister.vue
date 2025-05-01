@@ -103,7 +103,7 @@
 				prefix-icon="UserFilled"
 			></el-input>
 		</el-form-item>
-		<el-form-item prop="nickname">
+		<!-- <el-form-item prop="nickname">
 			<el-input
 				v-model="registerInfo.nickname"
 				size="large"
@@ -126,7 +126,7 @@
 				placeholder="请输入手机号"
 				prefix-icon="Iphone"
 			></el-input>
-		</el-form-item>
+		</el-form-item> -->
 		<el-form-item prop="password">
 			<el-input
 				v-model="registerInfo.password"
