@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { getTaskList } from '@/api/workflow';
+import { getTaskList } from '@/api/net/workflow';
 const page = ref(1);
 const flowList: any = ref([]);
 const select = ref('');

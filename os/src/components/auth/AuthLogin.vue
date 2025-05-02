@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useLoginStore } from "@/stores/login";
 import { onMounted, ref } from "vue";
-import { List, MapLocation } from "@element-plus/icons-vue";
+//import { List, MapLocation } from "@element-plus/icons-vue";
 import LdapLogin from "./LdapLogin.vue";
 const store = useLoginStore();
 
@@ -21,7 +21,7 @@ const isLock = ref(false);
 					<el-button type="primary" :icon="MapLocation" circle />
 				</div> -->
 				<!-- 顶部欢迎词和 logo -->
-				<div class="header">
+				<div class="absolute top-10  left-1/2 -translate-x-1/2 text-center">
 					<el-avatar size="large" class="logo">
 						<img src="/logo.png" alt="Logo" />
 					</el-avatar>
@@ -29,7 +29,7 @@ const isLock = ref(false);
 				</div>
 
 				<!-- 登录、注册 -->
-				<div class="login-register" v-if="
+				<div class="login-register top-45" v-if="
 					store.thirdPartyLoginMethod !== 'dingding' &&
 					store.thirdPartyLoginMethod !== 'qyweixin'
 				">
@@ -50,36 +50,38 @@ const isLock = ref(false);
 					</div>
 				</div>
 				<!-- 登录功能 -->
-				<PasswordLogin v-if="store.thirdPartyLoginMethod === 'password'" />
-				<SetUp v-if="store.thirdPartyLoginMethod === 'setup'" />
-				<PhoneLogin v-if="store.thirdPartyLoginMethod === 'phone'" />
-				<EmailLogin v-if="store.thirdPartyLoginMethod === 'email'" />
-				<LdapLogin v-if="store.thirdPartyLoginMethod === 'ldap'" />
-				<div class="qr-code dingding" v-if="store.thirdPartyLoginMethod === 'dingding'">
-					<div class="qr-code-container" id="dd-qr-code"></div>
-				</div>
-				<div class="qr-code-qyweixin" v-if="store.thirdPartyLoginMethod === 'qyweixin'">
-					<div id="qywechat-qr-code"></div>
-				</div>
-				<UserRegister class="register-form" v-if="store.thirdPartyLoginMethod === 'register'" />
+				<div class="absolute top-62 left-1/2 -translate-x-1/2 text-center w-80">
+					<PasswordLogin v-if="store.thirdPartyLoginMethod === 'password'" />
+					<SetUp v-if="store.thirdPartyLoginMethod === 'setup'" />
+					<PhoneLogin v-if="store.thirdPartyLoginMethod === 'phone'" />
+					<EmailLogin v-if="store.thirdPartyLoginMethod === 'email'" />
+					<LdapLogin v-if="store.thirdPartyLoginMethod === 'ldap'" />
+					<div class="qr-code dingding" v-if="store.thirdPartyLoginMethod === 'dingding'">
+						<div class="qr-code-container" id="dd-qr-code"></div>
+					</div>
+					<div class="qr-code-qyweixin" v-if="store.thirdPartyLoginMethod === 'qyweixin'">
+						<div id="qywechat-qr-code"></div>
+					</div>
+					<UserRegister v-if="store.thirdPartyLoginMethod === 'register'" />
 
-				<template v-else-if="store.thirdPartyLoginMethod !== 'register'">
-					<div class="divider" v-if="store.thirdpartyList.length > 0">
-						<span>第三方登录</span>
-					</div>
-					<div class="third-party-login">
-						<el-button v-for="platform in store.thirdpartyList" :key="platform.name"
-							class="third-party-login-button" @click="store.onThirdPartyLogin(platform.name)" :style="{
-								backgroundColor:
-									store.thirdPartyLoginMethod ===
-										platform.name
-										? '#f2ecec'
-										: 'transparent',
-							}">
-							<img class="third-party-login-icon" :src="platform.icon" />
-						</el-button>
-					</div>
-				</template>
+					<template v-else-if="store.thirdPartyLoginMethod !== 'register'">
+						<div class="divider" v-if="store.thirdpartyList.length > 0">
+							<span>第三方登录</span>
+						</div>
+						<div class="third-party-login">
+							<el-button v-for="platform in store.thirdpartyList" :key="platform.name"
+								class="third-party-login-button" @click="store.onThirdPartyLogin(platform.name)" :style="{
+									backgroundColor:
+										store.thirdPartyLoginMethod ===
+											platform.name
+											? '#f2ecec'
+											: 'transparent',
+								}">
+								<img class="third-party-login-icon" :src="platform.icon" />
+							</el-button>
+						</div>
+					</template>
+				</div>
 			</el-card>
 			<UnLock v-else />
 		</div>

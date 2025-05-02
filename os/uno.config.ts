@@ -102,20 +102,20 @@ export default defineConfig({
     [/^el-color-(\w*)$/, ([_, color]) => ({ color: `var(--el-color-${color})` })],
     [/^el-bg-(\w*)$/, ([_, color]) => ({ "background-color": `var(--el-color-${color})` })],
     // 文字按钮
-    // [/^btn-(\w*)$/, ([_, color]) => ({
-    //   "--at-apply": `transition-200 cursor-pointer rounded-4px hover:text-[var(--el-color-${color})]`,
-    // })],
-    // [/^btn-(\w*)-text$/, ([_, color]) => ({
-    //   "--at-apply": `transition-200 cursor-pointer rounded-4px hover:text-[var(--el-color-${color})]`,
-    // })],
+    [/^btn-(\w*)$/, ([_, color]) => ({
+      "--at-apply": `transition-200 cursor-pointer rounded-4px hover:text-[var(--el-color-${color})]`,
+    })],
+    [/^btn-(\w*)-text$/, ([_, color]) => ({
+      "--at-apply": `transition-200 cursor-pointer rounded-4px hover:text-[var(--el-color-${color})]`,
+    })],
     // // 文字背景按钮
-    // [/^btn-(\w*)-bg$/, ([_, color]) => ({
-    //   "--at-apply": `transition-200 cursor-pointer rounded-4px hover:(text-white bg-[var(--el-color-${color})]) `,
-    // })],
+    [/^btn-(\w*)-bg$/, ([_, color]) => ({
+      "--at-apply": `transition-200 cursor-pointer rounded-4px hover:(text-white bg-[var(--el-color-${color})]) `,
+    })],
     // // 文字按钮组
-    // [/^group-btn-(\w*)$/, ([_, color]) => ({
-    //   "--at-apply": `transition-200 cursor-pointer rounded-4px group-hover:text-[var(--el-color-${color})]`,
-    // })],
+    [/^group-btn-(\w*)$/, ([_, color]) => ({
+      "--at-apply": `transition-200 cursor-pointer rounded-4px group-hover:text-[var(--el-color-${color})]`,
+    })],
   ],
   theme: {
     // ...

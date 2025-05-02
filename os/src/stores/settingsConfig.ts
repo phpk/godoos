@@ -132,12 +132,12 @@ export const settingsConfig = {
         imageList: [bg1, bg2, bg3, bg4, bg5, bg6, bg7, bg8, bg9],
         url: bg6,
     },
-    lock : {
+    lock: {
         timeout: 0,
         activeTime: 0,
         password: ''
     },
-    system : {
+    system: {
         userType: "person",
         storeType:  "local",
         netUrl: "",

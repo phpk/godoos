@@ -18,7 +18,7 @@
     </el-select>
 </template>
 <script setup lang="ts">
-import { selectUserList, searchSelectUsers } from "@/api/share";
+import { selectUserList, searchSelectUsers } from "@/api/net/share";
 import { onMounted, ref, watch } from "vue";
 import defaultAvatar from '/logo.png';
 import { useChatStore } from "@/stores/chat";

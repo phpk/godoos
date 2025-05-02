@@ -1,4 +1,4 @@
-import { getThirdpartyList, isLogin, loginIn, logout } from '@/api/auth'
+import { getThirdpartyList, isLogin, loginIn, logout } from '@/api/net/auth'
 import router from '@/router'
 import { useDesktopStore } from '@/stores/desktop'
 import { loadScript } from '@/utils/load'

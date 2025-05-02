@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import { getSmsCode } from "@/api/auth";
+	import { getSmsCode } from "@/api/net/auth";
 	import { useLoginStore } from "@/stores/login";
 	import { ElMessage } from "element-plus";
 	import { ref } from "vue";

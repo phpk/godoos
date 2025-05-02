@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { getMyCopyList } from '@/api/workflow';
+import { getMyCopyList } from '@/api/net/workflow';
 
 const columns = [
     { prop: 'Id', label: 'ID' },

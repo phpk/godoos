@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, Ref, computed } from 'vue'
-import { desktop } from '@/api/files'
+import { desktop } from '@/api/net/files'
 import { useLoginStore } from './login'
 
 export const useDesktopStore = defineStore('desktop', () => {

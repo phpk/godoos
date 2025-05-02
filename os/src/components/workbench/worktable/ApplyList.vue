@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { getApplyList } from '@/api/workflow';
+import { getApplyList } from '@/api/net/workflow';
 const page = ref(1);
 const flowList: any = ref([])
 const select: any = ref('')

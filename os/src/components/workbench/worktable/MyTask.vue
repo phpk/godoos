@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { getMyTask } from '@/api/workflow';
+import { getMyTask } from '@/api/net/workflow';
 import { onMounted, ref } from 'vue';
 
 const catList: any = ref([])

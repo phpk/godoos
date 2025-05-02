@@ -1,5 +1,5 @@
 <script setup lang="ts">
-	import * as fs from "@/api/files";
+	import * as fs from "@/api/net/files";
 	import { getExportType } from "@/router/filemaplist";
 	import { useAiChatStore } from "@/stores/aichat";
 	import { useFileSystemStore } from "@/stores/filesystem";

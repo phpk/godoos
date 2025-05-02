@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { getMyCheckList } from '@/api/workflow'
+import { getMyCheckList } from '@/api/net/workflow'
 const cardRef = ref()
 const props = defineProps<{
     reload: boolean

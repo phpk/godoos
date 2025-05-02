@@ -1,6 +1,6 @@
-import * as fs from '@/api/files';
-import { joinknowledge } from '@/api/knowledge';
-import { shareCreate } from "@/api/share";
+import * as fs from '@/api/net/files';
+import { joinknowledge } from '@/api/net/knowledge';
+import { shareCreate } from "@/api/net/share";
 import { eventBus } from '@/interfaces/event';
 import { getFileType } from '@/router/filemaplist';
 import { errMsg, noticeMsg, promptMsg, promptPwd, successMsg } from '@/utils/msg';
