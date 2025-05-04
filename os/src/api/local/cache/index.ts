@@ -11,7 +11,7 @@ async function getStore(): Promise<Store> {
 }
 
 // 缓存默认有效期（单位：毫秒）
-const DEFAULT_TTL = 1000 * 60 * 10; // 默认 10 分钟
+const DEFAULT_TTL = 1000 * 60 * 60 * 24; // 默认 1 天
 
 /**
  * 设置带过期时间的缓存

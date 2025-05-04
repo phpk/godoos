@@ -347,12 +347,11 @@ const download = () => {
 	contextMenuStore.isContextMenuVisible = false;
 	fileSystemStore.downloadFile(contextMenuStore.currentFile?.path);
 };
-const checkReback = () => {
-	return (
-		contextMenuStore.currentFile?.path &&
-		fileSystemStore.fs.getTopPath(contextMenuStore.currentFile.path) ===
-		"B"
-	);
+const checkReback = async () => {
+	const fs = await fileSystemStore.fs();
+	return contextMenuStore.currentFile?.path &&
+		fs.getTopPath(contextMenuStore.currentFile.path) ===
+		"B";
 };
 const reback = () => {
 	contextMenuStore.isContextMenuVisible = false;

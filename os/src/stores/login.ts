@@ -1,4 +1,4 @@
-import { getThirdpartyList, isLogin, loginIn, logout } from '@/api/net/auth'
+import { Auth } from '@/api/auth'
 import router from '@/router'
 import { useDesktopStore } from '@/stores/desktop'
 import { loadScript } from '@/utils/load'
@@ -20,36 +20,49 @@ export const useLoginStore = defineStore('login', () => {
   const thirdpartyList: Ref<any[]> = ref([])
   const desktopStore = useDesktopStore()
   const loginForm = ref({
-		username: "",
-		password: "",
-		rememberMe: false
-	});
+    username: "",
+    password: "",
+    rememberMe: false
+  });
   // 用户信息
   const userInfo: Ref<any> = ref({})
 
   const checkLogin = async () => {
-    isLoginState.value = await isLogin()
+    const auth = await Auth();
+    isLoginState.value = await auth.isLogin()
   }
   const loginOut = async () => {
     isLoginState.value = false
     userInfo.value = {}
     clearToken()
-    await logout()
+    const auth = await Auth();
+    await auth.logout()
   }
 
   const backToLogin = () => {
     thirdPartyLoginMethod.value = 'password'
   }
-  const onRegister = () => { }
+  const onRegister = async (params: any) => {
+    delete params.confirmPassword
+    const auth = await Auth();
+    const res = await auth.register(params)
+    if (res.success) {
+      successMsg('注册成功')
+      thirdPartyLoginMethod.value = 'password'
+    } else {
+      errMsg(res.message)
+    }
+  }
   const onLogin = async (params: { loginType: string; params: any }) => {
     const postData = {
       login_type: params.loginType,
       client_id: getClientId(),
       param: params.params,
     }
-    loginIn(postData).then((res: any) => {
+    const auth = await Auth();
+    auth.loginIn(postData).then((res: any) => {
       //console.log(res)
-      if(!params.params.rememberMe) {
+      if (!params.params.rememberMe) {
         loginForm.value.rememberMe = false
         loginForm.value.username = ''
         loginForm.value.password = ''
@@ -67,7 +80,7 @@ export const useLoginStore = defineStore('login', () => {
     })
   }
   const onThirdPartyLogin = async (platform: string) => {
-    console.log(platform)
+    //console.log(platform)
     thirdPartyLoginMethod.value = platform
     switch (platform) {
       case 'github':
@@ -83,7 +96,8 @@ export const useLoginStore = defineStore('login', () => {
     }
   }
   const initThirdPartyLogin = async () => {
-    const list = await getThirdpartyList()
+    const auth = await Auth();
+    const list = await auth.getThirdpartyList()
     // console.log(list)
     if (list && list.length > 0) {
       let res: any = []
@@ -274,6 +288,6 @@ export const useLoginStore = defineStore('login', () => {
 }, {
   persist: {
     key: 'loginStore',
-    pick: ['userInfo', 'isLoginState','loginForm'],
+    pick: ['userInfo', 'isLoginState', 'loginForm'],
   },
 })

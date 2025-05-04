@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { useLoginStore } from "@/stores/login";
+import { useSettingsStore } from "@/stores/settings";
 import { onMounted, ref } from "vue";
 //import { List, MapLocation } from "@element-plus/icons-vue";
 import LdapLogin from "./LdapLogin.vue";
 const store = useLoginStore();
-
+const settingsStore = useSettingsStore();
 onMounted(() => {
-	store.initThirdPartyLogin();
+	if(settingsStore.config.system.userType === 'member'){
+		store.initThirdPartyLogin();
+	}
 });
 // 是否锁定
 const isLock = ref(false);

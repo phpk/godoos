@@ -15,6 +15,7 @@ interface ORM<T extends Model> {
   update: (id: any, data: Partial<T>) => Promise<void>;
   save: (data: Partial<T>) => ORMQueryBuilder<T>;
   select: () => Promise<T[]>;
+  find: () => Promise<T | null>;
   findById: (id: any) => Promise<T | null>;
   delete: (id: any) => Promise<void>;
   where: (conditions: Record<string, any>) => ORMQueryBuilder<T>;
@@ -27,6 +28,7 @@ interface ORMQueryBuilder<T extends Model> {
   count: () => Promise<number>;
   page: (page: number, pageSize: number) => ORMQueryBuilder<T>;
   select: () => Promise<T[]>;
+  find: () => Promise<T | null>; 
 }
 
 function createORMQueryBuilder<T extends Model>(
@@ -82,6 +84,15 @@ function createORMQueryBuilder<T extends Model>(
       const result = await db.select(query, values);
       return result as T[];
     },
+    find: async (): Promise<T | null> => {
+      const { clause, values } = buildWhereClause();
+    
+      // 加 LIMIT 1 只取一条记录
+      const query = `SELECT * FROM ${table} ${clause} LIMIT 1`;
+      const result:any = await db.select(query, values);
+    
+      return result.length > 0 ? (result[0] as T) : null;
+    }
   };
 
   return queryBuilder;
@@ -125,6 +136,9 @@ async function executeUpdate<T extends Model>(
 
 export function createORM<T extends Model>(table: string): ORM<T> {
   const db = getDatabase();
+  if (!db) {
+    throw new Error('Database not initialized');
+  }
 
   const ormInstance: ORM<T> = {
     create: async (data: T): Promise<void> => {
@@ -184,7 +198,9 @@ export function createORM<T extends Model>(table: string): ORM<T> {
     select: (): Promise<T[]> => {
       return createORMQueryBuilder<T>(db, table).select();
     },
-
+    find: async (): Promise<T | null> => {
+      return createORMQueryBuilder<T>(db, table).find();
+    },
     findById: async (id: any): Promise<T | null> => {
       const query = `SELECT * FROM ${table} WHERE id = $1`;
       const result: any = await db.select(query, [id]);
@@ -197,6 +213,7 @@ export function createORM<T extends Model>(table: string): ORM<T> {
     },
 
     where: (conditions: Record<string, any>): ORMQueryBuilder<T> => {
+      console.log('where', conditions);
       return createORMQueryBuilder<T>(db, table).where(conditions);
     },
 

@@ -14,6 +14,12 @@ export const getToken = () => {
 export const setToken = (token: string) => {
   localStorage.setItem("Authorization", token);
 }
+export const getUsername = () => {
+  return localStorage.getItem("GodoOS-username") || "admin";
+}
+export const setUsername = (username: string) => {
+  localStorage.setItem("GodoOS-username", username);
+}
 export function getHeader() {
   return {
     'Content-Type': 'application/json',
@@ -72,20 +78,24 @@ request.interceptors.response.use(
     // 处理错误信息
     if (err) {
       console.log(err)
-      if (err.code === 'ERR_NETWORK') {
-        errMsg('网络连接错误,请稍后重试')
-        return Promise.reject(err.response)
-      } else if (err.code === 'ECONNABORTED') {
-        errMsg('服务异常,请稍后重试')
-        return Promise.reject(err.response)
-      }
       if (err.response) {
-        const message = err.response.data
-        console.log('message:', message)
-        errMsg(message)
-        return Promise.reject(err.response.data)
+        const status = err.response.status;
+        const message = err.response.data;
+        
+        if (status === 404) {
+          errMsg('404错误: 请求的资源未找到');
+        } else if (status === 500) {
+          errMsg('500错误: 服务器内部错误');
+        } else if (err.code === 'ERR_NETWORK') {
+          errMsg('网络连接错误,请稍后重试');
+        } else if (err.code === 'ECONNABORTED') {
+          errMsg('服务异常,请稍后重试');
+        } else {
+          errMsg('未知错误: ' + message);
+        }
+        //return;
+        return Promise.reject(err.response.data);
       }
-
     }
   }
 )

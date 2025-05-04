@@ -8,9 +8,9 @@ interface RegisterInfo {
 	password: string;
 	email: string;
 	phone: string;
-	third_user_id: string;
-	union_id: string;
-	platform: string;
+	// third_user_id: string;
+	// union_id: string;
+	// platform: string;
 	confirmPassword: string;
 }
 // 注册信息
@@ -20,9 +20,9 @@ const registerInfo: Ref<RegisterInfo> = ref({
 	password: "",
 	email: "",
 	phone: "",
-	third_user_id: "",
-	union_id: "",
-	platform: "",
+	// third_user_id: "",
+	// union_id: "",
+	// platform: "",
 	confirmPassword: "",
 });
 const rules = {
@@ -42,7 +42,7 @@ const rules = {
 	],
 	password: [
 		{ required: true, message: "密码不能为空", trigger: "blur" },
-		{ min: 6, message: "密码长度不能小于6位", trigger: "blur" },
+		{ min: 3, message: "密码长度不能小于3位", trigger: "blur" },
 	],
 	confirmPassword: [
 		{ required: true, message: "请再次输入密码", trigger: "blur" },
@@ -60,31 +60,31 @@ const rules = {
 			trigger: "blur",
 		},
 	],
-	email: [
-		{ required: true, message: "邮箱不能为空", trigger: "blur" },
-		{
-			type: "email",
-			message: "请输入有效的邮箱地址",
-			trigger: ["blur", "change"],
-		},
-	],
-	phone: [
-		{ required: true, message: "手机号不能为空", trigger: "blur" },
-		{
-			pattern: /^1[3-9]\d{9}$/,
-			message: "请输入有效的手机号",
-			trigger: "blur",
-		},
-	],
-	nickname: [
-		{ required: true, message: "昵称不能为空", trigger: "blur" },
-		{
-			min: 2,
-			max: 20,
-			message: "昵称长度应在2到20个字符之间",
-			trigger: "blur",
-		},
-	],
+	// email: [
+	// 	{ required: true, message: "邮箱不能为空", trigger: "blur" },
+	// 	{
+	// 		type: "email",
+	// 		message: "请输入有效的邮箱地址",
+	// 		trigger: ["blur", "change"],
+	// 	},
+	// ],
+	// phone: [
+	// 	{ required: true, message: "手机号不能为空", trigger: "blur" },
+	// 	{
+	// 		pattern: /^1[3-9]\d{9}$/,
+	// 		message: "请输入有效的手机号",
+	// 		trigger: "blur",
+	// 	},
+	// ],
+	// nickname: [
+	// 	{ required: true, message: "昵称不能为空", trigger: "blur" },
+	// 	{
+	// 		min: 2,
+	// 		max: 20,
+	// 		message: "昵称长度应在2到20个字符之间",
+	// 		trigger: "blur",
+	// 	},
+	// ],
 };
 </script>
 <template>
@@ -127,7 +127,7 @@ const rules = {
 		</el-form-item>
 
 		<el-form-item class="button-center">
-			<el-button class="login-button" type="primary" size="large" @click="store.onRegister">注册</el-button>
+			<el-button class="login-button" type="primary" size="large" @click="store.onRegister(registerInfo)">注册</el-button>
 		</el-form-item>
 	</el-form>
 </template>

@@ -12,15 +12,19 @@ export default defineConfig(({ mode }) => {
     port: 8868,
   }
 
-  if (mode === 'development') {
+  //if (mode === 'development') {
     serverConfig.proxy = {
       // 代理规则示例
       '/user': {
         target: 'http://localhost:8816/', // 目标服务器地址
         changeOrigin: true, // 是否改变请求的源
       },
+      '/net': {
+        target: 'http://localhost:8866/', // 目标服务器地址
+        changeOrigin: true, // 是否改变请求的源
+      },
     }
-  }
+  //}
   return {
     plugins: [
       vue(),
@@ -51,7 +55,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       sourcemap: false, // 禁用构建时的源映射
-      outDir: '../server/www',
+      //outDir: '../server/www',
     },
     base: './',
   }

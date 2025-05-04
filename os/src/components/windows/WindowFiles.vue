@@ -53,7 +53,7 @@ let prop: any = win.props;
 
 const emit = defineEmits(["updateWin"]);
 onMounted(() => {
-	console.log(prop)
+	//console.log(prop)
 	if (prop.action == "edit") {
 		//const fileType: any = getFileType(prop.ext);
 		win.component = win.props.editor;

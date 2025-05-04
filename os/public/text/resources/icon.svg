@@ -1,0 +1,38 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wood" x1="-44.3622" y1="467.799" x2="42.3018" y2="555.363" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e5cfad" offset="0"/>
+      <stop stop-color="#dec196" offset="0.25"/>
+      <stop stop-color="#daba8a" offset="0.5"/>
+      <stop stop-color="#c4a77c" offset="0.75"/>
+      <stop stop-color="#988260" offset="1"/>
+    </linearGradient>
+    <linearGradient id="paint" x1="58.8387" y1="361.492" x2="148.251" y2="451.498" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f3ac4d" offset="0"/>
+      <stop stop-color="#f0941a" offset="0.25"/>
+      <stop stop-color="#ee8800" offset="0.5"/>
+      <stop stop-color="#d67a00" offset="0.75"/>
+      <stop stop-color="#a65f00" offset="1"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="290.386" y1="130.672" x2="379.723" y2="220.601" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d5d5d5" offset="0"/>
+      <stop stop-color="#c9c9c9" offset="0.25"/>
+      <stop stop-color="#c3c3c3" offset="0.5"/>
+      <stop stop-color="#afafaf" offset="0.75"/>
+      <stop stop-color="#888888" offset="1"/>
+    </linearGradient>
+    <linearGradient id="eraser" x1="344.279" y1="75.9423" x2="434.456" y2="166.718" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#db7c88" offset="0"/>
+      <stop stop-color="#d15766" offset="0.25"/>
+      <stop stop-color="#cc4455" offset="0.5"/>
+      <stop stop-color="#b73d4c" offset="0.75"/>
+      <stop stop-color="#8e2f3b" offset="1"/>
+    </linearGradient>
+  </defs>
+  <path d="m164.5 435L47 490L22 464L75 348.5L164.5 435z" fill="url(#wood)"/>
+  <path d="m52.5 487.5-52.5 24.5 24.5-53.5c4.1005 7.225 5.6651 11.587 11.5 17.5 5.598 5.673 16.5 11.5 16.5 11.5z" fill="#2a2a2a"/>
+  <path d="m309.14 113c-9.761 9.76 2.219 37.565 26.758 62.102 24.538 24.538 52.342 36.518 62.103 26.758l-231.74 231.74c-9.761 9.76-37.565-2.22-62.104-26.758-24.538-24.538-36.518-52.342-26.758-62.102l231.74-231.74z" fill="url(#paint)"/>
+  <path d="m363.55 58c-9.826 9.8252 2.234 37.815 26.935 62.516 24.702 24.702 52.691 36.761 62.516 26.936l-55.127 55.127c-9.826 9.825-37.815-2.234-62.516-26.936-24.702-24.702-36.761-52.691-26.936-62.516l55.128-55.127z" fill="url(#metal)"/>
+  <path d="m417 4c-9.897 9.8971 1.999 38.134 26.933 63.068 24.934 24.934 53.171 37.125 63.067 27.227l-54.266 54.266c-9.897 9.897-38.134-2.293-63.068-27.227-24.934-24.934-37.124-53.17-27.226-63.068l54.56-54.266z" fill="url(#eraser)"/>
+  <path d="m416.43 4.4444c9.879-9.9114 38.063 2.2962 62.95 27.266 24.888 24.97 37.055 53.247 27.176 63.159-9.879 9.9116-38.062-2.2962-62.95-27.266-24.888-24.97-37.055-53.247-27.176-63.159z" fill="#db7c88"/>
+</svg>

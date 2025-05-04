@@ -1,0 +1,1 @@
+import{d as t,o as p,f as r,S as c}from"./index-4533c179.js";const i=t({__name:"editor",props:{win:{type:Object,required:!0}},setup(e){const n=e;return(s,_)=>{const o=c;return p(),r(o,{win:n.win},null,8,["win"])}}});export{i as default};

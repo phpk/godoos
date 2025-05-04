@@ -1,0 +1,16 @@
+@use "sass:math";
+
+// 默认设计稿的宽度
+$designWidth: 375;
+// 默认设计稿的高度
+$designHeight: 667;
+
+// px 转为 vw 的函数
+@function vw($px) {
+  @return math.div($px, $designWidth) * 100vw;
+}
+
+// px 转为 vh 的函数
+@function vh($px) {
+  @return math.div($px, $designHeight) * 100vh;
+}

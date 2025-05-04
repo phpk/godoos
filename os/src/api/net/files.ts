@@ -1,26 +1,26 @@
 import { base64ToBuffer, isBase64 } from '@/utils/file'
 import { get, post } from '@/utils/request'
 export async function read(path: string, pwd?: string) {
-  const res = await get(`user/files/read`, { path, pwd })
+  const res = await get(`net/files/read`, { path, pwd })
   return res
 }
 export async function readFile(path: string, pwd?: string) {
-  const res = await get(`user/files/readfile`, { path, pwd })
+  const res = await get(`net/files/readfile`, { path, pwd })
   return res
 }
 export async function stat(path: string) {
-  const res = await get(`user/files/stat`, { path })
+  const res = await get(`net/files/stat`, { path })
   return res.data
 }
 export async function desktop() {
-  const res = await get(`user/files/desktop`)
+  const res = await get(`net/files/desktop`)
   if (res && res.success) {
     return res.data;
   }
   return false
 }
 export async function exists(path: string) {
-  const res = await get(`user/files/exists`, { path })
+  const res = await get(`net/files/exists`, { path })
   return res.data
 
 }
@@ -28,7 +28,7 @@ export function mkdir(dirPath: string) {
   if (dirPath.length < 2 || dirPath.charAt(1) == 'B') {
     return false;
   }
-  return post(`user/files/mkdir`, {}, { dirPath }).then(res => res.success)
+  return post(`net/files/mkdir`, {}, { dirPath }).then(res => res.success)
 }
 export function rmdir(dirPath: string) {
   if (dirPath.length < 3) {
@@ -38,51 +38,51 @@ export function rmdir(dirPath: string) {
   if (ext == 'exe') {
     return false;
   }
-  return get(`user/files/rmdir`, { dirPath }).then(res => res.success)
+  return get(`net/files/rmdir`, { dirPath }).then(res => res.success)
 }
 export function restore(dirPath: string) {
   if (dirPath.length < 2) {
     return false;
   }
 
-  return get(`user/files/restore`, { dirPath }).then(res => res.success)
+  return get(`net/files/restore`, { dirPath }).then(res => res.success)
 }
 export function favorite(path: string) {
   if (path.length < 2) {
     return false;
   }
-  return get(`user/files/favorite`, { path }).then(res => res.success)
+  return get(`net/files/favorite`, { path }).then(res => res.success)
 }
 export function pwd(path: string, pwd: string) {
   if (path.length < 2) {
     return false;
   }
-  return get(`user/files/pwd`, { path, pwd }).then(res => res.success)
+  return get(`net/files/pwd`, { path, pwd }).then(res => res.success)
 }
 export function unpwd(path: string, pwd: string) {
   if (path.length < 2) {
     return false;
   }
-  return get(`user/files/unpwd`, { path, pwd }).then(res => res.success)
+  return get(`net/files/unpwd`, { path, pwd }).then(res => res.success)
 }
 export function rename(oldPath: string, newPath: string) {
   if (oldPath.length < 2) {
     return false;
   }
-  return get(`user/files/rename`, { oldPath, newPath }).then(res => res.success)
+  return get(`net/files/rename`, { oldPath, newPath }).then(res => res.success)
 
 }
 export function clear() {
-  return get(`user/files/clear`).then(res => res.success)
+  return get(`net/files/clear`).then(res => res.success)
 }
 export function search(path: string, query: string) {
-  return get(`user/files/search`, { path, query }).then(res => res.data)
+  return get(`net/files/search`, { path, query }).then(res => res.data)
 }
 export function copy(srcPath: string, dstPath: string) {
   if (dstPath.length < 2) {
     return false;
   }
-  return get(`user/files/copyfile`, { srcPath, dstPath }).then(res => res.success)
+  return get(`net/files/copyfile`, { srcPath, dstPath }).then(res => res.success)
 }
 
 
@@ -94,7 +94,7 @@ export function unlink(path: string) {
   if (ext == 'exe') {
     return false;
   }
-  return get(`user/files/unlink`, { path }).then(res => res.success)
+  return get(`net/files/unlink`, { path }).then(res => res.success)
 }
 export function parserFormData(content: any, contentType: any) {
   if (!content || content == '') {
@@ -173,7 +173,7 @@ export function writeFile(path: string, data: any, pwd?: string) {
     return false;
   }
 
-  return post(`user/files/writefile`, formData, { path, pwd }).then(res => {
+  return post(`net/files/writefile`, formData, { path, pwd }).then(res => {
     //console.log(res)
     return res.success
   })
@@ -183,19 +183,19 @@ export function appendFile(path: string, data: any) {
   if (!formData) {
     return false;
   }
-  return post(`user/files/appendfile`, formData, { path }).then(res => res.success)
+  return post(`net/files/appendfile`, formData, { path }).then(res => res.success)
 }
 export function zip(path: string, ext: string) {
   if (path.length < 2) {
     return false;
   }
-  return get(`user/files/zip`, { path, ext }).then(res => res.data)
+  return get(`net/files/zip`, { path, ext }).then(res => res.data)
 }
 export function unzip(path: string) {
   if (path.length < 2) {
     return false;
   }
-  return get(`user/files/unzip`, { path }).then(res => res.data)
+  return get(`net/files/unzip`, { path }).then(res => res.data)
 }
 export function isDesktop(path: string) {
   const sp = getSp(path)

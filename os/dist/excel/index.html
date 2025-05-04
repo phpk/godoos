@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head lang='zh'>
+	<meta charset='utf-8'>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="renderer" content="webkit" />
+	<meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=0" />
+	<title>数据表格</title>
+
+	<link rel='stylesheet' href='./plugins/css/pluginsCss.css' />
+	<link rel='stylesheet' href='./plugins/plugins.css' />
+	<link rel='stylesheet' href='./css/luckysheet.css' />
+	<link rel='stylesheet' href='./assets/iconfont/iconfont.css' />
+	<script src="./plugins/js/plugin.js"></script>
+
+	<!-- rollup luckysheet.js -->
+	<script src="./luckysheet.umd.js"></script>
+</head>
+
+<body>
+	<div id="luckysheet" style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;">
+	</div>
+	<!-- demo feature, non-production use -->
+	<script src="./demoData/demoFeature.js"></script>
+	<script src="./demoData/sheetCell.js"></script>
+	<script src="./expendPlugins/luckyexcel.js"></script>
+	<script src="./expendPlugins/exceljs.js"></script>
+	<script src="./expendPlugins/filesaver.js"></script>
+	<script src="./expendPlugins/export.js"></script>
+	<script>
+
+		$(function () {
+			luckysheet.create();
+			function createFile(file) {
+				const reader = new FileReader();
+				reader.addEventListener('load', function () {
+					LuckyExcel.transformExcelToLucky(
+						reader.result,
+						function (exportJson, luckysheetfile) {
+							luckysheet.create({
+								container: 'luckysheet', // luckysheet is the container id
+								data: exportJson.sheets,
+								title: file.name.split(".").shift(),
+								// userInfo: exportJson.info.name.creator
+							});
+							setEvent()
+						},
+						function (err) {
+							logger.error('Import failed. Is your fail a valid xlsx?');
+						}
+					);
+				})
+				reader.readAsBinaryString(file);
+			}
+			window.uploadFile = (input) => {
+				let file = input.files[0];
+				createFile(file);
+			}
+			function importData() {
+				$("#uploadbtn").click()
+			}
+			async function exportData() {
+				let title = $('#luckysheet_info_detail_input').val();
+				exportExcel(luckysheet).then((buffer) => {
+					SaveExcel(buffer, title)
+				})
+
+			}
+
+			function saveData() {
+				let title = $('#luckysheet_info_detail_input').val();
+				luckysheet.exitEditMode()
+				let content = luckysheet.getAllSheets();
+				//去除临时数据,减小体积
+				for (let i in content) {
+					content[i].data = undefined
+				}
+				content =  JSON.stringify(content)
+
+				const save = {
+					data: JSON.stringify({ content, title }),
+					type: 'exportExcel'
+				}
+				window.parent.postMessage(save, '*')
+				// exportExcel(luckysheet).then((buffer) => {
+				// 	// 直接发送ArrayBuffer到后端
+				// 	const save = {
+				// 		data: JSON.stringify({ content: buffer, title }),
+				// 		type: 'exportExcel'
+				// 	}
+				// 	//console.log(save)
+				// 	window.parent.postMessage(save, '*')
+				// })
+			}
+			function setEvent() {
+				$("#saveData").click("click", saveData)
+				$("#exportData").click("click", exportData)
+				$("#importData").click("click", importData)
+			}
+			setEvent()
+			function arrayBufferToBase64(buffer) {
+				let binary = '';
+				const bytes = new Uint8Array(buffer);
+				const len = bytes.byteLength;
+				for (let i = 0; i < len; i += 1) {
+					binary += String.fromCharCode(bytes[i]);
+				}
+				return window.btoa(binary);  //base64
+			};
+			const base64ToFile = (code, fileName) => {
+				//console.log(code)
+				let raw;
+				let contentType;
+				if (code.indexOf(";base64,") > -1) {
+					let parts = code.split(";base64,");
+					contentType = parts[0].split(":")[1];
+					let fileExt = contentType.split("/")[1];
+					raw = window.atob(parts[1]);
+				} else {
+					raw = window.atob(code);
+					//console.log(raw)
+					contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+				}
+
+				const rawLength = raw.length;
+				const uInt8Array = new Uint8Array(rawLength);
+
+				for (let i = 0; i < rawLength; ++i) {
+					uInt8Array[i] = raw.charCodeAt(i);
+				}
+				return new File([uInt8Array], `${fileName}`, {
+					"type": contentType
+				});
+			}
+			function binaryToBase64(data) {
+				let binary = "";
+				const bytes = new Uint8Array(data);
+				for (let i = 0; i < bytes.length; i++) {
+					binary += String.fromCharCode(bytes[i]);
+				}
+				return btoa(binary);
+			}
+			const eventHandler = (e) => {
+				const eventData = e.data
+				if (eventData.type === 'init') {
+					//const data = JSON.parse(eventData.data)
+					const data = eventData.data
+					//console.log(data)
+					if (!data || !data.title) {
+						return;
+					}
+					//console.log(data)
+					luckysheet.destroy();
+					if (data.content) {
+						//console.log(data.content)
+						// if(data.content.type && data.content.type == "Buffer"){
+						// 	const base64 = binaryToBase64(data.content.data)
+						// 	//console.log(base64)
+						// 	let file = base64ToFile(base64, data.title)
+						// 	createFile(file);
+						// }else{
+						// 	let file = base64ToFile(data.content, data.title)
+						// 	createFile(file);
+						// }
+						luckysheet.create({
+							container: 'luckysheet', // luckysheet is the container id
+							data: JSON.parse(data.content),
+							title: data.title.split(".").shift(),
+							// userInfo: exportJson.info.name.creator
+						});
+						setEvent()
+
+					} else {
+						luckysheet.create({ title: data.title })
+					}
+
+				}
+			}
+			window.addEventListener('load', () => {
+				window.parent.postMessage({ type: 'initSuccess' }, '*')
+				window.addEventListener('message', eventHandler)
+			})
+			window.addEventListener('unload', () => {
+				window.removeEventListener('message', eventHandler)
+			})
+		})
+	</script>
+	<style>
+		/* 自定义loading演示样式 */
+		@keyframes loading-rotate {
+			0% {
+				transform: rotate(0deg);
+			}
+
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		@keyframes loading-dash {
+			0% {
+				stroke-dasharray: 1, 200;
+				stroke-dashoffset: 0;
+			}
+
+			50% {
+				stroke-dasharray: 90, 150;
+				stroke-dashoffset: -40px;
+			}
+
+			100% {
+				stroke-dasharray: 90, 150;
+				stroke-dashoffset: -120px;
+			}
+		}
+
+		.loadingAnimation {
+			width: 3em;
+			height: 3em;
+			animation: loading-rotate 2s linear infinite;
+		}
+
+		.loadingAnimation circle {
+			animation: loading-dash 1.5s ease-in-out infinite;
+			stroke-dasharray: 90, 150;
+			stroke-dashoffset: 0;
+			stroke-width: 2;
+			stroke: currentColor;
+			stroke-linecap: round;
+		}
+	</style>
+</body>
+
+</html>

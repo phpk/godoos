@@ -93,7 +93,7 @@ const routes = [
     path: '/document',
     name: 'document',
     component: {
-      template: '/os/docx/index.html',
+      template: '/docx/index.html',
     },
     meta: {
       title: 'document',
@@ -108,7 +108,7 @@ const routes = [
     path: '/fileEditor',
     name: 'fileEditor',
     component: {
-      template: '/os/text/index.html',
+      template: '/text/index.html',
     },
     meta: {
       title: 'fileEditor',
@@ -123,7 +123,7 @@ const routes = [
     path: '/excel',
     name: 'excel',
     component: {
-      template: '/os/excel/index.html',
+      template: '/excel/index.html',
     },
     meta: {
       title: 'excel',
@@ -138,7 +138,7 @@ const routes = [
     path: '/markdown',
     name: 'markdown',
     component: {
-      template: '/os/markdown/index.html',
+      template: '/markdown/index.html',
     },
     meta: {
       title: 'markdown',
@@ -153,7 +153,7 @@ const routes = [
     path: '/mindmap',
     name: 'mindmap',
     component: {
-      template: '/os/mind/index.html',
+      template: '/mind/index.html',
     },
     meta: {
       title: 'mindmap',
@@ -168,7 +168,7 @@ const routes = [
     path: '/ppt',
     name: 'ppt',
     component: {
-      template: '/os/ppt/index.html',
+      template: '/ppt/index.html',
     },
     meta: {
       title: 'ppt',
@@ -183,7 +183,7 @@ const routes = [
     path: '/board',
     name: 'board',
     component: {
-      template: '/os/kanban/index.html',
+      template: '/kanban/index.html',
     },
     meta: {
       title: 'board',
@@ -198,7 +198,7 @@ const routes = [
     path: '/whiteBoard',
     name: 'whiteBoard',
     component: {
-      template: '/os/baiban/index.html',
+      template: '/baiban/index.html',
     },
     meta: {
       title: 'whiteBoard',
@@ -213,7 +213,7 @@ const routes = [
     path: '/gantt',
     name: 'gantt',
     component: {
-      template: '/os/gantt/index.html',
+      template: '/gantt/index.html',
     },
     meta: {
       title: 'gantt',
@@ -228,14 +228,14 @@ const routes = [
     path: '/calculator',
     name: 'calculator',
     component: {
-      template: '/os/calculator/index.html',
+      template: '/calculator/index.html',
     },
     meta: {
       title: 'calculator',
       icon: 'calculator',
       windowConfig: {
-        width: 500,
-        height: 550,
+        width: 420,
+        height: 580,
       },
     },
   },
@@ -256,7 +256,7 @@ const routes = [
     path: '/piceditor',
     name: 'piceditor',
     component: {
-      template: '/os/picedit/index.html',
+      template: '/paint/index.html',
     },
     meta: {
       title: 'piceditor',

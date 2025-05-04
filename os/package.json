@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "build:tauri": "tauri build",
     "build:android": "tauri android build --apk",
-    "android-init": "pnpm tauri plugin android init",
+    "android-init": "pnpm tauri android init",
     "build:ios": "tauri ios build --ipa",
     "ios-init": "pnpm tauri plugin ios init",
     "migrate": "drizzle-kit generate:sqlite"

@@ -2,7 +2,8 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { systemSettingList, settingsConfig } from "@/stores/settingsConfig";
 import { md5 } from "js-md5";
-import { type as osType, platform } from "@tauri-apps/plugin-os";
+import { getPlatformInfo } from "@/utils/device";
+import { initDatabase } from "@/api/local/orm/db";
 export const useSettingsStore = defineStore('settings', () => {
   const settingList = ref(systemSettingList);
 
@@ -44,23 +45,15 @@ export const useSettingsStore = defineStore('settings', () => {
     isLockScreen.value = false;
     return false;
   }
-  const osInit = () => {
-    try {
-      systemInfo.value.platform = platform();
+  /**
+   * 初始化操作系统相关信息
+   */
+  const osInit = async () => {
+    systemInfo.value = getPlatformInfo();
+    console.log(systemInfo.value)
+    if (!systemInfo.value.isWeb) {
+      await initDatabase();
     }
-    catch (error) {
-      systemInfo.value.platform = "web";
-    }
-    try {
-      systemInfo.value.ostype = osType();
-    }
-    catch (error) {
-      // console.warn(error);
-      systemInfo.value.ostype = "web";
-    }
-    systemInfo.value.isMobile = ["android", "ios"].includes(systemInfo.value.ostype);
-    systemInfo.value.isWeb = systemInfo.value.platform === "web";
-    systemInfo.value.isDesktop = !systemInfo.value.isMobile && !systemInfo.value.isWeb;
   }
   return {
     settingList,

@@ -21,7 +21,7 @@ export async function logout() {
     method: 'POST',
   })
 }
-export async function isLogin() {
+export async function isLogin():Promise<boolean> {
   const token = getToken()
   if (!token) {
     return false

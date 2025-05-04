@@ -3,7 +3,7 @@ import { get, getToken, setToken,post } from '@/utils/request'
 import { getClientId } from '@/utils/uuid'
 
 export function loginIn(params: any) {
-  return fetch('/user/login', {
+  return fetch('/net/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -17,16 +17,16 @@ export function loginIn(params: any) {
   }).catch(err => { throw new Error(err) })
 }
 export async function logout() {
-  return post('user/logout', {
+  return post('net/logout', {
     method: 'POST',
   })
 }
-export async function isLogin() {
+export async function isLogin():Promise<boolean> {
   const token = getToken()
   if (!token) {
     return false
   }
-  const res = await get('user/islogin')
+  const res = await get('net/islogin')
   return res.success
 }
 export async function getDingConf() {
@@ -34,11 +34,11 @@ export async function getDingConf() {
     "https://g.alicdn.com/dingding/h5-dingtalk-login/0.21.0/ddlogin.js"
   );
 
-  const res = await fetch("user/ding/conf");
+  const res = await fetch("net/ding/conf");
   return await res.json();
 }
 export async function getThirdpartyList() {
-  const result = await fetch("/user/thirdparty/list"
+  const result = await fetch("/net/thirdparty/list"
   );
   if (result.ok) {
     const data = await result.json();
@@ -51,7 +51,7 @@ export async function getEmailCode(email: string) {
     email: email,
     client_id: getClientId(),
   }
-  const res = await fetch('/user/emailcode', {
+  const res = await fetch('/net/emailcode', {
     method: 'POST',
     body: JSON.stringify(data),
   })
@@ -62,14 +62,14 @@ export async function getSmsCode(phone: string) {
     phone: phone,
     client_id: getClientId(),
   }
-  const res = await fetch('/user/smscode', {
+  const res = await fetch('/net/smscode', {
     method: 'POST',
     body: JSON.stringify(data),
   })
   return await res.json()
 }
 export async function register(params: any) {
-  return fetch('/user/register', {
+  return fetch('/net/register', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

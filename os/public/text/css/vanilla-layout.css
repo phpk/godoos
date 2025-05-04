@@ -1,0 +1,139 @@
+:host, *, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+:host {
+  --padding: 6px;
+  position: relative;
+  height: 80px;/*width: 300px;height: 500px;width: 500px;height: 225px;*/
+  display: inline-block;
+  vertical-align: bottom;
+  color-scheme: light;
+  --color: #000000;
+  color: var(--color);
+  font-size: 13px;
+  font-family: ui-monospace, "Cousine", "Consolas", monospace;
+  line-height: 1.4;
+  --selection-color: inherit;
+  --selection-background: #75b1ff38;
+  --selection-background-inactive: #a1a1a138;
+  background: #ffffff;
+  overflow: hidden;
+  cursor: text;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-text-size-adjust: 100%;
+}
+:host(.color-scheme-dark) {
+  color-scheme: dark;
+  --color: #eaeaea;
+  background: #242424;
+}
+:host(:-moz-window-inactive) {
+  --selection-background: var(--selection-background-inactive);
+}
+[part="container"] {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+[part="gutter"] {
+  counter-reset: line-number;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  list-style: inside none;
+  overflow: hidden;
+}
+[part="line-number"]::before {
+  content: counter(line-number);
+  counter-increment: line-number;
+  --padding-multiplier: 2;
+  padding: 0 calc(var(--padding) * var(--padding-multiplier));
+  display: block;
+  text-align: right;
+  opacity: 0.45;
+}
+[part="line-number"]:first-child::before {
+  padding-top: calc(var(--padding) + var(--overscroll-top,0px));
+}
+[part="line-number"]:last-child {
+  flex-basis: 100%;
+}
+[part="line-number"]:last-child::before {
+  padding-bottom: calc(var(--padding) + var(--overscroll-bottom,0px));
+  height: 100%;
+}
+[part="line-number"]:last-child::after {
+  content: "";
+  display: block;
+  height: var(--overflow-offset-y,0px);
+}
+[part="content"] {
+  position: relative;
+  flex-basis: 100%;
+  display: flex;
+  overflow: hidden;
+}
+[part="syntax"] {
+  padding: var(--padding);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  font: inherit;
+  background-clip: padding-box;
+  border: 0 solid transparent;
+  border-right-width: var(--overflow-offset-x,0px);
+  border-bottom-width: var(--overflow-offset-y,0px);
+  overflow: hidden;
+  transform: translate(calc(var(--overscroll-left,0px) + calc(var(--overscroll-right,0px) * -1)),calc(var(--overscroll-top,0px) + calc(var(--overscroll-bottom,0px) * -1)));
+}
+@supports (-moz-appearance: none) {
+  [part="syntax"] {
+    padding-left: 0;
+    border-left-width: var(--padding);
+    border-right-width: calc(var(--padding) + var(--overflow-offset-x,0px));
+  }
+}
+:host(:not([syntax-highlight])) [part="syntax"] {
+  display: none;
+}
+[part="editor"] {
+  padding: var(--padding);
+  min-width: 0;
+  flex-basis: 100%;
+  color: var(--color);
+  font: inherit;
+  line-height: inherit;
+  background: none;
+  border: none;
+  border-radius: 0;
+  outline: none;
+  z-index: 1;
+  resize: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+@supports not (-webkit-touch-callout: none) {
+  [part="editor"] {
+    caret-color: var(--color);
+  }
+}
+[part="editor"]::placeholder {
+  color: var(--color);
+  opacity: 0.55;
+  white-space: pre-wrap;
+}
+[part="editor"]::selection {
+  color: var(--selection-color);
+  background: var(--selection-background);
+}
+[part="editor"]::selection:window-inactive {
+  background: var(--selection-background-inactive);
+}
+:host([syntax-highlight]) [part="editor"] {
+  color: transparent;
+}

@@ -5,6 +5,25 @@
   "platforms": ["iOS", "android"],
   "windows": ["*"],
   "permissions": [
-    "core:default"
+    "core:default",
+    "store:allow-get",
+    "store:allow-set",
+    "store:allow-save",
+    "store:allow-load",
+    "sql:allow-load",
+    "sql:default",
+    "sql:allow-execute",
+    "fs:allow-app-read-recursive",
+    "fs:allow-app-write-recursive",
+    "fs:allow-app-meta-recursive",
+    "fs:allow-home-read-recursive",
+    "fs:allow-home-write-recursive",
+    "fs:allow-home-read",
+    "fs:allow-home-write",
+    "fs:allow-home-meta-recursive",
+    "fs:allow-home-meta",
+    "fs:scope-home-recursive",
+    "fs:scope-home",
+    "fs:scope-home-index"
   ]
 }

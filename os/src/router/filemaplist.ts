@@ -2,7 +2,7 @@ export const fileMapList = [
     {
         name: "document",
         icon: "word",
-        editor: "/os/docx/index.html",
+        editor: "/docx/index.html",
         //editor:"http://localhost:3001/",
         ext: ["docx", "doc",'docd'],
         hasPrview: true,
@@ -11,9 +11,9 @@ export const fileMapList = [
     {
         name: "excel",
         icon: "excel",
-        editor: "/os/excel/index.html",
+        editor: "/excel/index.html",
         ext: ["xlsx", "xls",'xlsd'],
-        hasPrview: true,
+        hasPrview: false,
         eventType: "exportExcel"
     },
     {
@@ -21,14 +21,14 @@ export const fileMapList = [
         icon: "markdown",
         hasPrview: true,
         //priview:  "MarkDown",
-        editor: "/os/markdown/index.html",
+        editor: "/markdown/index.html",
         eventType: "exportMd",
         ext: ['md']
     },
     {
         name: "mindmap",
         icon: "mindexe",
-        editor: "/os/mind/index.html",
+        editor: "/mind/index.html",
         hasPrview: false,
         //editor:"http://localhost:3003/",
         ext: ['mind'],
@@ -37,7 +37,7 @@ export const fileMapList = [
     {
         name: "ppt",
         icon: "pptexe",
-        editor: "/os/ppt/index.html",
+        editor: "/ppt/index.html",
         //editor:"http://localhost:5173/",
         ext: ['pptx', 'ppt', 'pptd'],
         hasPrview: false,
@@ -46,7 +46,7 @@ export const fileMapList = [
     {
         name: 'fileEditor',
         icon: "editorbt",
-        editor: "/os/text/index.html",
+        editor: "/text/index.html",
         hasPrview: false,
         ext: ['txt', 'html', 'json', 'xml', 'css', 'js', 'vue', 'go', 'php', 'java', 'py'],
         eventType: "exportText"
@@ -54,7 +54,7 @@ export const fileMapList = [
     {
         name: "board",
         icon: "kanban",
-        editor: "/os/kanban/index.html",
+        editor: "/kanban/index.html",
         hasPrview: false,
         ext: ['kb'],
         eventType: "exportKanban"
@@ -62,7 +62,7 @@ export const fileMapList = [
     {
         name: 'whiteBoard',
         icon: "baiban",
-        editor: "/os/baiban/index.html",
+        editor: "/baiban/index.html",
         hasPrview: false,
         ext: ['bb'],
         eventType: "exportBaiban"
@@ -70,7 +70,7 @@ export const fileMapList = [
     {
         name: 'piceditor',
         icon: "picedit",
-        editor: "/os/paint/index.html",
+        editor: "/paint/index.html",
         //editor: "http://localhost:8080/",
         ext: ['pic', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'],
         hasPrview: false,
@@ -79,7 +79,7 @@ export const fileMapList = [
     {
         name: 'gantt',
         icon: "gant",
-        editor: "/os/gantt/index.html",
+        editor: "/gantt/index.html",
         ext: ['gant'],
         hasPrview: false,
         eventType: "exportGant"

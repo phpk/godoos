@@ -13,7 +13,7 @@
 		</div>
 		<div v-else-if="fileType === 'pic'">
 			<el-image
-				:src="prop.content"
+				:src="'data:image/png;base64,'+prop.content"
 				alt=""
 				style="margin: auto"
 			/>
@@ -132,7 +132,7 @@
 		prop.value.content = await fileSystemStore.handleReadFile(
 			prop.value.path
 		);
-
+		console.log(prop.value.content)
 		await loadFileContent();
 		addWatermark("GodoOS", container);
 	});
@@ -186,8 +186,8 @@
 
 					break;
 				case "md":
-					const content = decodeBase64(prop.value.content);
-					prop.value.content = renderMarkdown(content);
+					//const content = decodeBase64(prop.value.content);
+					prop.value.content = renderMarkdown(prop.value.content);
 					break;
 				default:
 					console.warn("Unsupported file type");
