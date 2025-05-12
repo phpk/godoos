@@ -112,8 +112,6 @@ declare module 'vue' {
     TrayDate: typeof import('./src/components/taskbar/TrayDate.vue')['default']
     UnLock: typeof import('./src/components/auth/UnLock.vue')['default']
     UserRegister: typeof import('./src/components/auth/UserRegister.vue')['default']
-    ViewExcel: typeof import('./src/components/viewer/excel/ViewExcel.vue')['default']
-    ViewPpt: typeof import('./src/components/viewer/ppt/ViewPpt.vue')['default']
     WindowFiles: typeof import('./src/components/windows/WindowFiles.vue')['default']
     WindowLeft: typeof import('./src/components/windows/WindowLeft.vue')['default']
     WindowManager: typeof import('./src/components/windows/WindowManager.vue')['default']

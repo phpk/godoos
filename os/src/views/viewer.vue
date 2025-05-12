@@ -109,7 +109,7 @@
 	import { onMounted, ref } from "vue";
 	// import { init } from 'pptx-preview';
 	import { isMobileDevice } from "@/utils/device";
-	import { parse } from "pptxtojson";
+	//import { parse } from "pptxtojson";
 	const fileSystemStore = useFileSystemStore();
 	const props = defineProps({
 		win: {
@@ -145,9 +145,9 @@
 	async function renderPPTX() {
 		const buffer: any = base64ToBuffer(prop.value.content);
 		//const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-		const json = await parse(buffer);
-		prop.value.content = json; // 将解析后的 JSON 数据赋值给 prop.value.content
-		fileLoading.value = false;
+		// const json = await parse(buffer);
+		// prop.value.content = json; // 将解析后的 JSON 数据赋值给 prop.value.content
+		// fileLoading.value = false;
 		// if (pptxWrapper.value) {
 		//   const pptxPrviewer = init(pptxWrapper.value, {
 		//     width: window.innerWidth * 0.9,

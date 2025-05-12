@@ -48,7 +48,7 @@ const isLoading = ref(false);
 const desktopRef = ref<HTMLDivElement | null>(null);
 
 onMounted(async () => {
-  await desktopStore.initDesktop();
+  
   isLoading.value = true;
   setTimeout(() => {
     initSystem();
@@ -56,6 +56,7 @@ onMounted(async () => {
 });
 const initSystem = async () => {
   await settingsStore.osInit();
+  await desktopStore.initDesktop();
   messageStore.initMessage();
   await assistantStore.initPrompt();
   await modelStore.initModel();

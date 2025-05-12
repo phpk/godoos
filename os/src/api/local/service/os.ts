@@ -76,6 +76,7 @@ const InitDocPath = [
 export async function initOsSystem(): Promise<void> {
     try {
         const basePath = await files.appPath(); // 需要你自己实现 libs.getOsDir()
+        console.log(basePath)
         const osCpath = await ps.join(basePath, 'C');
 
         if (!(await fs.exists(osCpath))) {
@@ -98,8 +99,6 @@ export async function initOsSystem(): Promise<void> {
         const userPath = await ps.join(osCpath, 'Users');
         if (!(await fs.exists(userPath))) {
             await fs.mkdir(userPath, { recursive: true });
-
-
             for (const dir of InitPaths) {
                 const dirPath = await ps.join(userPath, dir);
                 if (!(await fs.exists(dirPath))) {

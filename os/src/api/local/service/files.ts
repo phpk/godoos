@@ -5,6 +5,7 @@ import { getUsername } from '@/utils/request';
 const basedir = fs.BaseDirectory.Home
 export async function appPath() {
     const resourcePath = await ps.homeDir();
+    //const resourcePath = await ps.appDataDir();
     const username:string = getUsername();
     const appDir = await ps.join(resourcePath, ".godoos", username);
     if (!await fs.exists(appDir, { baseDir: basedir })) {

@@ -2,7 +2,7 @@ import { userDb } from "../models/users"
 import { success, error } from "./msg"
 import { md5 } from "js-md5"
 import { toRaw } from "vue"
-import * as cache from "../cache"
+// import * as cache from "../cache"
 import { sign,generate16BitString } from './jwt'
 import { setToken, setUsername } from '@/utils/request'
 import { initOsSystem } from "./os"
@@ -17,7 +17,7 @@ export async function loginIn(params: any) {
     //console.log(token)
     setToken(token)
     setUsername(user.username)
-    cache.set("userid:"+user.id, salt)
+    //cache.set("userid:"+user.id, salt)
     await initOsSystem()
     return success("登录成功", {user})
 }

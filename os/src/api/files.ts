@@ -10,21 +10,40 @@ async function getLocalFile() {
   }
   return localFile;
 }
-export const Files = async() => {  
-    const settingsStore = useSettingsStore();
-    if (settingsStore.config.system.userType === "person") {
-        if(settingsStore.config.system.storeType === "local"){
-            if(settingsStore.systemInfo.isWeb){
-                return netFile;
+export const Files = async() => {     
+    try {
+        const settingsStore = useSettingsStore();
+        if (settingsStore.config.system.userType === "person") {
+            if(settingsStore.config.system.storeType === "local"){
+                if(settingsStore.systemInfo.isWeb){
+                    return netFile;
+                }else{
+                    return await getLocalFile();
+                }
+                
             }else{
-                return await getLocalFile();
+                return netFile;
             }
-            
-        }else{
-            return netFile;
         }
+        else{
+            return memberFile;
+        }
+    }catch (error) {
+        console.error(error);
     }
-    else {
-        return memberFile;
-    }
+    // if (settingsStore.config.system.userType === "person") {
+    //     if(settingsStore.config.system.storeType === "local"){
+    //         if(settingsStore.systemInfo.isWeb){
+    //             return netFile;
+    //         }else{
+    //             return await getLocalFile();
+    //         }
+            
+    //     }else{
+    //         return netFile;
+    //     }
+    // }
+    // else {
+    //     return memberFile;
+    // }
 }
