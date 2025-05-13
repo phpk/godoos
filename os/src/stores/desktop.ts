@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, Ref, computed } from 'vue'
-import { Files } from '@/api/files'
+import * as fs from '@/api/net/files'
 import { useLoginStore } from './login'
 
 export const useDesktopStore = defineStore('desktop', () => {
@@ -26,7 +26,6 @@ export const useDesktopStore = defineStore('desktop', () => {
   const isStartMenuOpen: Ref<boolean> = ref(false)
   const screenshotStatus: Ref<boolean> = ref(false)
   const initDesktop = async () => {
-    const fs = await Files()
     const res: any = await fs.desktop()
     if (!res) {
       loginStore.isLoginState = false

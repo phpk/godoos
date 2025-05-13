@@ -2,8 +2,9 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { systemSettingList, settingsConfig } from "@/stores/settingsConfig";
 import { md5 } from "js-md5";
-import { getPlatformInfo } from "@/utils/device";
-import { initDatabase } from "@/api/local/orm/db";
+import { isMobileDevice } from "@/utils/device";
+
+//import { initDatabase } from "@/api/local/orm/db";
 export const useSettingsStore = defineStore('settings', () => {
   const settingList = ref(systemSettingList);
 
@@ -49,11 +50,11 @@ export const useSettingsStore = defineStore('settings', () => {
    * 初始化操作系统相关信息
    */
   const osInit = async () => {
-    systemInfo.value = getPlatformInfo();
-    console.log(systemInfo.value)
-    if (!systemInfo.value.isWeb) {
-      await initDatabase();
-    }
+    // systemInfo.value = getPlatformInfo();
+    // console.log(systemInfo.value)
+    // if (!systemInfo.value.isWeb) {
+    //   await initDatabase();
+    // }
   }
   return {
     settingList,

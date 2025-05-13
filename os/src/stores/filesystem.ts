@@ -1,4 +1,5 @@
-import {Files} from '@/api/files';
+// import {Files} from '@/api/files';
+import * as fs from '@/api/net/files'
 import { joinknowledge } from '@/api/net/knowledge';
 import { shareCreate } from "@/api/net/share";
 import { eventBus } from '@/interfaces/event';
@@ -51,7 +52,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
   const getFilesInPath = async (path: string, pwd?: string) => {
     currentPath.value = path;
     setPwdPathMap(path, pwd);
-    const fs = await Files();
+    
     const res = await fs.read(path, getPwdPathMap(path));
     if (!res.success) {
       pwd = await promptPwd();
@@ -72,7 +73,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
     currentPath.value = path;
   }
   const getUniqueFilePath = async (filePath: string, defname: string, ext: string, path: string, sp: string, i: number): Promise<string> => {
-    const fs = await Files();
+    
     const isExits = await fs.exists(filePath);
     //console.log(isExits)
     if (isExits) {
@@ -82,7 +83,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
   };
   const getUniquePath = async (path: string): Promise<string> => {
     const sp = path.charAt(0);
-    const fs = await Files();
+    
     const baseName = fs.basename(path);
     const arr = baseName.split('.');
     //console.log(arr)
@@ -101,13 +102,13 @@ export const useFileSystemStore = defineStore('filesystem', () => {
     let newFilePath = `${path}${sp}${defname}${ext}`;
     newFilePath = await getUniqueFilePath(newFilePath, defname, ext, path, sp, 1);
     //console.log(newFilePath);
-    const fs = await Files();
+    
     await fs.writeFile(newFilePath, '');
     refreshPaths()
   }
   const handleReadFile = async (filePath: string, pwd?: string) => {
     setPwdPathMap(filePath, pwd);
-    const fs = await Files();
+    
     const res = await fs.readFile(filePath, getPwdPathMap(filePath));
     console.log(res);
     if (!res.success) {
@@ -128,7 +129,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
   const handlePwdFile = async (path: string) => {
     const pwd = await promptPwd();
     if (!pwd) return;
-    const fs = await Files();
+    
     const res = await fs.pwd(path, pwd);
     refreshPaths()
     return res;
@@ -136,7 +137,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
   const handleUnpwdFile = async (filePath: string) => {
     const pwd = await promptPwd();
     if (!pwd) return;
-    const fs = await Files();
+    
     const res = await fs.unpwd(filePath, pwd);
     refreshPaths()
     return res;
@@ -144,7 +145,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
   const handleWriteFile = async (filePath: string, data: any, pwd?: string) => {
     //console.log('data:', data)
     setPwdPathMap(filePath, pwd);
-    const fs = await Files();
+    
     let res = await fs.writeFile(filePath, data, getPwdPathMap(filePath));
     if (!res) {
       const pwd = await promptPwd();
@@ -160,19 +161,19 @@ export const useFileSystemStore = defineStore('filesystem', () => {
   }
 
   const handleSerach = async (path: string, query: string) => {
-    const fs = await Files();
+    
     const res = await fs.search(path, query);
     return res || [];
   }
   const handleDeleteFile = async (path: string) => {
     if (!path) return;
-    const fs = await Files();
+    
     await fs.rmdir(path)
     //console.log(dirname(path))
     refreshPaths()
   }
   const handleDeleteFiles = async (filePaths: string[]) => {
-    const fs = await Files();
+    
     for (const filePath of filePaths) {
       await fs.rmdir(filePath)
     }
@@ -183,7 +184,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
     //console.log(path)
     const sp = path.charAt(0);
     let newDirPath = `${path}${sp}${dirname}`;
-    const fs = await Files();
+    
     newDirPath = await getUniqueFilePath(`${newDirPath}`, dirname, '', path, sp, 1);
     await fs.mkdir(newDirPath);
     refreshPaths()
@@ -191,7 +192,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
   const handleRenameFile = async (oldPath: string) => {
     if (!oldPath) return;
     //const sp = oldPath.charAt(0);
-    const fs = await Files();
+    
     const oldName = fs.basename(oldPath);
     const newName = await promptMsg('请输入新文件名', '重命名', oldName);
     //console.log(newName)
@@ -237,7 +238,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
     }
   }
   const openFile = async (file: any) => {
-    const fs = await Files();
+    
     if (typeof file == 'string') {
       const f = await fs.stat(file)
       await openfile(f)
@@ -253,7 +254,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
     openFile(file)
   }
   const moveFiles = async (filePaths: string[], targetPath: string) => {
-    const fs = await Files();
+    
     const toFile = await fs.stat(targetPath);
     if (toFile?.isDirectory) {
       for (const filePath of filePaths) {
@@ -268,7 +269,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
     }
   }
   const copyFiles = async (filePaths: string[], targetPath: string) => {
-    const fs = await Files();
+    
     const toFile = await fs.stat(targetPath);
     if (toFile?.isDirectory) {
       for (const filePath of filePaths) {
@@ -280,23 +281,23 @@ export const useFileSystemStore = defineStore('filesystem', () => {
     }
   }
   const handleUnzipFile = async (filePath: string) => {
-    const fs = await Files();
+    
     await fs.unzip(filePath);
     refreshPaths()
   }
   const handleFavorite = async (filePath: string) => {
-    const fs = await Files();
+    
     await fs.favorite(filePath);
     refreshPaths()
   }
   const handleZipFile = async (filePath: string, ext: string) => {
-    const fs = await Files();
+    
     await fs.zip(filePath, ext);
     refreshPaths()
     noticeMsg('压缩成功');
   }
   const handleFileStat = async (filePath: string) => {
-    const fs = await Files();
+    
     return await fs.stat(filePath);
   }
   const chooseFiles = (exts: string[] = []) => {
@@ -353,11 +354,11 @@ export const useFileSystemStore = defineStore('filesystem', () => {
     choose.value = { ...initChoose };
   }
   const parserFormData = async (content: any, contentType: any) => {
-    const fs = await Files();
+    
     return fs.parserFormData(content, contentType);
   }
   const reStoreFiles = async (dirPath: string) => {
-    const fs = await Files();
+    
     await fs.restore(dirPath);
     refreshPaths()
   }
@@ -403,7 +404,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
   }
   async function onFileSelected(list: any) {
     if (!list) return;
-    const fs = await Files();
+    
     const len = list.length
     const path = fs.dirname(currentPath.value);
     for (let i = 0; i < len; i++) {
@@ -450,7 +451,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      const fs = await Files();
+      
       a.download = fs.basename(filePath);
       document.body.appendChild(a);
       a.click();
@@ -467,7 +468,7 @@ export const useFileSystemStore = defineStore('filesystem', () => {
     currentPath,
     choose,
     currentShareFile,
-    fs:Files,
+    fs,
     initFolder,
     getFilesInPath,
     getUniquePath,

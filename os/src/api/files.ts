@@ -6,7 +6,7 @@ let localFile: any = null;
 
 async function getLocalFile() {
   if (!localFile) {
-    localFile = await import('@/api/local/service/files');
+    //localFile = await import('@/api/local/service/files');
   }
   return localFile;
 }
