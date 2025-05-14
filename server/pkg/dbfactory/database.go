@@ -14,30 +14,41 @@ import (
 	"gorm.io/gorm"
 )
 
+type MySQL struct {
+	Enable   bool   `json:"enable"`
+	Host     string `json:"host"`
+	Port     string `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	DBName   string `json:"dbname"`
+}
+
+type MongosDB struct {
+	Enable   bool   `json:"enable"`
+	URI      string `json:"uri"`
+	Database string `json:"database"`
+}
+
+type SQLite struct {
+	Enable bool   `json:"enable"`
+	Path   string `json:"path"` // 数据库文件路径
+}
+
+type PostgreSQL struct {
+	Enable   bool   `json:"enable"`
+	Host     string `json:"host"`
+	Port     string `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	DBName   string `json:"dbname"`
+	SSLMode  string `json:"sslmode"` // disable/require
+}
 type DatabaseConfig struct {
-	DBType string `json:"dbType"` // mysql/mongodb/sqlite/postgresql
-	MySQL  struct {
-		Host     string `json:"host"`
-		Port     string `json:"port"`
-		User     string `json:"user"`
-		Password string `json:"password"`
-		DBName   string `json:"dbname"`
-	} `json:"mysql"`
-	MongoDB struct {
-		URI      string `json:"uri"`
-		Database string `json:"database"`
-	} `json:"mongodb"`
-	SQLite struct {
-		Path string `json:"path"` // 数据库文件路径
-	} `json:"sqlite"`
-	PostgreSQL struct {
-		Host     string `json:"host"`
-		Port     string `json:"port"`
-		User     string `json:"user"`
-		Password string `json:"password"`
-		DBName   string `json:"dbname"`
-		SSLMode  string `json:"sslmode"` // disable/require
-	} `json:"postgresql"`
+	DBType     string     `json:"dbType"` // mysql/mongodb/sqlite/postgresql
+	MySQL      MySQL      `json:"mysql"`
+	MongoDB    MongosDB   `json:"mongodb"`
+	SQLite     SQLite     `json:"sqlite"`
+	PostgreSQL PostgreSQL `json:"postgresql"`
 }
 
 var (
@@ -47,6 +58,9 @@ var (
 	MongoDB      *qmgo.Database
 	AppConfig    DatabaseConfig
 )
+
+var Dbs = make(map[string]BaseRepository)
+
 var Db BaseRepository
 
 func LoadConfig() error {
@@ -70,24 +84,56 @@ func InitDatabase() error {
 			return err
 		}
 		Db = NewMongoDBFactory().CreateRepository()
+		Dbs["mongodb"] = Db
 	case "sqlite":
 		if err := InitSQLite(); err != nil {
 			log.Fatal("Failed to connect to SQLite:", err)
 			return err
 		}
 		Db = NewSQLiteFactory().CreateRepository()
+		Dbs["sqlite"] = Db
 	case "postgresql":
 		if err := InitPostgreSQL(); err != nil {
 			log.Fatal("Failed to connect to PostgreSQL:", err)
 			return err
 		}
 		Db = NewPostgreSQLFactory().CreateRepository()
+		Dbs["postgresql"] = Db
 	default:
 		if err := InitMySQL(); err != nil {
 			log.Fatal("Failed to connect to MySQL:", err)
 			return err
 		}
 		Db = NewMySQLFactory().CreateRepository()
+		Dbs["mysql"] = Db
+	}
+	if AppConfig.MySQL.Enable && AppConfig.DBType != "mysql" {
+		if err := InitMySQL(); err != nil {
+			log.Println("Failed to connect to MySQL:", err)
+		} else {
+			Dbs["mysql"] = NewMySQLFactory().CreateRepository()
+		}
+	}
+	if AppConfig.PostgreSQL.Enable && AppConfig.DBType != "postgresql" {
+		if err := InitPostgreSQL(); err != nil {
+			log.Println("Failed to connect to PostgreSQL:", err)
+		} else {
+			Dbs["postgresql"] = NewPostgreSQLFactory().CreateRepository()
+		}
+	}
+	if AppConfig.SQLite.Enable && AppConfig.DBType != "sqlite" {
+		if err := InitSQLite(); err != nil {
+			log.Println("Failed to connect to SQLite:", err)
+		} else {
+			Dbs["sqlite"] = NewSQLiteFactory().CreateRepository()
+		}
+	}
+	if AppConfig.MongoDB.Enable && AppConfig.DBType != "mongodb" {
+		if err := InitMongoDB(); err != nil {
+			log.Println("Failed to connect to MongoDB:", err)
+		} else {
+			Dbs["mongodb"] = NewMongoDBFactory().CreateRepository()
+		}
 	}
 	return nil
 }

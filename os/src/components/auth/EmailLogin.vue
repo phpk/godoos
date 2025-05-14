@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getEmailCode } from "@/api/net/auth"; // 假设你有一个发送邮箱验证码的API
+import { getEmailCode } from "@/api/auth"; // 假设你有一个发送邮箱验证码的API
 import { useLoginStore } from "@/stores/login";
 import { ElMessage } from "element-plus";
 import { ref } from "vue";

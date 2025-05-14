@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"godocms/config"
+	"godocms/common"
 	"log/slog"
 	"strings"
 	"time"
@@ -19,8 +19,8 @@ func LoggerMiddleware(handler slog.Handler) gin.HandlerFunc {
 		if c.Request.TLS != nil {
 			scheme = "https"
 		}
-		config.Config.System.Host = host
-		config.Config.System.Scheme = scheme
+		common.Config.System.Host = host
+		common.Config.System.Scheme = scheme
 		url := c.Request.URL.Path
 		// 检查 URL 是否以 /static/ 开头，如果是则跳过记录
 		if strings.HasPrefix(url, "/static/") || strings.HasPrefix(url, "/upload/") {

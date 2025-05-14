@@ -1,16 +1,18 @@
-
 {
-    "dbType": "mongodb",
-    "mysql": {
-      "host": "localhost",
-      "port": "3306", 
-      "user": "root",
-      "password": "root",
-      "dbname": "godocms"
-    },
-    "mongodb": {
-      "uri": "mongodb://localhost:27017",
-      "database": "godocms"
-    }
+  "dbType": "sqlite",
+  "sqlite": {
+    "path": "data/database/godocms.db",
+    "port": "3306"
+  },
+  "mysql": {
+    "host": "localhost",
+    "port": "3306",
+    "user": "root",
+    "password": "root",
+    "dbname": "godocms"
+  },
+  "mongodb": {
+    "uri": "mongodb://localhost:27017",
+    "database": "godocms"
   }
-  
+}

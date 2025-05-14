@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"godocms/config"
+	"godocms/common"
 	"net/http"
 	"time"
 
@@ -13,9 +13,9 @@ import (
 
 func GetSessionStore() gormsessions.Store {
 
-	if config.Config.System.SessionType == "cookie" {
+	if common.Config.System.SessionType == "cookie" {
 		// 创建一个 cookie store
-		store := cookie.NewStore([]byte(config.Config.System.SessionSecret))
+		store := cookie.NewStore([]byte(common.Config.System.SessionSecret))
 
 		// 配置 cookie，使用 github.com/gin-contrib/sessions.Options 类型
 		store.Options(sessions.Options{
@@ -28,6 +28,6 @@ func GetSessionStore() gormsessions.Store {
 
 		return store
 	} else {
-		return memstore.NewStore([]byte(config.Config.System.SessionSecret))
+		return memstore.NewStore([]byte(common.Config.System.SessionSecret))
 	}
 }

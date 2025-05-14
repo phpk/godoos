@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { join } from '@/api/net/files';
+import { join } from '@/api/files';
 import { useClickingStore } from './clicking';
 import { useFileSystemStore } from './filesystem';
 import { ref } from 'vue';

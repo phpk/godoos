@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import useScreenRecorder from "@/utils/screenRecorder";
-import {writeFile} from '@/api/net/files';
+import {writeFile} from '@/api/files';
 import { successMsg } from "@/utils/msg";
 const screenRecorder: any = useScreenRecorder();
 

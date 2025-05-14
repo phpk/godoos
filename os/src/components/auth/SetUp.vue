@@ -27,12 +27,12 @@ const setSave = () => {
 </script>
 <template>
 	<el-form :model="setForm" ref="formRef" label-position="left" label-width="0px">
-		<el-form-item label-position="right">
+		<!-- <el-form-item label-position="right">
 			<el-button-group>
 				<el-button :type="setForm.userRole == 'person' ? 'primary' : ''" @click="setForm.userRole = 'person'" icon="UserFilled" round>个人用户</el-button>
 				<el-button  :type="setForm.userRole == 'member' ? 'primary' : ''" @click="setForm.userRole = 'member'" icon="Football" round>企业用户</el-button>
 			</el-button-group>
-		</el-form-item>
+		</el-form-item> -->
 		<el-form-item label-position="right" v-if="setForm.userRole === 'person'">
 			<el-button-group>
 				<el-button :type="setForm.storeType == 'local' ? 'primary' : ''" @click="setForm.storeType = 'local'" icon="LocationInformation" round>本地服务</el-button>

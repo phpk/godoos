@@ -3,8 +3,9 @@ package cmd
 import (
 	"context"
 	_ "godocms/app"
-	"godocms/config"
+	"godocms/common"
 	"godocms/middleware"
+	model "godocms/models"
 	"godocms/pkg/dbfactory"
 	"log/slog"
 	"net/http"
@@ -21,14 +22,20 @@ import (
 var Server *http.Server
 
 func Start() {
-	dbfactory.InitDatabase()
-	config.LoadConfig()
-	handler, err := config.InitLogger()
+	err := dbfactory.InitDatabase()
+	if err != nil {
+		slog.Error("Failed to initialize database:", "error", err)
+		os.Exit(1)
+		return
+	}
+	model.AutoMigrate()
+	common.LoadSystemInfo()
+	handler, err := common.InitLogger()
 	if err != nil {
 		slog.Error("Failed to initialize logger:", "error", err)
 	}
 
-	if config.Config.System.Debug {
+	if common.Config.System.Debug {
 		gin.SetMode(gin.DebugMode)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
@@ -47,7 +54,7 @@ func Start() {
 	r.Use(sessions.Sessions("godoSession", store))
 	middleware.BindRouter(r)
 	// 将端口号转换为字符串
-	portStr := strconv.Itoa(config.Config.System.Port)
+	portStr := strconv.Itoa(common.Config.System.Port)
 
 	// 创建并返回 http.Server 实例
 	Server = &http.Server{

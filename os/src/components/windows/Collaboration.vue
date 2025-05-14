@@ -58,7 +58,7 @@ import {
 	getEditHistory,
 	getShareUserList,
 	restoreEditData,
-} from "@/api/net/share";
+} from "@/api/share";
 import { useFileSystemStore } from "@/stores/filesystem";
 import { errMsg, successMsg } from "@/utils/msg";
 import {  onMounted, ref } from "vue";

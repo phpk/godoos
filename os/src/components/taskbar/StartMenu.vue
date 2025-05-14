@@ -64,7 +64,7 @@ import { useLoginStore } from '@/stores/login'
 import { useDesktopStore } from '@/stores/desktop'
 
 import {dealIcon} from '@/utils/icon'
-import { clear } from '@/api/net/files'
+import { clear } from '@/api/files'
 import { t } from '@/i18n'
 import { useRouter } from 'vue-router'
 import { confirmMsg } from '@/utils/msg'

@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-	import { join } from "@/api/net/files";
+	import { join } from "@/api/files";
 	import { useClickingStore } from "@/stores/clicking";
 	import { useFileSystemStore } from "@/stores/filesystem";
 	import { useWindowStore } from "@/stores/window";

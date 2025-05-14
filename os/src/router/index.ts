@@ -370,7 +370,7 @@ const router = createRouter({
 // 路由守卫，用于在窗口中打开路由页面
 router.beforeEach(async (to, _from, next) => {
   // console.log('Route guard triggered'); // 添加调试信息
-  console.log('to:', to)
+  //console.log('to:', to)
   // console.log('from:', from);
   // console.log('next:', next);
 

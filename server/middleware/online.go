@@ -3,7 +3,7 @@ package middleware
 import (
 	"encoding/json"
 	"fmt"
-	"godocms/config"
+	"godocms/common"
 	"godocms/libs"
 	"log"
 	"os"
@@ -189,7 +189,7 @@ func UserAccessRecord() gin.HandlerFunc {
 		// 获取缓存的数据
 		var origin map[int64]int64
 		var ok bool
-		data, _ := config.Cache.Get("user_online")
+		data, _ := common.Cache.Get("user_online")
 		if data == nil {
 			origin = make(map[int64]int64)
 		} else {
@@ -199,7 +199,7 @@ func UserAccessRecord() gin.HandlerFunc {
 		}
 
 		origin[uid] = time.Now().Unix()
-		config.Cache.Set("user_online", origin, 60*24)
+		common.Cache.Set("user_online", origin, 60*24)
 		UserStatusesMutex.Unlock()
 
 		c.Next()
@@ -226,7 +226,7 @@ func checkInactiveUsers() {
 	// 获取缓存的数据
 	var origin map[int64]int64
 	var ok bool
-	data, _ := config.Cache.Get("user_online")
+	data, _ := common.Cache.Get("user_online")
 	if data == nil {
 		log.Println("No user activity data found in cache.")
 		return
@@ -245,5 +245,5 @@ func checkInactiveUsers() {
 		}
 	}
 
-	config.Cache.Set("user_online", origin, 60*24)
+	common.Cache.Set("user_online", origin, 60*24)
 }

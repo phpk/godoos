@@ -7,7 +7,7 @@ import { ElScrollbar } from "element-plus";
 import { Vue3Lottie } from "vue3-lottie";
 import { isMobileDevice } from "@/utils/device";
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-import { askknowledge } from "@/api/net/knowledge";
+import { askknowledge } from "@/api/knowledge";
 
 const chatStore = useAiChatStore();
 const isPadding = ref(false); //是否发送中

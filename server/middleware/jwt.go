@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"godocms/config"
+	"godocms/common"
 	"godocms/libs"
 	"log"
 	"net"
@@ -26,7 +26,7 @@ func JwtVerify() gin.HandlerFunc {
 		//未注册路由
 		if !ok {
 			log.Printf("未注册路由:%v", url)
-			// log.Printf("routes:%v", config.Routes)
+			// log.Printf("routes:%v", common.Routes)
 			libs.Error(c, "未注册路由") // 重定向到登录页面
 			c.Abort()              // 终止后续处理
 			return
@@ -73,7 +73,7 @@ func JwtVerify() gin.HandlerFunc {
 				c.Abort() // 终止后续处理
 				return
 			}
-			userData, _ := config.Cache.GetKey("userData", clientId)
+			userData, _ := common.Cache.GetKey("userData", clientId)
 			if userData == nil {
 				libs.ErrorLogin(c, "the userdata is invalid")
 				c.Abort() // 终止后续处理
@@ -282,7 +282,7 @@ func CheckIp(r *http.Request) bool {
 	}
 
 	// 获取允许的 IP 和域名列表
-	ipAndDomainList := config.Config.System.IpAccess
+	ipAndDomainList := common.Config.System.IpAccess
 	//fmt.Printf("ipAndDomainList:%v\n", ipAndDomainList)
 	if len(ipAndDomainList) == 0 {
 		return true

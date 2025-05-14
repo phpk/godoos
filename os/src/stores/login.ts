@@ -1,4 +1,4 @@
-import { Auth } from '@/api/auth'
+import * as auth from '@/api/auth'
 import router from '@/router'
 import { useDesktopStore } from '@/stores/desktop'
 import { loadScript } from '@/utils/load'
@@ -28,14 +28,13 @@ export const useLoginStore = defineStore('login', () => {
   const userInfo: Ref<any> = ref({})
 
   const checkLogin = async () => {
-    const auth = await Auth();
     isLoginState.value = await auth.isLogin()
   }
   const loginOut = async () => {
     isLoginState.value = false
     userInfo.value = {}
     clearToken()
-    const auth = await Auth();
+    
     await auth.logout()
   }
 
@@ -44,7 +43,7 @@ export const useLoginStore = defineStore('login', () => {
   }
   const onRegister = async (params: any) => {
     delete params.confirmPassword
-    const auth = await Auth();
+    
     const res = await auth.register(params)
     if (res.success) {
       successMsg('注册成功')
@@ -59,7 +58,7 @@ export const useLoginStore = defineStore('login', () => {
       client_id: getClientId(),
       param: params.params,
     }
-    const auth = await Auth();
+    
     auth.loginIn(postData).then((res: any) => {
       //console.log(res)
       if (!params.params.rememberMe) {
@@ -96,7 +95,7 @@ export const useLoginStore = defineStore('login', () => {
     }
   }
   const initThirdPartyLogin = async () => {
-    const auth = await Auth();
+    
     const list = await auth.getThirdpartyList()
     // console.log(list)
     if (list && list.length > 0) {

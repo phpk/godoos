@@ -1,10 +1,14 @@
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 import { errMsg } from './msg';
 import { getClientId } from './uuid'
-const baseURL = '/'
+import { API_URL } from '../stores/config';
+const baseURL = '/api/'
 /** 创建axios实例 */
+const isDev = typeof process !== 'undefined' && process?.env?.NODE_ENV === 'development';
+const instanceBaseURL = isDev ? baseURL : `${API_URL}${baseURL}`;
+
 const request = axios.create({
-  baseURL,
+  baseURL: instanceBaseURL,
   timeout: 60000
 })
 export const getToken = () => {
@@ -43,7 +47,7 @@ request.interceptors.request.use(
   (config) => {
     // 发请求带上token
     const token = getToken()
-    config.headers = config.headers || {}
+    config.headers = config.headers || new AxiosHeaders()
     const clientId = getClientId()
     if (clientId) {
       config.headers['ClientId'] = clientId
@@ -77,7 +81,7 @@ request.interceptors.response.use(
   (err) => {
     // 处理错误信息
     if (err) {
-      console.log(err)
+      //console.log(err)
       if (err.response) {
         const status = err.response.status;
         const message = err.response.data;
@@ -94,7 +98,7 @@ request.interceptors.response.use(
           errMsg('未知错误: ' + message);
         }
         //return;
-        return Promise.reject(err.response.data);
+        return Promise.reject(false);
       }
     }
   }

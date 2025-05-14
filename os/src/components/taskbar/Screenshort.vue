@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import {writeFile} from '@/api/net/files';
+import {writeFile} from '@/api/files';
 const screenshotStatus = ref<boolean>(false);
 import { isBase64, base64ToBuffer } from "@/utils/file";
 import { successMsg } from "@/utils/msg";
