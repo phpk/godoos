@@ -109,7 +109,7 @@ func sendSmsCodeHandler(c *gin.Context) {
 				SendTime: time.Now().Unix(),
 				Err:      err.Error(),
 			}
-			common.SetCache("cloudsms", record, 60*24*30)
+			common.SetCache("cloudsms", record, 60*time.Hour)
 			lastSenter = nil
 			libs.Error(c, "短信服务不可用")
 			return
@@ -283,21 +283,12 @@ func checkSlideDataHandler(c *gin.Context) {
 		return
 	}
 	//log.Printf("cacheDataByte: %v", cacheDataByte)
-	var dataBytes []byte
-	switch v := cacheDataByte.(type) {
-	case string:
-		dataBytes = []byte(v)
-	case []byte:
-		dataBytes = v
-	default:
-		libs.Error(c, "invalid cache data type")
-		return
-	}
-	log.Printf("dataBytes: %v", dataBytes)
+	dataBytes := common.GetCacheVal(cacheDataByte)
+	//log.Printf("dataBytes: %v", dataBytes)
 	// 反序列化缓存中的数据
 	var dct *slide.Block
 	if err := json.Unmarshal(dataBytes, &dct); err != nil {
-		slog.Error("json unmarshal error", "err", err)
+		//slog.Error("json unmarshal error", "err", err)
 		libs.Error(c, "illegal key")
 		return
 	}
@@ -308,13 +299,13 @@ func checkSlideDataHandler(c *gin.Context) {
 	if len(src) == 2 {
 		sx, err := strconv.ParseFloat(src[0], 64)
 		if err != nil {
-			slog.Error("parse point error", "err", err)
+			//slog.Error("parse point error", "err", err)
 			libs.Error(c, "invalid point formatr")
 			return
 		}
 		sy, err := strconv.ParseFloat(src[1], 64)
 		if err != nil {
-			slog.Error("parse point error", "err", err)
+			//slog.Error("parse point error", "err", err)
 			libs.Error(c, "invalid point format")
 			return
 		}

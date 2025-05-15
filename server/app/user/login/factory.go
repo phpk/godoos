@@ -1,16 +1,28 @@
 package login
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 type LoginHandlerFactory struct{}
 
-func (f *LoginHandlerFactory) GetHandler(loginType string) (LoginHandler, error) {
-	switch loginType {
+// factory.go
+func (f *LoginHandlerFactory) GetHandler(req LoginRequest) (LoginHandler, error) {
+	var handler LoginHandler
+
+	switch req.LoginType {
 	case LoginTypePassword:
-		return &PasswordLoginHandler{}, nil
+		handler = &PasswordLoginHandler{}
 	case LoginTypeSmsCode:
-		return &SmsCodeLoginHandler{}, nil
+		handler = &SmsCodeLoginHandler{}
 	default:
 		return nil, errors.New("unsupported login type")
 	}
+
+	if err := handler.Init(req); err != nil {
+		return nil, fmt.Errorf("参数初始化失败: %v", err)
+	}
+
+	return handler, nil
 }

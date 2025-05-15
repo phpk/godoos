@@ -3,13 +3,7 @@ import { get, getToken, setToken,post } from '@/utils/request'
 import { getClientId } from '@/utils/uuid'
 import { errMsg } from '@/utils/msg';
 export function loginIn(params: any) {
-  return fetch('user/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(params)
-  }).then(res => res.json()).then(res => {
+  return post('user/login', params).then(res => {
     if (res.success) {
       setToken(res.data.token)
     }
@@ -72,11 +66,5 @@ export async function getSmsCode(phone: string) {
   return await res.json()
 }
 export async function register(params: any) {
-  return fetch('/user/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(params)
-  }).then(res => res.json())
+  return post('/user/register', params)
 }

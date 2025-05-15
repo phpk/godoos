@@ -1,6 +1,7 @@
 package login
 
 import (
+	"encoding/json"
 	"errors"
 	"godocms/model"
 )
@@ -28,16 +29,18 @@ const (
 type LoginParam interface{}
 
 type LoginHandler interface {
-	Login(param LoginParam) (*model.User, error)
-	Register(param LoginParam) (*model.User, error)
+	Init(req LoginRequest) error
+	Login() (*model.User, error)
+	Register() (*model.User, error)
 }
 
 var ErrNeedRegister = errors.New("need register")
 
 type LoginRequest struct {
-	ClientId  string     `json:"client_id" binding:"required"`
-	LoginType string     `json:"login_type" binding:"required"`
-	Param     LoginParam `json:"param" binding:"required"`
+	ClientId  string          `json:"client_id" binding:"required"`
+	LoginType string          `json:"login_type" binding:"required"`
+	Action    string          `json:"action" binding:"required"`
+	Param     json.RawMessage `json:"param" binding:"required"`
 }
 
 const (
@@ -49,6 +52,7 @@ const (
 	LoginPlatformMicrosoftADFS = "microsoft_adfs"
 	LoginPlatformMicrosoftOIDC = "microsoft_oidc"
 	LoginPlatformLDAP          = "ldap"
+	LoginPlatformPassword      = "password" // 密码登录
 )
 
 // 密码登录参数

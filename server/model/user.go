@@ -6,13 +6,13 @@ const TableNameUser = "user"
 type User struct {
 	ID        int32  `gorm:"column:id;primaryKey;autoIncrement:true;comment:主键" json:"id"`
 	GroupID   int32  `gorm:"column:group_id;default:1;comment:租户ID" json:"group_id"`
-	Username  string `gorm:"column:username;not null;unique;comment:用户姓名--例如张三" json:"username"` // 添加 unique
+	Username  string `gorm:"column:username;not null;comment:用户姓名--例如张三" json:"username"` // 添加 unique
 	Nickname  string `gorm:"column:nickname;not null;comment:用户真实姓名" json:"nickname"`
 	Sex       int32  `gorm:"column:sex;comment:性别，0：男，1：女" json:"sex"`
 	Password  string `gorm:"column:password;comment:登陆密码" json:"password"`
 	Salt      string `gorm:"column:salt;not null;comment:salt校验" json:"salt"`
-	Email     string `gorm:"column:email;unique;comment:电子邮箱" json:"email"` // 添加 unique
-	Phone     string `gorm:"column:phone;unique;comment:手机号码" json:"phone"` // 添加 unique
+	Email     string `gorm:"column:email;comment:电子邮箱" json:"email"` // 添加 unique
+	Phone     string `gorm:"column:phone;comment:手机号码" json:"phone"` // 添加 unique
 	Status    int32  `gorm:"column:status;comment:状态，0：正常，1：删除，2封禁" json:"status"`
 	Desc      string `gorm:"column:desc;comment:用户描述信息" json:"desc"`
 	Remark    string `gorm:"column:remark;comment:备注" json:"remark"`

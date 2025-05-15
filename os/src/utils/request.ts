@@ -84,7 +84,7 @@ request.interceptors.response.use(
   (err) => {
     // 处理错误信息
     if (err) {
-      //console.log(err)
+      console.log(err)
       if (err.response) {
         const status = err.response.status;
         const message = err.response.data;

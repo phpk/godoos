@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"godocms/libs"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,7 @@ func Recover(c *gin.Context) {
 		if r := recover(); r != nil {
 			// 打印错误堆栈信息
 			log.Printf("panic: %v\n", r)
+			libs.Error(c, "服务器内部错误")
 		}
 	}()
 

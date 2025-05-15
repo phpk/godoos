@@ -28,21 +28,21 @@ func loginHandle(c *gin.Context) {
 	var req login.LoginRequest
 	// 解析请求体
 	if err := c.ShouldBindJSON(&req); err != nil {
-		libs.Error(c, "参数错误，登录失败")
+		libs.Error(c, "请求参数错误，登录失败")
 		return
 	}
 
-	fmt.Printf("request param: %+v\n", req)
+	//fmt.Printf("request param: %+v\n", req)
 
 	factory := &login.LoginHandlerFactory{}
-	handler, err := factory.GetHandler(req.LoginType)
-
+	req.Action = "login"
+	handler, err := factory.GetHandler(req)
 	if err != nil {
-		libs.Error(c, "登录失败:"+err.Error())
+		libs.Error(c, "适配失败："+err.Error())
 		return
 	}
-	user, err := handler.Login(req.Param)
-	if err != nil {
+	user, err := handler.Login()
+	if err != nil || user == nil {
 		libs.Error(c, "登录失败:"+err.Error())
 		return
 	}
@@ -197,13 +197,14 @@ func handleRegister(c *gin.Context) {
 	fmt.Printf("request param: %+v\n", req)
 
 	factory := &login.LoginHandlerFactory{}
-	handler, err := factory.GetHandler(req.LoginType)
+	req.Action = "register"
+	handler, err := factory.GetHandler(req)
 
 	if err != nil {
 		libs.Error(c, "适配失败:"+err.Error())
 		return
 	}
-	_, err = handler.Register(req.Param)
+	_, err = handler.Register()
 	if err != nil {
 		libs.Error(c, "注册失败:"+err.Error())
 		return

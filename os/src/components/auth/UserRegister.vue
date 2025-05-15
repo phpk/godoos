@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useLoginStore } from "@/stores/login";
+import { ElMessage } from "element-plus";
 import { ref, Ref } from "vue";
 const store = useLoginStore();
 interface RegisterInfo {
@@ -86,6 +87,36 @@ const rules = {
 	// 	},
 	// ],
 };
+const regFormRef = ref();
+const showCaptcha = ref(false); // 控制是否显示验证码
+const register = () => { 
+	regFormRef.value.validate((valid:boolean) => {
+		if (valid) {
+			showCaptcha.value = true; 
+		} else {
+			return false;
+		}
+	});
+};
+//const captchaPassed = ref(false); // 验证码是否通过
+const handleCaptchaConfirm = (success: boolean) => {
+	if (success) {
+		//captchaPassed.value = true;
+		showCaptcha.value = false; 
+		store.onRegister({
+			loginType: "password",
+			action: "register",
+			params: registerInfo.value,
+		})
+		// 隐藏验证码
+	} else {
+		ElMessage.error("验证码验证失败，请重试");
+		showCaptcha.value = false;
+	}
+};
+const closeCaptcha = () => {
+	showCaptcha.value = false;
+};
 </script>
 <template>
 	<el-form label-position="left" label-width="0px" :model="registerInfo" ref="regFormRef" :rules="rules">
@@ -127,9 +158,12 @@ const rules = {
 		</el-form-item>
 
 		<el-form-item class="button-center">
-			<el-button class="login-button" type="primary" size="large" @click="store.onRegister(registerInfo)">注册</el-button>
+			<el-button class="login-button" type="primary" size="large" @click="register">注册</el-button>
 		</el-form-item>
 	</el-form>
+	<teleport to="body">
+		<SlideCaptcha v-if="showCaptcha" @onSuccess="handleCaptchaConfirm" @onCancel="closeCaptcha" />
+	</teleport>
 </template>
 <style scoped>
 .button-center {

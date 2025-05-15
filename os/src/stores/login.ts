@@ -42,7 +42,7 @@ export const useLoginStore = defineStore('login', () => {
     thirdPartyLoginMethod.value = 'password'
   }
   const onRegister = async (params: any) => {
-    delete params.confirmPassword
+    delete params.param.confirmPassword
     
     const res = await auth.register(params)
     if (res.success) {
@@ -56,15 +56,16 @@ export const useLoginStore = defineStore('login', () => {
     const postData = {
       login_type: params.loginType,
       client_id: getClientId(),
+      action: 'login',
       param: params.params,
     }
     
     auth.loginIn(postData).then((res: any) => {
       //console.log(res)
       if (!params.params.rememberMe) {
-        loginForm.value.rememberMe = false
-        loginForm.value.username = ''
-        loginForm.value.password = ''
+        // loginForm.value.rememberMe = false
+        // loginForm.value.username = ''
+        // loginForm.value.password = ''
       }
       if (res.success) {
         successMsg('登录成功')
@@ -163,8 +164,7 @@ export const useLoginStore = defineStore('login', () => {
     if (res.ok) {
       const data = await res.json()
       if (data.success) {
-        console.log(data.data)
-          ; (window as any).WwLogin({
+          (window as any).WwLogin({
             id: 'qywechat-qr-code',
             appid: data.data.corp_id,
             agentid: data.data.agent_id,

@@ -42,15 +42,16 @@ const submitForm = () => {
 	});
 };
 const showCaptcha = ref(false); // 控制是否显示验证码
-const captchaPassed = ref(false); // 验证码是否通过
+//const captchaPassed = ref(false); // 验证码是否通过
 const handleCaptchaConfirm = (success: boolean) => {
 	if (success) {
-		captchaPassed.value = true;
+		//captchaPassed.value = true;
+		showCaptcha.value = false; 
 		store.onLogin({
 			loginType: "password",
 			params: store.loginForm,
 		});
-		showCaptcha.value = false; // 隐藏验证码
+		// 隐藏验证码
 	} else {
 		ElMessage.error("验证码验证失败，请重试");
 		showCaptcha.value = false;
@@ -81,12 +82,7 @@ const closeCaptcha = () => {
 		</el-form-item>
 	</el-form>
 	<teleport to="body">
-		<div v-if="showCaptcha" class="custom-captcha-dialog">
-			<div class="overlay" @click.self="closeCaptcha"></div>
-			<div class="dialog-content">
-				<SlideCaptcha ref="captcha" @onSuccess="handleCaptchaConfirm" />
-			</div>
-		</div>
+		<SlideCaptcha v-if="showCaptcha" @onSuccess="handleCaptchaConfirm" @onCancel="closeCaptcha" />
 	</teleport>
 </template>
 
@@ -110,31 +106,5 @@ const closeCaptcha = () => {
 	border-radius: 50px;
 }
 
-.custom-captcha-dialog {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	z-index: 99;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
 
-.overlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background-color: rgba(0, 0, 0, 0.5);
-	z-index: 9998;
-}
-
-.dialog-content {
-	padding: 20px;
-	z-index: 9998;
-	width: 350px;
-}
 </style>
