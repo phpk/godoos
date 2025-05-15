@@ -5,8 +5,8 @@ import (
 	_ "godocms/app"
 	"godocms/common"
 	"godocms/middleware"
-	model "godocms/models"
-	"godocms/pkg/dbfactory"
+	"godocms/model"
+	"godocms/pkg/db"
 	"log/slog"
 	"net/http"
 	"os"
@@ -22,7 +22,7 @@ import (
 var Server *http.Server
 
 func Start() {
-	err := dbfactory.InitDatabase()
+	err := db.InitDatabase()
 	if err != nil {
 		slog.Error("Failed to initialize database:", "error", err)
 		os.Exit(1)

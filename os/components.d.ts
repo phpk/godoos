@@ -106,6 +106,7 @@ declare module 'vue' {
     SetUp: typeof import('./src/components/auth/SetUp.vue')['default']
     ShareFiles: typeof import('./src/components/files/ShareFiles.vue')['default']
     SlideBackground: typeof import('./src/components/loading/SlideBackground.vue')['default']
+    SlideCaptcha: typeof import('./src/components/auth/SlideCaptcha.vue')['default']
     StartMenu: typeof import('./src/components/taskbar/StartMenu.vue')['default']
     Taskbar: typeof import('./src/components/taskbar/Taskbar.vue')['default']
     TaskList: typeof import('./src/components/workbench/worktable/TaskList.vue')['default']

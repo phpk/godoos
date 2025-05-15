@@ -6,7 +6,7 @@ const baseURL = '/api/'
 /** 创建axios实例 */
 const isDev = typeof process !== 'undefined' && process?.env?.NODE_ENV === 'development';
 const instanceBaseURL = isDev ? baseURL : `${API_URL}${baseURL}`;
-
+console.log(instanceBaseURL)
 const request = axios.create({
   baseURL: instanceBaseURL,
   timeout: 60000
@@ -54,11 +54,14 @@ request.interceptors.request.use(
     }
     if (token) {
       config.headers['Authorization'] = token
-    } else {
-      // 如果没有 token，则跳转到登录页面
-      // router.push('/login')
-      return Promise.reject(new Error('No token found, redirecting to login'))
-    }
+    } 
+    const fullPath = request.getUri(config);
+    console.log('发起请求:', fullPath);
+    // else {
+    //   // 如果没有 token，则跳转到登录页面
+    //   // router.push('/login')
+    //   return Promise.reject(new Error('No token found, redirecting to login'))
+    // }
     return config
   },
   (error) => {
@@ -131,6 +134,7 @@ export const get = <T = any>(
   url: string,
   params?: RequestParams
 ): Promise<ApiResponse<T>> => {
+  console.log('get', url, params)
   return request({
     method: 'GET',
     url,

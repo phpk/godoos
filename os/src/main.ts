@@ -12,6 +12,9 @@ import App from './App.vue'
 import { i18n } from "./i18n/index.ts"
 import router from './router'
 // import { registerComponents } from './utils/regComps'
+// GoCaptcha
+import "go-captcha-vue/dist/style.css"
+import GoCaptcha from "go-captcha-vue"
 
 
 const app = createApp(App)
@@ -27,4 +30,5 @@ app.use(pinia)
 app.use(ElementPlus)
 app.use(router)
 app.use(i18n)
+app.use(GoCaptcha)
 app.mount('#app')

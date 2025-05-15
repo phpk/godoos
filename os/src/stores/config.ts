@@ -1,6 +1,6 @@
 
 const CONFIG_KEY = 'Godoos_systemConfig';
-export const API_URL = 'http://localhost:8188';
+export const API_URL = 'http://localhost:8816';
 export function getSystemConfig() {
     const systemConfig = localStorage.getItem(CONFIG_KEY) || '{}';
     const config = JSON.parse(systemConfig);

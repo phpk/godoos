@@ -28,7 +28,7 @@ func RegisterRouter(method string, path string, handler gin.HandlerFunc, needAut
 	if path == "index" {
 		path = "/"
 	} else {
-		path = "/" + strings.ToLower(path)
+		path = "/api/" + strings.ToLower(path)
 	}
 
 	// 构造键值

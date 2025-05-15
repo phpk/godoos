@@ -1,5 +1,5 @@
 {
-  "dbType": "sqlite",
+  "dbType": "mongodb",
   "sqlite": {
     "path": "data/database/godocms.db",
     "port": "3306"

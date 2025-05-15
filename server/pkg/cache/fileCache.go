@@ -25,25 +25,45 @@ func (c *fileCache) Set(key string, value interface{}, ttl time.Duration) error 
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	// 确保目录存在
 	if err := os.MkdirAll(c.dir, 0755); err != nil {
 		return err
 	}
 
-	// 准备缓存数据
-	item := CacheItem{
-		Value:     value,
+	// 强制将 Value 转换为 []byte
+	var data []byte
+	switch v := value.(type) {
+	case string:
+		data = []byte(v)
+	case []byte:
+		data = v
+	default:
+		var err error
+		data, err = json.Marshal(v)
+		if err != nil {
+			return err
+		}
+	}
+
+	item := struct {
+		Data      []byte    `json:"data"`
+		ExpiresAt time.Time `json:"expires_at"`
+	}{
+		Data:      data,
 		ExpiresAt: time.Now().Add(ttl),
 	}
 
-	data, err := json.Marshal(item)
+	encoded, err := json.Marshal(item)
 	if err != nil {
 		return err
 	}
 
-	// 写入文件
 	filePath := filepath.Join(c.dir, key)
-	return os.WriteFile(filePath, data, 0644)
+	return os.WriteFile(filePath, encoded, 0644)
+}
+
+type FileCacheItem struct {
+	Data      []byte    `json:"data"`
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
 func (c *fileCache) Get(key string) (interface{}, error) {
@@ -59,17 +79,17 @@ func (c *fileCache) Get(key string) (interface{}, error) {
 		return nil, err
 	}
 
-	var item CacheItem
+	var item FileCacheItem
 	if err := json.Unmarshal(data, &item); err != nil {
 		return nil, err
 	}
 
 	if item.ExpiresAt.Before(time.Now()) {
-		_ = os.Remove(filePath) // 清理过期缓存
+		_ = os.Remove(filePath)
 		return nil, ErrCacheExpired
 	}
 
-	return item.Value, nil
+	return item.Data, nil
 }
 func (c *fileCache) GetKey(key string, clientId string) (interface{}, error) {
 	return c.Get(key + ":" + clientId)
