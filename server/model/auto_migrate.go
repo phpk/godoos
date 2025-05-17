@@ -16,6 +16,9 @@ func AutoMigrate() error {
 	db.DB.AutoMigrate(&UserRole{})
 	db.DB.AutoMigrate(&UserDept{})
 	db.DB.AutoMigrate(&UserThird{})
+	if err := EnsureDefaultUserRoleExists(); err != nil {
+		log.Fatalf("初始化用户角色失败: %v", err)
+	}
 	return nil
 }
 func CreateIndexIfNotExists(Db *gorm.DB, model interface{}, field, indexName string) {

@@ -11,6 +11,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type MySQL struct {
@@ -128,7 +129,9 @@ func InitMySQL() error {
 		AppConfig.MySQL.Port,
 		AppConfig.MySQL.DBName)
 
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return err
 	}
@@ -147,7 +150,9 @@ func InitPostgreSQL() error {
 		AppConfig.PostgreSQL.DBName,
 		AppConfig.PostgreSQL.SSLMode)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return err
 	}
@@ -158,7 +163,9 @@ func InitPostgreSQL() error {
 }
 
 func InitSQLite() error {
-	db, err := gorm.Open(sqlite.Open(AppConfig.SQLite.Path), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(AppConfig.SQLite.Path), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return err
 	}
@@ -174,7 +181,9 @@ func InitMongoDB() error {
 		Database: AppConfig.MongoDB.Database,
 	}
 	var err error
-	MongoDB, err = gorm.Open(dialector, &gorm.Config{})
+	MongoDB, err = gorm.Open(dialector, &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return err
 	}

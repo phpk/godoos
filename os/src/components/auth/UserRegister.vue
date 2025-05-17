@@ -104,9 +104,15 @@ const handleCaptchaConfirm = (success: boolean) => {
 		//captchaPassed.value = true;
 		showCaptcha.value = false; 
 		store.onRegister({
-			loginType: "password",
+			login_type: "password",
 			action: "register",
-			params: registerInfo.value,
+			param: {
+				username: registerInfo.value.username,
+				password: registerInfo.value.password,
+				// nickname: registerInfo.value.nickname,
+				// email: registerInfo.value.email,
+				// phone: registerInfo.value.phone,
+			},
 		})
 		// 隐藏验证码
 	} else {

@@ -14,15 +14,9 @@ export function loginIn(params: any) {
   })
 }
 export async function logout() {
-  return post('user/logout', {
-    method: 'POST',
-  })
+  return get('user/logout')
 }
 export async function isLogin() {
-  const token = getToken()
-  if (!token) {
-    return false
-  }
   const res = await get('user/islogin')
   return res.success
 }
@@ -31,15 +25,13 @@ export async function getDingConf() {
     "https://g.alicdn.com/dingding/h5-dingtalk-login/0.21.0/ddlogin.js"
   );
 
-  const res = await fetch("user/ding/conf");
-  return await res.json();
+  return await get("user/ding/conf");
 }
 export async function getThirdpartyList() {
-  const result = await fetch("/user/thirdparty/list"
+  const result = await get("/user/thirdparty/list"
   );
-  if (result.ok) {
-    const data = await result.json();
-    if (data.success) return data.data.list;
+  if (result.success) {
+    return result.data.list;
   }
   return [];
 };
@@ -48,23 +40,16 @@ export async function getEmailCode(email: string) {
     email: email,
     client_id: getClientId(),
   }
-  const res = await fetch('/user/emailcode', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
-  return await res.json()
+  return await post('/user/emailcode', data)
 }
 export async function getSmsCode(phone: string) {
   const data = {
     phone: phone,
     client_id: getClientId(),
   }
-  const res = await fetch('/user/smscode', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
-  return await res.json()
+  return await post('/user/smscode', data)
 }
 export async function register(params: any) {
+  console.log(params)
   return post('/user/register', params)
 }

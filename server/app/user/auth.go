@@ -18,8 +18,8 @@ import (
 
 func init() {
 	middleware.RegisterRouter("POST", "user/login", loginHandle, 0, "用户登录")
-	middleware.RegisterRouter("POST", "user/logout", logoutHandler, 1, "退出登录")
-	middleware.RegisterRouter("POST", "user/register", handleRegister, 0, "用户注册")
+	middleware.RegisterRouter("GET", "user/logout", logoutHandler, 1, "退出登录")
+	middleware.RegisterRouter("POST", "user/register", registerHandle, 0, "用户注册")
 	middleware.RegisterRouter("GET", "user/islogin", isLogin, 1, "是否登录")
 }
 
@@ -46,6 +46,7 @@ func loginHandle(c *gin.Context) {
 		libs.Error(c, "登录失败:"+err.Error())
 		return
 	}
+
 	// 验证用户
 	userDept, userRole, err := validateUser(c, user, req.ClientId)
 	if err != nil {
@@ -186,11 +187,11 @@ func logoutHandler(c *gin.Context) {
 }
 
 // handleRegister 处理注册请求
-func handleRegister(c *gin.Context) {
+func registerHandle(c *gin.Context) {
 	var req login.LoginRequest
 	// 解析请求体
 	if err := c.ShouldBindJSON(&req); err != nil {
-		libs.Error(c, "参数错误，注册失败")
+		libs.Error(c, "参数错误，注册失败:"+err.Error())
 		return
 	}
 

@@ -42,8 +42,8 @@ export const useLoginStore = defineStore('login', () => {
     thirdPartyLoginMethod.value = 'password'
   }
   const onRegister = async (params: any) => {
-    delete params.param.confirmPassword
-    
+    //delete params.param.confirmPassword
+    params.client_id = getClientId()
     const res = await auth.register(params)
     if (res.success) {
       successMsg('注册成功')

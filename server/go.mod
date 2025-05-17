@@ -3,6 +3,7 @@ module godocms
 go 1.23.8
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/EndFirstCorp/peekingReader v0.0.0-20171012052444-257fb6f1a1a6
 	github.com/btcsuite/btcutil v1.0.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

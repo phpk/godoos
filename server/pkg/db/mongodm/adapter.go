@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
+	"reflect"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -142,22 +143,114 @@ func InitCounter(client *mongo.Client, dbName, collectionName string) error {
 	})
 	return err
 }
-func GetNextID(client *mongo.Client, dbName, collectionName string) (int64, error) {
+
+// CounterDocument 用于表示 counters 集合中的文档
+type CounterDocument struct {
+	ID  string `bson:"_id"` // 对应 collection name
+	Seq int64  `bson:"seq"` // 序列号
+}
+
+// GetNextID 获取指定 collection 的下一个自增 ID
+func GetNextID(ctx context.Context, client *mongo.Client, dbName, collectionName string) (int64, error) {
 	counterColl := client.Database(dbName).Collection("counters")
 
+	// 创建 filter 和 update
 	filter := bson.M{"_id": collectionName}
 	update := bson.M{"$inc": bson.M{"seq": 1}}
+
+	// 设置 FindOneAndUpdate 选项：返回更新后的文档
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 
-	var result struct {
-		ID  string `bson:"_id"`
-		Seq int64  `bson:"seq"`
-	}
+	var result CounterDocument
 
-	err := counterColl.FindOneAndUpdate(context.Background(), filter, update, opts).Decode(&result)
+	err := counterColl.FindOneAndUpdate(ctx, filter, update, opts).Decode(&result)
 	if err != nil {
-		return 0, err
+		if err == mongo.ErrNoDocuments {
+			// 如果计数器不存在，自动创建初始值
+			_, insertErr := counterColl.InsertOne(ctx, bson.M{
+				"_id": collectionName,
+				"seq": int64(1),
+			})
+			if insertErr != nil {
+				return 0, fmt.Errorf("failed to initialize counter for %s: %w", collectionName, insertErr)
+			}
+			return 1, nil
+		}
+		// 其他错误
+		return 0, fmt.Errorf("failed to get next id for %s: %w", collectionName, err)
 	}
 
 	return result.Seq, nil
+}
+
+// 判断是否是零值
+func isZeroValue(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
+	case reflect.String:
+		return v.String() == ""
+	case reflect.Bool:
+		return !v.Bool()
+	case reflect.Ptr, reflect.Interface:
+		return v.IsNil()
+	default:
+		return false
+	}
+}
+
+// 将字符串解析为对应类型
+func parseDefaultValue(typ reflect.Type, valueStr string) (interface{}, error) {
+	// 新增 CURRENT_TIMESTAMP 支持
+	if valueStr == "CURRENT_TIMESTAMP" {
+		if typ.Kind() == reflect.Struct && typ == reflect.TypeOf(time.Time{}) {
+			return time.Now(), nil
+		}
+		return nil, fmt.Errorf("CURRENT_TIMESTAMP only supported for time.Time fields")
+	}
+
+	switch typ.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		var val int64
+		_, err := fmt.Sscanf(valueStr, "%d", &val)
+		if err != nil {
+			return nil, err
+		}
+		return reflect.ValueOf(val).Convert(typ).Interface(), nil
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		var val uint64
+		_, err := fmt.Sscanf(valueStr, "%d", &val)
+		if err != nil {
+			return nil, err
+		}
+		return reflect.ValueOf(val).Convert(typ).Interface(), nil
+
+	case reflect.String:
+		return valueStr, nil
+
+	case reflect.Bool:
+		switch valueStr {
+		case "true", "1":
+			return true, nil
+		case "false", "0":
+			return false, nil
+		default:
+			return nil, fmt.Errorf("invalid boolean value: %s", valueStr)
+		}
+
+	default:
+		return nil, fmt.Errorf("unsupported type: %s", typ.Kind())
+	}
+}
+func mapBSONToStruct(src bson.M, dst interface{}) error {
+	data, err := bson.Marshal(src)
+	if err != nil {
+		return err
+	}
+	return bson.Unmarshal(data, dst)
 }

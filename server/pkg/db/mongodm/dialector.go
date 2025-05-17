@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -51,7 +50,8 @@ func (d *MongoDBDialector) Initialize(db *gorm.DB) error {
 	db.ClauseBuilders["WHERE"] = d.buildWhereClause
 	db.ClauseBuilders["LIMIT"] = d.buildLimitClause
 	db.ClauseBuilders["ORDER BY"] = d.buildOrderByClause
-
+	db.ClauseBuilders["SELECT"] = d.buildSelectClause
+	db.ClauseBuilders["COUNT"] = d.buildCountClause
 	// 注册 CURD 回调
 	db.Callback().Create().Replace("gorm:create", d.createCallback)
 	db.Callback().Query().Replace("gorm:query", d.queryCallback)
@@ -59,6 +59,18 @@ func (d *MongoDBDialector) Initialize(db *gorm.DB) error {
 	db.Callback().Delete().Replace("gorm:delete", d.deleteCallback)
 
 	db.Dialector = d
+	// 注册查询完成后的回调函数
+	// db.Callback().Query().After("gorm:query").Register("track_count", func(db *gorm.DB) {
+	// 	// 检查是否为 count 查询
+	// 	if isCountQuery(db.Statement.Clauses["SELECT"].Expression) {
+	// 		// 获取 count 值
+	// 		if dest, ok := db.Statement.Dest.(*int64); ok {
+	// 			log.Printf("===Count result: %d", *dest)
+	// 		} else {
+	// 			log.Printf("db.Statement.Dest is not a pointer to int64")
+	// 		}
+	// 	}
+	// })
 	return nil
 }
 
@@ -133,6 +145,9 @@ func (d MongoDBDialector) buildOrderByClause(c clause.Clause, builder clause.Bui
 		}
 	}
 }
+func (d MongoDBDialector) buildCountClause(c clause.Clause, builder clause.Builder) {
+	builder.WriteString(" COUNT(*) ")
+}
 
 // =======================
 // CURD Callbacks
@@ -145,14 +160,16 @@ func (d MongoDBDialector) createCallback(db *gorm.DB) {
 	// 获取模型字段信息
 	stmt := db.Statement
 	for _, field := range stmt.Schema.Fields {
-		if field.AutoIncrementIncrement == 0 && field.TagSettings["AUTOINCREMENT"] == "true" {
+		// log.Printf("TagSettings: %+v\n", field.TagSettings)
+		// log.Printf("FieldType: %+v\n", field.AutoIncrementIncrement)
+		if field.TagSettings["AUTOINCREMENT"] == "true" {
 			// 如果是 autoIncrement 主键且值为空，则生成新 ID
-			nextID, err := GetNextID(d.Client, d.Database, collectionName)
+			nextID, err := GetNextID(context.Background(), d.Client, d.Database, collectionName)
 			if err != nil {
 				db.AddError(err)
 				return
 			}
-
+			//log.Printf("Got next ID: %d for collection: %s", nextID, collectionName)
 			// 设置自增 ID 到模型中（使用新的 Set 接口）
 			val := reflect.ValueOf(nextID).Convert(field.FieldType).Interface()
 			if err := field.Set(context.Background(), stmt.ReflectValue, val); err != nil {
@@ -161,29 +178,42 @@ func (d MongoDBDialector) createCallback(db *gorm.DB) {
 			}
 		}
 	}
+	// 第二步：处理 default tag
+	// 处理 default tag（包括 CURRENT_TIMESTAMP）
+	now := time.Now()
+	for _, field := range stmt.Schema.Fields {
+		defaultValueStr := field.TagSettings["DEFAULT"]
+		if defaultValueStr == "" {
+			continue
+		}
+
+		fieldValue := field.ReflectValueOf(context.Background(), stmt.ReflectValue)
+		if !fieldValue.IsValid() || isZeroValue(fieldValue) {
+			var defaultVal interface{}
+			if defaultValueStr == "CURRENT_TIMESTAMP" {
+				if field.FieldType == reflect.TypeOf(time.Time{}) {
+					defaultVal = now
+				} else {
+					db.AddError(fmt.Errorf("CURRENT_TIMESTAMP can only be used with time.Time fields"))
+					return
+				}
+			} else {
+				var err error
+				defaultVal, err = parseDefaultValue(field.FieldType, defaultValueStr)
+				if err != nil {
+					db.AddError(fmt.Errorf("failed to parse default value for %s: %w", field.Name, err))
+					return
+				}
+			}
+
+			if err := field.Set(context.Background(), stmt.ReflectValue, defaultVal); err != nil {
+				db.AddError(err)
+				return
+			}
+		}
+	}
 
 	_, err := coll.InsertOne(context.Background(), stmt.Model)
-	if err != nil {
-		db.AddError(err)
-	}
-}
-
-func (d MongoDBDialector) queryCallback(db *gorm.DB) {
-	collectionName := db.Statement.Table
-	coll := db.ConnPool.(*mongoConnPool).Collection(collectionName)
-	// 构建聚合管道（传入 dest）
-	dest := db.Statement.Dest
-	pipeline := buildMongoPipeline(db.Statement.Clauses, dest)
-
-	// 执行聚合查询
-	cursor, err := coll.Aggregate(context.Background(), pipeline)
-	if err != nil {
-		db.AddError(err)
-		return
-	}
-
-	// 将结果映射到目标结构体
-	err = cursor.All(context.Background(), db.Statement.Dest)
 	if err != nil {
 		db.AddError(err)
 	}
@@ -201,7 +231,24 @@ func (d MongoDBDialector) updateCallback(db *gorm.DB) {
 		}
 	}
 
+	// 构建更新数据
 	updateData := bson.M{"$set": db.Statement.Model}
+
+	// 检查是否有字段标记为 CURRENT_TIMESTAMP
+	updateMap := updateData["$set"].(map[string]interface{})
+	for _, field := range db.Statement.Schema.Fields {
+		tagDefault := field.TagSettings["DEFAULT"]
+		if tagDefault == "CURRENT_TIMESTAMP" {
+			if fieldValue := field.ReflectValueOf(context.Background(), db.Statement.ReflectValue); fieldValue.IsValid() {
+				if fieldValue.IsZero() || isZeroValue(fieldValue) {
+					updateMap[field.DBName] = time.Now()
+				}
+			} else {
+				updateMap[field.DBName] = time.Now()
+			}
+		}
+	}
+
 	_, err := coll.UpdateMany(context.Background(), filter, updateData)
 	if err != nil {
 		db.AddError(err)
@@ -224,193 +271,6 @@ func (d MongoDBDialector) deleteCallback(db *gorm.DB) {
 	if err != nil {
 		db.AddError(err)
 	}
-}
-
-// =======================
-// 工具函数：将 Where/Join/GroupBy 等转换为聚合 Pipeline
-// =======================
-func buildMongoPipeline(clauses map[string]clause.Clause, dest interface{}) []bson.M {
-	var pipeline []bson.M
-
-	// 处理 WHERE 条件
-	if whereClause, ok := clauses["WHERE"].Expression.(clause.Where); ok {
-		filter := convertWhereToBSON(whereClause)
-		if len(filter) > 0 {
-			pipeline = append(pipeline, bson.M{"$match": filter})
-		}
-	}
-	// 处理 JOIN
-	if joinClause, ok := clauses["JOIN"].Expression.(clause.Join); ok {
-		lookupStage := buildJoinPipeline(joinClause, dest)
-		if lookupStage != nil {
-			pipeline = append(pipeline, lookupStage)
-
-			// INNER JOIN 处理
-			if joinClause.Type == clause.InnerJoin {
-				as := getNestedFieldName(dest, joinClause.Table.Name)
-				if as == "" {
-					as = strings.ToLower(joinClause.Table.Name) + "s"
-				}
-				unwindStage := bson.M{"$unwind": "$" + as}
-				pipeline = append(pipeline, unwindStage)
-			}
-
-			// RIGHT JOIN 处理
-			if joinClause.Type == clause.RightJoin {
-				as := getNestedFieldName(dest, joinClause.Table.Name)
-				if as == "" {
-					as = strings.ToLower(joinClause.Table.Name) + "s"
-				}
-
-				// 展开嵌套字段
-				unwindStage := bson.M{"$unwind": "$" + as}
-
-				// 处理 NULL 值，确保右表记录始终存在
-				addFieldsStage := bson.M{
-					"$addFields": bson.M{
-						as: bson.M{
-							"$ifNull": []interface{}{
-								"$" + as,
-								bson.M{"$literal": []interface{}{}},
-							},
-						},
-					},
-				}
-
-				pipeline = append(pipeline, unwindStage)
-				pipeline = append(pipeline, addFieldsStage)
-			}
-		}
-	}
-
-	// 可选：处理 GroupBy、Select、Sort 等聚合操作
-	// 示例：GroupBy + Count
-	if groupByClause, ok := clauses["GROUP BY"].Expression.(clause.GroupBy); ok {
-		groupFields := bson.M{"_id": nil}
-		for _, item := range groupByClause.Columns {
-			groupFields["_id"] = "$" + getColumnName(item)
-		}
-		groupFields["count"] = bson.M{"$sum": 1}
-		pipeline = append(pipeline, bson.M{"$group": groupFields})
-	}
-
-	return pipeline
-}
-func buildJoinPipeline(join clause.Join, dest interface{}) bson.M {
-	// 默认值
-	localField := ""
-	foreignField := ""
-	//as := join.As
-	from := join.Table.Name
-
-	// 遍历 ON 条件
-	for _, expr := range join.ON.Exprs {
-		if eq, ok := expr.(clause.Eq); ok {
-			// 处理左侧 Column
-			if lc, lok := eq.Column.(clause.Column); lok {
-				localField = lc.Name
-			}
-
-			// 处理右侧 Value（假设是 string 类型的字段名）
-			if strVal, ok := eq.Value.(string); ok {
-				foreignField = strVal
-			}
-		}
-	}
-
-	// 如果无法提取字段，则返回空
-	if localField == "" || foreignField == "" {
-		return nil
-	}
-	// 从 dest 结构体中获取嵌套字段名（如 Posts）
-	as := getNestedFieldName(dest, from)
-	if as == "" {
-		as = strings.ToLower(from) + "s" // 默认命名规则
-	}
-	// 返回 $lookup stage
-	return bson.M{
-		"$lookup": bson.M{
-			"from":         from,
-			"localField":   localField,
-			"foreignField": foreignField,
-			"as":           as,
-		},
-	}
-}
-func buildUnwindPipeline(as string) bson.M {
-	return bson.M{"$unwind": "$" + as}
-}
-func getNestedFieldName(dest interface{}, collectionName string) string {
-	destType := reflect.TypeOf(dest).Elem()
-
-	for i := 0; i < destType.NumField(); i++ {
-		field := destType.Field(i)
-		tag := field.Tag.Get("gorm")
-
-		if tag != "" {
-			gormTag := parseGormTag(tag)
-			if gormTag["foreignKey"] == collectionName {
-				return field.Name
-			}
-		}
-	}
-
-	return ""
-}
-
-// =======================
-// 工具函数：将 Where 转换为 BSON
-// =======================
-func convertWhereToBSON(where clause.Where) bson.M {
-	filter := bson.M{}
-
-	for _, cond := range where.Exprs {
-		switch expr := cond.(type) {
-		case clause.Eq:
-			if col, ok := expr.Column.(clause.Column); ok {
-				key := getColumnName(col)
-				filter[key] = expr.Value
-			}
-		case clause.Neq:
-			if col, ok := expr.Column.(clause.Column); ok {
-				key := getColumnName(col)
-				filter[key] = bson.M{"$ne": expr.Value}
-			}
-		case clause.Gt:
-			if col, ok := expr.Column.(clause.Column); ok {
-				key := getColumnName(col)
-				filter[key] = bson.M{"$gt": expr.Value}
-			}
-		case clause.Gte:
-			if col, ok := expr.Column.(clause.Column); ok {
-				key := getColumnName(col)
-				filter[key] = bson.M{"$gte": expr.Value}
-			}
-		case clause.Lt:
-			if col, ok := expr.Column.(clause.Column); ok {
-				key := getColumnName(col)
-				filter[key] = bson.M{"$lt": expr.Value}
-			}
-		case clause.Lte:
-			if col, ok := expr.Column.(clause.Column); ok {
-				key := getColumnName(col)
-				filter[key] = bson.M{"$lte": expr.Value}
-			}
-		case clause.IN:
-			if col, ok := expr.Column.(clause.Column); ok {
-				key := getColumnName(col)
-				filter[key] = bson.M{"$in": expr.Values}
-			}
-		case clause.Like:
-			if col, ok := expr.Column.(clause.Column); ok {
-				key := getColumnName(col)
-				filter[key] = bson.M{"$regex": expr.Value}
-			}
-		default:
-			// 可选：处理未知条件或记录日志
-		}
-	}
-	return filter
 }
 
 // 辅助函数获取字段名（带表前缀）
@@ -450,4 +310,17 @@ func (d *MongoDBDialector) Rollback(db *gorm.DB) (err error) {
 	err = sess.AbortTransaction(context.Background())
 	sess.EndSession(context.Background())
 	return err
+}
+
+// buildSelectClause 构建 SELECT 投影表达式
+func (d MongoDBDialector) buildSelectClause(c clause.Clause, builder clause.Builder) {
+	if selectClause, ok := c.Expression.(clause.Select); ok {
+		builder.WriteString("SELECT ")
+		for i, column := range selectClause.Columns {
+			if i > 0 {
+				builder.WriteString(", ")
+			}
+			d.QuoteTo(builder, column.Name)
+		}
+	}
 }

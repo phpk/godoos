@@ -1,5 +1,12 @@
 package model
 
+import (
+	"fmt"
+	"godocms/pkg/db"
+	"log"
+	"time"
+)
+
 const TableNameUserRole = "user_role"
 
 // UserRole 用户角色表
@@ -20,4 +27,35 @@ type UserRole struct {
 // TableName UserRole's table name
 func (*UserRole) TableName() string {
 	return TableNameUserRole
+}
+func EnsureDefaultUserRoleExists() error {
+	var count int64
+	err := db.DB.Model(&UserRole{}).Count(&count).Error
+	if err != nil {
+		log.Fatalf("Count failed on %s table: %v", TableNameUserRole, err)
+		return err
+	}
+	//log.Printf("Total roles in %s table: %d", TableNameUserRole, count)
+
+	if count == 0 {
+		defaultRole := UserRole{
+			ID:         1,
+			GroupID:    1,
+			Name:       "默认角色",
+			Rules:      "-1",
+			Space:      1024,
+			Status:     0,
+			Remark:     "-1",
+			MenuIDS:    123456, // 修正超出 int32 范围的问题
+			DingRoleID: "",
+			AddTime:    int32(time.Now().Unix()),
+			UpTime:     0,
+		}
+
+		if err := db.DB.Create(&defaultRole).Error; err != nil {
+			return fmt.Errorf("failed to create default user role: %w", err)
+		}
+	}
+
+	return nil
 }

@@ -84,7 +84,7 @@ request.interceptors.response.use(
   (err) => {
     // 处理错误信息
     if (err) {
-      console.log(err)
+      //console.log(err)
       if (err.response) {
         const status = err.response.status;
         const message = err.response.data;
@@ -134,7 +134,7 @@ export const get = <T = any>(
   url: string,
   params?: RequestParams
 ): Promise<ApiResponse<T>> => {
-  console.log('get', url, params)
+  //console.log('get', url, params)
   return request({
     method: 'GET',
     url,
