@@ -1,12 +1,10 @@
 package vector
 
 import (
-	"cmp"
 	"container/heap"
 	"context"
 	"fmt"
 	"runtime"
-	"slices"
 	"strings"
 	"sync"
 )
@@ -68,10 +66,23 @@ func (mds *maxDocSims) add(doc docSim) {
 func (d *maxDocSims) values() []docSim {
 	d.lock.RLock()
 	defer d.lock.RUnlock()
-	slices.SortFunc(d.h, func(i, j docSim) int {
-		return cmp.Compare(j.similarity, i.similarity)
-	})
-	return d.h
+
+	// 手动实现排序而不是使用 slices 包
+	docs := make([]docSim, len(d.h))
+	copy(docs, d.h)
+	sortDocsBySimilarity(docs)
+	return docs
+}
+
+// sortDocsBySimilarity 按相似度降序排列文档
+func sortDocsBySimilarity(docs []docSim) {
+	for i := 0; i < len(docs); i++ {
+		for j := i + 1; j < len(docs); j++ {
+			if docs[i].similarity < docs[j].similarity {
+				docs[i], docs[j] = docs[j], docs[i]
+			}
+		}
+	}
 }
 
 // filterDocs 并发过滤文档，根据元数据和内容进行筛选。

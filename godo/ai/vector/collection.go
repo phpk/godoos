@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
-	"slices"
 	"sync"
 )
 
@@ -254,7 +253,8 @@ func (c *Collection) Delete(_ context.Context, where, whereDocument map[string]s
 	}
 
 	for k := range whereDocument {
-		if !slices.Contains(supportedFilters, k) {
+		// 替换 slices.Contains 为手动实现
+		if !containsString(supportedFilters, k) {
 			return errors.New("不支持的 whereDocument 操作符")
 		}
 	}
@@ -359,7 +359,8 @@ func (c *Collection) QueryEmbedding(ctx context.Context, queryEmbedding []float3
 
 	// 验证 whereDocument 操作符
 	for k := range whereDocument {
-		if !slices.Contains(supportedFilters, k) {
+		// 替换 slices.Contains 为手动实现
+		if !containsString(supportedFilters, k) {
 			return nil, errors.New("不支持的操作符")
 		}
 	}
@@ -406,4 +407,14 @@ func (c *Collection) getDocPath(docID string) string {
 		docPath += ".gz"
 	}
 	return docPath
+}
+
+// containsString 检查字符串切片中是否包含指定的字符串
+func containsString(slice []string, s string) bool {
+	for _, item := range slice {
+		if item == s {
+			return true
+		}
+	}
+	return false
 }

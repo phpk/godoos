@@ -326,7 +326,8 @@ func decodeTextBytesAtom(data []byte, dec *encoding.Decoder) ([]byte, error) {
 	result := make([]byte, 0, len(data))
 	for i := range data {
 		// filling upper part of character with zero
-		clear(buf[:])
+		buf[0] = 0
+		buf[1] = 0
 		// fill lower part with byte
 		buf[0] = data[i]
 

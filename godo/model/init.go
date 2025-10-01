@@ -6,7 +6,8 @@ import (
 
 	_ "github.com/asg017/sqlite-vec-go-bindings/ncruces"
 	//_ "github.com/ncruces/go-sqlite3/embed"
-	"github.com/ncruces/go-sqlite3/gormlite"
+	//"github.com/ncruces/go-sqlite3/gormlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -14,8 +15,10 @@ var Db *gorm.DB
 
 func InitDB() {
 	dbPath := libs.GetSystemDb()
-	db, err := gorm.Open(gormlite.Open(dbPath), &gorm.Config{})
+	//fmt.Printf("dbPath: %s\n", dbPath)
+	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
+		panic("failed to connect database: " + err.Error())
 		return
 	}
 	// Enable PRAGMAs

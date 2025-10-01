@@ -13,7 +13,7 @@ import (
 	"errors"
 	"io"
 	"os"
-	"slices"
+	"sort"
 	"strings"
 )
 
@@ -933,7 +933,11 @@ func (e *Element) readFrom(ri io.Reader, settings ReadSettings) (n int64, err er
 						attrCheck[a.Name] = e.addAttr(a.Name.Space, a.Name.Local, a.Value)
 					}
 				}
-				clear(attrCheck)
+				//clear(attrCheck)
+				// clear(attrCheck) - 替换为兼容旧版本Go的实现
+				for k := range attrCheck {
+					delete(attrCheck, k)
+				}
 			}
 			stack.push(e)
 		case xml.EndElement:
@@ -1423,11 +1427,11 @@ func (e *Element) RemoveAttr(key string) *Attr {
 
 // SortAttrs sorts this element's attributes lexicographically by key.
 func (e *Element) SortAttrs() {
-	slices.SortFunc(e.Attr, func(a, b Attr) int {
-		if v := strings.Compare(a.Space, b.Space); v != 0 {
-			return v
+	sort.Slice(e.Attr, func(i, j int) bool {
+		if v := strings.Compare(e.Attr[i].Space, e.Attr[j].Space); v != 0 {
+			return v < 0
 		}
-		return strings.Compare(a.Key, b.Key)
+		return strings.Compare(e.Attr[i].Key, e.Attr[j].Key) < 0
 	})
 }
 

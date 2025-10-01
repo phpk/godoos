@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
-	"slices"
 )
 
 const headerSize = 8
@@ -61,7 +60,9 @@ func (r *readerAtAdapter) ReadAt(p []byte, off int64) (n int, err error) {
 
 func (r *readerAtAdapter) expandBuffer(newSize int) error {
 	if cap(r.readBytes) < newSize {
-		r.readBytes = slices.Grow(r.readBytes, newSize-cap(r.readBytes))
+		newSlice := make([]byte, len(r.readBytes), newSize)
+		copy(newSlice, r.readBytes)
+		r.readBytes = newSlice
 	}
 
 	newPart := r.readBytes[len(r.readBytes):newSize]
